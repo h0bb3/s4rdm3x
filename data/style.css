@@ -1,0 +1,35 @@
+node {
+    size:         10px;
+    shape:        circle;
+
+    fill-color:   #8facb4;
+    stroke-mode:  plain;
+    stroke-color: black;
+    text-size:    16;
+    text-style:   bold;
+    text-color:   #FFF;
+}
+
+node.model {
+    fill-color: #ff0000;
+}
+
+node.logic {
+    fill-color: #00ff00;
+}
+
+node.gui {
+    fill-color: #0000ff;
+}
+
+edge {
+    /*size:           2px;*/
+    fill-mode:      plain;
+    /*fill-color:     gray;*/
+    text-size:      14;
+    text-style:     bold-italic;
+    text-color:     #555;
+    text-alignment: along;
+    text-offset:    0px,-8px;
+    text-padding:   0px,5px;
+}

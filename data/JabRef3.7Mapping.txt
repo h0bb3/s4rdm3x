@@ -1,0 +1,177 @@
+load_jar data/jabref-3.7.jar net/sf/jabref/
+hide NOT pkg:/jabref/
+
+add_node_tag gui pkg:net/sf/jabref/JabRefGUI
+add_node_tag gui pkg:net/sf/jabref/JabRefMain 
+add_node_tag gui pkg:net/sf/jabref/collab/Change
+add_node_tag gui pkg:net/sf/jabref/collab/ChangeDisplayDialog
+add_node_tag gui pkg:net/sf/jabref/collab/ChangeScanner
+add_node_tag gui pkg:net/sf/jabref/collab/EntryAddChange
+add_node_tag gui pkg:net/sf/jabref/collab/EntryChange
+add_node_tag gui pkg:net/sf/jabref/collab/EntryDeleteChange
+add_node_tag gui pkg:net/sf/jabref/collab/FileUpdatePanel
+add_node_tag gui pkg:net/sf/jabref/collab/GroupChange
+add_node_tag gui pkg:net/sf/jabref/collab/InfoPane
+add_node_tag gui pkg:net/sf/jabref/collab/MetaDataChange
+add_node_tag gui pkg:net/sf/jabref/collab/PreambleChange
+add_node_tag gui pkg:net/sf/jabref/collab/StringAddChange
+add_node_tag gui pkg:net/sf/jabref/collab/StringChange
+add_node_tag gui pkg:net/sf/jabref/collab/StringNameChange
+add_node_tag gui pkg:net/sf/jabref/collab/StringRemoveChange
+add_node_tag gui pkg:net/sf/jabref/gui
+add_node_tag gui pkg:net/sf/jabref/migrations/FileLinksUpgradeWarning
+add_node_tag gui pkg:net/sf/jabref/pdfimport/ImportDialog
+add_node_tag gui pkg:net/sf/jabref/pdfimport/PdfFileFilter
+add_node_tag gui pkg:net/sf/jabref/pdfimport/PdfImporter
+set_attr ui.style fill-color:rgb(144,32,86); tag:gui
+
+add_node_tag cli pkg:net/sf/jabref/cli
+set_attr ui.style fill-color:rgb(229,169,107); tag:cli
+
+add_node_tag logic pkg:net/sf/jabref/JabRefExecutorService
+add_node_tag logic pkg:net/sf/jabref/collab/FileUpdateListener
+add_node_tag logic pkg:net/sf/jabref/collab/FileUpdateMonitor
+add_node_tag logic pkg:net/sf/jabref/logic
+add_node_tag logic pkg:net/sf/jabref/shared/DBMSProcessor
+add_node_tag logic pkg:net/sf/jabref/shared/DBMSSynchronizer
+add_node_tag logic pkg:net/sf/jabref/shared/MySQLProcessor
+add_node_tag logic pkg:net/sf/jabref/shared/OracleProcessor
+add_node_tag logic pkg:net/sf/jabref/shared/PostgreSQLProcessor
+add_node_tag logic pkg:net/sf/jabref/shared/event
+add_node_tag logic pkg:net/sf/jabref/shared/exception
+add_node_tag logic pkg:net/sf/jabref/shared/listener
+set_attr ui.style fill-color:rgb(153,204,153); tag:logic
+
+add_node_tag global pkg:net/sf/jabref/Globals
+set_attr ui.style fill-color:rgb(255,255,102); tag:global
+
+add_node_tag model pkg:net/sf/jabref/JabRefException
+add_node_tag model pkg:net/sf/jabref/model
+add_node_tag model pkg:net/sf/jabref/shared/DBMSConnection.java
+add_node_tag model pkg:net/sf/jabref/shared/DBMSType
+add_node_tag model pkg:net/sf/jabref/shared/security/Password
+set_attr ui.style fill-color:rgb(255,116,140); tag:model
+	
+add_node_tag pref pkg:net/sf/jabref/migrations/PreferencesMigrations
+add_node_tag pref pkg:net/sf/jabref/preferences
+add_node_tag pref pkg:net/sf/jabref/shared/DBMSConnectionProperties
+add_node_tag pref pkg:net/sf/jabref/shared/prefs
+set_attr ui.style fill-color:rgb(88,252,193); tag:pref
+
+// this order is not the same as in the ClusterExperiment1 which of course makes a difference...
+add_node_tag_rnd gui_c 0.5 tag:gui
+add_node_tag_rnd model_c 0.5 tag:model
+add_node_tag_rnd logic_c 0.5 tag:logic
+add_node_tag_rnd pref_c 0.5 tag:pref
+add_node_tag_rnd global_c 0.5 tag:global
+add_node_tag_rnd cli_c 0.5 tag:cli
+
+// these seem to not produce the same results (fixed)
+count_n (tag:logic_c AND (NOT tag:logic)) OR tag:model_c
+count_n (tag:logic_c AND NOT tag:logic) OR tag:model_c
+count_n tag:model_c OR (tag:logic_c AND NOT tag:logic)
+
+
+
+//export gui_c.txt tag:gui_c
+//export model_c.txt tag:model_c
+//export logic_c.txt tag:logic_c
+//export pref_c.txt tag:pref_c
+//export global_c.txt tag:global_c
+//export cli_c.txt tag:cli_c
+
+ClusterExperiment1
+cluster_1 0.5
+
+add_edges logic_mod 18 tag:logic_c
+add_edges model_mod 12 tag:model_c
+add_edges pref_mod 12 tag:pref_c
+add_edges cli_mod 16 tag:cli_c
+add_edges gui_mod 18 tag:gui_c
+
+
+// nothing seems to use search
+add_node_tag search pkg:net/sf/jabref/search/
+add_relations tosearch 9 (tag:model OR tag:logic OR tag:gui OR tag:prefs OR tag:cli OR tag:globals)|(tag:search)
+
+// count all automatically mapped nodes
+count_n (tag:logic_c OR tag:model_c OR tag:gui_c OR tag:pref_c OR tag:global_c OR tag:cli_c) AND tag:automatic
+
+// count all incorrectly automatically mapped nodes
+count_n ((tag:logic_c AND (NOT tag:logic)) OR (tag:model_c AND (NOT tag:model)) OR (tag:gui_c AND (NOT tag:gui)) OR (tag:pref_c AND (NOT tag:pref)) OR (tag:global_c AND (NOT tag:global)) OR (tag:cli_c AND (NOT tag:cli))) AND tag:automatic
+
+count_n ((tag:logic_c AND (NOT tag:logic)) OR (tag:model_c AND (NOT tag:model)))
+
+
+
+
+
+#902056 rgb(144,32,86)  gui
+#e5a96b rgb(229,169,107)  cli
+#99cc99 rgb(153,204,153) logic
+#ffff66 rgb(255,255,102) globals
+#ff748c rgb(255,116,140) model
+#58fcc1 rgb(88,252,193) pref
+#4fab5b rgb(79,171,91)
+
+
+
+// mapping below is from https://github.com/sebastianherold/SAEroConRepo/blob/master/systems/JabRef/architectures/JabRef-3.7-0002/jabref-generic.txt
+
+Mappings
+	gui
+		net.sf.jabref.JabRefGUI 
+		net.sf.jabref.JabRefMain 
+		net.sf.jabref.collab.Change
+		net.sf.jabref.collab.ChangeDisplayDialog
+		net.sf.jabref.collab.ChangeScanner
+		net.sf.jabref.collab.EntryAddChange
+		net.sf.jabref.collab.EntryChange
+		net.sf.jabref.collab.EntryDeleteChange
+		net.sf.jabref.collab.FileUpdatePanel
+		net.sf.jabref.collab.GroupChange
+		net.sf.jabref.collab.InfoPane
+		net.sf.jabref.collab.MetaDataChange
+		net.sf.jabref.collab.PreambleChange
+		net.sf.jabref.collab.StringAddChange
+		net.sf.jabref.collab.StringChange
+		net.sf.jabref.collab.StringNameChange
+		net.sf.jabref.collab.StringRemoveChange
+		net.sf.jabref.gui
+		net.sf.jabref.migrations.FileLinksUpgradeWarning
+		net.sf.jabref.pdfimport.ImportDialog
+		net.sf.jabref.pdfimport.PdfFileFilter
+		net.sf.jabref.pdfimport.PdfImporter
+	
+	CLI
+		net.sf.jabref.cli
+		
+	logic
+		net.sf.jabref.JabRefExecutorService
+		net.sf.jabref.collab.FileUpdateListener
+		net.sf.jabref.collab.FileUpdateMonitor
+		net.sf.jabref.logic
+		net.sf.jabref.shared.DBMSProcessor
+		net.sf.jabref.shared.DBMSSynchronizer
+		net.sf.jabref.shared.MySQLProcessor
+		net.sf.jabref.shared.OracleProcessor
+		net.sf.jabref.shared.PostgreSQLProcessor
+		net.sf.jabref.shared.event
+		net.sf.jabref.shared.exception
+		net.sf.jabref.shared.listener
+		
+	globals
+		net.sf.jabref.Globals
+		
+	model
+		net.sf.jabref.JabRefException
+		net.sf.jabref.model
+		net.sf.jabref.shared.DBMSConnection
+		net.sf.jabref.shared.DBMSType
+		net.sf.jabref.shared.security.Password
+		
+	pref
+		net.sf.jabref.migrations.PreferencesMigrations
+		net.sf.jabref.preferences
+		net.sf.jabref.shared.DBMSConnectionProperties
+		net.sf.jabref.shared.prefs
