@@ -6,7 +6,7 @@ import org.graphstream.ui.view.Viewer;
 import org.graphstream.ui.view.ViewerPipe;
 import se.lnu.siq.s4rdm3x.cmd.*;
 import se.lnu.siq.s4rdm3x.cmd.saerocon18.*;
-import se.lnu.siq.s4rdm3x.experiments.TeamMates1;
+import se.lnu.siq.s4rdm3x.experiments.TeamMatesRand;
 
 import java.util.*;
 
@@ -33,7 +33,7 @@ public class Main {
         graph.setAttribute("view", view);
 
         {
-            TeamMates1 e = new TeamMates1();
+            TeamMatesRand e = new TeamMatesRand();
             e.run(graph);
         }
 

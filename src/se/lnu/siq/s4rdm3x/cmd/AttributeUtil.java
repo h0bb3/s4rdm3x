@@ -20,6 +20,17 @@ public class AttributeUtil {
         return a_n.getAttribute(AttributeUtil.g_nameKey);
     }
 
+    public ArrayList<Node> getNodesWithAnyTag(Iterable<Node> a_nodes, String[] a_tags) {
+        ArrayList<Node> al = new ArrayList<>();
+        for(Node n : a_nodes) {
+            if (hasAnyTag(n, a_tags)) {
+                al.add(n);
+            }
+        }
+
+        return al;
+    }
+
     public void clearAttributes(Node a_node) {
         if (a_node.hasAttribute(g_classKey)) {
             Object o = a_node.getAttribute(g_classKey);

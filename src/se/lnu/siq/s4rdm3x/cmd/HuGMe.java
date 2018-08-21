@@ -2,6 +2,7 @@ package se.lnu.siq.s4rdm3x.cmd;
 
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
+import org.w3c.dom.Attr;
 import se.lnu.siq.s4rdm3x.cmd.saerocon18.Cluster1;
 import se.lnu.siq.s4rdm3x.stats;
 
@@ -10,103 +11,137 @@ import java.util.ArrayList;
 import static se.lnu.siq.s4rdm3x.cmd.saerocon18.Cluster1.getFanIn;
 
 public class HuGMe {
-  public static class ArchDef {
+    public static class ArchDef {
 
-      public static class Component {
-          private String m_name;
-          private ArrayList<Component> m_allowedDependenciesTo;
+        public static class Component {
+            private String m_name;
+            private ArrayList<Component> m_allowedDependenciesTo;
 
-          public Component(String a_name) {
-              m_name = a_name;
-              m_allowedDependenciesTo = new ArrayList<>();
-          }
+            public Component(String a_name) {
+                m_name = a_name;
+                m_allowedDependenciesTo = new ArrayList<>();
+            }
 
-          public void addDependencyTo(Component a_component) {
-              if (a_component != this) {
-                  m_allowedDependenciesTo.add(a_component);
-              }
-          }
+            public void addDependencyTo(Component a_component) {
+                if (a_component != this) {
+                    m_allowedDependenciesTo.add(a_component);
+                }
+            }
 
-          public boolean allowedDependency(Component a_component) {
-              return m_allowedDependenciesTo.indexOf(a_component) >= 0;
-          }
+            public boolean allowedDependency(Component a_component) {
+                return m_allowedDependenciesTo.indexOf(a_component) >= 0;
+            }
 
-          public String getClusterName() {
-              return m_name + "_c";
-          }
+            public String getClusterName() {
+                return m_name + "_c";
+            }
 
-          public String getName() {
-              return m_name;
-          }
+            public String getName() {
+                return m_name;
+            }
 
-          public void clusterToNode(Node a_n) {
-              se.lnu.siq.s4rdm3x.cmd.AttributeUtil au = new AttributeUtil();
-              tagNode(a_n, getClusterName(), au);
-          }
+            public void clusterToNode(Node a_n) {
+                AttributeUtil au = new AttributeUtil();
+                tagNode(a_n, getClusterName(), au);
+            }
 
-          public void mapToNode(Node a_n) {
-              AttributeUtil au = new AttributeUtil();
-              tagNode(a_n, m_name, au);
-          }
+            public void mapToNode(Node a_n) {
+                AttributeUtil au = new AttributeUtil();
+                tagNode(a_n, m_name, au);
+            }
 
-          private void tagNode(Node a_n, String a_tag, AttributeUtil a_au) {
-              a_au.addTag(a_n, a_tag);
-          }
+            public boolean isMappedTo(Node a_n, AttributeUtil a_au) {
+                return a_au.hasAnyTag(a_n, m_name);
+            }
 
-          public void mapToNodes(Graph a_g, Selector.ISelector a_selector) {
-              AttributeUtil au = new AttributeUtil();
-              for (Node n : a_g) {
-                  if (a_selector.isSelected(n)) {
-                      tagNode(n, m_name, au);
-                  }
-              }
-          }
-      }
+            public boolean isMappedTo(Node a_n) {
+                AttributeUtil au = new AttributeUtil();
+                return isMappedTo(a_n, au);
+            }
 
-      private ArrayList<Component> m_components = new ArrayList<>();
+            private void tagNode(Node a_n, String a_tag, AttributeUtil a_au) {
+                a_au.addTag(a_n, a_tag);
+            }
 
-      public Component addComponent(String a_componentName)
-      {
-          Component c = new Component(a_componentName);
-          m_components.add(c);
-          return c;
-      }
+            public void mapToNodes(Graph a_g, Selector.ISelector a_selector) {
+                AttributeUtil au = new AttributeUtil();
+                for (Node n : a_g) {
+                    if (a_selector.isSelected(n)) {
+                        tagNode(n, m_name, au);
+                    }
+                }
+            }
+        }
 
-      public String[] getComponentNames() {
-          String [] ret = new String[m_components.size()];
+        private ArrayList<Component> m_components = new ArrayList<>();
 
-          for (int i = 0; i < ret.length; i++) {
-              ret[i] = m_components.get(i).getName();
-          }
-          return ret;
-      }
+        public Component addComponent(String a_componentName)
+        {
+            Component c = new Component(a_componentName);
+            m_components.add(c);
+            return c;
+        }
 
-      public String[] getClusterNames() {
-          String [] ret = new String[m_components.size()];
+        protected String[] getComponentNames() {
+            String [] ret = new String[m_components.size()];
 
-          for (int i = 0; i < ret.length; i++) {
-              ret[i] = m_components.get(i).getClusterName();
-          }
-          return ret;
-      }
+            for (int i = 0; i < ret.length; i++) {
+                ret[i] = m_components.get(i).getName();
+            }
+            return ret;
+        }
 
-      public int getComponentCount() {
-          return m_components.size();
-      }
+        protected String[] getClusterNames() {
+            String [] ret = new String[m_components.size()];
 
-      public Component getComponent(int a_ix) {
-          return m_components.get(a_ix);
-      }
-      public Component getComponent(String a_name) {
-          for(Component c : m_components) {
-              if (c.getName().compareTo(a_name) == 0) {
-                  return c;
-              }
-          }
+            for (int i = 0; i < ret.length; i++) {
+                ret[i] = m_components.get(i).getClusterName();
+            }
+            return ret;
+        }
 
-          return null;
-      }
-  }
+        public int getComponentCount() {
+            return m_components.size();
+        }
+
+        public Component getComponent(int a_ix) {
+            return m_components.get(a_ix);
+        }
+        public Component getComponent(String a_name) {
+            for(Component c : m_components) {
+                if (c.getName().compareTo(a_name) == 0) {
+                    return c;
+                }
+            }
+
+            return null;
+        }
+
+
+        public Component getMappedComponent(Node a_n) {
+            AttributeUtil au = new AttributeUtil();
+            for(Component c : m_components) {
+                if (au.hasAnyTag(a_n, c.getName())) {
+                    return c;
+                }
+            }
+            return null;
+        }
+
+        public int getMappedNodeCount(Iterable<Node> a_nodes) {
+            AttributeUtil au = new AttributeUtil();
+            return au.getNodesWithAnyTag(a_nodes, getComponentNames()).size();
+        }
+
+        public int getClusteredNodeCount(Iterable<Node> a_nodes) {
+            AttributeUtil au = new AttributeUtil();
+            return au.getNodesWithAnyTag(a_nodes, getClusterNames()).size();
+        }
+
+        public Iterable<Component> getComponents() {
+            return m_components;
+        }
+    }
 
     private double m_filterThreshold;   // omega in paper
     private double m_violationWeight;   // psi in paper
