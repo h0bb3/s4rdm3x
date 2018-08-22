@@ -1,4 +1,4 @@
-package se.lnu.siq.s4rdm3x.cmd;
+package se.lnu.siq.s4rdm3x.cmd.util;
 
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
@@ -42,7 +42,7 @@ public class NodeUtil {
             n.setAttribute(AttributeUtil.g_nameKey, a_name);
             n.setAttribute(g_deflectionForceKey, 17);
         } else {
-            System.out.println("Reusing graph node: " + n.getAttribute(AttributeUtil.g_nameKey));
+           // System.out.println("Reusing graph node: " + n.getAttribute(AttributeUtil.g_nameKey));
         }
         return n;
     }
@@ -101,28 +101,28 @@ public class NodeUtil {
         return a_n.getAttribute(AttributeUtil.g_nameKey);
     }
 
-    void show(Edge a_e) {
+    public void show(Edge a_e) {
         a_e.removeAttribute(g_hideKey);
     }
 
-    void hide(Edge a_e) {
+    public void hide(Edge a_e) {
         a_e.setAttribute(g_hideKey);
     }
 
-    void hide(Node a_n) {
+    public void hide(Node a_n) {
         a_n.setAttribute(g_hideKey);
         a_n.setAttribute("layout.ignore");
         a_n.setAttribute(g_deflectionForceKey, 0.0);
         //m_g.removeNode(a_n);
     }
 
-    void show(Node a_n) {
+    public void show(Node a_n) {
         a_n.removeAttribute(g_hideKey);
         a_n.setAttribute(g_deflectionForceKey, 1.0);
 
     }
 
-    boolean isVisible(Edge a_e) { return !a_e.hasAttribute(g_hideKey); }
+    public boolean isVisible(Edge a_e) { return !a_e.hasAttribute(g_hideKey); }
 
-    boolean isVisible(Node a_n) { return !a_n.hasAttribute(g_hideKey); }
+    public boolean isVisible(Node a_n) { return !a_n.hasAttribute(g_hideKey); }
 }

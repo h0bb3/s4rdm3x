@@ -2,6 +2,7 @@ package se.lnu.siq.s4rdm3x.experiments;
 
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
+import se.lnu.siq.s4rdm3x.cmd.AddNodeTag;
 import se.lnu.siq.s4rdm3x.cmd.HuGMe;
 import se.lnu.siq.s4rdm3x.cmd.LoadJar;
 import se.lnu.siq.s4rdm3x.cmd.Selector;
@@ -19,208 +20,50 @@ import java.util.Random;
 import static java.nio.file.Files.exists;
 import static java.nio.file.Files.write;
 
-public class JabRefRand {
+public class JabRefRand extends ExperimentRunner {
 
-    private final String m_metricTag = "metric";
-    Random m_rand = new Random();
-    String m_fileName = "JabRef1";
 
-    public void run(Graph a_g) {
-
-        Path fp = getFilePath(m_fileName);
-
-        int i = 0;
-        while(true) {
-
-            double mappingPercent = m_rand.nextDouble();
-            double phi = m_rand.nextDouble();
-            double omega = m_rand.nextDouble();
-
-            load(a_g);
-            HuGMe.ArchDef arch = createAndMapArch(a_g);
-            assignMetric(a_g, arch);
-            assignInitialClusters(a_g, arch,mappingPercent);
-
-            int totalMapped = 0;
-            int totalUnmapped = 0;
-            int totalManuallyMapped = 0;
-            int totalAutoMapped = 0;
-            int totalAutoWrong = 0;
-            int iterations = 0;
-            int totalFailedMappings = 0;
-            long time = 0;
-
-            totalMapped = arch.getClusteredNodeCount(a_g.getNodeSet());
-            totalUnmapped = arch.getMappedNodeCount(a_g.getNodeSet());
-
-            while(true) {
-                HuGMe c = new HuGMe(omega, phi, true, arch);
-                long start = System.nanoTime();
-                c.run(a_g);
-                time += System.nanoTime() - start;
-
-                totalManuallyMapped += c.m_manuallyMappedNodes;
-                totalAutoMapped += c.m_automaticallyMappedNodes;
-                totalAutoWrong += c.m_autoWrong;
-                totalFailedMappings += c.m_failedMappings;
-
-                if (c.m_automaticallyMappedNodes + c.m_manuallyMappedNodes == 0) {
-                    break;
-                }
-
-                iterations++;
-            }
-
-            SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//dd/MM/yyyy
-            ArrayList<String> row = new ArrayList<>();
-            row.add(sdfDate.format(new Date()));
-            row.add("" + time);
-            row.add("" + i);
-            row.add("" + omega);
-            row.add("" + phi);
-            row.add("" + totalMapped);
-            row.add("" + totalUnmapped);
-            row.add("" + iterations);    // nothing for considered
-            row.add("" + totalManuallyMapped);
-            row.add("" + totalAutoMapped);
-            row.add("" + totalAutoWrong);
-            row.add("" + totalFailedMappings);
-            row.add("" + mappingPercent);
-
-            writeRow(fp, row);
-
-            i++;
-        }
+    public JabRefRand() {
+        super("JabRef1");
     }
 
-    private void writeRow(Path a_filePath, Iterable<String> m_strings) {
 
-        String txtRow = "";
-        for (String s : m_strings) {
-            txtRow += s + "\t";
-        }
-        txtRow += "\r\n";
-        try {
-            write(a_filePath, txtRow.getBytes(), StandardOpenOption.APPEND);
-        } catch (Exception e) {
-            System.out.println("Could not write row " + e.getMessage() + e.getStackTrace());
-        }
-    }
-
-    private Path getFilePath(String a_fileName) {
-        java.nio.file.Path fp = Paths.get(a_fileName + "0.csv");
-        {
-            int i = 1;
-            while (exists(fp)) {
-                fp = Paths.get(a_fileName + i + ".csv");
-                i++;
-            }
-            try {
-                //Files.deleteIfExists(filePath);
-                write(fp, "".getBytes(), StandardOpenOption.CREATE_NEW);
-            } catch (Exception e) {
-                System.out.println("Could not Create file: " + fp.toString());
-                System.out.println(e.getMessage());
-                System.out.println(e.getStackTrace());
-                return null;
-            }
-        }
-
-        return fp;
-    }
-
-    private void assignMetric(Graph a_g, HuGMe.ArchDef a_arch) {
+    @Override
+    protected void assignMetric(Graph a_g, HuGMe.ArchDef a_arch) {
 
         for(Node n : a_g.getEachNode()) {
             if (a_arch.getMappedComponent(n) != null) {
-                int rand = (int)(Math.random() * 171717) % 100;
-                n.setAttribute(m_metricTag, (double)rand);
+                setMetric(n, m_rand.nextDouble());
             }
         }
     }
 
-    private void assignInitialClusters(Graph a_g, HuGMe.ArchDef a_arch, double a_percentage) {
-        Random rand = new Random();
-        for (HuGMe.ArchDef.Component component : a_arch.getComponents()) {
-
-            ArrayList<Node> sortedNodes = new ArrayList<>();
-            for (Node n : a_g.getEachNode()) {
-                if (component.isMappedTo(n)) {
-                    sortedNodes.add(n);
-                }
-            }
-
-            // this sorts to lowest first
-            sortedNodes.sort(Comparator.comparingDouble(a_n -> {
-                return a_n.getAttribute(m_metricTag);
-            }));
-
-            int nodeCount = (int) ((double) sortedNodes.size() * a_percentage);
-            if (nodeCount <= 0) {
-                nodeCount = 1;
-            }
-
-            ArrayList<Node> workingSet = getWorkingSet(sortedNodes, nodeCount);
-
-            // we may have added too many nodes (i.e. the last batch may be bigger)
-            while (workingSet.size() > nodeCount) {
-                int firstBatchSize = getFirstBatchSize(workingSet);
-                workingSet.remove(Math.abs(rand.nextInt()) % firstBatchSize);
-            }
-
-            for (Node n : workingSet) {
-                component.clusterToNode(n);
-            }
+    private void mapPackage(Graph a_g, HuGMe.ArchDef.Component a_c, String[] a_packages) {
+        for(String pkg : a_packages) {
+            a_c.mapToNodes(a_g, new Selector.Pkg(pkg));
         }
     }
 
-    private int getFirstBatchSize(ArrayList<Node> a_set) {
-        int firstBatchSize = 1;
-        int firstBatchFan = a_set.get(0).getAttribute(m_metricTag);
-        while(firstBatchSize < a_set.size() && firstBatchFan == (double)a_set.get(firstBatchSize).getAttribute(m_metricTag)) {
-            firstBatchSize++;
-        }
+    protected HuGMe.ArchDef createAndMapArch(Graph a_g) {
 
-        return firstBatchSize;
-    }
+        String[][] packages = { {"net/sf/jabref/JabRefGUI", "net/sf/jabref/JabRefMain ", "net/sf/jabref/collab/Change", "net/sf/jabref/collab/ChangeDisplayDialog", "net/sf/jabref/collab/ChangeScanner", "net/sf/jabref/collab/EntryAddChange", "net/sf/jabref/collab/EntryChange", "net/sf/jabref/collab/EntryDeleteChange", "net/sf/jabref/collab/FileUpdatePanel", "net/sf/jabref/collab/GroupChange", "net/sf/jabref/collab/InfoPane", "net/sf/jabref/collab/MetaDataChange", "net/sf/jabref/collab/PreambleChange", "net/sf/jabref/collab/StringAddChange", "net/sf/jabref/collab/StringChange", "net/sf/jabref/collab/StringNameChange", "net/sf/jabref/collab/StringRemoveChange", "net/sf/jabref/gui", "net/sf/jabref/migrations/FileLinksUpgradeWarning", "net/sf/jabref/pdfimport/ImportDialog", "net/sf/jabref/pdfimport/PdfFileFilter", "net/sf/jabref/pdfimport/PdfImporter"},
+                {"net/sf/jabref/JabRefException","net/sf/jabref/model","net/sf/jabref/shared/DBMSConnection.java","net/sf/jabref/shared/DBMSType","net/sf/jabref/shared/security/Password"},
+                {"net/sf/jabref/JabRefExecutorService", "net/sf/jabref/collab/FileUpdateListener", "net/sf/jabref/collab/FileUpdateMonitor", "net/sf/jabref/logic", "net/sf/jabref/shared/DBMSProcessor", "net/sf/jabref/shared/DBMSSynchronizer", "net/sf/jabref/shared/MySQLProcessor", "net/sf/jabref/shared/OracleProcessor", "net/sf/jabref/shared/PostgreSQLProcessor", "net/sf/jabref/shared/event", "net/sf/jabref/shared/exception", "net/sf/jabref/shared/listener"},
+                {"net/sf/jabref/migrations/PreferencesMigrations","net/sf/jabref/preferences","net/sf/jabref/shared/DBMSConnectionProperties","net/sf/jabref/shared/prefs"},
+                {"net/sf/jabref/Globals"},
+                {"net/sf/jabref/cli"}};
 
-    private ArrayList<Node> getWorkingSet(ArrayList<Node> a_sortedList, int nodesToAdd) {
-        // things can have the same metric so we need to count this
-        ArrayList<Node> workingSet = new ArrayList<>();
-        double  currentMetric = a_sortedList.get(a_sortedList.size() - 1).getAttribute(m_metricTag);
-        int ix = a_sortedList.size() - 1;
-        int count = 0;
-        while(ix >= 0 && count < nodesToAdd) {
 
-            if (currentMetric != (double)a_sortedList.get(ix).getAttribute(m_metricTag)) {
-                currentMetric = a_sortedList.get(ix).getAttribute(m_metricTag);
-                count = a_sortedList.size() - ix - 1;  // we have completed the whole batch (at ix - 1) with the same metric
-            }
-            ix--;
-        }
-        if (ix >= 0) {
-            ix += 2;   // we need to move one index up 2 positions as this is the last index at the valid count.
-        } else {
-            ix = 0; // we went to the end
-        }
 
-        for (; ix < a_sortedList.size(); ix++) {
-            workingSet.add(a_sortedList.get(ix));
-        }
-
-        return workingSet;
-    }
-
-    private HuGMe.ArchDef createAndMapArch(Graph a_g) {
         HuGMe.ArchDef arch = new HuGMe.ArchDef();
-        HuGMe.ArchDef.Component gui = arch.addComponent("gui");
-        HuGMe.ArchDef.Component model = arch.addComponent("model");
-        HuGMe.ArchDef.Component logic = arch.addComponent("logic");
-        HuGMe.ArchDef.Component pref = arch.addComponent("pref");
-        HuGMe.ArchDef.Component global = arch.addComponent("global");
-        HuGMe.ArchDef.Component cli = arch.addComponent("cli");
-        gui.addDependencyTo(model);gui.addDependencyTo(logic);
+        HuGMe.ArchDef.Component gui = createAddAndMapComponent(a_g, arch, "gui", packages[0]);
+        HuGMe.ArchDef.Component model = createAddAndMapComponent(a_g, arch, "model", packages[1]);
+        HuGMe.ArchDef.Component logic = createAddAndMapComponent(a_g, arch, "logic", packages[2]);
+        HuGMe.ArchDef.Component pref = createAddAndMapComponent(a_g, arch, "pref", packages[3]);
+        HuGMe.ArchDef.Component global = createAddAndMapComponent(a_g, arch, "global", packages[4]);
+        HuGMe.ArchDef.Component cli = createAddAndMapComponent(a_g, arch, "cli", packages[5]);
 
+        gui.addDependencyTo(model);gui.addDependencyTo(logic);
         cli.addDependencyTo(gui);cli.addDependencyTo(model);cli.addDependencyTo(logic);cli.addDependencyTo(pref);cli.addDependencyTo(global);
         logic.addDependencyTo(model);
         pref.addDependencyTo(model);pref.addDependencyTo(logic);
@@ -229,12 +72,14 @@ public class JabRefRand {
         return arch;
     }
 
-    private void load(Graph a_g) {
+    protected boolean load(Graph a_g) {
         LoadJar c = new LoadJar("data/jabref-3.7.jar", "net/sf/jabref/");
         try {
             c.run(a_g);
         } catch (IOException e) {
             System.out.println(e);
+            return false;
         }
+        return true;
     }
 }

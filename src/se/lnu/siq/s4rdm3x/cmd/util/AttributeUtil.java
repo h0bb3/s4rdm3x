@@ -1,4 +1,4 @@
-package se.lnu.siq.s4rdm3x.cmd;
+package se.lnu.siq.s4rdm3x.cmd.util;
 
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
@@ -96,6 +96,13 @@ public class AttributeUtil {
         }
 
         return true;
+    }
+
+    public void removeTag(Node a_node, String a_tag) {
+        String tagStr = getTags(a_node);
+        tagStr = tagStr.replace(a_tag, "");
+        tagStr = tagStr.replace(g_tagDelim+g_tagDelim, g_tagDelim);
+        a_node.setAttribute(g_tagKey, tagStr);
     }
 
     public String getTags(Node a_node) {

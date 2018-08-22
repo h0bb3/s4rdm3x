@@ -2,6 +2,8 @@ package se.lnu.siq.s4rdm3x.cmd;
 
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
+import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
+import se.lnu.siq.s4rdm3x.cmd.util.NodeUtil;
 import se.lnu.siq.s4rdm3x.dmodel.JarProjectLoader;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.dmodel.dmProject;

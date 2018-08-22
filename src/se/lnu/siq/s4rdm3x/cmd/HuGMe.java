@@ -2,13 +2,11 @@ package se.lnu.siq.s4rdm3x.cmd;
 
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
-import org.w3c.dom.Attr;
-import se.lnu.siq.s4rdm3x.cmd.saerocon18.Cluster1;
+import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
+import se.lnu.siq.s4rdm3x.cmd.util.FanInCache;
 import se.lnu.siq.s4rdm3x.stats;
 
 import java.util.ArrayList;
-
-import static se.lnu.siq.s4rdm3x.cmd.saerocon18.Cluster1.getFanIn;
 
 public class HuGMe {
     public static class ArchDef {
@@ -38,6 +36,10 @@ public class HuGMe {
 
             public String getName() {
                 return m_name;
+            }
+
+            public void removeClustering(Node a_n, AttributeUtil a_au) {
+                a_au.removeTag(a_n, getClusterName());
             }
 
             public void clusterToNode(Node a_n) {
@@ -117,6 +119,31 @@ public class HuGMe {
             return null;
         }
 
+        public Iterable<Node> getMappedNodes(Iterable<Node> a_nodes) {
+            AttributeUtil au = new AttributeUtil();
+            return au.getNodesWithAnyTag(a_nodes, getComponentNames());
+        }
+
+        public void cleanNodeClusters(Iterable<Node> a_nodes) {
+            AttributeUtil au = new AttributeUtil();
+            for (Node n : a_nodes) {
+                Component c = getClusteredComponent(n);
+                while (c!= null) {
+                    c.removeClustering(n, au);
+                    c = getClusteredComponent(n);
+                }
+            }
+        }
+
+        public Component getClusteredComponent(Node a_n) {
+            AttributeUtil au = new AttributeUtil();
+            for(Component c : m_components) {
+                if (au.hasAnyTag(a_n, c.getClusterName())) {
+                    return c;
+                }
+            }
+            return null;
+        }
 
         public Component getMappedComponent(Node a_n) {
             AttributeUtil au = new AttributeUtil();
@@ -145,6 +172,7 @@ public class HuGMe {
 
     private double m_filterThreshold;   // omega in paper
     private double m_violationWeight;   // psi in paper
+    private FanInCache m_fic;
 
     private boolean m_doManualMapping;
 
@@ -160,16 +188,16 @@ public class HuGMe {
     public int m_unmappedNodesFromStart = 0;
     public int m_mappedNodesFromStart = 0;
 
-    public HuGMe(double a_filterThreshold, double a_violationWeight, boolean a_doManualMapping, ArchDef a_arch) {
+    public HuGMe(double a_filterThreshold, double a_violationWeight, boolean a_doManualMapping, ArchDef a_arch, FanInCache a_fic) {
         m_violationWeight = a_violationWeight;
         m_filterThreshold = a_filterThreshold;
         m_doManualMapping = a_doManualMapping;
         m_arch = a_arch;
+        m_fic = a_fic;
     }
 
     public void run(Graph a_g) {
         AttributeUtil au = new AttributeUtil();
-        Cluster1.fillTheCache(a_g);
         final String[] clusterTags = m_arch.getClusterNames();
         final String [] originalMappingTags = m_arch.getComponentNames();
 
@@ -202,23 +230,24 @@ public class HuGMe {
 
         java.util.ArrayList<Node> candidates = new ArrayList<>(unmapped);
         for (Node n : unmapped) {
-            // count all dependencies to this class from all unmapped classes
+            // count all dependencies to this class from all other unmapped classes
             int toMappedCountC = 0, totalCountC = 0;
             for (Node otherNode : unmapped) {
-                totalCountC += getFanIn(n, otherNode);
-                totalCountC += getFanIn(otherNode, n);
+                if (n != otherNode) {
+                    totalCountC += m_fic.getFanIn(n, otherNode);
+                    totalCountC += m_fic.getFanIn(otherNode, n);
+                }
             }
 
             for (ArrayList<Node> cluster : clusters) {
                 for (Node nMapped : cluster) {
 
-                    double fromClustered = getFanIn(nMapped, n);
-                    toMappedCountC += getFanIn(n, nMapped);
+                    double fromClustered = m_fic.getFanIn(nMapped, n);
+                    toMappedCountC += m_fic.getFanIn(n, nMapped);
                     toMappedCountC += fromClustered;
                     totalCountC += fromClustered;    // these should also be counted on the total
                 }
             }
-
 
             double ratio = 0.0;
             if (totalCountC > 0 && toMappedCountC > 0) {
@@ -376,8 +405,8 @@ public class HuGMe {
 
         double cCount = 0;
         for (Node nTo:a_cluster) {
-            cCount += getFanIn(nTo, a_node) * a_weightFromNode;
-            cCount += getFanIn(a_node, nTo) * a_weightFromCluster;
+            cCount += m_fic.getFanIn(nTo, a_node) * a_weightFromNode;
+            cCount += m_fic.getFanIn(a_node, nTo) * a_weightFromCluster;
         }
 
         count = cCount;

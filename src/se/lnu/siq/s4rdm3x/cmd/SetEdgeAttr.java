@@ -2,6 +2,7 @@ package se.lnu.siq.s4rdm3x.cmd;
 
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
+import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
 
 public class SetEdgeAttr {
     private String m_key;

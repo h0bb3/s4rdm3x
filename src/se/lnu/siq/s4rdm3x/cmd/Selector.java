@@ -2,6 +2,7 @@ package se.lnu.siq.s4rdm3x.cmd;
 
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
+import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 
 import java.util.ArrayList;

@@ -3,7 +3,7 @@ package se.lnu.siq.s4rdm3x;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.ui.view.ViewerListener;
-import se.lnu.siq.s4rdm3x.cmd.NodeUtil;
+import se.lnu.siq.s4rdm3x.cmd.util.NodeUtil;
 //import se.lnu.siq.asm_gs_test.cmd.*;
 
 

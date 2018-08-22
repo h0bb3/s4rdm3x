@@ -3,6 +3,7 @@ package se.lnu.siq.s4rdm3x.cmd.saerocon18;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import se.lnu.siq.s4rdm3x.cmd.*;
+import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
 
 import java.io.IOException;
 import java.nio.file.Files;
