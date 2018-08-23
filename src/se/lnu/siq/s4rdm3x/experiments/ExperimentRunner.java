@@ -6,50 +6,45 @@ import se.lnu.siq.s4rdm3x.cmd.HuGMe;
 import se.lnu.siq.s4rdm3x.cmd.Selector;
 import se.lnu.siq.s4rdm3x.cmd.util.FanInCache;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.Random;
-
-import static java.nio.file.Files.exists;
-import static java.nio.file.Files.write;
 
 public abstract class ExperimentRunner {
     private final String m_metricTag = "metric";
-    private String m_fileName;
-    protected Random m_rand = new Random();
+        protected Random m_rand = new Random();
+    private RunListener m_listener = null;
 
-    protected ExperimentRunner(String a_fileName) {
-        m_fileName = a_fileName;
+    protected ExperimentRunner() {
+
+    }
+
+    public interface RunListener {
+        BasicRunData OnRunInit(BasicRunData a_rd, Graph a_g, HuGMe.ArchDef a_arch);
+        void OnRunCompleted(BasicRunData a_rd, Graph a_g, HuGMe.ArchDef a_arch);
+    }
+
+    public static class BasicRunData {
+        public String m_metric;
+        public long m_time;
+        public int m_id;
+        public double m_omega;
+        public double m_phi;
+        public double m_initialClusteringPercent;
+        public int m_iterations;
+        public int m_totalManuallyClustered;
+        public int m_totalAutoClustered;
+        public int m_totalAutoWrong;
+        public int m_totalFailedClusterings;
+    }
+
+    public void setRunListener(RunListener a_listener) {
+        m_listener = a_listener;
     }
 
     public void run(Graph a_g) {
 
-        Path fp = getFilePath(m_fileName);
-
         int i = 0;
-
-        ArrayList<String> row = new ArrayList<>();
-        row.add("date");
-        row.add("time");
-        row.add("localId");
-        row.add("omega" );
-        row.add("phi");
-        row.add("initialClustered");
-        row.add("totalMapped");
-        row.add("initialDistribution");
-        row.add("iterations");
-        row.add("totalManuallyClustered");
-        row.add("totalAutoClustered");
-        row.add("totalAutoWrong");
-        row.add("totalFailedClusterings");
-        row.add("mappingPercent");
-
-        writeRow(fp, row);
 
         FanInCache fic = null;
 
@@ -57,134 +52,68 @@ public abstract class ExperimentRunner {
             return;
         }
         HuGMe.ArchDef arch = createAndMapArch(a_g);
-        assignMetric(a_g, arch);
+
+
 
         while(true) {
 
-            double mappingPercent = m_rand.nextDouble();
-            double phi = m_rand.nextDouble();
-            double omega = m_rand.nextDouble();
+            assignMetric(a_g, arch);
+
+            BasicRunData rd = new BasicRunData();
+            rd.m_metric = getMetricName();
+            rd.m_initialClusteringPercent = m_rand.nextDouble();
+            rd.m_phi = m_rand.nextDouble();
+            rd.m_omega = m_rand.nextDouble();
 
             arch.cleanNodeClusters(a_g);
-            assignInitialClusters(a_g, arch, mappingPercent);
+            assignInitialClusters(a_g, arch, rd.m_initialClusteringPercent);
 
-            String initalDist = getInitialClusterDistributionString(a_g, arch);
 
-            int totalMapped = 0;
-            int totalUnmapped = 0;
-            int totalManuallyMapped = 0;
-            int totalAutoMapped = 0;
-            int totalAutoWrong = 0;
-            int iterations = 0;
-            int totalFailedMappings = 0;
-            long time = 0;
 
-            totalMapped = arch.getClusteredNodeCount(a_g.getNodeSet());
-            totalUnmapped = arch.getMappedNodeCount(a_g.getNodeSet());
+            //rd.m_totalMapped = 0;
+            rd.m_totalManuallyClustered = 0;
+            rd.m_totalAutoClustered = 0;
+            rd.m_totalAutoWrong = 0;
+            rd.m_iterations = 0;
+            rd.m_totalFailedClusterings = 0;
+            rd.m_id = i;
 
             if (fic == null) {
                 fic = new FanInCache(arch.getMappedNodes(a_g.getNodeSet()));
             }
 
+            if (m_listener != null) {
+                rd = m_listener.OnRunInit(rd, a_g, arch);
+            }
             while(true) {
-                HuGMe c = new HuGMe(omega, phi, true, arch, fic);
+                HuGMe c = new HuGMe(rd.m_omega, rd.m_phi, true, arch, fic);
                 long start = System.nanoTime();
                 c.run(a_g);
-                time += System.nanoTime() - start;
+                rd.m_time = System.nanoTime() - start;
 
-                totalManuallyMapped += c.m_manuallyMappedNodes;
-                totalAutoMapped += c.m_automaticallyMappedNodes;
-                totalAutoWrong += c.m_autoWrong;
-                totalFailedMappings += c.m_failedMappings;
+                rd.m_totalManuallyClustered += c.m_manuallyMappedNodes;
+                rd.m_totalAutoClustered += c.m_automaticallyMappedNodes;
+                rd.m_totalAutoWrong  += c.m_autoWrong;
+                rd.m_totalFailedClusterings  += c.m_failedMappings;
 
                 if (c.m_automaticallyMappedNodes + c.m_manuallyMappedNodes == 0) {
                     break;
                 }
 
-                iterations++;
+                rd.m_iterations++;
             }
 
-            SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//dd/MM/yyyy
-            row = new ArrayList<>();
-            row.add(sdfDate.format(new Date()));
-            row.add("" + time);
-            row.add("" + i);
-            row.add("" + omega);
-            row.add("" + phi);
-            row.add("" + totalMapped);
-            row.add("" + totalUnmapped);
-            row.add(initalDist);
-            row.add("" + iterations);
-            row.add("" + totalManuallyMapped);
-            row.add("" + totalAutoMapped);
-            row.add("" + totalAutoWrong);
-            row.add("" + totalFailedMappings);
-            row.add("" + mappingPercent);
-
-            writeRow(fp, row);
+            if (m_listener != null) {
+                m_listener.OnRunCompleted(rd, a_g, arch);
+            }
 
             i++;
         }
     }
 
-    private void cleanClusters() {
 
-    }
 
-    private void writeRow(Path a_filePath, Iterable<String> m_strings) {
 
-        String txtRow = "";
-        for (String s : m_strings) {
-            txtRow += s + "\t";
-        }
-        txtRow += "\r\n";
-        try {
-            write(a_filePath, txtRow.getBytes(), StandardOpenOption.APPEND);
-        } catch (Exception e) {
-            System.out.println("Could not write row " + e.getMessage() + e.getStackTrace());
-        }
-    }
-
-    private Path getFilePath(String a_fileName) {
-        java.nio.file.Path fp = Paths.get(a_fileName + "_0.csv");
-        {
-            int i = 1;
-            while (exists(fp)) {
-                fp = Paths.get(a_fileName + "_" + i + ".csv");
-                i++;
-            }
-            try {
-                //Files.deleteIfExists(filePath);
-                write(fp, "".getBytes(), StandardOpenOption.CREATE_NEW);
-            } catch (Exception e) {
-                System.out.println("Could not Create file: " + fp.toString());
-                System.out.println(e.getMessage());
-                System.out.println(e.getStackTrace());
-                return null;
-            }
-        }
-
-        return fp;
-    }
-
-    private String getInitialClusterDistributionString(Graph a_g, HuGMe.ArchDef a_arch) {
-        String ret="";
-
-        for (HuGMe.ArchDef.Component c : a_arch.getComponents()) {
-            int count = 0;
-            for (Node a_n : a_g.getEachNode()) {
-                if (c == a_arch.getClusteredComponent(a_n)) {
-                    count++;
-                }
-            }
-            ret += "," + c.getName() + ":" + count;
-        }
-
-        ret = ret.substring(1); // removes first ","
-        ret = "[" + ret + "]";
-
-        return ret;
-    }
 
     private void assignInitialClusters(Graph a_g, HuGMe.ArchDef a_arch, double a_percentage) {
         ArrayList<Node> sortedNodes = new ArrayList<>();
@@ -258,6 +187,8 @@ public abstract class ExperimentRunner {
     protected abstract HuGMe.ArchDef createAndMapArch(Graph a_g);
 
     protected abstract boolean load(Graph a_g);
+
+    protected abstract String getMetricName();
 
     protected void setMetric(Node a_node, double a_metric) {
         a_node.setAttribute(m_metricTag, a_metric);

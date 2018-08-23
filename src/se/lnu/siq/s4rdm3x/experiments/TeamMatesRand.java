@@ -7,23 +7,17 @@ import se.lnu.siq.s4rdm3x.cmd.LoadJar;
 import se.lnu.siq.s4rdm3x.cmd.Selector;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.Random;
-
-import static java.nio.file.Files.*;
 
 public class TeamMatesRand extends ExperimentRunner {
 
     public TeamMatesRand() {
-        super("TeamMates1");
+
     }
 
+    @Override
+    protected String getMetricName() {
+        return "rand";
+    }
 
     @Override
     protected void assignMetric(Graph a_g, HuGMe.ArchDef a_arch) {
@@ -101,8 +95,6 @@ public class TeamMatesRand extends ExperimentRunner {
         storageSearch.addDependencyTo(commonDataTransfer);
 
         commonDataTransfer.addDependencyTo(storageEntity);
-
-
 
         return ad;
     }

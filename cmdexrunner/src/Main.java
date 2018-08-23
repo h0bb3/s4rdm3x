@@ -1,15 +1,19 @@
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.MultiGraph;
 import se.lnu.siq.s4rdm3x.experiments.JabRefRand;
+import se.lnu.siq.s4rdm3x.experiments.RunFileSaver;
 import se.lnu.siq.s4rdm3x.experiments.TeamMatesRand;
 
 public class Main {
 
     public static void runJabRefExperiment(String a_ex) {
         Graph graph = new MultiGraph("main");
+        RunFileSaver fs;
 
         if (a_ex.compareTo("1") == 0) {
             JabRefRand ex = new JabRefRand();
+            fs = new RunFileSaver("JabRef_rand");
+            ex.setRunListener(fs);
             System.out.println("Running JabRef experiment " + a_ex);
             ex.run(graph);
         } else {
@@ -19,9 +23,12 @@ public class Main {
 
     public static void runTeamMatesExperiment(String a_ex) {
         Graph graph = new MultiGraph("main");
+        RunFileSaver fs;
 
         if (a_ex.compareTo("1") == 0) {
             TeamMatesRand ex = new TeamMatesRand();
+            fs = new RunFileSaver("TeamMates_rand");
+            ex.setRunListener(fs);
             System.out.println("Running TeamMates experiment " + a_ex);
             ex.run(graph);
         } else {

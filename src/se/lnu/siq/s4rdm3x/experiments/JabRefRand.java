@@ -2,29 +2,21 @@ package se.lnu.siq.s4rdm3x.experiments;
 
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.cmd.AddNodeTag;
 import se.lnu.siq.s4rdm3x.cmd.HuGMe;
 import se.lnu.siq.s4rdm3x.cmd.LoadJar;
 import se.lnu.siq.s4rdm3x.cmd.Selector;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.Random;
-
-import static java.nio.file.Files.exists;
-import static java.nio.file.Files.write;
 
 public class JabRefRand extends ExperimentRunner {
 
 
     public JabRefRand() {
-        super("JabRef1");
+    }
+
+    @Override
+    protected String getMetricName() {
+        return "rand";
     }
 
 
@@ -52,8 +44,6 @@ public class JabRefRand extends ExperimentRunner {
                 {"net/sf/jabref/migrations/PreferencesMigrations","net/sf/jabref/preferences","net/sf/jabref/shared/DBMSConnectionProperties","net/sf/jabref/shared/prefs"},
                 {"net/sf/jabref/Globals"},
                 {"net/sf/jabref/cli"}};
-
-
 
         HuGMe.ArchDef arch = new HuGMe.ArchDef();
         HuGMe.ArchDef.Component gui = createAddAndMapComponent(a_g, arch, "gui", packages[0]);

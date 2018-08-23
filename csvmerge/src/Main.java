@@ -63,6 +63,7 @@ public class Main {
                     outline += "n/a";
                 }
             }
+            outline = outline.substring(0, outline.length() - 1);   // remove last \t
             System.out.println(outline);
 
         }
