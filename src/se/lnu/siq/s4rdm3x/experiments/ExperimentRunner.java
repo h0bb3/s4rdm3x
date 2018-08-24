@@ -58,10 +58,11 @@ public class ExperimentRunner {
         HuGMe.ArchDef arch = m_sua.createAndMapArch(a_g);
 
 
+        m_metric.assignMetric(a_g, arch);
 
         while(true) {
 
-            m_metric.assignMetric(a_g, arch);
+            m_metric.reassignMetric(a_g, arch);
 
             BasicRunData rd = new BasicRunData();
             rd.m_metric = m_metric.getName();
@@ -71,8 +72,6 @@ public class ExperimentRunner {
 
             arch.cleanNodeClusters(a_g);
             assignInitialClusters(a_g, arch, rd.m_initialClusteringPercent);
-
-
 
             //rd.m_totalMapped = 0;
             rd.m_totalManuallyClustered = 0;

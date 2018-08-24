@@ -24,4 +24,8 @@ public class Rand extends Metric {
             }
         }
     }
+
+    public void reassignMetric(Graph a_g, HuGMe.ArchDef a_arch) {
+        assignMetric(a_g, a_arch);
+    }
 }

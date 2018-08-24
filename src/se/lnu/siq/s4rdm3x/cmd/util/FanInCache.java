@@ -49,6 +49,16 @@ public class FanInCache {
         return count;
     }
 
+    public double getFanIn(Node a_to) {
+        HashMap<Node, Double> toMap = m_nodeFanInMap.get(a_to);
+        double ret = 0;
+        for(Double d : toMap.values()) {
+            ret += d;
+        }
+
+        return ret;
+    }
+
     public double getFanIn(Node a_to, Node a_from) {
         HashMap<Node, Double> toMap = m_nodeFanInMap.get(a_to);
 
