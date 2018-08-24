@@ -253,7 +253,7 @@ public class HuGMe {
             if (totalCountC > 0 && toMappedCountC > 0) {
                 ratio = (double) toMappedCountC / (double) totalCountC;
             }
-            //System.out.println("Dependency Ratio: " + ratio);
+            //Sys.out.println("Dependency Ratio: " + ratio);
             if (ratio < m_filterThreshold) {
                 candidates.remove(n);
             }
@@ -297,7 +297,7 @@ public class HuGMe {
 
             if (c1.size() == 1) {
                 au.addTag(n, clusterTags[c1.get(0)]);
-                //System.out.println("Clustered to: " + g_clusterTags[c1.get(0)]);
+                //Sys.out.println("Clustered to: " + g_clusterTags[c1.get(0)]);
                 au.addTag(n, "automatic");
                 m_clusteredElements.add(n);
                 if (!au.hasAnyTag(n, originalMappingTags[c1.get(0)])) {
@@ -306,7 +306,7 @@ public class HuGMe {
                 m_automaticallyMappedNodes++;
             } else if (c2.size() == 1) {
                 au.addTag(n, clusterTags[c2.get(0)]);
-                //System.out.println("Clustered to: " + g_clusterTags[c2.get(0)]);
+                //Sys.out.println("Clustered to: " + g_clusterTags[c2.get(0)]);
                 au.addTag(n, "automatic");
                 m_clusteredElements.add(n);
                 if (!au.hasAnyTag(n, originalMappingTags[c2.get(0)])) {
@@ -324,7 +324,7 @@ public class HuGMe {
                             au.addTag(n, clusterTags[i]);
                             au.addTag(n, "manual");
                             clustered = true;
-                            //System.out.println("Clustered by Oracle to: " + g_clusterTags[i]);
+                            //Sys.out.println("Clustered by Oracle to: " + g_clusterTags[i]);
                             m_manuallyMappedNodes++;
                             break;
                         }
@@ -335,7 +335,7 @@ public class HuGMe {
                         if (au.hasAnyTag(n, originalMappingTags[i])) {
                             au.addTag(n, clusterTags[i]);
                             au.addTag(n, "manual");
-                            //System.out.println("Clustered by Oracle to: " + g_clusterTags[i]);
+                            //Sys.out.println("Clustered by Oracle to: " + g_clusterTags[i]);
                             m_manuallyMappedNodes++;
                             clustered = true;
                             break;
@@ -343,7 +343,7 @@ public class HuGMe {
                     }
                 }
                 if (clustered == false) {
-                    //System.out.println("No attraction... this one is dead...");
+                    //Sys.out.println("No attraction... this one is dead...");
                     m_failedMappings++;
                     // we force a mapping
                     /*for(int i =0; i < g_originalMappingTags.length; i++) {

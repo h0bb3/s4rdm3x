@@ -28,12 +28,12 @@ public class ConsoleReader implements Runnable {
 
     public void run() {
 
-        //Scanner inputReader = new Scanner(System.in);
-        //Console inputReader = System.console();
+        //Scanner inputReader = new Scanner(Sys.in);
+        //Console inputReader = Sys.console();
         m_input = null;
 
         //if (inputReader == null) {
-        //    System.out.println("No console...");
+        //    Sys.out.println("No console...");
         //}
 
         while(true) {

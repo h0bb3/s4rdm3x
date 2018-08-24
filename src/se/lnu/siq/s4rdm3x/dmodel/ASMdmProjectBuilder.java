@@ -266,7 +266,7 @@ public class ASMdmProjectBuilder extends ClassVisitor {
                         println("Local Variable: " + desc + " " + name + " " + index);
                         m_tabs = 4;
                         if (signature != null) {
-                            //System.out.println("Type.get: " + Type.(signature)[0].getClassName());
+                            //Sys.out.println("Type.get: " + Type.(signature)[0].getClassName());
                             new SignatureReader(signature).accept(new SignatureVisitor(Opcodes.ASM4) {
                                 public void visitClassType(String name) {
                                     addLocalVar(name, index);

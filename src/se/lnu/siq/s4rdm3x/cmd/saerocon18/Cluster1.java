@@ -219,7 +219,7 @@ public class Cluster1 {
             if (totalCount > 0 && toMappedCount > 0) {
                 ratio = (double) toMappedCount / (double) totalCount;
             }
-            //System.out.println("Dependency Ratio: " + ratio);
+            //Sys.out.println("Dependency Ratio: " + ratio);
             if (ratio >= m_filterThreshold) {
                 n.setAttribute("ui.style", "fill-color:rgb(0,0,255);");
             } else {
@@ -303,7 +303,7 @@ public class Cluster1 {
 
             if (c1.size() == 1) {
                 au.addTag(n, g_clusterTags[c1.get(0)]);
-                //System.out.println("Clustered to: " + g_clusterTags[c1.get(0)]);
+                //Sys.out.println("Clustered to: " + g_clusterTags[c1.get(0)]);
                 au.addTag(n, "automatic");
                 m_clusteredElements.add(n);
                 if (!au.hasAnyTag(n, g_originalMappingTags[c1.get(0)])) {
@@ -312,7 +312,7 @@ public class Cluster1 {
                 m_automaticallyMappedNodes++;
             } else if (c2.size() == 1) {
                 au.addTag(n, g_clusterTags[c2.get(0)]);
-                //System.out.println("Clustered to: " + g_clusterTags[c2.get(0)]);
+                //Sys.out.println("Clustered to: " + g_clusterTags[c2.get(0)]);
                 au.addTag(n, "automatic");
                 m_clusteredElements.add(n);
                 if (!au.hasAnyTag(n, g_originalMappingTags[c2.get(0)])) {
@@ -330,7 +330,7 @@ public class Cluster1 {
                             au.addTag(n, g_clusterTags[i]);
                             au.addTag(n, "manual");
                             clustered = true;
-                            //System.out.println("Clustered by Oracle to: " + g_clusterTags[i]);
+                            //Sys.out.println("Clustered by Oracle to: " + g_clusterTags[i]);
                             m_manuallyMappedNodes++;
                             break;
                         }
@@ -341,7 +341,7 @@ public class Cluster1 {
                         if (au.hasAnyTag(n, g_originalMappingTags[i])) {
                             au.addTag(n, g_clusterTags[i]);
                             au.addTag(n, "manual");
-                            //System.out.println("Clustered by Oracle to: " + g_clusterTags[i]);
+                            //Sys.out.println("Clustered by Oracle to: " + g_clusterTags[i]);
                             m_manuallyMappedNodes++;
                             clustered = true;
                             break;
@@ -349,7 +349,7 @@ public class Cluster1 {
                     }
                 }
                 if (clustered == false) {
-                    //System.out.println("No attraction... this one is dead...");
+                    //Sys.out.println("No attraction... this one is dead...");
                     m_failedMappings++;
                     // we force a mapping
                     /*for(int i =0; i < g_originalMappingTags.length; i++) {
@@ -489,12 +489,12 @@ public class Cluster1 {
 
         Double fanIn = fromHashed.get(a_to);
         if (fanIn != null) {
-            //System.out.println("Cashe Hit");
+            //Sys.out.println("Cashe Hit");
             return fanIn;
         }
 
         // we need to compute it
-        //System.out.println("Cashe Miss");
+        //Sys.out.println("Cashe Miss");
         for(dmDependency d : a_from.getDependencies()) {
             if (d.getTarget() == a_to) {
                 count += d.getCount();

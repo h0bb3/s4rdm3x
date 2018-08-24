@@ -1,42 +1,19 @@
-package se.lnu.siq.s4rdm3x.experiments;
+package se.lnu.siq.s4rdm3x.experiments.system;
 
 import org.graphstream.graph.Graph;
-import org.graphstream.graph.Node;
 import se.lnu.siq.s4rdm3x.cmd.HuGMe;
 import se.lnu.siq.s4rdm3x.cmd.LoadJar;
-import se.lnu.siq.s4rdm3x.cmd.Selector;
 
 import java.io.IOException;
 
-public class JabRefRand extends ExperimentRunner {
-
-
-    public JabRefRand() {
-    }
+public class JabRef extends System {
 
     @Override
-    protected String getMetricName() {
-        return "rand";
+    public String getName() {
+        return "JabRef";
     }
 
-
-    @Override
-    protected void assignMetric(Graph a_g, HuGMe.ArchDef a_arch) {
-
-        for(Node n : a_g.getEachNode()) {
-            if (a_arch.getMappedComponent(n) != null) {
-                setMetric(n, m_rand.nextDouble());
-            }
-        }
-    }
-
-    private void mapPackage(Graph a_g, HuGMe.ArchDef.Component a_c, String[] a_packages) {
-        for(String pkg : a_packages) {
-            a_c.mapToNodes(a_g, new Selector.Pkg(pkg));
-        }
-    }
-
-    protected HuGMe.ArchDef createAndMapArch(Graph a_g) {
+    public HuGMe.ArchDef createAndMapArch(Graph a_g)  {
 
         String[][] packages = { {"net/sf/jabref/JabRefGUI", "net/sf/jabref/JabRefMain ", "net/sf/jabref/collab/Change", "net/sf/jabref/collab/ChangeDisplayDialog", "net/sf/jabref/collab/ChangeScanner", "net/sf/jabref/collab/EntryAddChange", "net/sf/jabref/collab/EntryChange", "net/sf/jabref/collab/EntryDeleteChange", "net/sf/jabref/collab/FileUpdatePanel", "net/sf/jabref/collab/GroupChange", "net/sf/jabref/collab/InfoPane", "net/sf/jabref/collab/MetaDataChange", "net/sf/jabref/collab/PreambleChange", "net/sf/jabref/collab/StringAddChange", "net/sf/jabref/collab/StringChange", "net/sf/jabref/collab/StringNameChange", "net/sf/jabref/collab/StringRemoveChange", "net/sf/jabref/gui", "net/sf/jabref/migrations/FileLinksUpgradeWarning", "net/sf/jabref/pdfimport/ImportDialog", "net/sf/jabref/pdfimport/PdfFileFilter", "net/sf/jabref/pdfimport/PdfImporter"},
                 {"net/sf/jabref/JabRefException","net/sf/jabref/model","net/sf/jabref/shared/DBMSConnection.java","net/sf/jabref/shared/DBMSType","net/sf/jabref/shared/security/Password"},
@@ -62,14 +39,15 @@ public class JabRefRand extends ExperimentRunner {
         return arch;
     }
 
-    protected boolean load(Graph a_g) {
+    public boolean load(Graph a_g) {
         LoadJar c = new LoadJar("data/jabref-3.7.jar", "net/sf/jabref/");
         try {
             c.run(a_g);
         } catch (IOException e) {
-            System.out.println(e);
+            java.lang.System.out.println(e);
             return false;
         }
         return true;
     }
+
 }

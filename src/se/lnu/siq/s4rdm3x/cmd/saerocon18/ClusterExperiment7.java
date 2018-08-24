@@ -261,7 +261,7 @@ public class ClusterExperiment7 extends ClusterExperiment {
 
         for (int tIx = 0; tIx < Cluster1.g_originalMappingTags.length; tIx++) {
             if (au.hasAnyTag(nip.m_node, Cluster1.g_originalMappingTags[tIx])) {
-                //System.out.println("FanIn" + nip.m_fanIn);
+                //Sys.out.println("FanIn" + nip.m_fanIn);
                 au.addTag(nip.m_node, "manual");
                 au.addTag(nip.m_node, Cluster1.g_clusterTags[tIx]);
                 break;

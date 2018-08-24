@@ -77,7 +77,7 @@ public class dmProject {
                 for (dmClassLinePair from : l) {
                     if (from.m_class.getName().compareTo(a_containingClass.getName()) != 0) {
                         from.m_class.addDependency(a_containingClass, dmDependency.Type.FieldUse, from.m_line);
-                        //System.out.println("adding dependency to " + a_constant.toString());
+                        //Sys.out.println("adding dependency to " + a_constant.toString());
                     }
                 }
 
@@ -92,7 +92,7 @@ public class dmProject {
             if (containingClass != null) {
                 if (a_dependencyFrom.getName().compareTo(containingClass.getName()) != 0) {
                     a_dependencyFrom.addDependency(containingClass, dmDependency.Type.FieldUse, a_line);
-                    //System.out.println("adding dependency from: " + a_dependencyFrom.getName() + ", to: " + containingClass.getName() + ", because: " + a_constant.toString());
+                    //Sys.out.println("adding dependency from: " + a_dependencyFrom.getName() + ", to: " + containingClass.getName() + ", because: " + a_constant.toString());
                 }
             } else {
                 List<dmClassLinePair> l = m_constantDependencies.get(a_constant);

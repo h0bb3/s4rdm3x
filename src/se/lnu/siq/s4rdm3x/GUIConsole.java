@@ -171,7 +171,7 @@ public class GUIConsole extends JPanel {
                 Action copy = m_output.getActionMap().get("paste-from-clipboard");
 
                 for (Object o : m_output.getActionMap().keys()) {
-                    System.out.println((String)o);
+                    Sys.out.println((String)o);
 
                 }
             }

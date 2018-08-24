@@ -3,20 +3,24 @@ package se.lnu.siq.s4rdm3x.experiments;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import se.lnu.siq.s4rdm3x.cmd.HuGMe;
-import se.lnu.siq.s4rdm3x.cmd.Selector;
 import se.lnu.siq.s4rdm3x.cmd.util.FanInCache;
+import se.lnu.siq.s4rdm3x.experiments.metric.Metric;
+import se.lnu.siq.s4rdm3x.experiments.system.System;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Random;
 
-public abstract class ExperimentRunner {
+public class ExperimentRunner {
     private final String m_metricTag = "metric";
         protected Random m_rand = new Random();
     private RunListener m_listener = null;
+    private System m_sua;
+    private Metric m_metric;
 
-    protected ExperimentRunner() {
-
+    public ExperimentRunner(System a_sua, Metric a_metric) {
+        m_sua = a_sua;
+        m_metric = a_metric;
     }
 
     public interface RunListener {
@@ -48,19 +52,19 @@ public abstract class ExperimentRunner {
 
         FanInCache fic = null;
 
-        if (!load(a_g)) {
+        if (!m_sua.load(a_g)) {
             return;
         }
-        HuGMe.ArchDef arch = createAndMapArch(a_g);
+        HuGMe.ArchDef arch = m_sua.createAndMapArch(a_g);
 
 
 
         while(true) {
 
-            assignMetric(a_g, arch);
+            m_metric.assignMetric(a_g, arch);
 
             BasicRunData rd = new BasicRunData();
-            rd.m_metric = getMetricName();
+            rd.m_metric = m_metric.getName();
             rd.m_initialClusteringPercent = m_rand.nextDouble();
             rd.m_phi = m_rand.nextDouble();
             rd.m_omega = m_rand.nextDouble();
@@ -87,9 +91,9 @@ public abstract class ExperimentRunner {
             }
             while(true) {
                 HuGMe c = new HuGMe(rd.m_omega, rd.m_phi, true, arch, fic);
-                long start = System.nanoTime();
+                long start = java.lang.System.nanoTime();
                 c.run(a_g);
-                rd.m_time = System.nanoTime() - start;
+                rd.m_time = java.lang.System.nanoTime() - start;
 
                 rd.m_totalManuallyClustered += c.m_manuallyMappedNodes;
                 rd.m_totalAutoClustered += c.m_automaticallyMappedNodes;
@@ -125,7 +129,7 @@ public abstract class ExperimentRunner {
 
         // this sorts to lowest first
         sortedNodes.sort(Comparator.comparingDouble(a_n -> {
-            return getMetric(a_n);
+            return m_metric.getMetric(a_n);
         }));
 
         int nodeCount = (int) ((double) sortedNodes.size() * a_percentage);
@@ -160,7 +164,7 @@ public abstract class ExperimentRunner {
 
             // this sorts to lowest first
             sortedNodes.sort(Comparator.comparingDouble(a_n -> {
-                return getMetric(a_n);
+                return m_metric.getMetric(a_n);
             }));
 
             int nodeCount = (int) ((double) sortedNodes.size() * a_percentage);
@@ -182,26 +186,12 @@ public abstract class ExperimentRunner {
         }
     }
 
-    protected abstract void assignMetric(Graph a_g,  HuGMe.ArchDef a_arch);
 
-    protected abstract HuGMe.ArchDef createAndMapArch(Graph a_g);
-
-    protected abstract boolean load(Graph a_g);
-
-    protected abstract String getMetricName();
-
-    protected void setMetric(Node a_node, double a_metric) {
-        a_node.setAttribute(m_metricTag, a_metric);
-    }
-
-    protected double getMetric(Node a_node) {
-        return a_node.getAttribute(m_metricTag);
-    }
 
     private int getFirstBatchSize(ArrayList<Node> a_set) {
         int firstBatchSize = 1;
-        double firstBatchFan = getMetric(a_set.get(0));
-        while(firstBatchSize < a_set.size() && firstBatchFan == getMetric(a_set.get(firstBatchSize))) {
+        double firstBatchFan = m_metric.getMetric(a_set.get(0));
+        while(firstBatchSize < a_set.size() && firstBatchFan == m_metric.getMetric(a_set.get(firstBatchSize))) {
             firstBatchSize++;
         }
 
@@ -211,13 +201,13 @@ public abstract class ExperimentRunner {
     private ArrayList<Node> getWorkingSet(ArrayList<Node> a_sortedList, int nodesToAdd) {
         // things can have the same metric so we need to count this
         ArrayList<Node> workingSet = new ArrayList<>();
-        double  currentMetric = getMetric(a_sortedList.get(a_sortedList.size() - 1));
+        double  currentMetric = m_metric.getMetric(a_sortedList.get(a_sortedList.size() - 1));
         int ix = a_sortedList.size() - 1;
         int count = 0;
         while(ix >= 0 && count < nodesToAdd) {
 
-            if (currentMetric != getMetric(a_sortedList.get(ix))) {
-                currentMetric = getMetric(a_sortedList.get(ix));
+            if (currentMetric != m_metric.getMetric(a_sortedList.get(ix))) {
+                currentMetric = m_metric.getMetric(a_sortedList.get(ix));
                 count = a_sortedList.size() - ix - 1;  // we have completed the whole batch (at ix - 1) with the same metric
             }
             ix--;
@@ -235,11 +225,5 @@ public abstract class ExperimentRunner {
         return workingSet;
     }
 
-    protected HuGMe.ArchDef.Component createAddAndMapComponent(Graph a_g, HuGMe.ArchDef a_ad, String a_componentName, String[] a_packages) {
-        HuGMe.ArchDef.Component c = a_ad.addComponent(a_componentName);
-        for(String p : a_packages) {
-            c.mapToNodes(a_g, new Selector.Pkg(p));
-        }
-        return c;
-    }
+
 }

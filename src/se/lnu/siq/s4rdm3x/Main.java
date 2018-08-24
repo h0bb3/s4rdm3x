@@ -7,7 +7,6 @@ import org.graphstream.ui.view.ViewerPipe;
 import se.lnu.siq.s4rdm3x.cmd.*;
 import se.lnu.siq.s4rdm3x.cmd.saerocon18.*;
 import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
-import se.lnu.siq.s4rdm3x.experiments.TeamMatesRand;
 
 import java.util.*;
 
@@ -32,11 +31,6 @@ public class Main {
 
         Viewer view = graph.display();
         graph.setAttribute("view", view);
-
-        {
-            TeamMatesRand e = new TeamMatesRand();
-            e.run(graph);
-        }
 
 
         ViewerPipe vp = view.newViewerPipe();

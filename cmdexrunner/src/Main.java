@@ -1,57 +1,58 @@
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.MultiGraph;
-import se.lnu.siq.s4rdm3x.experiments.JabRefRand;
+import se.lnu.siq.s4rdm3x.experiments.ExperimentRunner;
 import se.lnu.siq.s4rdm3x.experiments.RunFileSaver;
-import se.lnu.siq.s4rdm3x.experiments.TeamMatesRand;
+import se.lnu.siq.s4rdm3x.experiments.metric.Metric;
+import se.lnu.siq.s4rdm3x.experiments.metric.Rand;
+import se.lnu.siq.s4rdm3x.experiments.system.JabRef;
+import se.lnu.siq.s4rdm3x.experiments.system.System;
+import se.lnu.siq.s4rdm3x.experiments.system.TeamMates;
 
 public class Main {
 
-    public static void runJabRefExperiment(String a_ex) {
-        Graph graph = new MultiGraph("main");
-        RunFileSaver fs;
-
-        if (a_ex.compareTo("1") == 0) {
-            JabRefRand ex = new JabRefRand();
-            fs = new RunFileSaver("JabRef_rand");
-            ex.setRunListener(fs);
-            System.out.println("Running JabRef experiment " + a_ex);
-            ex.run(graph);
-        } else {
-            System.out.println("Unknown JabRef experiment: " + a_ex);
+    public static Metric getMetric(String a_metric) {
+        if (a_metric.equalsIgnoreCase("rand")) {
+            return new Rand();
         }
+
+        return null;
     }
 
-    public static void runTeamMatesExperiment(String a_ex) {
-        Graph graph = new MultiGraph("main");
-        RunFileSaver fs;
+    public static System getSystem(String a_systemName)  {
 
-        if (a_ex.compareTo("1") == 0) {
-            TeamMatesRand ex = new TeamMatesRand();
-            fs = new RunFileSaver("TeamMates_rand");
-            ex.setRunListener(fs);
-            System.out.println("Running TeamMates experiment " + a_ex);
-            ex.run(graph);
-        } else {
-            System.out.println("Unknown TeamMates experiment: " + a_ex);
+        if (a_systemName.compareToIgnoreCase("jabref") == 0) {
+            return new JabRef();
+
+        } else if (a_systemName.compareToIgnoreCase("teammates") == 0) {
+            return new TeamMates();
         }
+
+        return null;
     }
 
     public static void main(String[] a_args) {
 
 
-        System.out.println("Running Experiment...");
+        java.lang.System.out.println("Running Experiment...");
 
         if (a_args.length == 2) {
-            if (a_args[0].compareToIgnoreCase("jabref") == 0) {
-                runJabRefExperiment(a_args[1]);
-            } else if (a_args[0].compareToIgnoreCase("teammates") == 0) {
-                runTeamMatesExperiment(a_args[1]);
+            System sua = getSystem(a_args[1]);
+            if (sua != null) {
+                Metric m = getMetric(a_args[2]);
+                if (m != null) {
+                    Graph graph = new MultiGraph("main");
+                    RunFileSaver fs = new RunFileSaver(sua.getName() + "_" + m.getName());
+                    ExperimentRunner exr = new ExperimentRunner(sua, m);
+                } else {
+                    java.lang.System.out.println("Unknown metric: " + a_args[0]);
+                    java.lang.System.out.println("Use: rand|fanin");
+                }
             } else {
-                System.out.println("Unknown system: " + a_args[0]);
-                System.out.println("Use: jabref|teammates");
+                java.lang.System.out.println("Unknown system: " + a_args[0]);
+                java.lang.System.out.println("Use: jabref|teammates");
             }
         } else {
-            System.out.println("Wrong number of arguments supplied.\n Use: jabref|teammates 1|2|3...");
+            java.lang.System.out.println("Wrong number of arguments supplied.\n Use: jabref|teammates rand|fanin|...");
         }
     }
 }

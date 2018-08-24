@@ -42,7 +42,7 @@ public class NodeUtil {
             n.setAttribute(AttributeUtil.g_nameKey, a_name);
             n.setAttribute(g_deflectionForceKey, 17);
         } else {
-           // System.out.println("Reusing graph node: " + n.getAttribute(AttributeUtil.g_nameKey));
+           // Sys.out.println("Reusing graph node: " + n.getAttribute(AttributeUtil.g_nameKey));
         }
         return n;
     }

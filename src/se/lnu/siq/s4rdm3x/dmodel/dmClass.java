@@ -106,7 +106,7 @@ public class dmClass {
     public boolean hasDirectDependency(Iterable<dmClass> a_targets) {
         for(dmClass target : a_targets) {
             if (hasDirectDependency(target)) {
-                //System.out.println("dependency found: " + target.getName());
+                //Sys.out.println("dependency found: " + target.getName());
                 return true;
             }
         }
@@ -127,7 +127,7 @@ public class dmClass {
     public boolean isAnonymous() {
         if (isInner()) {
             String name = m_name.substring(m_name.lastIndexOf('$') + 1);
-            //System.out.println(name);
+            //Sys.out.println(name);
             try {
                 Integer.parseInt(name);
                 return true;
