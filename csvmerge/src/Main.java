@@ -50,20 +50,18 @@ public class Main {
         }
 
         for (String line : a_rows) {
-            String outline = "" + a_ix + "\t";
+            String outline = "" + a_ix;
             a_ix++;
             String[] parts = line.split("\t");
-            for(int i = 0; i < global2LocalHeader.length;i++) {
-                if (i != 0) {
-                    outline += "\t";
-                }
+            for(int i = 0; i < global2LocalHeader.length; i++) {
+
+                outline += "\t";
                 if (global2LocalHeader[i] != -1) {
                     outline += parts[global2LocalHeader[i]];
                 } else {
                     outline += "n/a";
                 }
             }
-            outline = outline.substring(0, outline.length() - 1);   // remove last \t
             System.out.println(outline);
 
         }

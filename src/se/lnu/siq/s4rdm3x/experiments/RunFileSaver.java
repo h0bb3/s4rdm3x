@@ -47,6 +47,7 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
         row.add("totalFailedClusterings");
         row.add("mappingPercent");
         row.add("metric");
+        row.add("system");
 
         writeRow(m_filePath, row);
     }
@@ -83,6 +84,7 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
         row.add("" + a_rd.m_totalFailedClusterings);
         row.add("" + a_rd.m_initialClusteringPercent);
         row.add(a_rd.m_metric);
+        row.add(a_rd.m_system);
 
         writeRow(m_filePath, row);
     }
