@@ -1,8 +1,5 @@
 package se.lnu.siq.s4rdm3x;
 
-import java.io.Console;
-import java.util.Scanner;
-
 /**
  * Created by tohto on 2017-08-21.
  */

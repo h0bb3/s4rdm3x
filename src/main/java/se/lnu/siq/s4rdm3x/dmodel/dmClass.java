@@ -1,6 +1,6 @@
 package se.lnu.siq.s4rdm3x.dmodel;
 
-//import com.sun.corba.se.spi.ior.iiop.GIOPVersion;
+//import com.sun.corba.main.java.se.spi.ior.iiop.GIOPVersion;
 
 import java.util.ArrayList;
 import java.util.HashSet;

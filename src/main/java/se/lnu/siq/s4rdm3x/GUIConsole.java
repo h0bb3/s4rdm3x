@@ -5,7 +5,6 @@ package se.lnu.siq.s4rdm3x;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 
 
