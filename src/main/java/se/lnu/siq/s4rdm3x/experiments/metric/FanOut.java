@@ -17,8 +17,9 @@ public class FanOut extends Metric {
     @Override
     public void assignMetric(Graph a_g, HuGMe.ArchDef a_arch) {
         AttributeUtil au = new AttributeUtil();
+        FanHelper fh = new FanHelper(a_g, a_arch);
         for(Node n : a_arch.getMappedNodes(a_g.getNodeSet())) {
-            setMetric(n, getFanOut(n, au));
+            setMetric(n, fh.getFanOut(n));
         }
     }
 
@@ -26,23 +27,5 @@ public class FanOut extends Metric {
         // the fan out will not change so...
     }
 
-    public double getFanOut(Node a_n, AttributeUtil a_au) {
-        double fanOut = 0;
-        for (dmClass from : a_au.getClasses(a_n)) {
-            fanOut += countDependenciesFrom(from);
-        }
 
-        return fanOut;
-    }
-
-    private double countDependenciesFrom(dmClass a_c) {
-        double count = 0;
-        // TODO: we should have some weight here
-
-        for(dmDependency d : a_c.getDependencies()) {
-                count += d.getCount();
-        }
-
-        return count;
-    }
 }
