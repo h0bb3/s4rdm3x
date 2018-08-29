@@ -10,6 +10,7 @@ import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Random;
 
 import static java.nio.file.Files.exists;
 import static java.nio.file.Files.write;
@@ -18,18 +19,21 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
 
     Path m_filePath;
     RunData m_rd;
+    int m_errorCounter;
 
     public static class RunData {
         public String m_date;
         public int m_initialClustered;
         public int m_totalMapped;
         public String m_initialDistribution;
+
     }
 
     public RunFileSaver(String a_baseFileName) {
-
+        m_errorCounter = 0;
         m_rd = null;
         m_filePath = getFilePath(a_baseFileName);
+
 
         ArrayList<String> row = new ArrayList<>();
         row.add("date");
@@ -89,6 +93,24 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
         writeRow(m_filePath, row);
     }
 
+    private void writeRow(Path a_filePath, String a_row) {
+        try {
+            write(a_filePath, a_row.getBytes(), StandardOpenOption.APPEND);
+            m_errorCounter = 0;
+        } catch (Exception e) {
+            if (m_errorCounter > 100) {
+                System.out.println("Could not write row " + e.getMessage() + e.getStackTrace());
+                System.out.println("Exiting!");
+                System.exit(-1);
+            } else {
+                m_errorCounter++;
+                Random r = new Random();
+                try{Thread.sleep((long)(r.nextDouble() * 1717));} catch (Exception e2) {};
+                writeRow(a_filePath, a_row);
+            }
+        }
+    }
+
     private void writeRow(Path a_filePath, Iterable<String> m_strings) {
 
         String txtRow = "";
@@ -97,13 +119,9 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
         }
 
         txtRow = txtRow.substring(0, txtRow.length() - 1);
-
         txtRow += "\r\n";
-        try {
-            write(a_filePath, txtRow.getBytes(), StandardOpenOption.APPEND);
-        } catch (Exception e) {
-            System.out.println("Could not write row " + e.getMessage() + e.getStackTrace());
-        }
+        writeRow(a_filePath, txtRow);
+
     }
 
     private Path getFilePath(String a_fileName) {
@@ -115,13 +133,22 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
                 i++;
             }
             try {
-                //Files.deleteIfExists(filePath);
                 write(fp, "".getBytes(), StandardOpenOption.CREATE_NEW);
+                m_errorCounter = 0;
             } catch (Exception e) {
-                System.out.println("Could not Create file: " + fp.toString());
-                System.out.println(e.getMessage());
-                System.out.println(e.getStackTrace());
-                return null;
+                if (m_errorCounter > 100) {
+                    System.out.println("Could not Create file: " + fp.toString());
+                    System.out.println(e.getMessage());
+                    System.out.println(e.getStackTrace());
+                    System.out.println("Exiting!");
+                    System.exit(-1);
+                    return null;
+                } else {
+                    m_errorCounter++;
+                    Random r = new Random();
+                    try{Thread.sleep((long)(r.nextDouble() * 1717));} catch (Exception e2) {};
+                    return getFilePath(a_fileName);
+                }
             }
         }
 

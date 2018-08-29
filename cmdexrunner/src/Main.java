@@ -41,24 +41,39 @@ public class Main {
 
 
 
-        if (a_args.length == 2) {
-            System sua = getSystem(a_args[0]);
+        if (a_args.length == 3) {
+            int threadCount = Integer.parseInt(a_args[0]);
+            if (threadCount < 1) {
+                threadCount = 1;
+            }
+            System sua = getSystem(a_args[1]);
             if (sua != null) {
-                Metric m = getMetric(a_args[1]);
+                Metric m = getMetric(a_args[2]);
                 if (m != null) {
-                    Graph graph = new MultiGraph("main");
-                    RunFileSaver fs = new RunFileSaver(sua.getName() + "_" + m.getName());
-                    ExperimentRunner exr = new ExperimentRunner(sua, m);
-                    exr.setRunListener(fs);
 
-                    java.lang.System.out.println("Running Experiment...");
-                    exr.run(graph);
+
+                    for(int i = 0; i < threadCount; i++) {
+                        final int ix = i;
+
+                        Thread t = new Thread(() -> {
+                            java.lang.System.out.println("Running Experiment " + ix + "...");
+                            Graph graph = new MultiGraph("main" + ix);
+                            RunFileSaver fs = new RunFileSaver(sua.getName() + "_" + m.getName());
+                            ExperimentRunner exr = new ExperimentRunner(sua, m);
+                            exr.setRunListener(fs);
+                            exr.run(graph);
+                        });
+                        t.start();
+                    }
+                    while (true) {
+                        try{Thread.sleep(1000);} catch (Exception e) {};
+                    }
                 } else {
-                    java.lang.System.out.println("Unknown metric: " + a_args[0]);
+                    java.lang.System.out.println("Unknown metric: " + a_args[2]);
                     java.lang.System.out.println("Use: rand|fanin");
                 }
             } else {
-                java.lang.System.out.println("Unknown system: " + a_args[0]);
+                java.lang.System.out.println("Unknown system: " + a_args[1]);
                 java.lang.System.out.println("Use: jabref|jabrefsaerocon18|teammates");
             }
         } if (a_args.length == 1) {
@@ -74,9 +89,8 @@ public class Main {
                 Graph graph = new MultiGraph("main");
                 c.run(graph);
             }
-        }
-        else {
-            java.lang.System.out.println("Wrong number of arguments supplied.\n Use: jabref|teammates rand|fanin|...");
+        } else {
+            java.lang.System.out.println("Wrong number of arguments supplied.\n Use: threads jabref|teammates rand|fanin|fanout...");
         }
     }
 }
