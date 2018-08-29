@@ -1,10 +1,13 @@
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.MultiGraph;
+import se.lnu.siq.s4rdm3x.cmd.saerocon18.ClusterExperiment10;
 import se.lnu.siq.s4rdm3x.experiments.ExperimentRunner;
 import se.lnu.siq.s4rdm3x.experiments.RunFileSaver;
 import se.lnu.siq.s4rdm3x.experiments.metric.*;
 import se.lnu.siq.s4rdm3x.experiments.system.System;
 import se.lnu.siq.s4rdm3x.experiments.system.*;
+
+import java.util.ArrayList;
 
 public class Main {
 
@@ -27,6 +30,8 @@ public class Main {
 
         } else if (a_systemName.compareToIgnoreCase("teammates") == 0) {
             return new TeamMates();
+        } else if (a_systemName.compareToIgnoreCase("jabrefsaerocon18") == 0) {
+            return new JabRefSAEroCon18();
         }
 
         return null;
@@ -54,9 +59,23 @@ public class Main {
                 }
             } else {
                 java.lang.System.out.println("Unknown system: " + a_args[0]);
-                java.lang.System.out.println("Use: jabref|teammates");
+                java.lang.System.out.println("Use: jabref|jabrefsaerocon18|teammates");
             }
-        } else {
+        } if (a_args.length == 1) {
+            if (a_args[0].equalsIgnoreCase("ex10")) {
+                java.lang.System.out.println("Running Old Experiment Ex10");
+                ClusterExperiment10 c = new ClusterExperiment10((ArrayList<String> a_row) -> {
+                    String out = "";
+                    for (String s : a_row) {
+                        out += s + "\t";
+                    }
+                    //java.lang.System.out.println(out);
+                });
+                Graph graph = new MultiGraph("main");
+                c.run(graph);
+            }
+        }
+        else {
             java.lang.System.out.println("Wrong number of arguments supplied.\n Use: jabref|teammates rand|fanin|...");
         }
     }

@@ -112,4 +112,26 @@ class FanInCacheTest {
         assertEquals(0, fic.getFanIn(m_n3, m_n1));
         assertEquals(0, fic.getFanIn(m_n3, m_n2));
     }
+
+    @Test
+    void getFanIn3() {
+        m_c1_1.addDependency(m_c2_1, dmDependency.Type.FieldUse, 0);
+        m_c1_1.addDependency(m_c2_1, dmDependency.Type.Field, 1);
+        m_c1_1.addDependency(m_c2_2, dmDependency.Type.Argument, 2);
+        m_c3_1.addDependency(m_c2_1, dmDependency.Type.FieldUse, 0);
+        m_c3_1.addDependency(m_c2_2, dmDependency.Type.Field, 1);
+        m_c3_2.addDependency(m_c2_1, dmDependency.Type.Argument, 2);
+        FanInCache fic = new FanInCache(m_g.getNodeSet());
+
+        assertEquals(0, fic.getFanIn(m_n1));
+        assertEquals(6, fic.getFanIn(m_n2));
+        assertEquals(0, fic.getFanIn(m_n3));
+
+        assertEquals(0, fic.getFanIn(m_n1, m_n2));
+        assertEquals(0, fic.getFanIn(m_n1, m_n3));
+        assertEquals(3, fic.getFanIn(m_n2, m_n1));
+        assertEquals(3, fic.getFanIn(m_n2, m_n3));
+        assertEquals(0, fic.getFanIn(m_n3, m_n1));
+        assertEquals(0, fic.getFanIn(m_n3, m_n2));
+    }
 }

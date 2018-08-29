@@ -12,8 +12,7 @@ import java.util.Comparator;
 import java.util.Random;
 
 public class ExperimentRunner {
-    private final String m_metricTag = "metric";
-        protected Random m_rand = new Random();
+    protected Random m_rand = new Random();
     private RunListener m_listener = null;
     private System m_sua;
     private Metric m_metric;
@@ -63,17 +62,18 @@ public class ExperimentRunner {
 
         while(true) {
 
-            m_metric.reassignMetric(a_g, arch);
+
 
             BasicRunData rd = new BasicRunData();
             rd.m_metric = m_metric.getName();
             rd.m_system = m_sua.getName();
-            rd.m_initialClusteringPercent = m_rand.nextDouble();
+            rd.m_initialClusteringPercent = m_rand.nextDouble() * 0.1;
             rd.m_phi = m_rand.nextDouble();
             rd.m_omega = m_rand.nextDouble();
 
             arch.cleanNodeClusters(a_g);
             assignInitialClusters(a_g, arch, rd.m_initialClusteringPercent);
+            //assignInitialClustersPerComponent(a_g, arch, rd.m_initialClusteringPercent);
 
             //rd.m_totalMapped = 0;
             rd.m_totalManuallyClustered = 0;
@@ -113,32 +113,20 @@ public class ExperimentRunner {
             }
 
             i++;
+            m_metric.reassignMetric(a_g, arch);
         }
     }
 
 
-
-
-
     private void assignInitialClusters(Graph a_g, HuGMe.ArchDef a_arch, double a_percentage) {
-        ArrayList<Node> sortedNodes = new ArrayList<>();
-        for (Node n : a_g.getEachNode()) {
-            if (a_arch.getMappedComponent(n) != null) {
-                sortedNodes.add(n);
-            }
-        }
+        ArrayList<Node> nodes = new ArrayList<>();
+        a_arch.getMappedNodes(a_g.getNodeSet()).forEach(a_n -> nodes.add(a_n));
 
-        // this sorts to lowest first
-        sortedNodes.sort(Comparator.comparingDouble(a_n -> {
-            return m_metric.getMetric(a_n);
-        }));
-
-        int nodeCount = (int) ((double) sortedNodes.size() * a_percentage);
+        int nodeCount = (int) ((double) nodes.size() * a_percentage);
         if (nodeCount <= 0) {
             nodeCount = 1;
         }
-
-        ArrayList<Node> workingSet = getWorkingSet(sortedNodes, nodeCount);
+        ArrayList<Node> workingSet = getWorkingSet(nodes, nodeCount);
 
         // we may have added too many nodes (i.e. the last batch may be bigger)
         while (workingSet.size() > nodeCount) {
@@ -156,30 +144,19 @@ public class ExperimentRunner {
         // OBS this assigns a number of classes per component, this is not actually that realistic
         for (HuGMe.ArchDef.Component component : a_arch.getComponents()) {
 
-            ArrayList<Node> sortedNodes = new ArrayList<>();
+            ArrayList<Node> nodes = new ArrayList<>();
             for (Node n : a_g.getEachNode()) {
                 if (component.isMappedTo(n)) {
-                    sortedNodes.add(n);
+                    nodes.add(n);
                 }
             }
 
-            // this sorts to lowest first
-            sortedNodes.sort(Comparator.comparingDouble(a_n -> {
-                return m_metric.getMetric(a_n);
-            }));
-
-            int nodeCount = (int) ((double) sortedNodes.size() * a_percentage);
+            int nodeCount = (int) ((double) nodes.size() * a_percentage);
             if (nodeCount <= 0) {
                 nodeCount = 1;
             }
 
-            ArrayList<Node> workingSet = getWorkingSet(sortedNodes, nodeCount);
-
-            // we may have added too many nodes (i.e. the last batch may be bigger)
-            while (workingSet.size() > nodeCount) {
-                int firstBatchSize = getFirstBatchSize(workingSet);
-                workingSet.remove(Math.abs(m_rand.nextInt()) % firstBatchSize);
-            }
+            ArrayList<Node> workingSet = getWorkingSet(nodes, nodeCount);
 
             for (Node n : workingSet) {
                 component.clusterToNode(n);
@@ -199,17 +176,24 @@ public class ExperimentRunner {
         return firstBatchSize;
     }
 
-    private ArrayList<Node> getWorkingSet(ArrayList<Node> a_sortedList, int nodesToAdd) {
+    private ArrayList<Node> getWorkingSet(Iterable<Node> a_nodes, int a_nodesToAdd) {
+        // this sorts to lowest first
+        ArrayList<Node> sortedNodes = new ArrayList<>();
+        a_nodes.forEach(a_n -> {sortedNodes.add(a_n);});
+        sortedNodes.sort(Comparator.comparingDouble(a_n -> {
+            return m_metric.getMetric(a_n);
+        }));
+
         // things can have the same metric so we need to count this
         ArrayList<Node> workingSet = new ArrayList<>();
-        double  currentMetric = m_metric.getMetric(a_sortedList.get(a_sortedList.size() - 1));
-        int ix = a_sortedList.size() - 1;
+        double  currentMetric = m_metric.getMetric(sortedNodes.get(sortedNodes.size() - 1));
+        int ix = sortedNodes.size() - 1;
         int count = 0;
-        while(ix >= 0 && count < nodesToAdd) {
+        while(ix >= 0 && count < a_nodesToAdd) {
 
-            if (currentMetric != m_metric.getMetric(a_sortedList.get(ix))) {
-                currentMetric = m_metric.getMetric(a_sortedList.get(ix));
-                count = a_sortedList.size() - ix - 1;  // we have completed the whole batch (at ix - 1) with the same metric
+            if (currentMetric != m_metric.getMetric(sortedNodes.get(ix))) {
+                currentMetric = m_metric.getMetric(sortedNodes.get(ix));
+                count = sortedNodes.size() - ix - 1;  // we have completed the whole batch (at ix - 1) with the same metric
             }
             ix--;
         }
@@ -219,11 +203,21 @@ public class ExperimentRunner {
             ix = 0; // we went to the end
         }
 
-        for (; ix < a_sortedList.size(); ix++) {
-            workingSet.add(a_sortedList.get(ix));
+        for (; ix < sortedNodes.size(); ix++) {
+            workingSet.add(sortedNodes.get(ix));
+        }
+
+        // we may have added too many nodes (i.e. the last batch may be bigger)
+        while (workingSet.size() > a_nodesToAdd) {
+            int firstBatchSize = getFirstBatchSize(workingSet);
+            workingSet.remove(Math.abs(m_rand.nextInt()) % firstBatchSize);
         }
 
         return workingSet;
+    }
+
+    ArrayList<Node> getWorkingSetTestHelper(Iterable<Node> a_nodes, int a_nodesToAdd) {
+        return getWorkingSet(a_nodes, a_nodesToAdd);
     }
 
 
