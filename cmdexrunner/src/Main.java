@@ -11,13 +11,23 @@ import java.util.ArrayList;
 
 public class Main {
 
+    final static String[] g_metrics = {"rand", "fanin", "fanout", "fan", "maxfan", "minfan", "avgfan"};
+
     public static Metric getMetric(String a_metric) {
-        if (a_metric.equalsIgnoreCase("rand")) {
+        if (a_metric.equalsIgnoreCase(g_metrics[0])) {
             return new Rand();
-        } else if (a_metric.equalsIgnoreCase("fanin")) {
+        } else if (a_metric.equalsIgnoreCase(g_metrics[1])) {
             return new FanIn();
-        } else if (a_metric.equalsIgnoreCase("fanout")) {
+        } else if (a_metric.equalsIgnoreCase(g_metrics[2])) {
             return new FanOut();
+        } else if (a_metric.equalsIgnoreCase(g_metrics[3])) {
+            return new Fan();
+        } else if (a_metric.equalsIgnoreCase(g_metrics[4])) {
+            return new MaxFan();
+        } else if (a_metric.equalsIgnoreCase(g_metrics[5])) {
+            return new MinFan();
+        } else if (a_metric.equalsIgnoreCase(g_metrics[6])) {
+            return new AvgFan();
         }
 
         return null;
@@ -37,9 +47,92 @@ public class Main {
         return null;
     }
 
+    private static class ExThread extends Thread {
+        private int m_ix;
+        Metric m_metric;
+        System m_sua;
+        RunFileSaver m_fs;
+        ExperimentRunner m_exr;
+
+        public ExThread(System a_sua, Metric a_metric, int a_index) {
+            m_ix = a_index;
+            m_metric = a_metric;
+            m_sua = a_sua;
+        }
+
+        public void run() {
+            java.lang.System.out.println("Running Experiment " + m_ix + "...");
+            Graph graph = new MultiGraph("main" + m_ix);
+            m_fs = new RunFileSaver(m_sua.getName(), m_metric.getName());
+            m_exr = new ExperimentRunner(m_sua, m_metric);
+            m_exr.setRunListener(m_fs);
+            m_exr.run(graph);
+        }
+
+        public ExperimentRunner.State getExState() {
+            return m_exr.getState();
+        }
+
+        public void halt() {
+            m_exr.stop();
+        }
+
+        public int getRows() {
+            if (m_fs != null) {
+                return m_fs.getRunCount();
+            } else {
+                return 0;
+            }
+        }
+
+    }
+
+    private static ArrayList<ExThread> startThreads(int a_theadCount, System a_sua, Metric a_metric) {
+        ArrayList<ExThread> ret = new ArrayList<>();
+        for(int i = 0; i < a_theadCount; i++) {
+            final int ix = i;
+
+            // need to make a class of this so we can check te no rows
+            ExThread r = new ExThread(a_sua, a_metric, ix);
+            ret.add(r);
+            Thread t = new Thread(r);
+            t.start();
+        }
+        return ret;
+    }
+
+    private static String getMetricsString() {
+        String metrics = "";
+        for (String m : g_metrics) {
+            if (metrics.length() > 0) {
+                metrics += "|";
+            }
+            metrics += m;
+        }
+        return metrics;
+    }
+
+    private static int sumRows(Iterable<ExThread> a_threads) {
+        int rows = 0;
+
+        for (ExThread et: a_threads) {
+            rows += et.getRows();
+        }
+
+        return rows;
+    }
+
+    private static boolean allIdle(Iterable<ExThread> a_threads) {
+        for (ExThread et: a_threads) {
+            if (et.getExState() != ExperimentRunner.State.Idle) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
     public static void main(String[] a_args) {
-
-
 
         if (a_args.length == 3) {
             int threadCount = Integer.parseInt(a_args[0]);
@@ -50,33 +143,52 @@ public class Main {
             if (sua != null) {
                 Metric m = getMetric(a_args[2]);
                 if (m != null) {
-
-
-                    for(int i = 0; i < threadCount; i++) {
-                        final int ix = i;
-
-                        Thread t = new Thread(() -> {
-                            java.lang.System.out.println("Running Experiment " + ix + "...");
-                            Graph graph = new MultiGraph("main" + ix);
-                            RunFileSaver fs = new RunFileSaver(sua.getName() + "_" + m.getName());
-                            ExperimentRunner exr = new ExperimentRunner(sua, m);
-                            exr.setRunListener(fs);
-                            exr.run(graph);
-                        });
-                        t.start();
-                    }
+                    startThreads(threadCount, sua, m);
                     while (true) {
                         try{Thread.sleep(1000);} catch (Exception e) {};
                     }
                 } else {
-                    java.lang.System.out.println("Unknown metric: " + a_args[2]);
-                    java.lang.System.out.println("Use: rand|fanin");
+                    java.lang.System.out.println("Unknow metric: " + a_args[2]);
+                    java.lang.System.out.println("Use: " + getMetricsString());
                 }
             } else {
                 java.lang.System.out.println("Unknown system: " + a_args[1]);
                 java.lang.System.out.println("Use: jabref|jabrefsaerocon18|teammates");
             }
-        } if (a_args.length == 1) {
+        } else if (a_args.length == 2) {
+            int threadCount = Integer.parseInt(a_args[0]);
+            if (threadCount < 1) {
+                threadCount = 1;
+            }
+            System sua = getSystem(a_args[1]);
+            if (sua != null) {
+                java.lang.System.out.println("Running experiments on all metrics for 500000 rows: " + a_args[1]);
+
+                for (String mStr : g_metrics) {
+                    Metric m = getMetric(mStr);
+                    if (m != null) {
+                        java.lang.System.out.println("Running experiments on metrics: " + m.getName());
+                        ArrayList<ExThread> threads = startThreads(threadCount, sua, m);
+
+                        while(sumRows(threads) < 50000) {
+                            try{Thread.sleep(1000);} catch (Exception e) {};
+
+                        }
+                        for(ExThread et : threads) {
+                            et.halt();
+                        }
+                        while(!allIdle(threads)) {
+                            try{Thread.sleep(100);} catch (Exception e) {};
+                        }
+                    }
+                }
+                java.lang.System.out.println("All Done!");
+
+            } else {
+                java.lang.System.out.println("Unknown system: " + a_args[1]);
+                java.lang.System.out.println("Use: jabref|jabrefsaerocon18|teammates");
+            }
+        } else if (a_args.length == 1) {
             if (a_args[0].equalsIgnoreCase("ex10")) {
                 java.lang.System.out.println("Running Old Experiment Ex10");
                 ClusterExperiment10 c = new ClusterExperiment10((ArrayList<String> a_row) -> {
@@ -90,7 +202,7 @@ public class Main {
                 c.run(graph);
             }
         } else {
-            java.lang.System.out.println("Wrong number of arguments supplied.\n Use: threads jabref|teammates rand|fanin|fanout...");
+                java.lang.System.out.println("Wrong number of arguments supplied.\n Use: threads jabref|teammates " + getMetricsString());
         }
     }
 }

@@ -16,6 +16,24 @@ public class ExperimentRunner {
     private RunListener m_listener = null;
     private System m_sua;
     private Metric m_metric;
+    private State m_state;
+
+    public enum State {
+      Running,
+      Stoping,
+      Idle
+    };
+
+    public void stop() {
+        if (m_state == State.Running) {
+            m_state = State.Stoping;
+        }
+    }
+
+    public State getState() {
+        return m_state;
+    }
+
 
     public ExperimentRunner(System a_sua, Metric a_metric) {
         m_sua = a_sua;
@@ -60,9 +78,8 @@ public class ExperimentRunner {
 
         m_metric.assignMetric(a_g, arch);
 
-        while(true) {
-
-
+        m_state = State.Running;
+        while(m_state == State.Running) {
 
             BasicRunData rd = new BasicRunData();
             rd.m_metric = m_metric.getName();
@@ -90,7 +107,7 @@ public class ExperimentRunner {
             if (m_listener != null) {
                 rd = m_listener.OnRunInit(rd, a_g, arch);
             }
-            while(true) {
+            while(m_state == State.Running) {
                 HuGMe c = new HuGMe(rd.m_omega, rd.m_phi, true, arch, fic);
                 long start = java.lang.System.nanoTime();
                 c.run(a_g);
@@ -115,6 +132,8 @@ public class ExperimentRunner {
             i++;
             m_metric.reassignMetric(a_g, arch);
         }
+
+        m_state = State.Idle;
     }
 
 

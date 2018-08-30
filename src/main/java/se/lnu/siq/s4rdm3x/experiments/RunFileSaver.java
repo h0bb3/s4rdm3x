@@ -4,9 +4,8 @@ import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import se.lnu.siq.s4rdm3x.cmd.HuGMe;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import java.io.File;
+import java.nio.file.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -20,6 +19,7 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
     Path m_filePath;
     RunData m_rd;
     int m_errorCounter;
+    int m_runCount;
 
     public static class RunData {
         public String m_date;
@@ -29,10 +29,15 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
 
     }
 
-    public RunFileSaver(String a_baseFileName) {
+    public int getRunCount() {
+        return m_runCount;
+    }
+
+    public RunFileSaver(String a_system, String a_metric) {
         m_errorCounter = 0;
         m_rd = null;
-        m_filePath = getFilePath(a_baseFileName);
+        m_runCount = 0;
+        m_filePath = createFile(a_system, a_metric);
 
 
         ArrayList<String> row = new ArrayList<>();
@@ -91,6 +96,7 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
         row.add(a_rd.m_system);
 
         writeRow(m_filePath, row);
+        m_runCount++;
     }
 
     private void writeRow(Path a_filePath, String a_row) {
@@ -124,31 +130,64 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
 
     }
 
-    private Path getFilePath(String a_fileName) {
-        java.nio.file.Path fp = Paths.get(a_fileName + "_0.csv");
-        {
-            int i = 1;
-            while (exists(fp)) {
-                fp = Paths.get(a_fileName + "_" + i + ".csv");
-                i++;
-            }
+    private void handleError(String a_errorText, Exception a_e) {
+        if (m_errorCounter > 100) {
+            System.out.println(a_errorText);
+            System.out.println(a_e.getMessage());
+            System.out.println(a_e.getStackTrace());
+            System.out.println("Exiting!");
+            System.exit(-1);
+        } else {
+            m_errorCounter++;
+        }
+    }
+
+    private void createDir(Path a_p) {
+        if (a_p != null) {
             try {
-                write(fp, "".getBytes(), StandardOpenOption.CREATE_NEW);
+                Files.createDirectories(a_p);
                 m_errorCounter = 0;
-            } catch (Exception e) {
-                if (m_errorCounter > 100) {
-                    System.out.println("Could not Create file: " + fp.toString());
-                    System.out.println(e.getMessage());
-                    System.out.println(e.getStackTrace());
-                    System.out.println("Exiting!");
-                    System.exit(-1);
-                    return null;
-                } else {
-                    m_errorCounter++;
-                    Random r = new Random();
-                    try{Thread.sleep((long)(r.nextDouble() * 1717));} catch (Exception e2) {};
-                    return getFilePath(a_fileName);
+            } catch (FileAlreadyExistsException a_faee) {
+                // this is fine
+            } catch (Exception a_e) {
+                handleError("Could not create Dir: " + a_p.toString(), a_e);
+                createDir(a_p);
+            }
+        }
+    }
+
+    private Path createFile(String a_dir1, String a_dir2) {
+        String fileName = a_dir1 + File.separator + a_dir2 + File.separator + a_dir1 + "_" + a_dir2;
+        java.nio.file.Path fp = Paths.get(fileName + "_0.csv");
+
+        createDir(fp.getParent());
+
+        int i = 1;
+        while (exists(fp)) {
+            fp = Paths.get(fileName + "_" + i + ".csv");
+            i++;
+        }
+
+        try {
+            Files.createFile(fp);
+            m_errorCounter = 0;
+        } catch (Exception e) {
+            if (m_errorCounter > 100) {
+                System.out.println("Could not Create file: " + fp.toString());
+                System.out.println(e.getMessage());
+                System.out.println(e.getStackTrace());
+                System.out.println("Exiting!");
+                System.exit(-1);
+                return null;
+            } else {
+                m_errorCounter++;
+                Random r = new Random();
+                try {
+                    Thread.sleep((long) (r.nextDouble() * 1717));
+                } catch (Exception e2) {
                 }
+                ;
+                return createFile(a_dir1, a_dir2);
             }
         }
 
