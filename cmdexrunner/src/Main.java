@@ -36,7 +36,7 @@ public class Main {
     public static System getSystem(String a_systemName)  {
 
         if (a_systemName.compareToIgnoreCase("jabref") == 0) {
-            return new JabRef();
+            return new JabRef_3_7();
 
         } else if (a_systemName.compareToIgnoreCase("teammates") == 0) {
             return new TeamMates();

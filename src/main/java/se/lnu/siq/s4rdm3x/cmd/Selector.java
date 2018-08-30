@@ -6,6 +6,7 @@ import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 public class Selector {
 
@@ -78,6 +79,25 @@ public class Selector {
 
         public boolean isSelected(Node a_node) {
             return g_au.hasAnyTag(a_node, m_tag);
+        }
+    }
+
+    public static class Pat implements ISelector {
+        private String m_sPattern;
+        private Pattern m_cPattern;
+
+        public Pat(String a_pattern) {
+            m_sPattern = a_pattern;
+            m_cPattern = Pattern.compile(m_sPattern);
+        }
+
+        public boolean isSelected(Node a_node) {
+            for (dmClass c : g_au.getClasses(a_node)) {
+                if (m_cPattern.matcher(c.getFileName()).find()) {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 

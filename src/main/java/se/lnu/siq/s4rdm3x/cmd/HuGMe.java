@@ -47,6 +47,11 @@ public class HuGMe {
                 tagNode(a_n, getClusterName(), au);
             }
 
+            public void unmap(Node a_n) {
+                AttributeUtil au = new AttributeUtil();
+                au.removeTag(a_n, m_name);
+            }
+
             public void mapToNode(Node a_n) {
                 AttributeUtil au = new AttributeUtil();
                 tagNode(a_n, m_name, au);

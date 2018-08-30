@@ -6,11 +6,11 @@ import se.lnu.siq.s4rdm3x.cmd.LoadJar;
 
 import java.io.IOException;
 
-public class JabRef extends System {
+public class JabRef_3_7 extends System {
 
     @Override
     public String getName() {
-        return "JabRef";
+        return "JabRef_3_7";
     }
 
     public HuGMe.ArchDef createAndMapArch(Graph a_g)  {
@@ -40,7 +40,7 @@ public class JabRef extends System {
     }
 
     public boolean load(Graph a_g) {
-        LoadJar c = new LoadJar("data/jabref-3.7.jar", "net/sf/jabref/");
+        LoadJar c = new LoadJar("data/JabRef-3.5.jar", "net/sf/jabref/");
         try {
             c.run(a_g);
         } catch (IOException e) {

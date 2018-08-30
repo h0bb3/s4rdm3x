@@ -7,6 +7,7 @@ import org.graphstream.ui.view.ViewerPipe;
 import se.lnu.siq.s4rdm3x.cmd.*;
 import se.lnu.siq.s4rdm3x.cmd.saerocon18.*;
 import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
+import se.lnu.siq.s4rdm3x.experiments.system.JabRef_3_5;
 
 import java.util.*;
 
@@ -21,7 +22,7 @@ public class Main {
         //C.io.setTitle("Hello World");
         GUIConsole guic = new GUIConsole();
 
-        Graph graph = new MultiGraph("JabRef");
+        Graph graph = new MultiGraph("main_graph");
         graph.addAttribute("ui.antialias");
         graph.addAttribute("ui.quality", 4);
         graph.setAttribute("ui.stylesheet", "url(data/style.css);");
@@ -36,6 +37,12 @@ public class Main {
         ViewerPipe vp = view.newViewerPipe();
         vp.addViewerListener(new ClickListener(graph));
         vp.addSink(graph);
+
+        {
+            JabRef_3_5 jr = new JabRef_3_5();
+            jr.load(graph);
+            jr.createAndMapArch(graph);
+        }
 
 
         while (true) {
