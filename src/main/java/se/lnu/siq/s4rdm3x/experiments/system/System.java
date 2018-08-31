@@ -2,7 +2,7 @@ package se.lnu.siq.s4rdm3x.experiments.system;
 
 import org.graphstream.graph.Graph;
 import se.lnu.siq.s4rdm3x.cmd.HuGMe;
-import se.lnu.siq.s4rdm3x.cmd.Selector;
+import se.lnu.siq.s4rdm3x.cmd.util.Selector;
 
 public abstract class System {
     public abstract HuGMe.ArchDef createAndMapArch(Graph a_g);

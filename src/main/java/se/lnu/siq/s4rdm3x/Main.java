@@ -7,7 +7,10 @@ import org.graphstream.ui.view.ViewerPipe;
 import se.lnu.siq.s4rdm3x.cmd.*;
 import se.lnu.siq.s4rdm3x.cmd.saerocon18.*;
 import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
-import se.lnu.siq.s4rdm3x.experiments.system.JabRef_3_5;
+import se.lnu.siq.s4rdm3x.cmd.util.LoadArch;
+import se.lnu.siq.s4rdm3x.cmd.util.Selector;
+import se.lnu.siq.s4rdm3x.cmd.util.SelectorBuilder;
+import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 
 import java.util.*;
 
@@ -38,11 +41,11 @@ public class Main {
         vp.addViewerListener(new ClickListener(graph));
         vp.addSink(graph);
 
-        {
+        /*{
             JabRef_3_5 jr = new JabRef_3_5();
             jr.load(graph);
             jr.createAndMapArch(graph);
-        }
+        }*/
 
 
         while (true) {
@@ -104,8 +107,23 @@ public class Main {
                             LoadJar c = new LoadJar(cargs[1], rootPkg);
                             c.run(graph);
                         } else if (in.compareTo("clear_graph") == 0) {
-                            //view.close();
+
                             graph.clear();
+                            //view.getGraphicGraph().clear();
+
+                            graph.addAttribute("ui.antialias");
+                            graph.addAttribute("ui.quality", 4);
+                            graph.setAttribute("ui.stylesheet", "url(data/style.css);");
+                            graph.addAttribute("ui.title", "Graph");
+                            graph.addAttribute("layout.stabilization-limit", 1.0);
+                            graph.setAttribute("view", view);
+
+
+                            //vp.addSink(graph);
+
+
+
+                            /*graph = new MultiGraph("main");
 
                             graph.addAttribute("ui.antialias");
                             graph.addAttribute("ui.quality");
@@ -113,11 +131,12 @@ public class Main {
                             graph.addAttribute("ui.title", "Graph");
 
 
-                            //view = graph.display();
+                            view = graph.display();
+                            graph.setAttribute("view", view);
 
-                            //vp = view.newViewerPipe();
-                            //vp.addViewerListener(new ClickListener(graph));
-                            //vp.addSink(graph);
+                            vp = view.newViewerPipe();
+                            vp.addViewerListener(new ClickListener(graph));
+                            vp.addSink(graph);*/
 
                         } else if (in.startsWith("add_relations")) {
                             String[] cargs = in.split(" ");
@@ -202,95 +221,33 @@ public class Main {
                             Exporter c = new Exporter(cargs[1], s);
                             c.run(graph);
 
-                        } else if(in.startsWith("ClusterExperiment1")) {
-                            Runnable r = new Runnable() {
-                                @Override
-                                public void run() {
-                                    ClusterExperiment1 c = new ClusterExperiment1((ArrayList<String> a_row) -> {
-                                        String out = "";
-                                        for(String s : a_row) {
-                                            out += s + "\t";
-                                        }
-                                        guic.println(out);
-                                    });
-                                    c.run(graph);
-                                    for(ArrayList<String> row : c.m_rows) {
-                                        String out = "";
-                                        for(String s : row) {
-                                            out += s + "\t";
-                                        }
-                                        guic.println(out);
-                                    }
-                                }
-                            };
-                            r.run();
+                        } else if (in.startsWith("load_arch")) {
+                            String[] cargs = in.split(" ");
+                            LoadArch la = new LoadArch(cargs[1]);
+                            la.run(graph);
+                        } else if (in.startsWith("print_nodes")) {
+                            String[] cargs = in.split(" ");
+                            Selector.ISelector s = new Selector.All();
+                            if (cargs.length > 1) {
+                                SelectorBuilder bs = new SelectorBuilder();
+                                s = bs.buildFromString(guic.join(cargs, 1, " "));
+                            }
 
-                        } else if(in.startsWith("ClusterExperiment2")) {
-                            Runnable r = new Runnable() {
-                                @Override
-                                public void run() {
-                                    ClusterExperiment2 c = new ClusterExperiment2((ArrayList<String> a_row) -> {
-                                        String out = "";
-                                        for(String s : a_row) {
-                                            out += s + "\t";
-                                        }
-                                        guic.println(out);
-                                    });
-                                    c.run(graph);
-                                    for(ArrayList<String> row : c.m_rows) {
-                                        String out = "";
-                                        for(String s : row) {
-                                            out += s + "\t";
-                                        }
-                                        guic.println(out);
+                            GetNodes c = new GetNodes(s);
+                            c.run(graph);
+                            AttributeUtil au = new AttributeUtil();
+                            for (Node n : c.m_nodes) {
+                                guic.println(au.getName(n));
+                                guic.println("\ttags: " + au.getTags(n));
+                                String classesStr = "";
+                                for (dmClass dmc: au.getClasses(n)) {
+                                    if (classesStr.length() > 0) {
+                                        classesStr += ", ";
                                     }
+                                    classesStr += dmc.getName();
                                 }
-                            };
-                            r.run();
-                        } else if(in.startsWith("ClusterExperiment3")) {
-                            Runnable r = new Runnable() {
-                                @Override
-                                public void run() {
-                                    ClusterExperiment3 c = new ClusterExperiment3((ArrayList<String> a_row) -> {
-                                        String out = "";
-                                        for(String s : a_row) {
-                                            out += s + "\t";
-                                        }
-                                        guic.println(out);
-                                    });
-                                    c.run(graph);
-                                    /*for(ArrayList<String> row : c.m_rows) {
-                                        String out = "";
-                                        for(String s : row) {
-                                            out += s + "\t";
-                                        }
-                                        guic.println(out);
-                                    }*/
-                                }
-                            };
-                            r.run();
-                        } else if(in.startsWith("ClusterExperiment4")) {
-                            Runnable r = new Runnable() {
-                                @Override
-                                public void run() {
-                                    ClusterExperiment4 c = new ClusterExperiment4((ArrayList<String> a_row) -> {
-                                        String out = "";
-                                        for(String s : a_row) {
-                                            out += s + "\t";
-                                        }
-                                        guic.println(out);
-                                    }, ClusterExperiment4.Variant.GlobalTotalFan);
-                                    c.run(graph);
-                                    /*for(ArrayList<String> row : c.m_rows) {
-                                        String out = "";
-                                        for(String s : row) {
-                                            out += s + "\t";
-                                        }
-                                        guic.println(out);
-                                    }*/
-                                }
-                            };
-                            r.run();
+                                guic.println("\tclasses: " + classesStr);
+                            }
                         }
                         else if (in.startsWith("//")) {
                             // skip comment

@@ -7,7 +7,14 @@ import se.lnu.siq.s4rdm3x.experiments.metric.*;
 import se.lnu.siq.s4rdm3x.experiments.system.System;
 import se.lnu.siq.s4rdm3x.experiments.system.*;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Main {
 
@@ -70,11 +77,17 @@ public class Main {
         }
 
         public ExperimentRunner.State getExState() {
-            return m_exr.getState();
+            if (m_exr != null) {
+                return m_exr.getState();
+            } else {
+                return ExperimentRunner.State.Idle;
+            }
         }
 
         public void halt() {
-            m_exr.stop();
+            if (m_exr != null) {
+                m_exr.stop();
+            }
         }
 
         public int getRows() {
@@ -131,6 +144,23 @@ public class Main {
         return true;
     }
 
+    private static int getInitialRows(String a_dir1, String a_dir2) {
+        String fileName = a_dir1 + File.separator + a_dir2; // This is a hidden dependency to RunFileSaver
+        try {
+            int ret = 0;
+            Stream<Path> paths = Files.walk(Paths.get(fileName));
+
+            for (Path p : paths.filter(Files::isRegularFile).filter((path) -> path.toString().endsWith(".csv")).collect(Collectors.toList())) {
+                ret += Files.readAllLines(p).size() - 1;    // first row is header...
+            }
+
+            return ret;
+
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
 
     public static void main(String[] a_args) {
 
@@ -167,18 +197,23 @@ public class Main {
                 for (String mStr : g_metrics) {
                     Metric m = getMetric(mStr);
                     if (m != null) {
-                        java.lang.System.out.println("Running experiments on metrics: " + m.getName());
-                        ArrayList<ExThread> threads = startThreads(threadCount, sua, m);
+                        final int rowLimit = 50000;
+                        int initialRows = getInitialRows(sua.getName(), m.getName());
+                        if (initialRows < rowLimit) {
+                            java.lang.System.out.println("Running experiments on metrics: " + m.getName());
 
-                        while(sumRows(threads) < 50000) {
-                            try{Thread.sleep(1000);} catch (Exception e) {};
 
-                        }
-                        for(ExThread et : threads) {
-                            et.halt();
-                        }
-                        while(!allIdle(threads)) {
-                            try{Thread.sleep(100);} catch (Exception e) {};
+                            ArrayList<ExThread> threads = startThreads(threadCount, sua, m);
+
+                            while (initialRows + sumRows(threads) < rowLimit) {
+                                try {Thread.sleep(1000);} catch (Exception e) {}
+                            }
+                            for (ExThread et : threads) {
+                                et.halt();
+                            }
+                            while (!allIdle(threads)) {
+                                try {Thread.sleep(100);} catch (Exception e) {}
+                            }
                         }
                     }
                 }

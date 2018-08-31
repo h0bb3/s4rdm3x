@@ -1,0 +1,134 @@
+
+//
+// JabRef 3.5
+//
+load_jar data/JabRef-3.5.jar net/sf/jabref/
+load_arch data/jabref-3_5-archmodel.txt
+
+count_n tag:globals OR tag:preferences OR tag:model OR tag:logic OR tag:gui OR tag:cli
+export unmapped.txt NOT (tag:globals OR tag:preferences OR tag:model OR tag:logic OR tag:gui OR tag:cli)
+
+add_node_tag mapped (tag:globals OR tag:preferences OR tag:model OR tag:logic OR tag:gui OR tag:cli)
+add_node_tag unmapped pkg:net/sf/jabref/search/ OR pkg:net/sf/jabref/importer/ZipFileChooser OR pkg:net/sf/jabref/collab/StringNameChange OR pkg:net/sf/jabref/sql/DBImportExportDialog OR pkg:net/sf/jabref/pdfimport/PdfFileFilter OR pkg:net/sf/jabref/exporter/MSBibExportFormat OR pkg:net/sf/jabref/pdfimport/ImportDialog OR pkg:net/sf/jabref/collab/EntryDeleteChange
+
+count_n tag:mapped
+count_n tag:unmapped
+
+add_relations to_unmapped 9 (tag:mapped)|(tag:unmapped)
+
+export unmapped_relations.txt edgTo:to_unmapped AND tag:unmapped
+
+// the following seem to be used but not mapped... investigate...
+net/sf/jabref/search/SearchParser.java
+net/sf/jabref/search/SearchBaseVisitor.java
+net/sf/jabref/search/SearchLexer.java
+
+net/sf/jabref/collab/EntryDeleteChange.java
+net/sf/jabref/collab/StringNameChange.java
+
+net/sf/jabref/pdfimport/ImportDialog.java
+net/sf/jabref/pdfimport/PdfFileFilter.java
+
+net/sf/jabref/exporter/MSBibExportFormat.java
+
+net/sf/jabref/sql/DBImportExportDialog.java
+net/sf/jabref/importer/ZipFileChooser.java
+
+
+//
+// ArgoUML
+//
+//load_jar data/argouml.jar org/argouml
+load_jar data/argouml_week_020_rev_013713_date_2007-11-04.jar org\argouml
+load_arch data/argouml-archmodel.txt
+
+count_n tag:application
+count_n tag:diagrams
+count_n tag:notation
+count_n tag:explorer
+count_n tag:codeGeneration
+count_n tag:reverseEngineering
+count_n tag:persistence
+count_n tag:profile
+count_n tag:help
+count_n tag:moduleLoader
+count_n tag:gui
+count_n tag:model
+count_n tag:internationalization
+count_n tag:taskManagement
+count_n tag:configuration
+count_n tag:swingExtensions
+count_n tag:ocl
+count_n tag:critics
+count_n tag:javaCodeGeneration
+
+add_node_tag mapped (tag:application OR tag:application OR tag:diagrams OR tag:notation OR tag:explorer OR tag:codeGeneration OR tag:reverseEngineering OR tag:persistence)
+add_node_tag mapped (tag:profile OR tag:help OR tag:moduleLoader OR tag:gui OR tag:model OR tag:internationalization OR tag:taskManagement OR tag:configuration OR tag:swingExtensions)
+add_node_tag mapped (tag:ocl OR tag:critics OR tag:javaCodeGeneration)
+
+count_n tag:mapped
+
+add_node_tag unmapped NOT(tag:mapped) AND pkg:org/argouml
+
+count_n tag:unmapped
+
+add_relations to_unmapped 9 (tag:mapped)|(tag:unmapped)
+
+count_n tag:profile
+//profile org.argouml.profile.*
+add_node_tag profile pkg:org/argouml/profile/
+count_n tag:profile
+
+
+//
+// Sweet Home 3D
+//
+load_jar data/sweethome3d_week_020_rev_002382_date_2010-02-21.jar com/eteks/sweethome3d
+load_arch data/sweethome3d-archmodel.txt
+
+add_node_tag mapped tag:sweetHome3DModel OR tag:sweetHome3DTools OR tag:sweetHome3DPlugin OR tag:sweetHome3DViewController OR tag:sweetHome3DSwing OR tag:sweetHome3DJava3D
+add_node_tag mapped tag:sweetHome3DIO OR tag:sweetHome3DApplet OR tag:sweetHome3DApplication
+
+add_node_tag (unmapped NOT(tag:mapped) AND pkg:com/eteks/sweethome3d)
+count_n tag:mapped
+count_n tag:unmapped
+
+//
+// Ant
+//
+load_jar data\ant_week_020_rev_584500_date_2007-10-14.jar org/apache/tools
+load_arch data\ant-archmodel.txt
+
+add_node_tag mapped tag:optional OR tag:compilers OR tag:condition OR tag:rmic OR tag:cvslib OR tag:email OR tag:repository OR tag:taskdefs OR tag:listener
+add_node_tag mapped tag:types OR tag:ant OR tag:ant.util OR tag:zip OR tag:tar OR tag:mail OR tag:bzip2
+
+add_node_tag (unmapped NOT(tag:mapped) AND pkg:org/apache/tools)
+count_n tag:mapped
+count_n tag:unmapped
+
+add_relations to_unmapped 9 (tag:mapped)|(tag:unmapped)
+
+print_nodes tag:unmapped AND edgTo:to_unmapped
+
+// we do have some unmapped files that are used but they do not seem to be covered by the mapping in the arch def.
+
+//
+// Lucene
+//
+load_jar data\lucene_week_020_rev_1075001_date_2011-02-27.jar org\apache\lucene
+load_arch data\lucene-archmodel.txt
+
+add_node_tag mapped tag:queryparser OR tag:search OR tag:index OR tag:store OR tag:analysis OR tag:util OR tag:document
+add_node_tag unmapped NOT(tag:mapped) AND pkg:org/apache/lucene
+
+count_n tag:queryparser
+count_n tag:search
+
+count_n tag:mapped
+count_n tag:unmapped
+
+add_relations to_unmapped 9 (tag:mapped)|(tag:unmapped)
+
+print_nodes tag:unmapped
+
+

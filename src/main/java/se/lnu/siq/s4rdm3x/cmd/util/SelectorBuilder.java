@@ -1,4 +1,4 @@
-package se.lnu.siq.s4rdm3x.cmd;
+package se.lnu.siq.s4rdm3x.cmd.util;
 
 import java.util.ArrayList;
 

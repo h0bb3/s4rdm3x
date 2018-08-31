@@ -2,6 +2,7 @@ package se.lnu.siq.s4rdm3x.cmd;
 
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
+import se.lnu.siq.s4rdm3x.cmd.util.Selector;
 
 /**
  * Created by tohto on 2017-09-07.

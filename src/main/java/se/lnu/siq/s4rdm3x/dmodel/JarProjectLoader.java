@@ -17,7 +17,7 @@ public class JarProjectLoader {
         JarFile jarFile = new JarFile(a_jarFileName);
         ASMdmProjectBuilder builder = new ASMdmProjectBuilder();
 
-        URL[] urls = { new URL("jar:file:" + a_jarFileName +"!/") };
+        //URL[] urls = { new URL("jar:file:" + a_jarFileName +"!/") };
         //URLClassLoader cl = URLClassLoader.newInstance(urls);
 
         Enumeration<JarEntry> entries = jarFile.entries();
@@ -36,12 +36,12 @@ public class JarProjectLoader {
 
         builder.dontPrint();
 
-
         while(entries.hasMoreElements()) {
             JarEntry entry = entries.nextElement();
 
             if (entry.getName().endsWith(".class")) {
                 if (entry.getName().startsWith(a_rootPackage)) {    // net/sf/jabref/
+                    System.out.println(entry.getName());
                     InputStream in = jarFile.getInputStream(entry);
                     ClassReader classReader = new ClassReader(in);
                     classReader.accept(builder, 0);

@@ -40,7 +40,7 @@ public class JabRef_3_7 extends System {
     }
 
     public boolean load(Graph a_g) {
-        LoadJar c = new LoadJar("data/JabRef-3.5.jar", "net/sf/jabref/");
+        LoadJar c = new LoadJar("data/JabRef-3.7.jar", "net/sf/jabref/");
         try {
             c.run(a_g);
         } catch (IOException e) {

@@ -1,4 +1,4 @@
-package se.lnu.siq.s4rdm3x.cmd;
+package se.lnu.siq.s4rdm3x.cmd.util;
 
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
@@ -93,7 +93,7 @@ public class Selector {
 
         public boolean isSelected(Node a_node) {
             for (dmClass c : g_au.getClasses(a_node)) {
-                if (m_cPattern.matcher(c.getFileName()).find()) {
+                if (m_cPattern.matcher(c.getName()).find()) {
                     return true;
                 }
             }

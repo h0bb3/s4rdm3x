@@ -1,4 +1,4 @@
-package se.lnu.siq.s4rdm3x.experiments.system;
+package se.lnu.siq.s4rdm3x.cmd.util;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
