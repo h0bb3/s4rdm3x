@@ -155,7 +155,7 @@ public class ExperimentRunner {
 
         for (Node n : workingSet) {
             HuGMe.ArchDef.Component component = a_arch.getMappedComponent(n);
-            component.clusterToNode(n);
+            component.clusterToNode(n, HuGMe.ArchDef.Component.ClusteringType.Initial);
         }
     }
 
@@ -178,7 +178,7 @@ public class ExperimentRunner {
             ArrayList<Node> workingSet = getWorkingSet(nodes, nodeCount);
 
             for (Node n : workingSet) {
-                component.clusterToNode(n);
+                component.clusterToNode(n, HuGMe.ArchDef.Component.ClusteringType.Initial);
             }
         }
     }

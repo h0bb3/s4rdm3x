@@ -16,6 +16,32 @@ public class HuGMe {
             private String m_name;
             private ArrayList<Component> m_allowedDependenciesTo;
 
+            public enum ClusteringType {
+                None,
+                Manual,
+                Automatic,
+                Forced,
+                Initial
+            }
+
+            public ClusteringType getClusteringType(Node a_n) {
+                AttributeUtil au = new AttributeUtil();
+                if (au.hasAnyTag(a_n, ClusteringType.Manual.toString())) {
+                    return ClusteringType.Manual;
+                }
+                if (au.hasAnyTag(a_n, ClusteringType.Automatic.toString())) {
+                    return ClusteringType.Automatic;
+                }
+                if (au.hasAnyTag(a_n, ClusteringType.Forced.toString())) {
+                    return ClusteringType.Forced;
+                }
+                if (au.hasAnyTag(a_n, ClusteringType.Initial.toString())) {
+                    return ClusteringType.Initial;
+                }
+
+                return ClusteringType.None;
+            }
+
             public Component(String a_name) {
                 m_name = a_name;
                 m_allowedDependenciesTo = new ArrayList<>();
@@ -41,11 +67,15 @@ public class HuGMe {
 
             public void removeClustering(Node a_n, AttributeUtil a_au) {
                 a_au.removeTag(a_n, getClusterName());
+                for (ClusteringType ct : ClusteringType.values()) {
+                    a_au.removeTag(a_n, ct.toString());
+                }
             }
 
-            public void clusterToNode(Node a_n) {
+            public void clusterToNode(Node a_n, ClusteringType a_ct) {
                 AttributeUtil au = new AttributeUtil();
                 tagNode(a_n, getClusterName(), au);
+                tagNode(a_n, a_ct.toString(), au);
             }
 
             public void unmap(Node a_n) {
@@ -202,6 +232,8 @@ public class HuGMe {
         m_fic = a_fic;
     }
 
+
+
     public void run(Graph a_g) {
         AttributeUtil au = new AttributeUtil();
         final String[] clusterTags = m_arch.getClusterNames();
@@ -303,17 +335,19 @@ public class HuGMe {
 
             if (c1.size() == 1) {
                 au.addTag(n, clusterTags[c1.get(0)]);
+
                 //Sys.out.println("Clustered to: " + g_clusterTags[c1.get(0)]);
-                au.addTag(n, "automatic");
+                //au.addTag(n, ArchDef.Component.ClusteringType.Automatic.toString());
+                m_arch.getComponent(clusterTags[c1.get(0)]).clusterToNode(n, ArchDef.Component.ClusteringType.Automatic);
                 m_clusteredElements.add(n);
                 if (!au.hasAnyTag(n, originalMappingTags[c1.get(0)])) {
                     m_autoWrong++;
                 }
                 m_automaticallyMappedNodes++;
             } else if (c2.size() == 1) {
-                au.addTag(n, clusterTags[c2.get(0)]);
+                m_arch.getComponent(clusterTags[c2.get(0)]).clusterToNode(n, ArchDef.Component.ClusteringType.Automatic);
                 //Sys.out.println("Clustered to: " + g_clusterTags[c2.get(0)]);
-                au.addTag(n, "automatic");
+                //au.addTag(n, ArchDef.Component.ClusteringType.Automatic.toString());
                 m_clusteredElements.add(n);
                 if (!au.hasAnyTag(n, originalMappingTags[c2.get(0)])) {
                     m_autoWrong++;
@@ -327,8 +361,7 @@ public class HuGMe {
                 if (c1.size() > 0) {
                     for(Integer i : c1) {
                         if (au.hasAnyTag(n, originalMappingTags[i])) {
-                            au.addTag(n, clusterTags[i]);
-                            au.addTag(n, "manual");
+                            m_arch.getComponent(clusterTags[i]).clusterToNode(n, ArchDef.Component.ClusteringType.Manual);
                             clustered = true;
                             //Sys.out.println("Clustered by Oracle to: " + g_clusterTags[i]);
                             m_manuallyMappedNodes++;
@@ -339,8 +372,7 @@ public class HuGMe {
                 if (!clustered && c2.size() > 0) {
                     for (Integer i : c2) {
                         if (au.hasAnyTag(n, originalMappingTags[i])) {
-                            au.addTag(n, clusterTags[i]);
-                            au.addTag(n, "manual");
+                            m_arch.getComponent(clusterTags[i]).clusterToNode(n, ArchDef.Component.ClusteringType.Manual);
                             //Sys.out.println("Clustered by Oracle to: " + g_clusterTags[i]);
                             m_manuallyMappedNodes++;
                             clustered = true;

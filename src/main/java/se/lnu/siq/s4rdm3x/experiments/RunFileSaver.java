@@ -21,6 +21,16 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
     int m_errorCounter;
     int m_runCount;
 
+    public static class Mapping {
+        public int m_id;
+        public int m_runId;
+        public int m_runFile;
+        public String m_node;
+        public String m_mapping;
+        public String m_clustering;
+        public String m_clusteringType;
+    }
+
     public static class RunData {
         public String m_date;
         public int m_initialClustered;
