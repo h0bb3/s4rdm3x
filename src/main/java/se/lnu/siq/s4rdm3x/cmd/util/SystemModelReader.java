@@ -5,15 +5,15 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class JITTACCModelReader {
-    class Module {
+public class SystemModelReader {
+    public static class Module {
         public String m_name;
     }
-    class Mapping {
+    public static class Mapping {
         public String m_moduleName;
         public String m_regexp;
     }
-    class Relation {
+    public static class Relation {
         public String m_moduleNameFrom;
         public String m_moduleNameTo;
     }
@@ -21,11 +21,17 @@ public class JITTACCModelReader {
     public ArrayList<Module> m_modules = new ArrayList<>();
     public ArrayList<Mapping> m_mappings = new ArrayList<>();
     public ArrayList<Relation> m_relations = new ArrayList<>();
+    public String m_name;
+    public String m_jar;
+    public ArrayList<String> m_roots = new ArrayList<>();
 
     private enum Context {
         Module,
         Mapping,
         Relation,
+        Jar,
+        Roots,
+        Name,
         None
     }
 
@@ -50,6 +56,15 @@ public class JITTACCModelReader {
                 r.m_moduleNameTo = parts[1];
                 m_relations.add(r);
             } break;
+            case Name: {
+                m_name = a_line;
+            } break;
+            case Jar: {
+                m_jar = a_line;
+            } break;
+            case Roots: {
+                m_roots.add(a_line);
+            } break;
         }
     }
 
@@ -65,6 +80,12 @@ public class JITTACCModelReader {
                     context = Context.Mapping;
                 } else if (line.startsWith("# relations")) {
                     context = Context.Relation;
+                } else if (line.startsWith("# jar")) {
+                    context = Context.Jar;
+                } else if (line.startsWith("# name")) {
+                    context = Context.Name;
+                } else if (line.startsWith("# root-packages")) {
+                    context = Context.Roots;
                 } else if (line.startsWith("#")) {
 
                 } else if (line.length() > 0){

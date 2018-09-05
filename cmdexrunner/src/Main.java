@@ -49,9 +49,14 @@ public class Main {
             return new TeamMates();
         } else if (a_systemName.compareToIgnoreCase("jabrefsaerocon18") == 0) {
             return new JabRefSAEroCon18();
+        } else {
+            try {
+                return new FileBased(a_systemName);
+            } catch (Exception e) {
+                java.lang.System.out.println(e.toString());
+                return null;
+            }
         }
-
-        return null;
     }
 
     private static class ExThread extends Thread {
@@ -192,7 +197,7 @@ public class Main {
             }
             System sua = getSystem(a_args[1]);
             if (sua != null) {
-                java.lang.System.out.println("Running experiments on all metrics for 500000 rows: " + a_args[1]);
+                java.lang.System.out.println("Running experiments on all metrics for 500000 rows: " + sua.getName());
 
                 for (String mStr : g_metrics) {
                     Metric m = getMetric(mStr);

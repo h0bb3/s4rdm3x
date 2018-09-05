@@ -2,37 +2,40 @@
 //
 // JabRef 3.5
 //
-load_jar data/JabRef-3.5.jar net/sf/jabref/
+load_jar data/JabRef-3.5.jar net/sf/jabref/,osx/macadapter/
 load_arch data/jabref-3_5-archmodel.txt
 
-count_n tag:globals OR tag:preferences OR tag:model OR tag:logic OR tag:gui OR tag:cli
-export unmapped.txt NOT (tag:globals OR tag:preferences OR tag:model OR tag:logic OR tag:gui OR tag:cli)
-
 add_node_tag mapped (tag:globals OR tag:preferences OR tag:model OR tag:logic OR tag:gui OR tag:cli)
-add_node_tag unmapped pkg:net/sf/jabref/search/ OR pkg:net/sf/jabref/importer/ZipFileChooser OR pkg:net/sf/jabref/collab/StringNameChange OR pkg:net/sf/jabref/sql/DBImportExportDialog OR pkg:net/sf/jabref/pdfimport/PdfFileFilter OR pkg:net/sf/jabref/exporter/MSBibExportFormat OR pkg:net/sf/jabref/pdfimport/ImportDialog OR pkg:net/sf/jabref/collab/EntryDeleteChange
+add_node_tag unmapped NOT(tag:mapped) AND (pkg:net/sf/jabref/ OR pkg:osx/macadapter/)
+
+count_n tag:unmapped
 
 count_n tag:mapped
 count_n tag:unmapped
 
 add_relations to_unmapped 9 (tag:mapped)|(tag:unmapped)
 
-export unmapped_relations.txt edgTo:to_unmapped AND tag:unmapped
+print_nodes tag:unmapped AND edgTo:to_unmapped
 
-// the following seem to be used but not mapped... investigate...
-net/sf/jabref/search/SearchParser.java
-net/sf/jabref/search/SearchBaseVisitor.java
-net/sf/jabref/search/SearchLexer.java
 
-net/sf/jabref/collab/EntryDeleteChange.java
-net/sf/jabref/collab/StringNameChange.java
+//
+// JabRef 3.7
+//
+load_jar data/JabRef-3.7.jar net/sf/jabref/
+load_arch data/jabref-3_7-archmodel.txt
+	
+add_node_tag mapped (tag:globals OR tag:preferences OR tag:model OR tag:logic OR tag:gui OR tag:cli OR tag:guiapi OR tag:db)
+add_node_tag unmapped NOT(tag:mapped) AND (pkg:net/sf/jabref/)
 
-net/sf/jabref/pdfimport/ImportDialog.java
-net/sf/jabref/pdfimport/PdfFileFilter.java
+count_n tag:unmapped
 
-net/sf/jabref/exporter/MSBibExportFormat.java
+count_n tag:mapped
+count_n tag:unmapped
 
-net/sf/jabref/sql/DBImportExportDialog.java
-net/sf/jabref/importer/ZipFileChooser.java
+add_relations to_unmapped 9 (tag:mapped)|(tag:unmapped)
+
+print_nodes tag:unmapped AND edgTo:to_unmapped
+
 
 
 //

@@ -13,7 +13,8 @@ import java.util.jar.JarFile;
  * Created by tohto on 2017-08-16.
  */
 public class JarProjectLoader {
-    public dmProject buildProjectFromJAR(String a_jarFileName, String a_rootPackage) throws IOException {
+
+    public dmProject buildProjectFromJAR(String a_jarFileName, String[] a_rootPackages) throws IOException {
         JarFile jarFile = new JarFile(a_jarFileName);
         ASMdmProjectBuilder builder = new ASMdmProjectBuilder();
 
@@ -40,7 +41,7 @@ public class JarProjectLoader {
             JarEntry entry = entries.nextElement();
 
             if (entry.getName().endsWith(".class")) {
-                if (entry.getName().startsWith(a_rootPackage)) {    // net/sf/jabref/
+                if (startsWithAny(entry.getName(), a_rootPackages)) {
                     System.out.println(entry.getName());
                     InputStream in = jarFile.getInputStream(entry);
                     ClassReader classReader = new ClassReader(in);
@@ -50,5 +51,19 @@ public class JarProjectLoader {
         }
 
         return builder.getProject();
+    }
+
+    private boolean startsWithAny(String a_fullString, String[] a_starts) {
+        for(String start : a_starts) {
+            if (a_fullString.startsWith(start)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public dmProject buildProjectFromJAR(String a_jarFileName, String a_rootPackage) throws IOException {
+        String[] roots = {a_rootPackage};
+        return buildProjectFromJAR(a_jarFileName, roots);
     }
 }

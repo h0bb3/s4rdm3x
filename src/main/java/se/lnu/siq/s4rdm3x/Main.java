@@ -7,7 +7,7 @@ import org.graphstream.ui.view.ViewerPipe;
 import se.lnu.siq.s4rdm3x.cmd.*;
 import se.lnu.siq.s4rdm3x.cmd.saerocon18.*;
 import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
-import se.lnu.siq.s4rdm3x.cmd.util.LoadArch;
+import se.lnu.siq.s4rdm3x.cmd.LoadArch;
 import se.lnu.siq.s4rdm3x.cmd.util.Selector;
 import se.lnu.siq.s4rdm3x.cmd.util.SelectorBuilder;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;

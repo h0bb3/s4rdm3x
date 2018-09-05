@@ -9,6 +9,7 @@ import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.dmodel.dmProject;
 
 import java.io.IOException;
+import java.util.StringJoiner;
 
 /**
  * Created by tohto on 2017-08-23.
@@ -16,22 +17,26 @@ import java.io.IOException;
 public class LoadJar {
 
     private String m_file;
-    private String m_rootPackage;
+    private String []m_rootPackages;
     private dmProject m_project;
 
 
+    public LoadJar(String a_file, String[] a_rootPackages) {
+        m_file = a_file;
+        m_rootPackages = a_rootPackages;
+        m_project = null;
+    }
 
     public LoadJar(String a_file, String a_rootPackage) {
         m_file = a_file;
-        m_rootPackage = a_rootPackage;
+        m_rootPackages = a_rootPackage.split(",");
         m_project = null;
-
     }
 
     public void run(Graph a_g) throws IOException {
 
         JarProjectLoader b = new JarProjectLoader();
-        m_project = b.buildProjectFromJAR(m_file, m_rootPackage);
+        m_project = b.buildProjectFromJAR(m_file, m_rootPackages);
         AttributeUtil au = new AttributeUtil();
         NodeUtil nu = new NodeUtil(a_g);
 
