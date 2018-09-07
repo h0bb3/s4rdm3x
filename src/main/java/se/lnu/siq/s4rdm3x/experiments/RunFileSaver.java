@@ -3,6 +3,7 @@ package se.lnu.siq.s4rdm3x.experiments;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import se.lnu.siq.s4rdm3x.cmd.HuGMe;
+import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
 
 import java.io.File;
 import java.nio.file.*;
@@ -17,12 +18,12 @@ import static java.nio.file.Files.write;
 public class RunFileSaver implements ExperimentRunner.RunListener {
 
     Path m_filePath;
+    Path m_mappingsFilePath;
     RunData m_rd;
     int m_errorCounter;
     int m_runCount;
 
     public static class Mapping {
-        public int m_id;
         public int m_runId;
         public int m_runFile;
         public String m_node;
@@ -43,11 +44,11 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
         return m_runCount;
     }
 
-    public RunFileSaver(String a_system, String a_metric) {
+    public RunFileSaver(String a_system, String a_metric, boolean a_doSaveMappings) {
         m_errorCounter = 0;
         m_rd = null;
         m_runCount = 0;
-        m_filePath = createFile(a_system, a_metric);
+        m_filePath = createFile(a_system, a_metric, a_system + "_" + a_metric);
 
 
         ArrayList<String> row = new ArrayList<>();
@@ -69,6 +70,20 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
         row.add("system");
 
         writeRow(m_filePath, row);
+
+        if (a_doSaveMappings) {
+            m_mappingsFilePath = createFile(a_system, a_metric + File.separator + "mappings", a_system + "_" + a_metric + "_mappings");
+            row = new ArrayList<>();
+            row.add("runId");
+            row.add("nodeId");
+            row.add("mapping" );
+            row.add("clustering");
+            row.add("clusteringType");
+
+            writeRow(m_mappingsFilePath, row);
+        } else {
+            m_mappingsFilePath = null;
+        }
     }
 
 
@@ -106,6 +121,34 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
         row.add(a_rd.m_system);
 
         writeRow(m_filePath, row);
+
+        if (m_mappingsFilePath != null) {
+            AttributeUtil au = new AttributeUtil();
+            for(Node n: a_g.getEachNode()) {
+                HuGMe.ArchDef.Component mapped;
+
+                mapped = a_arch.getMappedComponent(n);
+
+                if (mapped != null)  {
+                    HuGMe.ArchDef.Component clustered;
+                    clustered = a_arch.getClusteredComponent(n);
+
+                    row = new ArrayList<>();
+                    row.add("" + a_rd.m_id);
+                    row.add(m_filePath.toString());
+                    row.add(au.getName(n));
+                    row.add(mapped.getName());
+                    if (clustered !=  null) {
+                        row.add(clustered.getName());
+                    } else {
+                        row.add("n/a");
+                    }
+                    row.add(mapped.getClusteringType(n).toString());
+                    writeRow(m_mappingsFilePath, row);
+                }
+            }
+        }
+
         m_runCount++;
     }
 
@@ -166,8 +209,8 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
         }
     }
 
-    private Path createFile(String a_dir1, String a_dir2) {
-        String fileName = a_dir1 + File.separator + a_dir2 + File.separator + a_dir1 + "_" + a_dir2;
+    private Path createFile(String a_dir1, String a_dir2, String a_fileName) {
+        String fileName = a_dir1 + File.separator + a_dir2 + File.separator + a_fileName;
         java.nio.file.Path fp = Paths.get(fileName + "_0.csv");
 
         createDir(fp.getParent());
@@ -197,7 +240,7 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
                 } catch (Exception e2) {
                 }
                 ;
-                return createFile(a_dir1, a_dir2);
+                return createFile(a_dir1, a_dir2, a_fileName);
             }
         }
 

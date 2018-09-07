@@ -42,7 +42,7 @@ public class JarProjectLoader {
 
             if (entry.getName().endsWith(".class")) {
                 if (startsWithAny(entry.getName(), a_rootPackages)) {
-                    System.out.println(entry.getName());
+                    //System.out.println(entry.getName());
                     InputStream in = jarFile.getInputStream(entry);
                     ClassReader classReader = new ClassReader(in);
                     classReader.accept(builder, 0);

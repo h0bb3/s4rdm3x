@@ -234,9 +234,10 @@ public class HuGMe {
 
 
 
+
     public void run(Graph a_g) {
         AttributeUtil au = new AttributeUtil();
-        final String[] clusterTags = m_arch.getClusterNames();
+
         final String [] originalMappingTags = m_arch.getComponentNames();
 
         m_clusteredElements = new ArrayList<>();
@@ -244,21 +245,21 @@ public class HuGMe {
         // all considered nodes to unmapped
         java.util.ArrayList<Node> unmapped = new ArrayList<>();
         for (Node n : a_g.getEachNode()) {
-            if (au.hasAnyTag(n, originalMappingTags)) {
+            if (m_arch.getMappedComponent(n) != null && m_arch.getClusteredComponent(n) == null) {
                 unmapped.add(n);
             }
         }
 
-        // create the current clusters and remove all clustered nodes from the unmapped
+        // create the current clusters
         java.util.ArrayList<java.util.ArrayList<Node>> clusters = new ArrayList<>();
         for(int i = 0; i < m_arch.getComponentCount(); i++) {
             ArrayList<Node> c = new ArrayList<>();
             clusters.add(c);
+            HuGMe.ArchDef.Component targetComponent = m_arch.getComponent(i);
 
             for(Node n : a_g.getNodeSet()) {
-                if (au.hasAnyTag(n, clusterTags[i])) {
+                if (m_arch.getClusteredComponent(n) == targetComponent) {
                     c.add(n);
-                    unmapped.remove(n);
                 }
             }
             m_mappedNodesFromStart += c.size();
@@ -281,17 +282,21 @@ public class HuGMe {
                 for (Node nMapped : cluster) {
 
                     double fromClustered = m_fic.getFanIn(nMapped, n);
-                    toMappedCountC += m_fic.getFanIn(n, nMapped);
+                    double toClustered = m_fic.getFanIn(n, nMapped);
+                    toMappedCountC += toClustered;
                     toMappedCountC += fromClustered;
-                    totalCountC += fromClustered;    // these should also be counted on the total
+                    totalCountC += fromClustered;
+                    totalCountC += toClustered;
                 }
             }
 
             double ratio = 0.0;
             if (totalCountC > 0 && toMappedCountC > 0) {
                 ratio = (double) toMappedCountC / (double) totalCountC;
+            } else if (toMappedCountC > 0) {
+                ratio = 1.0;
             }
-            //Sys.out.println("Dependency Ratio: " + ratio);
+            
             if (ratio < m_filterThreshold) {
                 candidates.remove(n);
             }
@@ -332,24 +337,27 @@ public class HuGMe {
             }
 
 
+            ArchDef.Component mappedC = m_arch.getMappedComponent(n);
 
             if (c1.size() == 1) {
-                au.addTag(n, clusterTags[c1.get(0)]);
+                //au.addTag(n, clusterTags[c1.get(0)]);
 
                 //Sys.out.println("Clustered to: " + g_clusterTags[c1.get(0)]);
                 //au.addTag(n, ArchDef.Component.ClusteringType.Automatic.toString());
-                m_arch.getComponent(clusterTags[c1.get(0)]).clusterToNode(n, ArchDef.Component.ClusteringType.Automatic);
+                ArchDef.Component clusteredComponent = m_arch.getComponent(c1.get(0));
+                clusteredComponent.clusterToNode(n, ArchDef.Component.ClusteringType.Automatic);
                 m_clusteredElements.add(n);
-                if (!au.hasAnyTag(n, originalMappingTags[c1.get(0)])) {
+                if (mappedC != clusteredComponent) {
                     m_autoWrong++;
                 }
                 m_automaticallyMappedNodes++;
             } else if (c2.size() == 1) {
-                m_arch.getComponent(clusterTags[c2.get(0)]).clusterToNode(n, ArchDef.Component.ClusteringType.Automatic);
+                ArchDef.Component clusteredComponent = m_arch.getComponent(c2.get(0));
+                clusteredComponent.clusterToNode(n, ArchDef.Component.ClusteringType.Automatic);
                 //Sys.out.println("Clustered to: " + g_clusterTags[c2.get(0)]);
                 //au.addTag(n, ArchDef.Component.ClusteringType.Automatic.toString());
                 m_clusteredElements.add(n);
-                if (!au.hasAnyTag(n, originalMappingTags[c2.get(0)])) {
+                if (mappedC != clusteredComponent) {
                     m_autoWrong++;
                 }
                 m_automaticallyMappedNodes++;
@@ -358,10 +366,11 @@ public class HuGMe {
                 // no clear answer so we must ask the oracle...
                 // i.e. if the original mapping is present in one of the available options...
                 boolean clustered = false;
+
                 if (c1.size() > 0) {
                     for(Integer i : c1) {
-                        if (au.hasAnyTag(n, originalMappingTags[i])) {
-                            m_arch.getComponent(clusterTags[i]).clusterToNode(n, ArchDef.Component.ClusteringType.Manual);
+                        if (mappedC == m_arch.getComponent(i)) {
+                            mappedC.clusterToNode(n, ArchDef.Component.ClusteringType.Manual);
                             clustered = true;
                             //Sys.out.println("Clustered by Oracle to: " + g_clusterTags[i]);
                             m_manuallyMappedNodes++;
@@ -371,8 +380,8 @@ public class HuGMe {
                 }
                 if (!clustered && c2.size() > 0) {
                     for (Integer i : c2) {
-                        if (au.hasAnyTag(n, originalMappingTags[i])) {
-                            m_arch.getComponent(clusterTags[i]).clusterToNode(n, ArchDef.Component.ClusteringType.Manual);
+                        if (mappedC == m_arch.getComponent(i)) {
+                            mappedC.clusterToNode(n, ArchDef.Component.ClusteringType.Manual);
                             //Sys.out.println("Clustered by Oracle to: " + g_clusterTags[i]);
                             m_manuallyMappedNodes++;
                             clustered = true;
