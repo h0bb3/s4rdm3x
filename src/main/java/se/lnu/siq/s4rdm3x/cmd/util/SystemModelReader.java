@@ -24,6 +24,7 @@ public class SystemModelReader {
     public String m_name;
     public String m_jar;
     public ArrayList<String> m_roots = new ArrayList<>();
+    public String m_metrics;
 
     private enum Context {
         Module,
@@ -32,6 +33,7 @@ public class SystemModelReader {
         Jar,
         Roots,
         Name,
+        Metrics,
         None
     }
 
@@ -65,6 +67,9 @@ public class SystemModelReader {
             case Roots: {
                 m_roots.add(a_line);
             } break;
+            case Metrics: {
+                m_metrics = a_line;
+            } break;
         }
     }
 
@@ -86,6 +91,8 @@ public class SystemModelReader {
                     context = Context.Name;
                 } else if (line.startsWith("# root-packages")) {
                     context = Context.Roots;
+                }  else if (line.startsWith("# metrics file")) {
+                    context = Context.Metrics;
                 } else if (line.startsWith("#")) {
 
                 } else if (line.length() > 0){

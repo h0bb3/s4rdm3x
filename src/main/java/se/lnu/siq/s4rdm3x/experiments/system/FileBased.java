@@ -31,6 +31,10 @@ public class FileBased extends System {
         return ret;
     }
 
+    public Path getCustomMetricsFile() {
+        return Paths.get(Paths.get(m_file).getParent().toString(), m_smr.m_metrics);
+    }
+
     public boolean load(Graph a_g) {
 
         String [] roots = new String[m_smr.m_roots.size()];

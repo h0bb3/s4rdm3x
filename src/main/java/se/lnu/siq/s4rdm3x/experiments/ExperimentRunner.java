@@ -84,7 +84,7 @@ public class ExperimentRunner {
             BasicRunData rd = new BasicRunData();
             rd.m_metric = m_metric.getName();
             rd.m_system = m_sua.getName();
-            rd.m_initialClusteringPercent = m_rand.nextDouble();
+            rd.m_initialClusteringPercent = m_rand.nextDouble() * 0.2;
             rd.m_phi = m_rand.nextDouble();
             rd.m_omega = m_rand.nextDouble();
 

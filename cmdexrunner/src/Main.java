@@ -1,5 +1,6 @@
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.MultiGraph;
+import se.lnu.siq.metrics.CSVRow;
 import se.lnu.siq.s4rdm3x.cmd.saerocon18.ClusterExperiment10;
 import se.lnu.siq.s4rdm3x.experiments.ExperimentRunner;
 import se.lnu.siq.s4rdm3x.experiments.RunFileSaver;
@@ -8,10 +9,12 @@ import se.lnu.siq.s4rdm3x.experiments.system.System;
 import se.lnu.siq.s4rdm3x.experiments.system.*;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -74,7 +77,7 @@ public class Main {
         public void run() {
             java.lang.System.out.println("Running Experiment " + m_ix + "...");
             Graph graph = new MultiGraph("main" + m_ix);
-            m_fs = new RunFileSaver(m_sua.getName(), m_metric.getName(), true);
+            m_fs = new RunFileSaver(m_sua.getName(), m_metric.getName(), false);
             m_exr = new ExperimentRunner(m_sua, m_metric);
             m_exr.setRunListener(m_fs);
             m_exr.run(graph);
@@ -104,9 +107,9 @@ public class Main {
 
     }
 
-    private static ArrayList<ExThread> startThreads(int a_theadCount, System a_sua, Metric a_metric) {
+    private static ArrayList<ExThread> startThreads(int a_threadCount, System a_sua, Metric a_metric) {
         ArrayList<ExThread> ret = new ArrayList<>();
-        for(int i = 0; i < a_theadCount; i++) {
+        for(int i = 0; i < a_threadCount; i++) {
             final int ix = i;
 
             // need to make a class of this so we can check te no rows
@@ -198,8 +201,41 @@ public class Main {
             if (sua != null) {
                 java.lang.System.out.println("Running experiments on all metrics for 500000 rows: " + sua.getName());
 
-                for (String mStr : g_metrics) {
+                ArrayList<String> metricNames = new ArrayList<>();
+
+
+
+                if (sua.getCustomMetricsFile() != null) {
+                    CSVRow mRow = new CSVRow();
+                    for(String mStr : mRow.getMetricsArray()) metricNames.add(mStr);
+                }
+
+                for(String mStr : g_metrics) metricNames.add(mStr);
+
+                for (String mStr : metricNames) {
                     Metric m = getMetric(mStr);
+                    if (m == null && sua.getCustomMetricsFile() != null) {
+                        try {
+                            List<String> lines = Files.readAllLines(sua.getCustomMetricsFile());
+                            CustomMetric cm = new CustomMetric(mStr);
+                            int[] globalHeader = null;
+                            for (String line : lines) {
+                                String parts[] = line.split("\t");
+                                if (globalHeader == null) {
+                                    CSVRow r = new CSVRow();
+
+                                    globalHeader = r.getHeaderOrder(parts);
+                                } else {
+                                    CSVRow r = new CSVRow();
+                                    r.fromStrings(parts, globalHeader);
+                                    cm.addMetric(r.getFileName(), r.getMetric(mStr));
+                                }
+                            }
+                            m = cm;
+                        } catch (IOException ioe) {
+                            java.lang.System.out.println(ioe.getMessage());
+                        }
+                    }
                     if (m != null) {
                         final int rowLimit = 50000;
                         int initialRows = getInitialRows(sua.getName(), m.getName());

@@ -7,15 +7,22 @@ source("functions/getFilteredData.R")
 source("functions/loadData.R")
 
 
-d_1 <- getFilteredData(0.1, loadData("jabref_rand.csv"))
-d_2 <- getFilteredData(0.1, loadData("jabref_fanin.csv"))
+d_1 <- getFilteredData(0.1, 0.05, loadData("jabref_37_1_rank.csv"))
+d_2 <- getFilteredData(0.1, 0.05, loadData("jabref_37_1_abt.csv"))
 
+nrow(d_1$data)
+nrow(d_2$data)
 summary(d_1$data)
 summary(d_2$data)
 
 data <- rbind(d_1$data, d_2$data)
 summary(data)
 boxplot(ap~metric, data=data)
+boxplot(mr~metric, data=data)
+boxplot(mappingPercent~metric, data=data)
+boxplot(initialClustered~metric, data=data)
+plot(ap~mappingPercent, data=d_1$data)
+plot(ap~mappingPercent, data=d_2$data)
 
 
 wilcox.test(d_1$data$ap, d_2$data$ap, conf.int=TRUE)
