@@ -251,6 +251,8 @@ class ASMdmProjectBuilderTest {
             assertTrue(c != null);
 
             assertTrue(compare(expected, c) == 0);
+
+            assertEquals(11, c.getLineCount());
         } catch (Exception e) {
             e.printStackTrace();
             assertTrue(false);
@@ -302,6 +304,8 @@ class ASMdmProjectBuilderTest {
             assertTrue(c != null);
 
             assertTrue(compare(expected, c) == 0);
+
+            assertEquals(6, c.getLineCount());
         } catch (Exception e) {
             e.printStackTrace();
             assertTrue(false);
@@ -383,6 +387,8 @@ class ASMdmProjectBuilderTest {
             assertTrue(c != null);
 
             assertTrue(compare(expected, c) == 0);
+
+            assertEquals(17, c.getLineCount());
         } catch (Exception e) {
             e.printStackTrace();
             assertTrue(false);
@@ -718,6 +724,8 @@ class ASMdmProjectBuilderTest {
             assertTrue(c != null);
 
             assertTrue(compare(expected, c) == 0);
+
+
 
             //dumpDependencies(c);
             //assertEquals(3, c.getDependencyCount());
