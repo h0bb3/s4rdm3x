@@ -20,23 +20,53 @@ import java.util.stream.Stream;
 
 public class Main {
 
-    final static String[] g_metrics = {"rand", "fanin", "fanout", "fan", "maxfan", "minfan", "avgfan"};
+
+
+    private static String[] getInternalMetricsArray() {
+        final String[] metrics = {"rand", "linecount", "fanin", "fanout", "fan", "maxfan", "minfan", "avgfan"};
+
+        String[] ret = new String[metrics.length + metrics.length - 2];
+        for (int ix = 0; ix < metrics.length; ix++) {
+            ret[ix] = metrics[ix];
+        }
+        for (int ix = 2; ix < metrics.length; ix++) {
+            ret[metrics.length + ix - 2] = "lcrel_" + metrics[ix];
+        }
+
+        return ret;
+    }
 
     public static Metric getMetric(String a_metric) {
-        if (a_metric.equalsIgnoreCase(g_metrics[0])) {
+        String[] metrics = getInternalMetricsArray();
+        int ix = 0;
+        if (a_metric.equalsIgnoreCase(metrics[ix++])) {
             return new Rand();
-        } else if (a_metric.equalsIgnoreCase(g_metrics[1])) {
+        } else if (a_metric.equalsIgnoreCase(metrics[ix++])) {
+            return new LineCount();
+        }else if (a_metric.equalsIgnoreCase(metrics[ix++])) {
             return new FanIn();
-        } else if (a_metric.equalsIgnoreCase(g_metrics[2])) {
+        } else if (a_metric.equalsIgnoreCase(metrics[ix++])) {
             return new FanOut();
-        } else if (a_metric.equalsIgnoreCase(g_metrics[3])) {
+        } else if (a_metric.equalsIgnoreCase(metrics[ix++])) {
             return new Fan();
-        } else if (a_metric.equalsIgnoreCase(g_metrics[4])) {
+        } else if (a_metric.equalsIgnoreCase(metrics[ix++])) {
             return new MaxFan();
-        } else if (a_metric.equalsIgnoreCase(g_metrics[5])) {
+        } else if (a_metric.equalsIgnoreCase(metrics[ix++])) {
             return new MinFan();
-        } else if (a_metric.equalsIgnoreCase(g_metrics[6])) {
+        } else if (a_metric.equalsIgnoreCase(metrics[ix++])) {
             return new AvgFan();
+        } else if (a_metric.equalsIgnoreCase(metrics[ix++])) {
+            return new RelativeLineCount(new FanIn());
+        } else if (a_metric.equalsIgnoreCase(metrics[ix++])) {
+            return new RelativeLineCount(new FanOut());
+        } else if (a_metric.equalsIgnoreCase(metrics[ix++])) {
+            return new RelativeLineCount(new Fan());
+        } else if (a_metric.equalsIgnoreCase(metrics[ix++])) {
+            return new RelativeLineCount(new MaxFan());
+        } else if (a_metric.equalsIgnoreCase(metrics[ix++])) {
+            return new RelativeLineCount(new MinFan());
+        } else if (a_metric.equalsIgnoreCase(metrics[ix++])) {
+            return new RelativeLineCount(new AvgFan());
         }
 
         return null;
@@ -123,7 +153,7 @@ public class Main {
 
     private static String getMetricsString() {
         String metrics = "";
-        for (String m : g_metrics) {
+        for (String m : getInternalMetricsArray()) {
             if (metrics.length() > 0) {
                 metrics += "|";
             }
@@ -204,18 +234,22 @@ public class Main {
                 ArrayList<String> metricNames = new ArrayList<>();
 
 
+                for(String mStr : getInternalMetricsArray()) metricNames.add(mStr);
 
                 if (sua.getCustomMetricsFile() != null) {
                     CSVRow mRow = new CSVRow();
                     for(String mStr : mRow.getMetricsArray()) metricNames.add(mStr);
+                    for(String mStr : mRow.getMetricsArray()) metricNames.add("lcrel_"+mStr);   // all metrics relative to the line count also...
                 }
-
-                for(String mStr : g_metrics) metricNames.add(mStr);
 
                 for (String mStr : metricNames) {
                     Metric m = getMetric(mStr);
                     if (m == null && sua.getCustomMetricsFile() != null) {
                         try {
+                            String[] mStrParts = mStr.split("_");
+                            if (mStrParts.length > 1) {
+                                mStr = mStrParts[1];
+                            }
                             List<String> lines = Files.readAllLines(sua.getCustomMetricsFile());
                             CustomMetric cm = new CustomMetric(mStr);
                             int[] globalHeader = null;
@@ -231,7 +265,12 @@ public class Main {
                                     cm.addMetric(r.getFileName(), r.getMetric(mStr));
                                 }
                             }
-                            m = cm;
+                            if (mStrParts.length > 1) {
+                                m = new RelativeLineCount(cm);
+                            } else {
+                                m = cm;
+                            }
+
                         } catch (IOException ioe) {
                             java.lang.System.out.println(ioe.getMessage());
                         }
