@@ -27,6 +27,8 @@ public class ASMdmProjectBuilder extends ClassVisitor {
     private int m_tabs;
     private boolean m_doPrint;
 
+    private static final int g_opcodes = Opcodes.ASM5;
+
 
     private void println(String a_str) {
         if (m_doPrint) {
@@ -40,7 +42,7 @@ public class ASMdmProjectBuilder extends ClassVisitor {
 
 
     public ASMdmProjectBuilder() {
-        super(Opcodes.ASM4);
+        super(g_opcodes);
 
         m_project = new dmProject();
         m_currentClass = null;
@@ -110,7 +112,7 @@ public class ASMdmProjectBuilder extends ClassVisitor {
 
             println("Field: " + desc + " " + name);
             if (signature != null) {
-                new SignatureReader(signature).accept(new SignatureVisitor(Opcodes.ASM4) {
+                new SignatureReader(signature).accept(new SignatureVisitor(g_opcodes) {
                     public void visitClassType(String name) {
                         addDependency(name, dmDependency.Type.Field);
                         println("visitClassType: " + name);
@@ -146,7 +148,7 @@ public class ASMdmProjectBuilder extends ClassVisitor {
                 m_methodArgCount = 0;  // we do not have this in static methods
                 /*if (name.compareTo("<clinit>") == 0) {
                     println("Static Initializer");
-                    return new MethodVisitor(Opcodes.ASM5) {
+                    return new MethodVisitor(g_opcodes) {
                         public void visitLdcInsn(Object cst) {
                             // current class has a constant probably static final
                             // this object should be saved so we can trace constants
@@ -201,11 +203,11 @@ public class ASMdmProjectBuilder extends ClassVisitor {
             } else {
                 println("Method Signature: " + signature);
                 final boolean[] returnAdded = {false};
-                new SignatureReader(signature).accept(new SignatureVisitor(Opcodes.ASM4) {
+                new SignatureReader(signature).accept(new SignatureVisitor(g_opcodes) {
 
                     public SignatureVisitor visitReturnType() {
 
-                        return new SignatureVisitor(Opcodes.ASM4) {
+                        return new SignatureVisitor(g_opcodes) {
 
 
                             public void visitClassType(String name) {
@@ -218,7 +220,7 @@ public class ASMdmProjectBuilder extends ClassVisitor {
                     }
 
                     public SignatureVisitor visitParameterType() {
-                        return new SignatureVisitor(Opcodes.ASM4) {
+                        return new SignatureVisitor(g_opcodes) {
 
                             public void visitClassType(String name) {
                                 addDependency(name, dmDependency.Type.Argument);
@@ -238,7 +240,7 @@ public class ASMdmProjectBuilder extends ClassVisitor {
 
 
 
-            return new MethodVisitor(Opcodes.ASM4) {
+            return new MethodVisitor(g_opcodes) {
 
                 private void addLocalVar(String a_className, int a_index) {
                     if (a_index < m_methodArgCount) {
@@ -267,7 +269,7 @@ public class ASMdmProjectBuilder extends ClassVisitor {
                         m_tabs = 4;
                         if (signature != null) {
                             //Sys.out.println("Type.get: " + Type.(signature)[0].getClassName());
-                            new SignatureReader(signature).accept(new SignatureVisitor(Opcodes.ASM4) {
+                            new SignatureReader(signature).accept(new SignatureVisitor(g_opcodes) {
                                 public void visitClassType(String name) {
                                     addLocalVar(name, index);
                                 }
@@ -301,6 +303,9 @@ public class ASMdmProjectBuilder extends ClassVisitor {
                 }
 
                 public void visitLineNumber(int line, Label start) {
+                    if (m_currentClass != null) {
+                        m_currentClass.incLineCount();
+                    }
                     m_currentLine = line;
                 }
 
@@ -333,7 +338,7 @@ public class ASMdmProjectBuilder extends ClassVisitor {
                     m_tabs = 5;
 
                     owner = owner.replace('/', '.');
-                    Type t = Type.getMethodType(owner);
+                    Type t = Type.getObjectType(owner);
                     if (t != null && t.getClassName() != null) {
                         owner = t.getClassName();
                         println("Type.getMethodType: " + owner);

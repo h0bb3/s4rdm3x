@@ -13,6 +13,16 @@ public class dmClass {
     private String m_name;
     private List<dmDependency> m_deps;
 
+    private int m_lineCount;
+
+    void incLineCount() {
+        m_lineCount++;
+    }
+
+    public int getLineCount() {
+        return m_lineCount;
+    }
+
     public dmClass(String a_name) {
         m_name = a_name;
         m_deps = new ArrayList<dmDependency>();
