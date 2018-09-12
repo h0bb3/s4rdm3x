@@ -11,10 +11,22 @@ class statsTest {
 
     @Test
     void variance() {
+        assertEquals(28.333333333333332, stats.variance(new double[]{1, 3, 4, 7, 17, 10}));
+        assertEquals(0, stats.variance(new double[]{6, 6, 6, 6, 6, 6}));
+        assertEquals(63.88888888888889, stats.variance(new double[]{-1, 3, -4, 7, -17, -10}));
     }
 
     @Test
     void stdDev() {
+    }
+
+    @Test
+    void medianTest() {
+        assertEquals(0, stats.medianUnsorted(new double[]{0}));
+        assertEquals(0.5, stats.medianUnsorted(new double[]{0, 1}));
+        assertEquals(0.5, stats.medianUnsorted(new double[]{1, 0}));
+        assertEquals(2, stats.medianUnsorted(new double[]{1, 2, 3}));
+        assertEquals(2, stats.medianUnsorted(new double[]{3, 2, 1}));
     }
 
     @Test

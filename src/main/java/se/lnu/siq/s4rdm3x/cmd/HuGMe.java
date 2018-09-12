@@ -363,10 +363,30 @@ public class HuGMe {
                 m_automaticallyMappedNodes++;
             } else if (m_doManualMapping) {
 
+
+                // we always map to the correct cluster using the oracle
+                // we count the advice as a fail if the attraction is below the median attraction of the clusters
+                // this is possibly more correct in relation to the paper
+                boolean clustered = false;
+                ArchDef.Component targetC = m_arch.getMappedComponent(n);
+                for(int i = 0; i < m_arch.getComponentCount(); i++){
+                    if (m_arch.getComponent(i) == targetC) {
+                        targetC.clusterToNode(n, ArchDef.Component.ClusteringType.Manual);
+                        clustered = attractions[i] > stats.medianUnsorted(attractions);
+                        break;
+                    }
+                }
+
+
+
+
+
+
+
+                // this is the old conservative manual mapping
                 // no clear answer so we must ask the oracle...
                 // i.e. if the original mapping is present in one of the available options...
-                boolean clustered = false;
-
+                /*boolean clustered = false;
                 if (c1.size() > 0) {
                     for(Integer i : c1) {
                         if (mappedC == m_arch.getComponent(i)) {
@@ -388,7 +408,9 @@ public class HuGMe {
                             break;
                         }
                     }
-                }
+                }*/
+
+
                 if (clustered == false) {
                     //Sys.out.println("No attraction... this one is dead...");
                     m_failedMappings++;

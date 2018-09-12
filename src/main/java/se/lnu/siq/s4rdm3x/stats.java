@@ -1,9 +1,6 @@
 package se.lnu.siq.s4rdm3x;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.*;
 
 public class stats {
 
@@ -16,8 +13,27 @@ public class stats {
         return sum;
     }
 
-    public static double mean(double[] a_values) {
+    public static double medianSorted(final double[] a_sortedValues) {
+        if (a_sortedValues.length % 2 == 0) {
+            return (a_sortedValues[(a_sortedValues.length - 1) / 2] + a_sortedValues[a_sortedValues.length / 2]) * 0.5;
+        } else {
+            return a_sortedValues[a_sortedValues.length / 2];
+        }
+    }
+
+    public static double medianUnsorted(final double[] a_unsortedValues) {
+        double [] a = Arrays.copyOf(a_unsortedValues, a_unsortedValues.length);
+        Arrays.sort(a);
+
+        return medianSorted(a);
+    }
+
+    public static double mean(final double[] a_values) {
         return(double)sum(a_values) /(double)a_values.length;
+    }
+
+    public static double variance(double[] a_values) {
+        return variance(a_values, mean(a_values));
     }
 
     public static double variance(double [] a_values, double a_mean) {
@@ -25,12 +41,12 @@ public class stats {
         for (int i = 0; i < a_values.length; i++) {
             var += (a_values[i] - a_mean) * (a_values[i] - a_mean);
         }
-        return var;
+        return var / (double)a_values.length;
     }
 
     public static double stdDev(double [] a_values, double a_mean) {
         //return Math.sqrt(variance(a_values, a_mean)) / (double)a_values.length;
-        return Math.sqrt(variance(a_values, a_mean) / (double)a_values.length);
+        return Math.sqrt(variance(a_values, a_mean));
     }
 
     public static double getUnbiasedGiniCoefficient(Iterable<Double> a_numbers) {

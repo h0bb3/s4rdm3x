@@ -7,8 +7,9 @@ source("functions/getFilteredData.R")
 source("functions/loadData.R")
 
 
-d_1 <- getFilteredData(0.1, 0.05, loadData("jabref_37_1_rank.csv"))
-d_2 <- getFilteredData(0.1, 0.05, loadData("jabref_37_1_abt.csv"))
+d_1 <- getFilteredData(0.1, 0.025, loadData("jabref_37_1/jabref_37_1_bccc.csv"))
+d_2 <- getFilteredData(0.1, 0.025, loadData("jabref_37_1/jabref_37_1_rand.csv"))
+
 
 nrow(d_1$data)
 nrow(d_2$data)
@@ -21,8 +22,8 @@ boxplot(ap~metric, data=data)
 boxplot(mr~metric, data=data)
 boxplot(mappingPercent~metric, data=data)
 boxplot(initialClustered~metric, data=data)
-plot(ap~mappingPercent, data=d_1$data)
-plot(ap~mappingPercent, data=d_2$data)
+plot(ap~phi, data=d_1$data)
+plot(ap~phi, data=d_2$data)
 
 
 wilcox.test(d_1$data$ap, d_2$data$ap, conf.int=TRUE)
