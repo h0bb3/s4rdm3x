@@ -79,6 +79,8 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
             row.add("mapping" );
             row.add("clustering");
             row.add("clusteringType");
+            row.add("metric");
+            row.add("metricValue");
 
             writeRow(m_mappingsFilePath, row);
         } else {
@@ -117,7 +119,7 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
         row.add("" + a_rd.m_totalAutoWrong);
         row.add("" + a_rd.m_totalFailedClusterings);
         row.add("" + a_rd.m_initialClusteringPercent);
-        row.add(a_rd.m_metric);
+        row.add(a_rd.m_metric.getName());
         row.add(a_rd.m_system);
 
         writeRow(m_filePath, row);
@@ -144,6 +146,9 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
                         row.add("n/a");
                     }
                     row.add(mapped.getClusteringType(n).toString());
+                    row.add(a_rd.m_metric.getName());
+                    row.add("" + a_rd.m_metric.getMetric(n));
+
                     writeRow(m_mappingsFilePath, row);
                 }
             }

@@ -373,6 +373,7 @@ public class HuGMe {
                     if (m_arch.getComponent(i) == targetC) {
                         targetC.clusterToNode(n, ArchDef.Component.ClusteringType.Manual);
                         clustered = attractions[i] > stats.medianUnsorted(attractions);
+                        m_manuallyMappedNodes++;
                         break;
                     }
                 }

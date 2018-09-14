@@ -46,7 +46,7 @@ public class ExperimentRunner {
     }
 
     public static class BasicRunData {
-        public String m_metric;
+        public Metric m_metric;
         public String m_system;
         public long m_time;
         public int m_id;
@@ -82,7 +82,7 @@ public class ExperimentRunner {
         while(m_state == State.Running) {
 
             BasicRunData rd = new BasicRunData();
-            rd.m_metric = m_metric.getName();
+            rd.m_metric = m_metric;
             rd.m_system = m_sua.getName();
             rd.m_initialClusteringPercent = m_rand.nextDouble() * 0.2;
             rd.m_phi = m_rand.nextDouble();
