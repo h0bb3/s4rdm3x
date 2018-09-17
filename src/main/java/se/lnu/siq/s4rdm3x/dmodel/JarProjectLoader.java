@@ -53,7 +53,8 @@ public class JarProjectLoader {
         return builder.getProject();
     }
 
-    private boolean startsWithAny(String a_fullString, String[] a_starts) {
+    private boolean startsWithAny(String a_fullString, String[] a_starts    ) {
+        a_fullString = a_fullString.replace("\\", ".").replace("/", ".");
         for(String start : a_starts) {
             if (a_fullString.startsWith(start)) {
                 return true;

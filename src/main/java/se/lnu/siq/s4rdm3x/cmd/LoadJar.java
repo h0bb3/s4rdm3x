@@ -9,6 +9,7 @@ import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.dmodel.dmProject;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.StringJoiner;
 
 /**
@@ -23,7 +24,10 @@ public class LoadJar {
 
     public LoadJar(String a_file, String[] a_rootPackages) {
         m_file = a_file;
-        m_rootPackages = a_rootPackages;
+        m_rootPackages = new String[a_rootPackages.length];
+        for (int i = 0; i < m_rootPackages.length; i++) {
+            m_rootPackages[i] = a_rootPackages[i].replace('/', '.').replace('\\', '.');
+        }
         m_project = null;
     }
 

@@ -21,10 +21,10 @@ public class SystemModelReader {
     public ArrayList<Module> m_modules = new ArrayList<>();
     public ArrayList<Mapping> m_mappings = new ArrayList<>();
     public ArrayList<Relation> m_relations = new ArrayList<>();
-    public String m_name;
-    public String m_jar;
+    public String m_name = "undefined name";
+    public ArrayList<String> m_jars = new ArrayList<>();
     public ArrayList<String> m_roots = new ArrayList<>();
-    public String m_metrics;
+    public String m_metrics = "undefined metrics file";
 
     private enum Context {
         Module,
@@ -62,7 +62,7 @@ public class SystemModelReader {
                 m_name = a_line;
             } break;
             case Jar: {
-                m_jar = a_line;
+                m_jars.add(a_line);
             } break;
             case Roots: {
                 m_roots.add(a_line);

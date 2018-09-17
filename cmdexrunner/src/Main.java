@@ -107,7 +107,7 @@ public class Main {
         public void run() {
             java.lang.System.out.println("Running Experiment " + m_ix + "...");
             Graph graph = new MultiGraph("main" + m_ix);
-            m_fs = new RunFileSaver(m_sua.getName(), m_metric.getName(), false);
+            m_fs = new RunFileSaver(m_sua.getName(), m_metric.getName(), true);
             m_exr = new ExperimentRunner(m_sua, m_metric);
             m_exr.setRunListener(m_fs);
             m_exr.run(graph);
@@ -229,7 +229,8 @@ public class Main {
             }
             System sua = getSystem(a_args[1]);
             if (sua != null) {
-                java.lang.System.out.println("Running experiments on all metrics for 500000 rows: " + sua.getName());
+                final int rowLimit = 5;
+                java.lang.System.out.println("Running experiments on all metrics for " + rowLimit + " rows: " + sua.getName());
 
                 ArrayList<String> metricNames = new ArrayList<>();
 
@@ -276,7 +277,7 @@ public class Main {
                         }
                     }
                     if (m != null) {
-                        final int rowLimit = 50000;
+
                         int initialRows = getInitialRows(sua.getName(), m.getName());
                         if (initialRows < rowLimit) {
                             java.lang.System.out.println("Running experiments on metrics: " + m.getName());

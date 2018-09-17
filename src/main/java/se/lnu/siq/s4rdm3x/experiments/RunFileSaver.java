@@ -72,10 +72,11 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
         writeRow(m_filePath, row);
 
         if (a_doSaveMappings) {
-            m_mappingsFilePath = createFile(a_system, a_metric + File.separator + "mappings", a_system + "_" + a_metric + "_mappings");
+            m_mappingsFilePath = createFile(a_system,   "mappings" + File.separator + a_metric, a_system + "_" + a_metric + "_mappings");
             row = new ArrayList<>();
             row.add("runId");
             row.add("nodeId");
+            row.add("runFile");
             row.add("mapping" );
             row.add("clustering");
             row.add("clusteringType");

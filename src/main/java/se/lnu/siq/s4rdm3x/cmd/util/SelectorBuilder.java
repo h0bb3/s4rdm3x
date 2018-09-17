@@ -113,6 +113,8 @@ public class SelectorBuilder {
                         return new Selector.Pkg(strs[1]);
                     } else if (strs[0].compareTo("edgTo") == 0) {
                         return new Selector.EdgTo(strs[1]);
+                    } else if (strs[0].compareTo("class") == 0) {
+                        return new Selector.Pat(strs[1]);
                     }
                 }
             case UN_OP:

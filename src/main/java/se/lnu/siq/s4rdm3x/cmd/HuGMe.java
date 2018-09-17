@@ -20,7 +20,7 @@ public class HuGMe {
                 None,
                 Manual,
                 Automatic,
-                Forced,
+                ManualFailed,
                 Initial
             }
 
@@ -32,8 +32,8 @@ public class HuGMe {
                 if (au.hasAnyTag(a_n, ClusteringType.Automatic.toString())) {
                     return ClusteringType.Automatic;
                 }
-                if (au.hasAnyTag(a_n, ClusteringType.Forced.toString())) {
-                    return ClusteringType.Forced;
+                if (au.hasAnyTag(a_n, ClusteringType.ManualFailed.toString())) {
+                    return ClusteringType.ManualFailed;
                 }
                 if (au.hasAnyTag(a_n, ClusteringType.Initial.toString())) {
                     return ClusteringType.Initial;
@@ -371,8 +371,9 @@ public class HuGMe {
                 ArchDef.Component targetC = m_arch.getMappedComponent(n);
                 for(int i = 0; i < m_arch.getComponentCount(); i++){
                     if (m_arch.getComponent(i) == targetC) {
-                        targetC.clusterToNode(n, ArchDef.Component.ClusteringType.Manual);
                         clustered = attractions[i] > stats.medianUnsorted(attractions);
+                        ArchDef.Component.ClusteringType type = clustered ? ArchDef.Component.ClusteringType.Manual : ArchDef.Component.ClusteringType.ManualFailed;
+                        targetC.clusterToNode(n, type);
                         m_manuallyMappedNodes++;
                         break;
                     }

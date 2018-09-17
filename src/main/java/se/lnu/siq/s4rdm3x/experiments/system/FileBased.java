@@ -39,13 +39,15 @@ public class FileBased extends System {
 
         String [] roots = new String[m_smr.m_roots.size()];
         m_smr.m_roots.toArray(roots);
-        Path p = Paths.get(Paths.get(m_file).getParent().toString(), m_smr.m_jar);
-        LoadJar c = new LoadJar(p.toString(), roots);
-        try {
-            c.run(a_g);
-        } catch (IOException e) {
-            java.lang.System.out.println(e);
-            return false;
+        for (String jar : m_smr.m_jars) {
+            Path p = Paths.get(Paths.get(m_file).getParent().toString(), jar);
+            LoadJar c = new LoadJar(p.toString(), roots);
+            try {
+                c.run(a_g);
+            } catch (IOException e) {
+                java.lang.System.out.println(e);
+                return false;
+            }
         }
 
 

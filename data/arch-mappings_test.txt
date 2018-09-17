@@ -42,8 +42,12 @@ print_nodes tag:unmapped AND edgTo:to_unmapped
 // ArgoUML
 //
 //load_jar data/argouml.jar org/argouml
-load_jar data/argouml_week_020_rev_013713_date_2007-11-04.jar org\argouml
-load_arch data/argouml-archmodel.txt
+//load_jar data/argouml_week_020_rev_013713_date_2007-11-04.jar org\argouml
+clear_graph
+load_jar data/systems/argouml/argouml-0.24.jar
+load_jar data/systems/argouml/argouml-0.24-model.jar
+load_arch data/systems/argouml/argouml-archmodel.txt
+
 
 count_n tag:application
 count_n tag:diagrams
@@ -69,11 +73,14 @@ add_node_tag mapped (tag:application OR tag:application OR tag:diagrams OR tag:n
 add_node_tag mapped (tag:profile OR tag:help OR tag:moduleLoader OR tag:gui OR tag:model OR tag:internationalization OR tag:taskManagement OR tag:configuration OR tag:swingExtensions)
 add_node_tag mapped (tag:ocl OR tag:critics OR tag:javaCodeGeneration)
 
-count_n tag:mapped
-
 add_node_tag unmapped NOT(tag:mapped) AND pkg:org/argouml
 
+count_n pkg:org/argouml
 count_n tag:unmapped
+count_n tag:unmapped AND tag:mapped
+
+print_nodes tag:unmapped
+print_nodes class:org.argouml.ui.*
 
 add_relations to_unmapped 9 (tag:mapped)|(tag:unmapped)
 
@@ -134,4 +141,15 @@ add_relations to_unmapped 9 (tag:mapped)|(tag:unmapped)
 
 print_nodes tag:unmapped
 
+//
+// TeamMates
+//
+load_jar data/systems/teammates/teammatesV5.110.jar test.teammates
+load_jar data/systems/teammates/teammatesV5.110.jar main.teammates
+load_arch data/systems/teammates/teammates-system_model.txt
 
+add_node_tag mapped tag:client.scripts OR tag:client.remoteAPI OR tag:common.util OR tag:common.exception OR tag:common.dataTransfer OR tag:ui.automated OR tag:ui.controller OR tag:ui.view OR tag:logic.core OR tag:logic.api OR tag:logic.backdoor OR tag:storage.entity OR tag:storage.api OR tag:storage.search OR tag:testDriver
+
+add_node_tag unmapped (NOT tag:mapped) AND (pkg:teammates)
+
+count_n tag:unmapped

@@ -40,8 +40,6 @@ public class Main {
             ret.m_fields += r.m_fields;
             ret.m_methods += r.m_methods;
             ret.m_children += r.m_children;
-
-
         }
 
         return ret;
