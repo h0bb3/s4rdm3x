@@ -1,6 +1,6 @@
 getFilteredData <- function(a_best_percent, a_maxInitialCluster, a_data) {
-	data_filtered = a_data[a_data$initialClustered >= a_maxInitialCluster & a_data$initialClustered >= 10,]
-	data_best = data_filtered[data_filtered$ap > quantile(data_filtered$ap, c(1.0 - a_best_percent), names=FALSE),]
+	data_filtered = a_data[a_data$mappingPercent <= 0.2,]
+	data_best = data_filtered[data_filtered$h_mam > quantile(data_filtered$h_mam, c(1.0 - a_best_percent), names=FALSE),]
 	out = list()
 	out$omega_min <- min(data_best$omega)
 	out$omega_max <- max(data_best$omega)

@@ -7,9 +7,12 @@ source("functions/getFilteredData.R")
 source("functions/loadData.R")
 
 
-d_1 <- getFilteredData(0.1, 0.025, loadData("jabref_37_1/jabref_37_1_bccc.csv"))
-d_2 <- getFilteredData(0.1, 0.025, loadData("jabref_37_1/jabref_37_1_rand.csv"))
+d_1 <- getFilteredData(0.1, 25, loadData("jabref_37_1/jabref_37_1_rand.csv"))
+d_2 <- getFilteredData(0.1, 25, loadData("jabref_37_1/jabref_37_1_rank.csv"))
+d_2 <- getFilteredData(0.1, 25, loadData("jabref_37_1_oldmanual/jabref_37_1_linecount.csv"))
 
+
+d_2$data$metric = "linecount_old"
 
 nrow(d_1$data)
 nrow(d_2$data)
@@ -33,3 +36,33 @@ wilcox_test(data$ap~data$metric)
 # compute effect size r
 #https://stats.stackexchange.com/questions/133077/effect-size-to-wilcoxon-signed-rank-test
 abs(statistic(wilcox_test(data$ap~data$metric)) / sqrt(nrow(data)))
+
+
+# load all
+all <- getFilteredData(0.001, 25, loadData("argouml_all.csv"))
+all <- getFilteredData(0.001, 25, loadData("jabref_37_1_all.csv"))
+all <- getFilteredData(0.0001, 25, loadData("teammates_all.csv"))
+all <- getFilteredData(0.001, 25, loadData("ant_all.csv"))
+all <- getFilteredData(0.001, 25, loadData("lucene_all.csv"))
+
+
+length(unique(all$data$metric))
+nrow(all$data)
+summary(all$data)
+all$phi_min
+all$phi_max
+
+all$omega_min
+all$omega_max
+
+plot(ap~phi, data=all$data)
+plot(ap~omega, data=all$data)
+
+oldpar = par(mar=c(20,5,1,1))
+boxplot(ap~metric, data=all$data, las=2)
+boxplot(mr~metric, data=all$data, las=2)
+boxplot(mp~metric, data=all$data, las=2)
+boxplot(h_mam~metric, data=all$data, las=2)
+boxplot(h_am~metric, data=all$data, las=2)
+
+par(oldpar)

@@ -127,7 +127,7 @@ public class CSVRow {
     public String getFileName() {
         String fileName = m_fullName.replace('.', '/') + ".java";
         if (isInnerType()) {
-            fileName =  fileName.substring(0, m_fullName.indexOf('$')) + ".java";
+            fileName = fileName.substring(0, m_fullName.indexOf('$')) + ".java";
         }
 
         if (fileName.indexOf('<') > 0) {

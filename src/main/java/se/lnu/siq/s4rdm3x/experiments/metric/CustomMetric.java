@@ -31,6 +31,7 @@ public class CustomMetric extends Metric {
             if (m_metrics.containsKey(au.getName(n))) {
                 setMetric(n, m_metrics.get(au.getName(n)));
             } else {
+                System.out.println("No metric " + getName() + " found for: " + au.getName(n));
                 setMetric(n, -1);
             }
         }

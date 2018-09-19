@@ -77,11 +77,12 @@ public class Main {
                 Map<String, ArrayList<CSVRow>> fileRowsMap = new HashMap<>();
                 for (CSVRow r : rows) {
                     ArrayList<CSVRow> perFileRows;
-                    if (fileRowsMap.containsKey(r.getFileName())) {
-                        perFileRows = fileRowsMap.get(r.getFileName());
+                    String filename = r.getFileName();
+                    if (fileRowsMap.containsKey(filename)) {
+                        perFileRows = fileRowsMap.get(filename);
                     } else {
                         perFileRows = new ArrayList<>();
-                        fileRowsMap.put(r.getFileName(), perFileRows);
+                        fileRowsMap.put(filename, perFileRows);
 
                     }
                     perFileRows.add(r);

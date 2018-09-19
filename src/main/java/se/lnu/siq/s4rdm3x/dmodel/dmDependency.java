@@ -36,6 +36,7 @@ public class dmDependency {
         Returns,
         LocalVar,   // def of local var other than self
         MethodCall, // call on other class than self
+        ConstructorCall,   // calls new on an object including self
         OwnFieldUse,   // use of self fields
         FieldUse,   // use of field in some other class
         Throws,     // throws defined exceptions in method headers

@@ -60,10 +60,8 @@ public class ASMdmProjectBuilder extends ClassVisitor {
 
     private void addDependency(String a_targetName, dmDependency.Type a_type) {
 
-        // check if target name is an array, if so remove array markers: []
-        if (a_targetName.endsWith("[]")) {
-            a_targetName = a_targetName.substring(0, a_targetName.length() - 2);
-        }
+        // remove array markers: []
+        a_targetName = stripArrayBrackets(a_targetName);
 
         a_targetName = a_targetName.replace('/', '.');
         dmClass destClass = m_project.addClass(a_targetName);
@@ -326,6 +324,72 @@ public class ASMdmProjectBuilder extends ClassVisitor {
 
                 }
 
+                /*public void visitIntInsn(int var1, int var2) {
+                    println("visitIntInsn: ");
+                    {
+                        Textifier t = new Textifier();
+                        StringWriter sw = new StringWriter();
+
+                        t.visitIntInsn(var1, var2);
+
+                        t.print(new PrintWriter(sw));
+
+                        println("\ttextifier: " + sw.toString());
+                    }
+                }*/
+
+                public void visitMultiANewArrayInsn(String var1, int var2) {
+                    println("visitMultiANewArrayInsn: ");
+                    {
+                        Textifier t = new Textifier();
+                        StringWriter sw = new StringWriter();
+
+                        t.visitMultiANewArrayInsn(var1, var2);
+
+                        t.print(new PrintWriter(sw));
+
+                        println("\ttextifier: " + sw.toString());
+                    }
+
+                    String owner = var1.replace('/', '.');
+                    Type t = Type.getObjectType(owner);
+                    if (t != null && t.getClassName() != null) {
+                        owner = t.getClassName();
+                        println("Type.getMethodType: " + owner);
+                    }
+                    owner = stripArrayBrackets(owner);
+                    addDependency(owner, dmDependency.Type.ConstructorCall);
+
+                }
+
+                public void visitTypeInsn(int var1, String var2) {
+                    println("visitTypeInsn: " + var2);
+                    {
+                        Textifier t = new Textifier();
+                        StringWriter sw = new StringWriter();
+
+                        t.visitTypeInsn(var1, var2);
+
+                        t.print(new PrintWriter(sw));
+
+                        println("\ttextifier: " + sw.toString());
+                    }
+
+                    // array creation on type
+                    // add constructor dependency
+                    if (var1 == Opcodes.ANEWARRAY) {
+                        String owner = var2.replace('/', '.');
+                        Type t = Type.getObjectType(owner);
+                        if (t != null && t.getClassName() != null) {
+                            owner = t.getClassName();
+                            println("Type.getMethodType: " + owner);
+                        }
+                        owner = stripArrayBrackets(owner);
+                        addDependency(owner, dmDependency.Type.ConstructorCall);
+                    }
+
+                }
+
                 public void visitParameter(String name, int access) {
                     println("visitParameter: " + name);
                 }
@@ -345,9 +409,7 @@ public class ASMdmProjectBuilder extends ClassVisitor {
                     }
 
                     // if owner is an array we depend on the mother type instead
-                    if (owner.endsWith("[]")) {
-                        owner = owner.substring(0, owner.length() - 2);
-                    }
+                    owner = stripArrayBrackets(owner);
 
                     // skipp all calls on objects of same class...
                     if (m_currentClass.getName().compareTo(owner) != 0) {
@@ -356,8 +418,15 @@ public class ASMdmProjectBuilder extends ClassVisitor {
                         if (name.startsWith("access$")) {
                             addDependency(owner, dmDependency.Type.FieldUse);
                         } else {
-                            addDependency(owner, dmDependency.Type.MethodCall);
+                            if (name.contentEquals("<init>")) {
+                                addDependency(owner, dmDependency.Type.ConstructorCall);
+                            } else {
+                                addDependency(owner, dmDependency.Type.MethodCall);
+                            }
                         }
+                    } else if (name.contentEquals("<init>")) {
+                        // we track dependencies to self if they are contsructor calls
+                        addDependency(owner, dmDependency.Type.ConstructorCall);
                     }
                 }
 
@@ -365,5 +434,14 @@ public class ASMdmProjectBuilder extends ClassVisitor {
             };
         }
         return null;
+    }
+
+    private String stripArrayBrackets(String a_str) {
+        if (a_str.endsWith("[]")) {
+            //owner = owner.substring(0, owner.length() - 2);
+            a_str = a_str.substring(0, a_str.indexOf('['));
+        }
+
+        return a_str;
     }
 }

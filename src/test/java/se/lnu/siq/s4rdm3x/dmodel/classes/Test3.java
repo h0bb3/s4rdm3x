@@ -20,6 +20,7 @@ public class Test3 implements InterfaceTest {
 
     public Test3(Integer anInt) {  // line (call to super?)
         m_list.add(anInt);  // line count
+        m_list.add(new Float(17));
     }   // line count (return created object)
 
     public void doSomething() {
