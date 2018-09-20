@@ -97,17 +97,19 @@ public class Main {
         System m_sua;
         RunFileSaver m_fs;
         ExperimentRunner m_exr;
+        boolean m_doSaveMappings;
 
-        public ExThread(System a_sua, Metric a_metric, int a_index) {
+        public ExThread(System a_sua, Metric a_metric, int a_index, boolean a_doSaveMappings) {
             m_ix = a_index;
             m_metric = a_metric;
             m_sua = a_sua;
+            m_doSaveMappings = a_doSaveMappings;
         }
 
         public void run() {
             java.lang.System.out.println("Running Experiment " + m_ix + "...");
             Graph graph = new MultiGraph("main" + m_ix);
-            m_fs = new RunFileSaver(m_sua.getName(), m_metric.getName(), false);
+            m_fs = new RunFileSaver(m_sua.getName(), m_metric.getName(), m_doSaveMappings);
             m_exr = new ExperimentRunner(m_sua, m_metric);
             m_exr.setRunListener(m_fs);
             m_exr.run(graph);
@@ -137,13 +139,13 @@ public class Main {
 
     }
 
-    private static ArrayList<ExThread> startThreads(int a_threadCount, System a_sua, Metric a_metric) {
+    private static ArrayList<ExThread> startThreads(int a_threadCount, System a_sua, Metric a_metric, boolean a_doSaveMappings) {
         ArrayList<ExThread> ret = new ArrayList<>();
         for(int i = 0; i < a_threadCount; i++) {
             final int ix = i;
 
             // need to make a class of this so we can check te no rows
-            ExThread r = new ExThread(a_sua, a_metric, ix);
+            ExThread r = new ExThread(a_sua, a_metric, ix, a_doSaveMappings);
             ret.add(r);
             Thread t = new Thread(r);
             t.start();
@@ -198,10 +200,119 @@ public class Main {
         }
     }
 
+    public static void main2(String[] a_args) {
+        // accepted arguments
+        // -threads thread count number optional default 1
+        // -sys system or system model file
+        // -metric metric (optional)
+        // -mapping saves mappings (optional)
+        // -count the number of rows to (optional)
+        final CmdArgsHandler args = new CmdArgsHandler(a_args);
+        final String system = args.getArgumentString("-system");
+        final String metric = args.getArgumentString("-metric");
+        boolean saveMappings = args.getArgumentBool("-mapping", false);
+        final int rowLimit = args.getArgumentInt("-count", 50000);
+        final int threadCount = args.getArgumentInt("-threads", 1);
+
+        System sua = getSystem(system);
+        Metric m = getMetric(metric);
+
+        if (sua != null) {
+            if (m == null && metric.length() > 0) {
+                // could not find any metric with that name
+            } else if (m != null) {
+                int initialRows = getInitialRows(sua.getName(), m.getName());
+                run(threadCount, rowLimit - initialRows, sua, m, saveMappings);
+            } else {
+
+                ArrayList<String> metricNames = new ArrayList<>();
+                for(String mStr : getInternalMetricsArray()) metricNames.add(mStr);
+
+                if (sua.getCustomMetricsFile() != null) {
+                    CSVRow mRow = new CSVRow();
+                    for(String mStr : mRow.getMetricsArray()) metricNames.add(mStr);
+                    for(String mStr : mRow.getMetricsArray()) metricNames.add("lcrel_"+mStr);   // all metrics relative to the line count also...
+                }
+
+                for (String mStr : metricNames) {
+                    m = getMetric(mStr);
+                    if (m == null && sua.getCustomMetricsFile() != null) {
+                        try {
+                            String[] mStrParts = mStr.split("_");
+                            if (mStrParts.length > 1) {
+                                mStr = mStrParts[1];
+                            }
+                            List<String> lines = Files.readAllLines(sua.getCustomMetricsFile());
+                            CustomMetric cm = new CustomMetric(mStr);
+                            int[] globalHeader = null;
+                            for (String line : lines) {
+                                String parts[] = line.split("\t");
+                                if (globalHeader == null) {
+                                    CSVRow r = new CSVRow();
+
+                                    globalHeader = r.getHeaderOrder(parts);
+                                } else {
+                                    CSVRow r = new CSVRow();
+                                    r.fromStrings(parts, globalHeader);
+                                    cm.addMetric(r.getFileName(), r.getMetric(mStr));
+                                }
+                            }
+                            if (mStrParts.length > 1) {
+                                m = new RelativeLineCount(cm);
+                            } else {
+                                m = cm;
+                            }
+
+                        } catch (IOException ioe) {
+                            java.lang.System.out.println(ioe.getMessage());
+                        }
+                    }
+                    if (m != null) {
+
+                        int initialRows = getInitialRows(sua.getName(), m.getName());
+                        run(threadCount, rowLimit - initialRows, sua, m, saveMappings);
+                    }
+                }
+            }
+
+        } else {
+            //printInstructions();
+        }
+
+    }
+
+    public static void run(int a_threadCount, int a_rows, System a_sua, Metric a_m, boolean a_doSaveMappings) {
+        if (a_rows > 0) {
+            java.lang.System.out.println("Running " + a_threadCount + " experiment threads on: " +a_sua.getName() + ":" +  a_m.getName() + " for " + a_rows + " additional rows.");
+            if (a_doSaveMappings) {
+                java.lang.System.out.println("Also saving experiment mappings.");
+            }
+            ArrayList<ExThread> threads = startThreads(a_threadCount, a_sua, a_m, a_doSaveMappings);
+
+            while (sumRows(threads) < a_rows) {
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e) {
+                }
+            }
+            for (ExThread et : threads) {
+                et.halt();
+            }
+            while (!allIdle(threads)) {
+                try {
+                    Thread.sleep(100);
+                } catch (Exception e) {
+                }
+            }
+        }
+    }
+
 
     public static void main(String[] a_args) {
 
-        if (a_args.length == 3) {
+        main2(a_args);
+
+        /*if (a_args.length == 3) {
             int threadCount = Integer.parseInt(a_args[0]);
             if (threadCount < 1) {
                 threadCount = 1;
@@ -318,6 +429,7 @@ public class Main {
             }
         } else {
                 java.lang.System.out.println("Wrong number of arguments supplied.\n Use: threads jabref|teammates " + getMetricsString());
-        }
+        }*/
     }
+
 }

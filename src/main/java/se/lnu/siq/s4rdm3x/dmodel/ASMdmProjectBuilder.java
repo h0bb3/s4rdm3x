@@ -338,6 +338,7 @@ public class ASMdmProjectBuilder extends ClassVisitor {
                     }
                 }*/
 
+                // some info about the arrays in the jvm and asm: http://www.egtry.com/java/bytecode/asm/array
                 public void visitMultiANewArrayInsn(String var1, int var2) {
                     println("visitMultiANewArrayInsn: ");
                     {

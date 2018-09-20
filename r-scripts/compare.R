@@ -7,9 +7,13 @@ source("functions/getFilteredData.R")
 source("functions/loadData.R")
 
 
-d_1 <- getFilteredData(0.1, 25, loadData("jabref_37_1/jabref_37_1_rand.csv"))
-d_2 <- getFilteredData(0.1, 25, loadData("jabref_37_1/jabref_37_1_rank.csv"))
-d_2 <- getFilteredData(0.1, 25, loadData("jabref_37_1_oldmanual/jabref_37_1_linecount.csv"))
+d_1 <- getFilteredData(0.1, 25, loadData("jabref_37_1/rand.csv"))
+d_2 <- getFilteredData(0.1, 25, loadData("jabref_37_1/linecount.csv"))
+
+d_1 <- getFilteredData(0.1, 25, loadData("lucene/rand.csv"))
+d_2 <- getFilteredData(0.1, 25, loadData("lucene/linecount.csv"))
+
+
 
 
 d_2$data$metric = "linecount_old"
@@ -23,6 +27,7 @@ data <- rbind(d_1$data, d_2$data)
 summary(data)
 boxplot(ap~metric, data=data)
 boxplot(mr~metric, data=data)
+boxplot(mp~metric, data=data)
 boxplot(mappingPercent~metric, data=data)
 boxplot(initialClustered~metric, data=data)
 plot(ap~phi, data=d_1$data)
@@ -40,10 +45,11 @@ abs(statistic(wilcox_test(data$ap~data$metric)) / sqrt(nrow(data)))
 
 # load all
 all <- getFilteredData(0.001, 25, loadData("argouml_all.csv"))
-all <- getFilteredData(0.001, 25, loadData("jabref_37_1_all.csv"))
+all <- getFilteredData(0.001, 25, loadData("jabref_37_1/all.csv"))
 all <- getFilteredData(0.0001, 25, loadData("teammates_all.csv"))
 all <- getFilteredData(0.001, 25, loadData("ant_all.csv"))
-all <- getFilteredData(0.001, 25, loadData("lucene_all.csv"))
+all <- getFilteredData(0.001, 25, loadData("lucene/all.csv"))
+all <- getFilteredData(0.001, 25, loadData("sweethome3d_all.csv"))
 
 
 length(unique(all$data$metric))
