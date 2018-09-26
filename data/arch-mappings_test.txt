@@ -21,8 +21,8 @@ print_nodes tag:unmapped AND edgTo:to_unmapped
 //
 // JabRef 3.7
 //
-load_jar data/JabRef-3.7.jar net/sf/jabref/
-load_arch data/jabref-3_7-archmodel.txt
+load_jar data/systems/JabRef/3.7/JabRef-3.7.jar net.sf.jabref.
+load_arch data/systems/JabRef/3.7/jabref-3_7-system_model_1.txt
 	
 add_node_tag mapped (tag:globals OR tag:preferences OR tag:model OR tag:logic OR tag:gui OR tag:cli OR tag:guiapi OR tag:db)
 add_node_tag unmapped NOT(tag:mapped) AND (pkg:net/sf/jabref/)
@@ -106,8 +106,8 @@ count_n tag:unmapped
 //
 // Ant
 //
-load_jar data\ant_week_020_rev_584500_date_2007-10-14.jar org/apache/tools
-load_arch data\ant-archmodel.txt
+load_jar data\systems\ant\ant_week_020_rev_584500_date_2007-10-14.jar org.apache.tools
+load_arch data\systems\ant\ant-archmodel.txt
 
 add_node_tag mapped tag:optional OR tag:compilers OR tag:condition OR tag:rmic OR tag:cvslib OR tag:email OR tag:repository OR tag:taskdefs OR tag:listener
 add_node_tag mapped tag:types OR tag:ant OR tag:ant.util OR tag:zip OR tag:tar OR tag:mail OR tag:bzip2
@@ -125,8 +125,8 @@ print_nodes tag:unmapped AND edgTo:to_unmapped
 //
 // Lucene
 //
-load_jar data\lucene_week_020_rev_1075001_date_2011-02-27.jar org\apache\lucene
-load_arch data\lucene-archmodel.txt
+load_jar data\systems\lucene\lucene_week_020_rev_1075001_date_2011-02-27.jar org.apache.lucene
+load_arch data\systems\lucene\lucene-archmodel.txt
 
 add_node_tag mapped tag:queryparser OR tag:search OR tag:index OR tag:store OR tag:analysis OR tag:util OR tag:document
 add_node_tag unmapped NOT(tag:mapped) AND pkg:org/apache/lucene

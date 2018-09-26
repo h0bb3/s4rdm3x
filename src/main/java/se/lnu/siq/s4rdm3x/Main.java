@@ -25,6 +25,8 @@ public class Main {
         //C.io.setTitle("Hello World");
         GUIConsole guic = new GUIConsole();
 
+        HuGMe.ArchDef arch = null;  // this is set by loading the arch
+
         Graph graph = new MultiGraph("main_graph");
         graph.addAttribute("ui.antialias");
         graph.addAttribute("ui.quality", 4);
@@ -225,6 +227,24 @@ public class Main {
                             String[] cargs = in.split(" ");
                             LoadArch la = new LoadArch(cargs[1]);
                             la.run(graph);
+                            arch = la.m_arch;
+                            if (arch != null) {
+                                guic.println("Architecture Loaded from: " + cargs[1]);
+                            } else {
+                                guic.println("Failed to load Architecture from: " + cargs[1]);
+                            }
+                        } else if (in.startsWith("report_violations")) {
+                            String[] cargs = in.split(" ");
+                            CheckViolations cv = new CheckViolations();
+                            cv.run(graph, arch);
+                            guic.println("Divergencies:");
+                            for(CheckViolations.Violation v : cv.m_divergencies) {
+                                String lines = "";
+                                for (int line : v.m_dependency.lines()) {
+                                    guic.println(v.m_source.m_component.getName() + "\t" + v.m_source.m_class.getFileName() + "\t" + v.m_dest.m_component.getName() + "\t" + v.m_dest.m_class.getFileName() + "\t" + v.m_dependency.getType() + "\t" + line);
+                                }
+
+                            }
                         } else if (in.startsWith("print_nodes")) {
                             String[] cargs = in.split(" ");
                             Selector.ISelector s = new Selector.All();

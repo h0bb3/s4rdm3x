@@ -44,12 +44,12 @@ abs(statistic(wilcox_test(data$ap~data$metric)) / sqrt(nrow(data)))
 
 
 # load all
-all <- getFilteredData(0.001, 25, loadData("argouml_all.csv"))
-all <- getFilteredData(0.001, 25, loadData("jabref_37_1/all.csv"))
-all <- getFilteredData(0.0001, 25, loadData("teammates_all.csv"))
-all <- getFilteredData(0.001, 25, loadData("ant_all.csv"))
-all <- getFilteredData(0.001, 25, loadData("lucene/all.csv"))
-all <- getFilteredData(0.001, 25, loadData("sweethome3d_all.csv"))
+all <- getFilteredData(0.001, 25, loadData("180921/argouml/all.csv"))
+all <- getFilteredData(0.001, 25, loadData("180921/jabref_37_1/all.csv"))
+all <- getFilteredData(0.001, 25, loadData("180921/teammates/all.csv"))
+all <- getFilteredData(0.001, 25, loadData("180921/ant/all.csv"))
+all <- getFilteredData(0.001, 25, loadData("180921/lucene/all.csv"))
+all <- getFilteredData(0.001, 25, loadData("180921/sweethome3d/all.csv"))
 
 
 length(unique(all$data$metric))
@@ -65,10 +65,18 @@ plot(ap~phi, data=all$data)
 plot(ap~omega, data=all$data)
 
 oldpar = par(mar=c(20,5,1,1))
-boxplot(ap~metric, data=all$data, las=2)
-boxplot(mr~metric, data=all$data, las=2)
-boxplot(mp~metric, data=all$data, las=2)
-boxplot(h_mam~metric, data=all$data, las=2)
+metrics <- with(all$data, reorder(metric, -ap, FUN=median))
+boxplot(ap~metrics, data=all$data, las=2)
+
+metrics <- with(all$data, reorder(metric, -mr, FUN=median))
+boxplot(mr~metrics, data=all$data, las=2)
+
+metrics <- with(all$data, reorder(metric, -mp, FUN=median))
+boxplot(mp~metrics, data=all$data, las=2)
+
+metrics <- with(all$data, reorder(metric, -h_mam, FUN=median))
+boxplot(h_mam~metrics, data=all$data, las=2)
+
 boxplot(h_am~metric, data=all$data, las=2)
 
 par(oldpar)

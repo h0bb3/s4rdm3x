@@ -20,7 +20,9 @@ public class LoadArch {
         if (smr.readFile(m_file)) {
             ArchCreator ac = new ArchCreator();
 
-            ac.mapArch(ac.createArch(smr), smr, a_g);
+            m_arch = ac.createArch(smr);
+            ac.mapArch(m_arch, smr, a_g);
+
         }
     }
 }
