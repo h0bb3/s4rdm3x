@@ -24,7 +24,7 @@ public class GUIConsole extends JPanel {
 
     private final static String newline = System.getProperty("line.separator");
 
-    public String join(String [] a_parts, int a_startIx, String a_delim) {
+    private String join(String [] a_parts, int a_startIx, String a_delim) {
 
         String ret = a_parts[a_startIx];
 
@@ -143,16 +143,20 @@ public class GUIConsole extends JPanel {
         });
     }
 
+    public void close() {
+        m_frame.dispose();
+    }
+
     private void create() {
         //Create and set up the window.
-        JFrame frame = new JFrame("Console");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        m_frame = new JFrame("Console");
+        m_frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         //Add contents to the window.
-        frame.add(this);
+        m_frame.add(this);
 
 
-        frame.addFocusListener(new FocusListener() {
+        m_frame.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent e) {
                 m_input.requestFocusInWindow();
@@ -247,9 +251,9 @@ public class GUIConsole extends JPanel {
         m_input.requestFocusInWindow();
 
         //Display the window.
-        frame.pack();
-        frame.setSize(480, 640);
-        frame.setVisible(true);
+        m_frame.pack();
+        m_frame.setSize(480, 640);
+        m_frame.setVisible(true);
 
     }
 
