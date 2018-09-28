@@ -16,6 +16,10 @@ public class HuGMe {
             private String m_name;
             private ArrayList<Component> m_allowedDependenciesTo;
 
+            public int getAllowedDependencyCount() {
+                return m_allowedDependenciesTo.size();
+            }
+
             public enum ClusteringType {
                 None,
                 Manual,

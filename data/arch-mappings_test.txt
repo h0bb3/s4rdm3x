@@ -93,8 +93,8 @@ count_n tag:profile
 //
 // Sweet Home 3D
 //
-load_jar data/sweethome3d_week_020_rev_002382_date_2010-02-21.jar com/eteks/sweethome3d
-load_arch data/sweethome3d-archmodel.txt
+load_jar data/systems/sweethome3d/sweethome3d_week_020_rev_002382_date_2010-02-21.jar com/eteks/sweethome3d
+load_arch data/systems/sweethome3d/sweethome3d-system_model.txt
 
 add_node_tag mapped tag:sweetHome3DModel OR tag:sweetHome3DTools OR tag:sweetHome3DPlugin OR tag:sweetHome3DViewController OR tag:sweetHome3DSwing OR tag:sweetHome3DJava3D
 add_node_tag mapped tag:sweetHome3DIO OR tag:sweetHome3DApplet OR tag:sweetHome3DApplication

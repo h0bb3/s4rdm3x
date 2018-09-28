@@ -1,10 +1,7 @@
 import glm_.vec2.Vec2;
 import glm_.vec2.Vec2i;
 import glm_.vec4.Vec4;
-import imgui.Context;
-import imgui.ContextKt;
-import imgui.IO;
-import imgui.ImGui;
+import imgui.*;
 import imgui.impl.ImplGL3;
 import imgui.impl.LwjglGlfw;
 import imgui.internal.DrawCornerFlag;
@@ -19,6 +16,8 @@ import uno.glfw.GlfwWindow;
 import uno.glfw.windowHint;
 
 import java.math.RoundingMode;
+import java.util.Arrays;
+import java.util.Comparator;
 
 import static imgui.ImguiKt.COL32;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
@@ -69,6 +68,10 @@ public class RectsAndArrows {
         GUIConsole guic = new GUIConsole();
         StringCommandHandler sch = new StringCommandHandler();
         Graph graph = new MultiGraph("main_graph");
+
+        // testing
+        sch.execute("load_arch data/systems/teammates/teammates-system_model.txt", graph).forEach(str -> guic.println(str));
+
         window.loop(() -> {
 
             if (guic.hasInput()) {
@@ -94,11 +97,236 @@ public class RectsAndArrows {
     private boolean[] showAnotherWindow = {true};
     private int[] counter = {0};
 
+    private void getRectTopLeft(int a_index, Vec2 a_offset, Vec2 a_size, Vec2 a_outTopLeftCorner) {
+        a_offset.plus(a_size.times(a_index, a_outTopLeftCorner), a_outTopLeftCorner);
+    }
+
+    private boolean equalToLevel(final int a_level, HuGMe.ArchDef.Component a_c1, HuGMe.ArchDef.Component a_c2) {
+        String [] names1 = getLevels(a_c1);
+        String [] names2 = getLevels(a_c2);
+        if (a_level < names1.length && a_level < names2.length) {
+            for (int ix = 0; ix <= a_level; ix++) {
+                if (!names1[ix].contentEquals(names2[ix])) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private String [] getLevels(HuGMe.ArchDef.Component a_c) {
+        return a_c.getName().split("\\.");
+    }
+
+    private void drawComponentRects2(ImGui a_imgui, HuGMe.ArchDef.Component[] a_components) {
+        Rect r = imgui.getCurrentWindow().getInnerClipRect();
+        Vec2 tl = new Vec2();
+        Vec2 size = new Vec2(r.getWidth() / a_components.length, r.getHeight() / a_components.length);
+        Vec2 br = new Vec2();
+        br = br.plus(tl);
+        int maxLevel = 0;
+
+        for (HuGMe.ArchDef.Component c : a_components) {
+            if (maxLevel < getLevels(c).length) {
+                maxLevel = getLevels(c).length;
+            }
+        }
+        for (int level = 0; level < maxLevel; level++) {
+
+            for (int ix = 0; ix < a_components.length;) {
+                HuGMe.ArchDef.Component component = a_components[ix];
+
+                String[] names = getLevels(component);
+                if (names.length < maxLevel - level) {
+                    ix++;
+                    continue;
+                }
+
+                getRectTopLeft(ix, r.getTl(), size, tl);
+
+                int add = 0;
+                while(ix + add < a_components.length && equalToLevel(level, component, a_components[ix + add])) {
+                    add++;
+                }
+                if (add == 0) {
+                    add = 1;
+                }
+
+                getRectTopLeft(ix + add, r.getTl(), size, br);
+
+                a_imgui.getWindowDrawList().addRectFilled(tl, br, COL32(75, 75, 75, 255), 1, 0);
+                a_imgui.getWindowDrawList().addRect(tl, br, COL32(175, 175, 175, 255), 1, 0, 2.0f);
+
+                String name = component.getName();
+
+                if (names.length > level) {
+                    name = names[names.length - level - 1];
+                }
+                Vec2 textSize = a_imgui.calcTextSize(name, false);
+                textSize.div(2);
+                Vec2 textPos = tl.plus(size.div(2).minus(textSize.div(2)));
+
+                a_imgui.getWindowDrawList().addText(textPos, COL32(175, 175, 175, 255), name.toCharArray(), name.length());
+                ix += add;
+            }
+        }
+    }
+
+    private void drawComponentRects(ImGui a_imgui, HuGMe.ArchDef.Component[] a_components) {
+        Rect r = imgui.getCurrentWindow().getInnerClipRect();
+        Vec2 tl = new Vec2(r.getTl());
+        Vec2 size = new Vec2(r.getWidth() / a_components.length, r.getHeight() / a_components.length);
+        Vec2 br = new Vec2(size);
+        br = br.plus(tl);
+
+
+        for (HuGMe.ArchDef.Component component : a_components) {
+            a_imgui.getWindowDrawList().addRectFilled(tl, br, COL32(75, 75, 75, 255), 1, 0);
+            a_imgui.getWindowDrawList().addRect(tl, br, COL32(175, 175, 175, 255), 1, 0, 2.0f);
+
+            String name = component.getName();
+            name = name.replace(".", ".\n");
+            Vec2 textSize = a_imgui.calcTextSize(name, false);
+            textSize.div(2);
+            Vec2 textPos = tl.plus(size.div(2).minus(textSize.div(2)));
+
+            a_imgui.getWindowDrawList().addText(textPos, COL32(175, 175, 175, 255), name.toCharArray(), name.length());
+            tl.setX(br.getX());
+            tl.setY(br.getY());
+            br = tl.plus(size);
+        }
+    }
+
+    private void drawComponentDependencies(ImGui a_imgui, HuGMe.ArchDef.Component[] a_components) {
+        Rect r = imgui.getCurrentWindow().getInnerClipRect();
+        Vec2 size = new Vec2(r.getWidth() / a_components.length, r.getHeight() / a_components.length);
+        for (int fIx = 0; fIx < a_components.length; fIx++) {
+            for (int tIx = 0; tIx < a_components.length; tIx++) {
+                if (fIx != tIx && a_components[fIx].allowedDependency(a_components[tIx])) {
+                    final int color = COL32(175, 175, 175, 255);
+                    if (fIx < tIx) {
+                        float x, y;
+                        x = r.getTl().getX() + size.getX() * (fIx + 1);
+                        y = r.getTl().getY() + size.getY() * (fIx + 1) - size.getY() / 4;
+                        Vec2 start = new Vec2(x, y);
+
+                        x = r.getTl().getX() + size.getX() * tIx + size.getX() / 4;
+
+                        Vec2 end = new Vec2(x, y);
+
+                        imgui.getWindowDrawList().addLine(start, end, color, 1.0f);
+
+                        y = r.getTl().getY() + size.getY() * tIx;
+                        start = new Vec2(x, y);
+                        imgui.getWindowDrawList().addLine(end, start, color, 1.0f);
+                        x = start.getX();
+                        y = start.getY();
+
+                        y -= 10;
+                        x -= 7;
+                        Vec2 p1 = new Vec2(x, y);
+                        x += 14;
+                        Vec2 p2 = new Vec2(x, y);
+                        imgui.getWindowDrawList().addLine(p1, start, color, 1.0f);
+                        imgui.getWindowDrawList().addLine(p2, start, color, 1.0f);
+                    } else {
+                        float x, y;
+                        x = r.getTl().getX() + size.getX() * (fIx);
+                        y = r.getTl().getY() + size.getY() * fIx + size.getY() / 4;
+                        Vec2 start = new Vec2(x, y);
+
+                        x = r.getTl().getX() + size.getX() * (tIx + 1) - size.getX() / 4;
+
+                        Vec2 end = new Vec2(x, y);
+
+                        imgui.getWindowDrawList().addLine(start, end, color, 1.0f);
+
+                        y = r.getTl().getY() + size.getY() * (tIx + 1);
+                        start = new Vec2(x, y);
+                        imgui.getWindowDrawList().addLine(end, start, color, 1.0f);
+
+                        y += 10;
+                        x -= 7;
+                        Vec2 p1 = new Vec2(x, y);
+                        x += 14;
+                        Vec2 p2 = new Vec2(x, y);
+                        imgui.getWindowDrawList().addLine(p1, start, color, 1.0f);
+                        imgui.getWindowDrawList().addLine(p2, start, color, 1.0f);
+                    }
+                }
+            }
+        }
+    }
+
+    private void drawComponentDependencies2(ImGui a_imgui, HuGMe.ArchDef.Component[] a_components) {
+        Rect r = imgui.getCurrentWindow().getInnerClipRect();
+        Vec2 size = new Vec2(r.getWidth() / a_components.length, r.getHeight() / a_components.length);
+        for (int fIx = 0; fIx < a_components.length; fIx++) {
+            for (int tIx = 0; tIx < a_components.length; tIx++) {
+                if (fIx != tIx && a_components[fIx].allowedDependency(a_components[tIx])) {
+                    final int color = COL32(175, 175, 175, 255);
+                    if (fIx < tIx) {
+                        float x, y;
+                        x = r.getTl().getX() + size.getX() * (fIx + 1);
+                        y = r.getTl().getY() + size.getY() * (fIx + 1) - size.getY() / (a_components.length - fIx) * (tIx - fIx);
+                        Vec2 start = new Vec2(x, y);
+
+                        x = r.getTl().getX() + size.getX() * tIx + size.getX() / (tIx + 1 ) * (tIx - fIx);
+
+                        Vec2 end = new Vec2(x, y);
+
+                        imgui.getWindowDrawList().addLine(start, end, color, 1.0f);
+
+                        y = r.getTl().getY() + size.getY() * tIx;
+                        start = new Vec2(x, y);
+                        imgui.getWindowDrawList().addLine(end, start, color, 1.0f);
+                        x = start.getX();
+                        y = start.getY();
+
+                        y -= 10;
+                        x -= 7;
+                        Vec2 p1 = new Vec2(x, y);
+                        x += 14;
+                        Vec2 p2 = new Vec2(x, y);
+                        imgui.getWindowDrawList().addLine(p1, start, color, 1.0f);
+                        imgui.getWindowDrawList().addLine(p2, start, color, 1.0f);
+                    } else {
+                        float x, y;
+                        x = r.getTl().getX() + size.getX() * (fIx);
+                        y = r.getTl().getY() + size.getY() * fIx + size.getY() / (fIx + 1) * (fIx - tIx);
+                        Vec2 start = new Vec2(x, y);
+
+                        x = r.getTl().getX() + size.getX() * (tIx + 1) - size.getX() / (a_components.length - tIx) * (fIx - tIx);
+
+                        Vec2 end = new Vec2(x, y);
+
+                        imgui.getWindowDrawList().addLine(start, end, color, 1.0f);
+
+                        y = r.getTl().getY() + size.getY() * (tIx + 1);
+                        start = new Vec2(x, y);
+                        imgui.getWindowDrawList().addLine(end, start, color, 1.0f);
+
+                        y += 10;
+                        x -= 7;
+                        Vec2 p1 = new Vec2(x, y);
+                        x += 14;
+                        Vec2 p2 = new Vec2(x, y);
+                        imgui.getWindowDrawList().addLine(p1, start, color, 1.0f);
+                        imgui.getWindowDrawList().addLine(p2, start, color, 1.0f);
+                    }
+                }
+            }
+        }
+    }
+
     private void mainLoop(HuGMe.ArchDef a_arch) {
 
 
         // Start the Dear ImGui frame
         lwjglGlfw.newFrame();
+
+        imgui.getFont().setScale(2.0f);
 
 
         imgui.text("Hello, world!");                                // Display some text (you can use a format string too)
@@ -120,86 +348,33 @@ public class RectsAndArrows {
             imgui.begin("Boxes And Lines", showAnotherWindow, 0);
             if (a_arch !=  null) {
                 HuGMe.ArchDef.Component[] components = new HuGMe.ArchDef.Component[a_arch.getComponentCount()];
+                HRoot root = new HRoot();
                 for (int ix = 0; ix < components.length; ix++) {
                     components[ix] = a_arch.getComponent(ix);
-                }
-                Rect r = imgui.getCurrentWindow().getInnerClipRect();
-                Vec2 tl = new Vec2(r.getTl());
-                Vec2 size = new Vec2(r.getWidth() / components.length, r.getHeight() / components.length);
-                Vec2 br = new Vec2(size);
-                br = br.plus(tl);
-
-
-                for (HuGMe.ArchDef.Component component : components) {
-                    imgui.getWindowDrawList().addRectFilled(tl, br, COL32(75, 75, 75, 255), 0, 0);
-                    imgui.getWindowDrawList().addRect(tl, br, COL32(175, 175, 175, 255), 0, 0, 2.0f);
-
-                    Vec2 textSize = imgui.calcTextSize(component.getName(), false);
-                    textSize.div(2);
-                    Vec2 textPos = tl.plus(size.div(2).minus(textSize.div(2)));
-
-                    imgui.getWindowDrawList().addText(textPos, COL32(175, 175, 175, 255), component.getName().toCharArray(), component.getName().length());
-                    tl.setX(br.getX());
-                    tl.setY(br.getY());
-                    br = tl.plus(size);
+                    root.add(components[ix].getName());
                 }
 
-                for (int fIx = 0; fIx < components.length; fIx++) {
-                    for (int tIx = 0; tIx < components.length; tIx++) {
-                        if (fIx != tIx && components[fIx].allowedDependency(components[tIx])) {
-                            final int color = COL32(175, 175, 175, 255);
-                            if (fIx < tIx) {
-                                float x, y;
-                                x = r.getTl().getX() + size.getX() * (fIx + 1);
-                                y = r.getTl().getY() + size.getY() * (fIx + 1) - size.getY() / 4;
-                                Vec2 start = new Vec2(x, y);
-
-                                x = r.getTl().getX() + size.getX() * tIx + size.getX() / 4;
-
-                                Vec2 end = new Vec2(x, y);
-
-                                imgui.getWindowDrawList().addLine(start, end, color, 1.0f);
-
-                                y = r.getTl().getY() + size.getY() * tIx;
-                                start = new Vec2(x, y);
-                                imgui.getWindowDrawList().addLine(end, start, color, 1.0f);
-                                x = start.getX();
-                                y = start.getY();
-
-                                y -= 10;
-                                x -= 7;
-                                Vec2 p1 = new Vec2(x, y);
-                                x += 14;
-                                Vec2 p2 = new Vec2(x, y);
-                                imgui.getWindowDrawList().addLine(p1, start, color, 1.0f);
-                                imgui.getWindowDrawList().addLine(p2, start, color, 1.0f);
-                            } else {
-                                float x, y;
-                                x = r.getTl().getX() + size.getX() * (fIx);
-                                y = r.getTl().getY() + size.getY() * fIx + size.getY() / 4;
-                                Vec2 start = new Vec2(x, y);
-
-                                x = r.getTl().getX() + size.getX() * (tIx + 1) - size.getX() / 4;
-
-                                Vec2 end = new Vec2(x, y);
-
-                                imgui.getWindowDrawList().addLine(start, end, color, 1.0f);
-
-                                y = r.getTl().getY() + size.getY() * (tIx + 1);
-                                start = new Vec2(x, y);
-                                imgui.getWindowDrawList().addLine(end, start, color, 1.0f);
-
-                                y += 10;
-                                x -= 7;
-                                Vec2 p1 = new Vec2(x, y);
-                                x += 14;
-                                Vec2 p2 = new Vec2(x, y);
-                                imgui.getWindowDrawList().addLine(p1, start, color, 1.0f);
-                                imgui.getWindowDrawList().addLine(p2, start, color, 1.0f);
-                            }
+                for (int sIx = 0; sIx < components.length; sIx++) {
+                    for (int dIx = 0; dIx < components.length; dIx++) {
+                        if (components[sIx].allowedDependency(components[dIx])) {
+                            root.addDependency(components[sIx].getName(), components[dIx].getName());
                         }
                     }
                 }
+
+                //Arrays.sort(components, (o1, o2) -> o2.getAllowedDependencyCount() - o1.getAllowedDependencyCount());
+
+                Rect r = imgui.getCurrentWindow().getInnerClipRect();
+                Vec2 tl = new Vec2(r.getTl());
+                Vec2 size = new Vec2(r.getWidth() / components.length, r.getHeight() / components.length);
+
+
+                root.render(r, imgui);
+
+                //drawComponentRects2(imgui, components);
+                //drawComponentDependencies2(imgui, components);
+
+
             }
 
             //imgui.text("Hello from another window!");
