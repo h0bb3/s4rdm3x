@@ -18,7 +18,7 @@ public class HRoot {
         HNode m_parent;
         Rect m_rect;
         int m_leafNodeIx = -1;
-        static final int g_rounding = 7;
+        static final int g_rounding = 3;
 
         int getMinLeafNodeIx() {
             if (m_children.size() == 0) {
@@ -46,7 +46,7 @@ public class HRoot {
             }
         }
 
-        void render(Rect a_area, ImGui a_imgui) {
+        void render(Rect a_area, ImGui a_imgui, final int a_leafNodeCount) {
             m_rect = new Rect(a_area);
 
             Rect childArea = new Rect(m_rect);
@@ -71,8 +71,36 @@ public class HRoot {
             for (int ix = 0; ix < m_children.size(); ix++) {
                 HNode child = m_children.get(ix);
                 Rect childRect = new Rect(childArea.getTl().plus(size.times(consumedLeafNodes)), childArea.getTl().plus(size.times(consumedLeafNodes + child.getLeafNodeCount())));
-                child.render(childRect, a_imgui);
+                child.render(childRect, a_imgui, a_leafNodeCount);
                 consumedLeafNodes += child.getLeafNodeCount();
+            }
+
+            for (int ix = 0; ix < getMinLeafNodeIx(); ix++) {
+                Vec2 p = new Vec2();
+                p.setY(m_rect.getTl().getY());
+                p.setX(m_rect.getTl().getX() + g_rounding + (m_rect.getWidth() - g_rounding * 2) / (getMinLeafNodeIx()) * (ix + 0.5f));
+                a_imgui.getWindowDrawList().addCircle(p, 3, COL32(175, 175, 175, 255), 8, 1);
+            }
+
+            for (int ix = 0; ix < a_leafNodeCount - getMaxLeafNodeIx() - 1; ix++) {
+                Vec2 p = new Vec2();
+                p.setY(m_rect.getBr().getY());
+                p.setX(m_rect.getTl().getX() + g_rounding + (m_rect.getWidth() - g_rounding * 2) / (a_leafNodeCount - getMaxLeafNodeIx() - 1) * (ix + 0.5f));
+                a_imgui.getWindowDrawList().addCircle(p, 3, COL32(175, 175, 175, 255), 8, 1);
+            }
+
+            for (int ix = 0; ix < a_leafNodeCount - getMaxLeafNodeIx() - 1; ix++) {
+                Vec2 p = new Vec2();
+                p.setX(m_rect.getBr().getX());
+                p.setY(m_rect.getTl().getY() + g_rounding + (m_rect.getHeight() - g_rounding * 2) / (a_leafNodeCount - getMaxLeafNodeIx() - 1) * (ix + 0.5f));
+                a_imgui.getWindowDrawList().addCircle(p, 3, COL32(175, 175, 175, 255), 8, 1);
+            }
+
+            for (int ix = 0; ix < getMinLeafNodeIx(); ix++) {
+                Vec2 p = new Vec2();
+                p.setX(m_rect.getTl().getX());
+                p.setY(m_rect.getTl().getY() + g_rounding + (m_rect.getHeight() - g_rounding * 2) / (getMinLeafNodeIx()) * (ix + 0.5f));
+                a_imgui.getWindowDrawList().addCircle(p, 3, COL32(175, 175, 175, 255), 8, 1);
             }
         }
 
@@ -92,10 +120,10 @@ public class HRoot {
 
                     p1 = new Vec2();
                     p1.setX(sBR.getX());
-                    p1.setY(sBR.getY() - (sSize.getY() - g_rounding * 2) / (a_leafNodeCount - getMaxLeafNodeIx()) * (dest.getMinLeafNodeIx() - getMaxLeafNodeIx()));
+                    p1.setY(sBR.getY() - g_rounding - (sSize.getY() - g_rounding * 2) / (a_leafNodeCount - getMaxLeafNodeIx() - 1) * (dest.getMinLeafNodeIx() - getMaxLeafNodeIx() - 0.5f));
 
                     p2 = new Vec2();
-                    p2.setX(dTL.getX() + dSize.getX() / dest.getMinLeafNodeIx() * (dest.getMinLeafNodeIx() - getMaxLeafNodeIx()));
+                    p2.setX(dTL.getX() + g_rounding + ((dSize.getX() -  g_rounding * 2) / dest.getMinLeafNodeIx()) * (dest.getMinLeafNodeIx() - getMaxLeafNodeIx() - 0.5f));
 
                     p2.setY(p1.getY());
                     a_imgui.getWindowDrawList().addLine(p1, p2, color, 1.0f);
@@ -106,20 +134,20 @@ public class HRoot {
 
                     p2.setX(p1.getX() - 5);
                     p2.setY(p1.getY() - 10);
-                    a_imgui.getWindowDrawList().addLine(p1, p2, color, 2.0f);
+                    a_imgui.getWindowDrawList().addLine(p1, p2, color, 1.0f);
 
                     p2.setX(p1.getX() + 5);
-                    a_imgui.getWindowDrawList().addLine(p1, p2, color, 2.0f);
+                    a_imgui.getWindowDrawList().addLine(p1, p2, color, 1.0f);
 
                 } else {
                     Vec2 p1, p2;
 
                     p1 = new Vec2();
                     p1.setX(sTL.getX());
-                    p1.setY(sTL.getY() + sSize.getY() / (getMinLeafNodeIx() + 1) * (getMinLeafNodeIx() - dest.getMaxLeafNodeIx()));
+                    p1.setY(sTL.getY() + g_rounding + ((sSize.getY() - g_rounding * 2) / getMinLeafNodeIx()) * (getMinLeafNodeIx() - dest.getMaxLeafNodeIx() - 1 + 0.5f));
 
                     p2 = new Vec2();
-                    p2.setX(dBR.getX() - dSize.getX() / (a_leafNodeCount - dest.getMaxLeafNodeIx()) * (getMinLeafNodeIx() - dest.getMaxLeafNodeIx()));
+                    p2.setX(dBR.getX() - g_rounding - (dSize.getX() - g_rounding * 2) / (a_leafNodeCount - dest.getMaxLeafNodeIx() - 1) * (getMinLeafNodeIx() - dest.getMaxLeafNodeIx() - 1 + 0.5f));
                     p2.setY(p1.getY());
                     a_imgui.getWindowDrawList().addLine(p1, p2, color, 1.0f);
 
@@ -129,10 +157,10 @@ public class HRoot {
 
                     p2.setX(p1.getX() - 5);
                     p2.setY(p1.getY() + 10);
-                    a_imgui.getWindowDrawList().addLine(p1, p2, color, 2.0f);
+                    a_imgui.getWindowDrawList().addLine(p1, p2, color, 1.0f);
 
                     p2.setX(p1.getX() + 5);
-                    a_imgui.getWindowDrawList().addLine(p1, p2, color, 2.0f);
+                    a_imgui.getWindowDrawList().addLine(p1, p2, color, 1.0f);
                 }
 
             }
@@ -289,7 +317,7 @@ public class HRoot {
     }
 
     public void render(Rect a_rect, ImGui a_imgui) {
-        m_root.render(a_rect, a_imgui);
+        m_root.render(a_rect, a_imgui, m_leafNodeCounter);
         m_root.renderDependencies(a_imgui, m_leafNodeCounter);
     }
 

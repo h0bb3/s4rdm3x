@@ -326,7 +326,7 @@ public class RectsAndArrows {
         // Start the Dear ImGui frame
         lwjglGlfw.newFrame();
 
-        imgui.getFont().setScale(2.0f);
+        imgui.getFont().setScale(1.0f);
 
 
         imgui.text("Hello, world!");                                // Display some text (you can use a format string too)
