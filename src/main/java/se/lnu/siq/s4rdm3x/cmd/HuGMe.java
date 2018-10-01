@@ -12,6 +12,15 @@ import java.util.ArrayList;
 public class HuGMe {
     public static class ArchDef {
 
+        public void setComponentName(Component a_c, String a_name) {
+            // Todo: check so that names are unique
+            a_c.m_name = a_name;
+        }
+
+        public void clear() {
+            m_components = new ArrayList<>();
+        }
+
         public static class Component {
             private String m_name;
             private ArrayList<Component> m_allowedDependenciesTo;
@@ -117,10 +126,15 @@ public class HuGMe {
 
         private ArrayList<Component> m_components = new ArrayList<>();
 
+        public void addComponent(Component a_c) {
+            //TODO: check duplicate component names
+            m_components.add(a_c);
+        }
+
         public Component addComponent(String a_componentName)
         {
             Component c = new Component(a_componentName);
-            m_components.add(c);
+            addComponent(c);
             return c;
         }
 

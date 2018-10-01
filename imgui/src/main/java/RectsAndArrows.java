@@ -16,6 +16,7 @@ import uno.glfw.GlfwWindow;
 import uno.glfw.windowHint;
 
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 
@@ -70,7 +71,17 @@ public class RectsAndArrows {
         Graph graph = new MultiGraph("main_graph");
 
         // testing
-        sch.execute("load_arch data/systems/teammates/teammates-system_model.txt", graph).forEach(str -> guic.println(str));
+        //sch.execute("load_arch data/systems/teammates/teammates-system_model.txt", graph).forEach(str -> guic.println(str));
+
+        HuGMe.ArchDef theArch = new HuGMe.ArchDef();
+        //theArch.addComponent("client.part1.part1_1");
+        theArch.addComponent("client.part1");
+        theArch.addComponent("client.part2");
+        theArch.addComponent("server.part3");
+        theArch.addComponent("server.server");
+        theArch.addComponent("global");
+        theArch.addComponent("common");
+
 
         window.loop(() -> {
 
@@ -80,7 +91,7 @@ public class RectsAndArrows {
                 sch.execute(in, graph).forEach(str -> guic.println(str));
             }
 
-            mainLoop(sch.getArchDef());
+            mainLoop(theArch);
             return Unit.INSTANCE;
         });
 
@@ -369,7 +380,30 @@ public class RectsAndArrows {
                 Vec2 size = new Vec2(r.getWidth() / components.length, r.getHeight() / components.length);
 
 
-                root.render(r, imgui);
+                HRoot.Action action = root.render(r, imgui);
+
+                // we need to do resorting before renaming
+                if (action != null && action.m_nodeOrder != null) {
+                    ArrayList<HuGMe.ArchDef.Component> newOrder = new ArrayList<>();
+
+                    for(String name : action.m_nodeOrder) {
+                        newOrder.add(a_arch.getComponent(name));
+                    }
+                    a_arch.clear();
+                    for(HuGMe.ArchDef.Component c : newOrder) {
+                        a_arch.addComponent(c);
+                    }
+                }
+
+                if (action != null && action.m_hiearchyMove != null) {
+                    for(HRoot.Action.NodeNamePair pair : action.m_hiearchyMove.m_nodes) {
+                        HuGMe.ArchDef.Component c = a_arch.getComponent(pair.m_oldName);
+                        a_arch.setComponentName(c, pair.m_newName);
+                        //a_arch.setComponentName(c, "dret");
+                        //System.out.println("dret");
+                    }
+                }
+
 
                 //drawComponentRects2(imgui, components);
                 //drawComponentDependencies2(imgui, components);
