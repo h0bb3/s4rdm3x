@@ -10,6 +10,66 @@ import static imgui.ImguiKt.COL32;
 
 public class HRoot {
 
+    // this class is for testing purposes mainly
+    static class ImGuiWrapper {
+        public ImGui m_imGui;
+
+        public ImGuiWrapper(ImGui a_imgui) {
+            m_imGui = a_imgui;
+        }
+
+        public void addRect(Vec2 a_tl, Vec2 a_br, int a_color, float a_rounding, int a_corners, float a_thickness) {
+            m_imGui.getWindowDrawList().addRect(a_tl, a_br, a_color, a_rounding, a_corners, a_thickness);
+        }
+        public void addRectFilled(Vec2 a_tl, Vec2 a_br, int a_color, float a_rounding, int a_corners) {
+            m_imGui.getWindowDrawList().addRectFilled(a_tl, a_br, a_color, a_rounding, a_corners);
+        }
+
+        public void addText(Vec2 a_pos, int a_color, String a_text) {
+            m_imGui.getWindowDrawList().addText(a_pos, COL32(175, 175, 175, 255), a_text.toCharArray(), a_text.length());
+        }
+
+        public void addCircle(Vec2 a_center, float a_radius, int a_color, int a_segments, float a_thickness) {
+            m_imGui.getWindowDrawList().addCircle(a_center, a_radius, a_color, a_segments, a_thickness);
+        }
+
+        public void addLine(Vec2 a_p1, Vec2 a_p2, int a_color, float a_thickness) {
+            m_imGui.getWindowDrawList().addLine(a_p1, a_p2, a_color, a_thickness);
+        }
+
+        public Vec2 calcTextSize(String a_str, boolean a_hideTextAfterDoubleHash) {
+            return m_imGui.calcTextSize(a_str, a_hideTextAfterDoubleHash);
+        }
+
+        public void beginTooltip() {
+            m_imGui.beginTooltip();
+        }
+
+        public void endTooltip() {
+            m_imGui.endTooltip();
+        }
+
+        public void text(String a_text) {
+            m_imGui.text(a_text);
+        }
+
+        public Vec2 getMousePos() {
+            return m_imGui.getMousePos();
+        }
+
+        public Vec2 getMouseDragDelta(int a_button, float a_lockThreshold) {
+            return m_imGui.getMouseDragDelta(a_button, 1.0f);
+        }
+
+        public boolean isMouseDragging(int a_button, float a_lockThreshold) {
+            return m_imGui.isMouseDragging(a_button, a_lockThreshold);
+        }
+
+        public void stopWindowDrag() {
+            m_imGui.getCurrentWindow().setFlags(WindowFlag.NoMove.or(m_imGui.getCurrentWindow().getFlags()));
+        }
+    }
+
     static class Action {
         static class NodeNamePair {
             String m_oldName;
@@ -74,6 +134,13 @@ public class HRoot {
             }
         }
 
+        void getParentNodePath(ArrayList<HNode> a_outPath) {
+            if (m_parent != null) {
+                m_parent.getParentNodePath(a_outPath);
+            }
+            a_outPath.add(this);
+        }
+
         Iterable<HNode> getConcreteNodes() {
             ArrayList<HNode> ret = new ArrayList<>();
             getConcreteNodes(ret);
@@ -134,7 +201,7 @@ public class HRoot {
             return null;
         }
 
-        DragNDropData doDragNDrop(ImGui a_imgui, DragNDropData a_dnd) {
+        DragNDropData doDragNDrop(ImGuiWrapper a_imgui, DragNDropData a_dnd) {
             Vec2 mousePos = a_imgui.getMousePos();
             if (a_dnd!= null && a_imgui.isMouseDragging(0, 1.0f)) {
                 a_dnd.m_target = getNodeUnder(mousePos);
@@ -145,7 +212,7 @@ public class HRoot {
                 Rect drawRect = new Rect(a_dnd.m_dragRect.getTl().plus(a_imgui.getMouseDragDelta(0, 1.0f)), a_dnd.m_dragRect.getBr().plus(a_imgui.getMouseDragDelta(0, 1.0f)));
 
                 a_dnd.m_staleSourceNode.render(drawRect, a_imgui, a_dnd.m_staleSourceNode.getLeafNodeCount());
-                a_imgui.getWindowDrawList().addRect(drawRect.getTl(), drawRect.getBr(), COL32(175, 175, 175, 255), g_rounding, DrawCornerFlag.All.getI(), 2);
+                a_imgui.addRect(drawRect.getTl(), drawRect.getBr(), COL32(175, 175, 175, 255), g_rounding, DrawCornerFlag.All.getI(), 2);
 
 
 
@@ -174,12 +241,14 @@ public class HRoot {
                         return a_dnd;
                     }
                 }
-                a_imgui.getCurrentWindow().setFlags(WindowFlag.NoMove.or(a_imgui.getCurrentWindow().getFlags()));
+
+                a_imgui.stopWindowDrag();
+
 
                 if (a_imgui.isMouseDragging(0, 1.0f)) { ;
                     Rect dragRect = new Rect(m_rect.getTl().plus(a_imgui.getMouseDragDelta(0, 1.0f)), m_rect.getBr().plus(a_imgui.getMouseDragDelta(0, 1.0f)));
 
-                    a_imgui.getWindowDrawList().addRect(dragRect.getTl(), dragRect.getBr(), COL32(175, 175, 175, 255), g_rounding, DrawCornerFlag.All.getI(), 2);
+                    a_imgui.addRect(dragRect.getTl(), dragRect.getBr(), COL32(175, 175, 175, 255), g_rounding, DrawCornerFlag.All.getI(), 2);
                     a_dnd = new DragNDropData();
                     a_dnd.m_dragRect = dragRect;
                     a_dnd.m_staleSourceNode = this;
@@ -190,15 +259,15 @@ public class HRoot {
             return null;
         }
 
-        AddDependencyAction render(Rect a_area, ImGui a_imgui, final int a_leafNodeCount) {
+        AddDependencyAction render(Rect a_area, ImGuiWrapper a_imgui, final int a_leafNodeCount) {
             m_rect = new Rect(a_area);
             AddDependencyAction ret = null;
             Vec2 mousePos = a_imgui.getMousePos();
             Rect childArea = new Rect(m_rect);
             if (m_name != null) {
 
-                a_imgui.getWindowDrawList().addRectFilled(m_rect.getTl(), m_rect.getBr(), COL32(75, 75, 75, 255), g_rounding, DrawCornerFlag.All.getI());
-                a_imgui.getWindowDrawList().addRect(m_rect.getTl(), m_rect.getBr(), COL32(175, 175, 175, 255), g_rounding, DrawCornerFlag.All.getI(), 2);
+                a_imgui.addRectFilled(m_rect.getTl(), m_rect.getBr(), COL32(75, 75, 75, 255), g_rounding, DrawCornerFlag.All.getI());
+                a_imgui.addRect(m_rect.getTl(), m_rect.getBr(), COL32(175, 175, 175, 255), g_rounding, DrawCornerFlag.All.getI(), 2);
 
                 String name = isConcreteNode() ? m_name : "(" + m_name + ")";
                 Vec2 textSize = a_imgui.calcTextSize(name, false);
@@ -206,7 +275,7 @@ public class HRoot {
                 if (m_children.size() > 0) {
                     textPos.setY(m_rect.getTl().getY() + 3);
                 }
-                a_imgui.getWindowDrawList().addText(textPos, COL32(175, 175, 175, 255), name.toCharArray(), name.length());
+                a_imgui.addText(textPos, COL32(175, 175, 175, 255), name);
 
                 childArea.expand(-5);
                 childArea.setMin(new Vec2((float)childArea.getMin().getX(), childArea.getMin().getY() + textSize.getY() + 5));
@@ -232,7 +301,7 @@ public class HRoot {
                 Vec2 p = new Vec2();
                 p.setY(m_rect.getTl().getY());
                 p.setX(m_rect.getTl().getX() + g_rounding + (m_rect.getWidth() - g_rounding * 2) / (getMinLeafNodeIx()) * (ix + 0.5f));
-                a_imgui.getWindowDrawList().addCircle(p, radius, COL32(175, 175, 175, 255), 8, 1);
+                a_imgui.addCircle(p, radius, COL32(175, 175, 175, 255), 8, 1);
                 if (pointInCircle(mousePos, p, radius)) {
                     ret = new AddDependencyAction();
                     ret.m_target = this;
@@ -244,7 +313,7 @@ public class HRoot {
                 Vec2 p = new Vec2();
                 p.setY(m_rect.getBr().getY());
                 p.setX(m_rect.getTl().getX() + g_rounding + (m_rect.getWidth() - g_rounding * 2) / (a_leafNodeCount - getMaxLeafNodeIx() - 1) * (ix + 0.5f));
-                a_imgui.getWindowDrawList().addCircle(p, 3, COL32(175, 175, 175, 255), 8, 1);
+                a_imgui.addCircle(p, 3, COL32(175, 175, 175, 255), 8, 1);
 
                 if (pointInCircle(mousePos, p, radius)) {
                     ret = new AddDependencyAction();
@@ -257,7 +326,7 @@ public class HRoot {
                 Vec2 p = new Vec2();
                 p.setX(m_rect.getBr().getX());
                 p.setY(m_rect.getTl().getY() + g_rounding + (m_rect.getHeight() - g_rounding * 2) / (a_leafNodeCount - getMaxLeafNodeIx() - 1) * (ix + 0.5f));
-                a_imgui.getWindowDrawList().addCircle(p, 3, COL32(175, 175, 175, 255), 8, 1);
+                a_imgui.addCircle(p, 3, COL32(175, 175, 175, 255), 8, 1);
 
                 if (pointInCircle(mousePos, p, radius)) {
                     ret = new AddDependencyAction();
@@ -270,7 +339,7 @@ public class HRoot {
                 Vec2 p = new Vec2();
                 p.setX(m_rect.getTl().getX());
                 p.setY(m_rect.getTl().getY() + g_rounding + (m_rect.getHeight() - g_rounding * 2) / (getMinLeafNodeIx()) * (ix + 0.5f));
-                a_imgui.getWindowDrawList().addCircle(p, 3, COL32(175, 175, 175, 255), 8, 1);
+                a_imgui.addCircle(p, 3, COL32(175, 175, 175, 255), 8, 1);
 
                 if (pointInCircle(mousePos, p, radius)) {
                     ret = new AddDependencyAction();
@@ -286,7 +355,7 @@ public class HRoot {
             return a_point.minus(a_cPoint).length2() < a_cRad * a_cRad;
         }
 
-        void renderDependency(ImGui a_imgui, HNode a_dest, final int a_leafNodeCount) {
+        void renderDependency(ImGuiWrapper a_imgui, HNode a_dest, final int a_leafNodeCount) {
             Vec2 sTL = m_rect.getTl();
             Vec2 sBR = m_rect.getBr();
             Vec2 sSize = m_rect.getSize();
@@ -306,18 +375,18 @@ public class HRoot {
                 p2.setX(dTL.getX() + g_rounding + ((dSize.getX() -  g_rounding * 2) / a_dest.getMinLeafNodeIx()) * (a_dest.getMinLeafNodeIx() - getMaxLeafNodeIx() - 0.5f));
 
                 p2.setY(p1.getY());
-                a_imgui.getWindowDrawList().addLine(p1, p2, color, 1.0f);
+                a_imgui.addLine(p1, p2, color, 1.0f);
 
 
                 p1.setX(p2.getX()); p1.setY(dTL.getY());
-                a_imgui.getWindowDrawList().addLine(p2, p1, color, 1.0f);
+                a_imgui.addLine(p2, p1, color, 1.0f);
 
                 p2.setX(p1.getX() - 5);
                 p2.setY(p1.getY() - 10);
-                a_imgui.getWindowDrawList().addLine(p1, p2, color, 1.0f);
+                a_imgui.addLine(p1, p2, color, 1.0f);
 
                 p2.setX(p1.getX() + 5);
-                a_imgui.getWindowDrawList().addLine(p1, p2, color, 1.0f);
+                a_imgui.addLine(p1, p2, color, 1.0f);
 
             } else {
                 Vec2 p1, p2;
@@ -329,23 +398,23 @@ public class HRoot {
                 p2 = new Vec2();
                 p2.setX(dBR.getX() - g_rounding - (dSize.getX() - g_rounding * 2) / (a_leafNodeCount - a_dest.getMaxLeafNodeIx() - 1) * (getMinLeafNodeIx() - a_dest.getMaxLeafNodeIx() - 1 + 0.5f));
                 p2.setY(p1.getY());
-                a_imgui.getWindowDrawList().addLine(p1, p2, color, 1.0f);
+                a_imgui.addLine(p1, p2, color, 1.0f);
 
 
                 p1.setX(p2.getX()); p1.setY(dBR.getY());
-                a_imgui.getWindowDrawList().addLine(p2, p1, color, 1.0f);
+                a_imgui.addLine(p2, p1, color, 1.0f);
 
                 p2.setX(p1.getX() - 5);
                 p2.setY(p1.getY() + 10);
-                a_imgui.getWindowDrawList().addLine(p1, p2, color, 1.0f);
+                a_imgui.addLine(p1, p2, color, 1.0f);
 
                 p2.setX(p1.getX() + 5);
-                a_imgui.getWindowDrawList().addLine(p1, p2, color, 1.0f);
+                a_imgui.addLine(p1, p2, color, 1.0f);
             }
 
         }
 
-        void renderDependencies(ImGui a_imgui, final int a_leafNodeCount) {
+        void renderDependencies(ImGuiWrapper a_imgui, final int a_leafNodeCount) {
 
             for(HNode dest : m_dependencies) {
                 renderDependency(a_imgui, dest, a_leafNodeCount);
@@ -523,19 +592,50 @@ public class HRoot {
 
     static DragNDropData g_dnd;
 
-    public int getIndexOfFirstNonSimilarCharacter(String a_str1, String a_str2) {
+    public int getIndexOfFirstNonSimilarComponentInStr2(String a_str1, String a_str2) {
         int index = 0;
+        String [] parts1 = a_str1.split("\\.");
+        String [] parts2 = a_str2.split("\\.");
 
-        for (; index < a_str1.length() && index < a_str2.length(); index++) {
-            if (a_str1.charAt(index) != a_str2.charAt(index)) {
-                break;
+        for (int partIx = 0; partIx < parts1.length && partIx < parts2.length; partIx++) {
+            if (parts1[partIx].contentEquals(parts2[partIx])) {
+                index += parts1[partIx].length();
+                if (partIx + 1 < parts2.length) {
+                    index++;   // remove the .
+                }
             }
         }
 
         return index;
     }
 
-    public Action render(Rect a_rect, ImGui a_imgui) {
+    private int getIndexRelativePosition(Iterable<HNode> a_nodes, Vec2 a_pos) {
+        int ix = 0;
+        for (HNode n : a_nodes) {
+            //if (n.getFullName().contentEquals(g_dnd.m_staleSourceNode.getRootParent().getFullName())) { // we are operating relative the root
+            //    sourceIx = ix;
+            //}
+
+            // we can check the mouse position like columns as we go from top left corner.
+            Vec2 tl, br;
+            tl = n.m_rect.getTl();
+            br = n.m_rect.getBr();
+            if (a_pos.getY() > tl.getY() && a_pos.getY() < br.getY()) {
+                return ix;
+            } else if (a_pos.getX() > tl.getX() && a_pos.getX() < br.getX()) {
+                return ix;
+            }
+            ix++;
+        }
+
+        return -1;
+    }
+
+    public Action render(Rect a_area, ImGui a_imgui) {
+        return render(a_area, new ImGuiWrapper(a_imgui));
+    }
+
+    public Action render(Rect a_rect, ImGuiWrapper a_imgui) {
         HNode.AddDependencyAction action;
         action = m_root.render(a_rect, a_imgui, m_leafNodeCounter);
         if (action != null) {
@@ -555,12 +655,18 @@ public class HRoot {
         if (g_dnd != null && !a_imgui.isMouseDragging(0, 1.0f)) {
             // convert g_dnd to action
             if (g_dnd.m_target != null) {
+
+                // are we dropping into a child node?
+                if (getIndexOfFirstNonSimilarComponentInStr2(g_dnd.m_target.getFullName(), g_dnd.m_staleSourceNode.getFullName()) == g_dnd.m_staleSourceNode.getFullName().length()) {
+                    g_dnd = null;
+                    return null;
+                }
                 Action a = new Action();
                 a.m_hiearchyMove = new Action.HierarchyMove();
 
                 a.m_hiearchyMove.m_nodes = new ArrayList<>();
                 for (HNode leaf : g_dnd.m_staleSourceNode.getConcreteNodes()) {
-                    System.out.println(leaf.getFullName());
+
                     Action.NodeNamePair pair = new Action.NodeNamePair();
                     pair.m_oldName = leaf.getFullName();
                     String oldName = pair.m_oldName;
@@ -570,17 +676,73 @@ public class HRoot {
                     }
                     // remove any common part of the old name
                     String targetFullName = g_dnd.m_target.getFullName();
-                    String strippedOldName = oldName.substring(getIndexOfFirstNonSimilarCharacter(oldName, targetFullName));
+                    String strippedOldName = oldName.substring(getIndexOfFirstNonSimilarComponentInStr2(g_dnd.m_staleSourceNode.m_parent.getFullName(), oldName));
 
                     if (targetFullName.length() > 0) {
-                        pair.m_newName = (targetFullName + "." + strippedOldName).replace("..", ".");
+                        pair.m_newName = strippedOldName.length() > 0 ? (targetFullName + "." + strippedOldName).replace("..", ".") : targetFullName;
 
                     } else {
                         pair.m_newName = strippedOldName;
                     }
 
                     a.m_hiearchyMove.m_nodes.add(pair);
+                    System.out.println(pair.m_oldName + " -> " + pair.m_newName);
                 }
+
+                // we may have a move action here too... but as we are acting in a non root node we need to take better care
+                ArrayList<HNode> sourceParents = new ArrayList<>();
+                g_dnd.m_staleSourceNode.m_parent.getParentNodePath(sourceParents);
+                ArrayList<HNode> targetParents = new ArrayList<>();
+                g_dnd.m_target.m_parent.getParentNodePath(targetParents);
+
+                HNode commonParent = null;
+                // find the first common parent
+                // move from the root towards each child
+                for (int ix = 0; ix < targetParents.size() && ix < sourceParents.size(); ix++) {
+
+                    if (targetParents.get(ix).m_name == null || targetParents.get(ix).m_name.contentEquals(sourceParents.get(ix).m_name)) {
+                        commonParent = targetParents.get(ix);
+                    }
+                }
+
+                commonParent = g_dnd.m_target;
+
+
+                ArrayList<HNode> concreteNodes = new ArrayList<>();
+                m_root.getConcreteNodes().forEach(n -> concreteNodes.add(n));
+                //int sourceIx = getIndex(commonParent.m_children, g_dnd.m_staleSourceNode.getRootParent().getFullName());
+                int mousePosIx = getIndexRelativePosition(concreteNodes, a_imgui.getMousePos());
+
+                if (mousePosIx != -1) {
+                        // ok we need to move the source to be after the mousePosIx
+                        ArrayList<String> order = new ArrayList<>();
+                        System.out.println("New node order:");
+                        for (HNode n : m_root.getConcreteNodes()) {
+                            // i we find the mouse index node we insert the source targets after that one
+                            // we do not insert the nodes in the source, i.e. they are the concrete nodes we want to move
+                            boolean found = false;
+                            for(HNode sN : g_dnd.m_staleSourceNode.getConcreteNodes()) {
+                                if (sN.getFullName().contentEquals(n.getFullName())) {
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if (!found) {
+                                order.add(n.getFullName());
+                                System.out.println(n.getFullName());
+                            }
+
+                            if (n == concreteNodes.get(mousePosIx)) {   // the mouse ix is done using the commonParent children so we probably need to look at something special here.
+                                for (HNode cNode : g_dnd.m_staleSourceNode.getConcreteNodes()) {
+                                    order.add(cNode.getFullName());
+                                    System.out.println(cNode.getFullName());
+                                }
+                            }
+
+                        a.m_nodeOrder = order;
+                    }
+                }
+
                 g_dnd = null;
                 return a;
             } else {
@@ -593,8 +755,8 @@ public class HRoot {
                     Action.NodeNamePair pair = new Action.NodeNamePair();
                     pair.m_oldName = concrete.getFullName();
 
-                    String parentFullName = g_dnd.m_staleSourceNode.m_parent == m_root ? "" : g_dnd.m_staleSourceNode.m_parent.getFullName() + ".";   // +. as we know that there are children...
-                    String strippedOldName = pair.m_oldName.substring(getIndexOfFirstNonSimilarCharacter(pair.m_oldName, parentFullName));
+                    String parentFullName = g_dnd.m_staleSourceNode.m_parent.m_name == null ? "" : g_dnd.m_staleSourceNode.m_parent.getFullName() + ".";   // +. as we know that there are children...
+                    String strippedOldName = pair.m_oldName.substring(getIndexOfFirstNonSimilarComponentInStr2(parentFullName, pair.m_oldName));
 
                     pair.m_newName = strippedOldName;
 
@@ -606,28 +768,8 @@ public class HRoot {
 
                 // we may also rearrange the order
                 // as we don't have a drop target we are moving in the root
-                int sourceIx = -1;
-                int mousePosIx = -1;
-                Vec2 mousePos = a_imgui.getMousePos();
-                for (int ix = 0; ix < m_root.m_children.size(); ix++) {
-                    HNode n = m_root.m_children.get(ix);
-
-                    if (n.getFullName().contentEquals(g_dnd.m_staleSourceNode.getRootParent().getFullName())) { // we are operating relative the root
-                        sourceIx = ix;
-                    }
-
-                    // we can check the mouse position like columns as we go from top left corner.
-                    if (mousePosIx == -1) {
-                        Vec2 tl, br;
-                        tl = n.m_rect.getTl();
-                        br = n.m_rect.getBr();
-                        if (mousePos.getY() > tl.getY() && mousePos.getY() < br.getY()) {
-                            mousePosIx = ix;
-                        } else if (mousePos.getX() > tl.getX() && mousePos.getX() < br.getX()) {
-                            mousePosIx = ix;
-                        }
-                    }
-                }
+                int sourceIx = getIndex(m_root.m_children, g_dnd.m_staleSourceNode.getRootParent().getFullName());
+                int mousePosIx = getIndexRelativePosition(m_root.m_children, a_imgui.getMousePos());
 
                 if (mousePosIx != -1 && sourceIx != -1) {
                     if (mousePosIx + 1 != sourceIx && mousePosIx != sourceIx) {
@@ -669,6 +811,16 @@ public class HRoot {
         }
 
         return null;
+    }
+
+    private int getIndex(Iterable<HNode> a_nodes, String a_fullName) {
+        int ix = 0;
+        for (HNode n : a_nodes) {
+            if (n.getFullName().contentEquals(a_fullName)) {
+                return ix;
+            }
+        }
+        return -1;
     }
 
     HNode m_root = new HNode();

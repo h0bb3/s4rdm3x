@@ -78,7 +78,7 @@ public class RectsAndArrows {
         theArch.addComponent("client.part1");
         theArch.addComponent("client.part2");
         theArch.addComponent("server.part3");
-        theArch.addComponent("server.server");
+        theArch.addComponent("server.part4");
         theArch.addComponent("global");
         theArch.addComponent("common");
 
