@@ -1,10 +1,10 @@
+import archviz.HRoot;
 import glm_.vec2.Vec2;
 import glm_.vec2.Vec2i;
 import glm_.vec4.Vec4;
 import imgui.*;
 import imgui.impl.ImplGL3;
 import imgui.impl.LwjglGlfw;
-import imgui.internal.DrawCornerFlag;
 import imgui.internal.Rect;
 import kotlin.Unit;
 import org.graphstream.graph.Graph;
@@ -15,10 +15,7 @@ import se.lnu.siq.s4rdm3x.cmd.HuGMe;
 import uno.glfw.GlfwWindow;
 import uno.glfw.windowHint;
 
-import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 
 import static imgui.ImguiKt.COL32;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
@@ -75,12 +72,30 @@ public class RectsAndArrows {
 
         HuGMe.ArchDef theArch = new HuGMe.ArchDef();
         //theArch.addComponent("client.part1.part1_1");
+
+        theArch.addComponent("global");
         theArch.addComponent("client.part1");
         theArch.addComponent("client.part2");
-        theArch.addComponent("server.part3");
-        theArch.addComponent("server.part4");
-        theArch.addComponent("global");
-        theArch.addComponent("common");
+        theArch.addComponent("client");
+
+
+        /*theArch.addComponent("optional");
+        theArch.addComponent("compilers");
+        theArch.addComponent("condition");
+        theArch.addComponent("rmic");
+        theArch.addComponent("cvslib");
+        theArch.addComponent("email");
+        theArch.addComponent("repository");
+        theArch.addComponent("taskdefs");
+        theArch.addComponent("listener");
+        theArch.addComponent("types");*/
+        //theArch.addComponent("ant");
+        //theArch.addComponent("ant.util");
+        /*theArch.addComponent("zip");
+        theArch.addComponent("tar");
+        theArch.addComponent("mail");
+        theArch.addComponent("bzip2");*/
+
 
 
         window.loop(() -> {
@@ -91,7 +106,7 @@ public class RectsAndArrows {
                 sch.execute(in, graph).forEach(str -> guic.println(str));
             }
 
-            mainLoop(theArch);
+            mainLoop(sch.getArchDef() != null ? sch.getArchDef() : theArch);
             return Unit.INSTANCE;
         });
 
@@ -103,7 +118,7 @@ public class RectsAndArrows {
         glfw.terminate();
     }
 
-    private float[] f = {0f};
+    private float[] f = {1f};
     private Vec4 clearColor = new Vec4(0.45f, 0.55f, 0.6f, 1f);
     private boolean[] showAnotherWindow = {true};
     private int[] counter = {0};
@@ -337,11 +352,12 @@ public class RectsAndArrows {
         // Start the Dear ImGui frame
         lwjglGlfw.newFrame();
 
-        imgui.getFont().setScale(1.0f);
+
 
 
         imgui.text("Hello, world!");                                // Display some text (you can use a format string too)
-        imgui.sliderFloat("float", f, 0f, 1f, "%.3f", 1f);       // Edit 1 float using a slider from 0.0f to 1.0f
+        imgui.sliderFloat("float", f, 1f, 5f, "%.3f", 1f);       // Edit 1 float using a slider from 0.0f to 1.0f
+        imgui.getFont().setScale(f[0]);
         imgui.colorEdit3("clear color", clearColor, 0);               // Edit 3 floats representing a color
 
         imgui.checkbox("Another Window", showAnotherWindow);
@@ -375,7 +391,7 @@ public class RectsAndArrows {
 
                 //Arrays.sort(components, (o1, o2) -> o2.getAllowedDependencyCount() - o1.getAllowedDependencyCount());
 
-                Rect r = imgui.getCurrentWindow().getInnerClipRect();
+                Rect r = imgui.getCurrentWindow().getContentsRegionRect();
                 Vec2 tl = new Vec2(r.getTl());
                 Vec2 size = new Vec2(r.getWidth() / components.length, r.getHeight() / components.length);
 
@@ -383,7 +399,7 @@ public class RectsAndArrows {
                 HRoot.Action action = root.render(r, imgui);
 
                 // we need to do resorting before renaming
-                if (action != null && action.m_nodeOrder != null) {
+                /*if (action != null && action.m_nodeOrder != null) {
                     ArrayList<HuGMe.ArchDef.Component> newOrder = new ArrayList<>();
 
                     for(String name : action.m_nodeOrder) {
@@ -393,12 +409,16 @@ public class RectsAndArrows {
                     for(HuGMe.ArchDef.Component c : newOrder) {
                         a_arch.addComponent(c);
                     }
-                }
+                }*/
 
                 if (action != null && action.m_hiearchyMove != null) {
                     for(HRoot.Action.NodeNamePair pair : action.m_hiearchyMove.m_nodes) {
                         HuGMe.ArchDef.Component c = a_arch.getComponent(pair.m_oldName);
-                        a_arch.setComponentName(c, pair.m_newName);
+                        if (c == null) {
+                            System.out.println("Could not find component named: " + pair.m_oldName);
+                        } else {
+                            a_arch.setComponentName(c, pair.m_newName);
+                        }
                         //a_arch.setComponentName(c, "dret");
                         //System.out.println("dret");
                     }
