@@ -1,6 +1,7 @@
 package archviz;
 
 import glm_.vec2.Vec2;
+import imgui.InputTextFlag;
 import imgui.internal.DrawCornerFlag;
 import imgui.internal.Rect;
 
@@ -16,7 +17,8 @@ class HNode {
     Rect m_rect;
     int m_leafNodeIx = -1;
     private boolean m_parentNodeRepresentation = false;
-    static final int g_rounding = 3;
+    static final int g_rounding = 20;
+    static final float g_margin = 10;
 
     public HNode getRootParent() {
         if (m_parent.m_name != null) {
@@ -113,7 +115,7 @@ class HNode {
         }
         int index = -1;
         for(HNode n :  m_children) {
-            int cIx = n.getMinLeafNodeIx();
+            int cIx = n.getMaxLeafNodeIx();
             if (cIx > index) {
                 index = cIx;
             }
@@ -160,7 +162,6 @@ class HNode {
 
             a_dnd.m_staleSourceNode.render(drawRect, a_imgui, a_dnd.m_staleSourceNode.getLeafNodeCount(), 100);
             a_imgui.addRect(drawRect.getTl(), drawRect.getBr(), COL32(175, 175, 175, 255), g_rounding, DrawCornerFlag.All.getI(), 2);
-
 
 
             return a_dnd;
@@ -214,7 +215,12 @@ class HNode {
         if (m_name != null) {
 
             a_imgui.addRectFilled(m_rect.getTl(), m_rect.getBr(), COL32(75, 75, 75, a_alpha), g_rounding, DrawCornerFlag.All.getI());
-            a_imgui.addRect(m_rect.getTl(), m_rect.getBr(), COL32(175, 175, 175, a_alpha), g_rounding, DrawCornerFlag.All.getI(), 2);
+
+            if (m_parentNodeRepresentation) {
+                a_imgui.addDashedRect(m_rect.getTl(), m_rect.getBr(), COL32(175, 175, 175, a_alpha), 2, 5, 5, g_rounding);
+            } else {
+                a_imgui.addRect(m_rect.getTl(), m_rect.getBr(), COL32(175, 175, 175, a_alpha), g_rounding, DrawCornerFlag.All.getI(), 2);
+            }
 
             String name = isConcreteNode() ? !m_parentNodeRepresentation ? m_name : "#"+m_name+"#" : "(" + m_name + ")";
             Vec2 textSize = a_imgui.calcTextSize(name, false);
@@ -223,9 +229,14 @@ class HNode {
                 textPos.setY(m_rect.getTl().getY() + 3);
             }
             a_imgui.addText(textPos, COL32(175, 175, 175, a_alpha), name);
+            a_imgui.m_imGui.setCursorPos(textPos);
+            char [] buffer = new char[256];
+                if (a_imgui.m_imGui.inputText("", buffer, InputTextFlag.EnterReturnsTrue.getI()));
 
-            childArea.expand(-5);
-            childArea.setMin(new Vec2((float)childArea.getMin().getX(), childArea.getMin().getY() + textSize.getY() + 5));
+            //a_imgui.addDashedCircleSegment(m_rect.getCenter(), m_rect.getSize().length() / 2 , COL32(175, 175, 175, a_alpha), 64, 0, 3.14f, 2, 5, 10);
+
+            childArea.expand(-g_margin);
+            childArea.setMin(new Vec2((float)childArea.getMin().getX(), childArea.getMin().getY() + textSize.getY() + g_margin));
 
         }
 

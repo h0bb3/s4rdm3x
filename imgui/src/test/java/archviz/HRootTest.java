@@ -65,6 +65,9 @@ class HRootTest {
         public void addLine(Vec2 a_p1, Vec2 a_p2, int a_color, float a_thickness) {
         }
 
+        public void addDashedLine(Vec2 a_p1, Vec2 a_p2, int a_color, float a_thickness, float a_holeLength, float a_dashlength) {
+        }
+
         public Vec2 calcTextSize(String a_str, boolean a_hideTextAfterDoubleHash) {
             return new Vec2(0, 0);
         }

@@ -73,10 +73,10 @@ public class RectsAndArrows {
         HuGMe.ArchDef theArch = new HuGMe.ArchDef();
         //theArch.addComponent("client.part1.part1_1");
 
-        theArch.addComponent("global");
+        //theArch.addComponent("global");
         theArch.addComponent("client.part1");
         theArch.addComponent("client.part2");
-        theArch.addComponent("client");
+        //theArch.addComponent("client");
 
 
         /*theArch.addComponent("optional");
@@ -399,7 +399,7 @@ public class RectsAndArrows {
                 HRoot.Action action = root.render(r, imgui);
 
                 // we need to do resorting before renaming
-                /*if (action != null && action.m_nodeOrder != null) {
+                if (action != null && action.m_nodeOrder != null) {
                     ArrayList<HuGMe.ArchDef.Component> newOrder = new ArrayList<>();
 
                     for(String name : action.m_nodeOrder) {
@@ -409,7 +409,7 @@ public class RectsAndArrows {
                     for(HuGMe.ArchDef.Component c : newOrder) {
                         a_arch.addComponent(c);
                     }
-                }*/
+                }
 
                 if (action != null && action.m_hiearchyMove != null) {
                     for(HRoot.Action.NodeNamePair pair : action.m_hiearchyMove.m_nodes) {
