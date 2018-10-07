@@ -2,14 +2,21 @@ package archviz;
 
 import glm_.vec2.Vec2;
 import imgui.InputTextFlag;
+import imgui.StyleVar;
+import imgui.TextEditState;
 import imgui.internal.DrawCornerFlag;
 import imgui.internal.Rect;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import static imgui.ImguiKt.COL32;
+import static imgui.ImguiKt.getNUL;
 
 class HNode {
+
+
+
     public String m_name;
     ArrayList<HNode> m_children = new ArrayList<>();
     ArrayList<HNode> m_dependencies = new ArrayList<>();
@@ -20,11 +27,22 @@ class HNode {
     static final int g_rounding = 20;
     static final float g_margin = 10;
 
-    public HNode getRootParent() {
-        if (m_parent.m_name != null) {
-            return m_parent.getRootParent();
+
+
+    static class Action {
+        static class AddDependency {
+            HNode m_source;
+            HNode m_target;
+            int m_ix;
         }
-        return this;
+
+        static class RenameNode {
+            HNode m_node;
+            String a_newName;
+        }
+
+        AddDependency m_addDependencyAction;
+        RenameNode m_renameNodeAction;
     }
 
     public int assignRenderOrderLeafNodeIx(int a_ix) {
@@ -41,15 +59,12 @@ class HNode {
         return a_ix;
     }
 
-
-    static class AddDependencyAction {
-        HNode m_source;
-        HNode m_target;
-        int m_ix;
-    }
-
     public void setToParentNodeRepresentation() {
         m_parentNodeRepresentation = true;
+    }
+
+    public boolean isAbstract() {
+        return m_children.size() > 0 && m_children.get(0).m_parentNodeRepresentation != true;
     }
 
     public boolean isConcreteNode() {
@@ -180,20 +195,20 @@ class HNode {
 
 
 
-        // we may start dragging
-        if (m_parentNodeRepresentation != true && m_rect.contains(mousePos)) {
+        // we may start dragging or editing
+        if (m_rect.contains(mousePos) && g_nameOfEditingNode == "") {
             // first we check the children
-            for(HNode c : m_children) {
+            for (HNode c : m_children) {
                 a_dnd = c.doDragNDrop(a_imgui, a_dnd);
                 if (a_dnd != null) {
                     return a_dnd;
                 }
             }
-
             a_imgui.stopWindowDrag();
 
 
-            if (a_imgui.isMouseDragging(0, 1.0f)) { ;
+            if (m_parentNodeRepresentation != true && a_imgui.isMouseDragging(0, 1.0f)) {
+
                 Rect dragRect = new Rect(m_rect.getTl().plus(a_imgui.getMouseDragDelta(0, 1.0f)), m_rect.getBr().plus(a_imgui.getMouseDragDelta(0, 1.0f)));
 
                 a_imgui.addRect(dragRect.getTl(), dragRect.getBr(), COL32(175, 175, 175, 255), g_rounding, DrawCornerFlag.All.getI(), 2);
@@ -207,9 +222,12 @@ class HNode {
         return null;
     }
 
-    AddDependencyAction render(Rect a_area, ImGuiWrapper a_imgui, final int a_leafNodeCount, int a_alpha) {
+    static String g_nameOfEditingNode = "";
+    static char [] g_buffer = new char[256];
+
+    Action render(Rect a_area, ImGuiWrapper a_imgui, final int a_leafNodeCount, int a_alpha) {
         m_rect = new Rect(a_area);
-        AddDependencyAction ret = null;
+        Action ret = null;
         Vec2 mousePos = a_imgui.getMousePos();
         Rect childArea = new Rect(m_rect);
         if (m_name != null) {
@@ -222,21 +240,80 @@ class HNode {
                 a_imgui.addRect(m_rect.getTl(), m_rect.getBr(), COL32(175, 175, 175, a_alpha), g_rounding, DrawCornerFlag.All.getI(), 2);
             }
 
-            String name = isConcreteNode() ? !m_parentNodeRepresentation ? m_name : "#"+m_name+"#" : "(" + m_name + ")";
-            Vec2 textSize = a_imgui.calcTextSize(name, false);
-            Vec2 textPos = m_rect.getTl().plus(m_rect.getSize().div(2).minus(textSize.div(2)));
-            if (m_children.size() > 0) {
-                textPos.setY(m_rect.getTl().getY() + 3);
+
+
+            Rect textRect = new Rect();
+
+                Vec2 textSize = a_imgui.calcTextSize(m_name, false);
+                Vec2 textPos = m_rect.getTl().plus(m_rect.getSize().div(2).minus(textSize.div(2)));
+                if (m_children.size() > 0) {
+                    textPos.setY(m_rect.getTl().getY() + 3);
+                }
+                textRect.setMin(textPos);
+                textRect.setMax(textPos.plus(textSize));
+
+            if (a_imgui.isMouseDoubleClicked(0) && m_parentNodeRepresentation != true && textRect.contains(mousePos)) {
+                g_nameOfEditingNode = getFullName();
+                Arrays.fill(g_buffer, '\0');
+                for (int i = 0; i < m_name.length(); i++) {
+                    g_buffer[i] = m_name.charAt(i);
+                }
+                //a_imgui.m_imGui.setKeyboardFocusHere(0);
             }
-            a_imgui.addText(textPos, COL32(175, 175, 175, a_alpha), name);
-            a_imgui.m_imGui.setCursorPos(textPos);
-            char [] buffer = new char[256];
-                if (a_imgui.m_imGui.inputText("", buffer, InputTextFlag.EnterReturnsTrue.getI()));
+
+            if (getFullName().contentEquals(g_nameOfEditingNode)) {
+                //Vec2 textPos = new Vec2(m_rect.getTl().getX() + 5, m_rect.getTl().getY() + m_rect.getHeight() / 2 - a_imgui.m_imGui.getTextLineHeightWithSpacing() / 2);
+                String txt = new String();
+                for (int i = 0; i < g_buffer.length; i++) {
+                    if (g_buffer[i] == '\0') {
+                        break;
+                    }
+                    txt += g_buffer[i];
+                }
+
+                textSize = a_imgui.calcTextSize(txt, false);
+                textPos = m_rect.getTl().plus(m_rect.getSize().div(2).minus(textSize.div(2)));
+                if (m_children.size() > 0) {
+                    textPos.setY(m_rect.getTl().getY() + 3);
+                }
+
+                if (!m_parentNodeRepresentation) {
+
+                    switch (a_imgui.inputTextSingleLine(textPos, textSize.getX(), "", g_buffer)) {
+                        case Done: {
+                            ret = new Action();
+                            ret.m_renameNodeAction = new Action.RenameNode();
+                            ret.m_renameNodeAction.m_node = this;
+                            ret.m_renameNodeAction.a_newName = new String(txt);
+                        }
+                        case Canceled: {
+                            g_nameOfEditingNode = "";
+                        } break;
+                    }
+                } else {
+                    // the parent node is being edited so lets render the buffer content as this nodes name
+                    String name = !isAbstract() ?  txt : "(" + txt + ")";
+                    textSize = a_imgui.calcTextSize(name, false);
+                    textPos = m_rect.getTl().plus(m_rect.getSize().div(2).minus(textSize.div(2)));
+                    if (m_children.size() > 0) {
+                        textPos.setY(m_rect.getTl().getY() + 3);
+                    }
+                    a_imgui.addText(textPos, COL32(175, 175, 175, a_alpha), name);
+                }
+            } else {
+                String name = !isAbstract() ? m_name : "(" + m_name + ")";
+                textSize = a_imgui.calcTextSize(name, false);
+                textPos = m_rect.getTl().plus(m_rect.getSize().div(2).minus(textSize.div(2)));
+                if (m_children.size() > 0) {
+                    textPos.setY(m_rect.getTl().getY() + 3);
+                }
+                a_imgui.addText(textPos, COL32(175, 175, 175, a_alpha), name);
+            }
 
             //a_imgui.addDashedCircleSegment(m_rect.getCenter(), m_rect.getSize().length() / 2 , COL32(175, 175, 175, a_alpha), 64, 0, 3.14f, 2, 5, 10);
 
             childArea.expand(-g_margin);
-            childArea.setMin(new Vec2((float)childArea.getMin().getX(), childArea.getMin().getY() + textSize.getY() + g_margin));
+            childArea.setMin(new Vec2((float)childArea.getMin().getX(), childArea.getMin().getY() + a_imgui.getTextLineHeightWithSpacing() + g_margin));
 
         }
 
@@ -245,7 +322,7 @@ class HNode {
         for (int ix = 0; ix < m_children.size(); ix++) {
             HNode child = m_children.get(ix);
             Rect childRect = new Rect(childArea.getTl().plus(size.times(consumedLeafNodes)), childArea.getTl().plus(size.times(consumedLeafNodes + child.getLeafNodeCount())));
-            AddDependencyAction childAction;
+            Action childAction;
             childAction = child.render(childRect, a_imgui, a_leafNodeCount, a_alpha);
             if (ret == null) {
                 ret = childAction;
@@ -261,9 +338,10 @@ class HNode {
             p.setX(m_rect.getTl().getX() + g_rounding + (m_rect.getWidth() - g_rounding * 2) / (getMinLeafNodeIx()) * (ix + 0.5f));
             a_imgui.addCircle(p, radius, COL32(175, 175, 175, a_alpha), 8, 1);
             if (pointInCircle(mousePos, p, radius)) {
-                ret = new AddDependencyAction();
-                ret.m_target = this;
-                ret.m_ix = getMinLeafNodeIx() - 1 - ix;
+                ret = new Action();
+                ret.m_addDependencyAction = new Action.AddDependency();
+                ret.m_addDependencyAction.m_target = this;
+                ret.m_addDependencyAction.m_ix = getMinLeafNodeIx() - 1 - ix;
             }
         }
 
@@ -274,9 +352,10 @@ class HNode {
             a_imgui.addCircle(p, 3, COL32(175, 175, 175, a_alpha), 8, 1);
 
             if (pointInCircle(mousePos, p, radius)) {
-                ret = new AddDependencyAction();
-                ret.m_target = this;
-                ret.m_ix = a_leafNodeCount - ix - 1;
+                ret = new Action();
+                ret.m_addDependencyAction = new Action.AddDependency();
+                ret.m_addDependencyAction.m_target = this;
+                ret.m_addDependencyAction.m_ix = a_leafNodeCount - ix - 1;
             }
         }
 
@@ -287,9 +366,10 @@ class HNode {
             a_imgui.addCircle(p, 3, COL32(175, 175, 175, a_alpha), 8, 1);
 
             if (pointInCircle(mousePos, p, radius)) {
-                ret = new AddDependencyAction();
-                ret.m_source = this;
-                ret.m_ix = a_leafNodeCount - 1 - ix;
+                ret = new Action();
+                ret.m_addDependencyAction = new Action.AddDependency();
+                ret.m_addDependencyAction.m_source = this;
+                ret.m_addDependencyAction.m_ix = a_leafNodeCount - 1 - ix;
             }
         }
 
@@ -300,9 +380,10 @@ class HNode {
             a_imgui.addCircle(p, 3, COL32(175, 175, 175, a_alpha), 8, 1);
 
             if (pointInCircle(mousePos, p, radius)) {
-                ret = new AddDependencyAction();
-                ret.m_source = this;
-                ret.m_ix = getMinLeafNodeIx() - 1 - ix;
+                ret = new Action();
+                ret.m_addDependencyAction = new Action.AddDependency();
+                ret.m_addDependencyAction.m_source = this;
+                ret.m_addDependencyAction.m_ix = getMinLeafNodeIx() - 1 - ix;
             }
         }
 

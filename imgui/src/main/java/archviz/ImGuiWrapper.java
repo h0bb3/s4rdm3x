@@ -2,14 +2,15 @@ package archviz;
 
 import glm_.vec2.Vec2;
 import imgui.ImGui;
+import imgui.InputTextFlag;
 import imgui.WindowFlag;
 
 import static imgui.ImguiKt.COL32;
 
 class ImGuiWrapper {
-    public ImGui m_imGui;
+    private ImGui m_imGui;
 
-    private static class DashContext {
+    protected static class DashContext {
         float m_remainingDrawLength;
         int m_ix;
     }
@@ -112,18 +113,19 @@ class ImGuiWrapper {
             if(a_dc.m_ix % 2 == 0) {
                 Vec2 p1 = a_p1.plus(dir.times(drawnLength));
                 drawnLength += a_dc.m_remainingDrawLength;
-                if (drawnLength < lineLength) {
-                    Vec2 p2 = a_p1.plus(dir.times(drawnLength));
-                    m_imGui.getWindowDrawList().addLine(p1, p2, a_color, a_thickness);
-                    a_dc.m_ix++;
-                } else {
+                if (drawnLength > lineLength) {
                     a_dc.m_remainingDrawLength = drawnLength - lineLength;
                     m_imGui.getWindowDrawList().addLine(p1, a_p2, a_color, a_thickness);
                     return;
+                } else {
+                    Vec2 p2 = a_p1.plus(dir.times(drawnLength));
+                    m_imGui.getWindowDrawList().addLine(p1, p2, a_color, a_thickness);
+                    a_dc.m_ix++;
+
                 }
             } else {
                 drawnLength += a_dc.m_remainingDrawLength;
-                if (drawnLength >= lineLength) {
+                if (drawnLength > lineLength) {
                     a_dc.m_remainingDrawLength = drawnLength - lineLength;
                     return;
                 } else {
@@ -132,21 +134,21 @@ class ImGuiWrapper {
             }
         }
 
-        while(drawnLength < lineLength) {
+        while(true) {
             if (a_dc.m_ix % 2 == 0) {
                 Vec2 p1 = a_p1.plus(dir.times(drawnLength));
                 drawnLength += a_dashlength;
-                if (drawnLength < lineLength) {
-                    Vec2 p2 = a_p1.plus(dir.times(drawnLength));
-                    m_imGui.getWindowDrawList().addLine(p1, p2, a_color, a_thickness);
-                } else {
+                if (drawnLength > lineLength) {
                     a_dc.m_remainingDrawLength = drawnLength - lineLength;
                     m_imGui.getWindowDrawList().addLine(p1, a_p2, a_color, a_thickness);
                     return;
+                } else {
+                    Vec2 p2 = a_p1.plus(dir.times(drawnLength));
+                    m_imGui.getWindowDrawList().addLine(p1, p2, a_color, a_thickness);
                 }
             } else {
                 drawnLength += a_holeLength;
-                if (drawnLength >= lineLength) {
+                if (drawnLength > lineLength) {
                     a_dc.m_remainingDrawLength = drawnLength - lineLength;
                     return;
                 }
@@ -157,6 +159,34 @@ class ImGuiWrapper {
 
     public ImGuiWrapper(ImGui a_imgui) {
         m_imGui = a_imgui;
+    }
+
+    public enum InputTextStatus {
+        Editing,
+        Done,
+        Canceled
+    }
+
+    public InputTextStatus inputTextSingleLine(Vec2 a_pos, float a_width, String a_label, char[] a_buffer) {
+        Vec2 textPos = a_pos.minus(m_imGui.getWindowPos());
+
+        textPos.minus(m_imGui.getStyle().getFramePadding(), textPos);
+
+        m_imGui.setCursorPos(textPos);
+        m_imGui.pushItemWidth(a_width + m_imGui.getStyle().getFramePadding().getX() * 1 + m_imGui.getFontSize());   // we need to be a bit wider than *2 so that imgui does not make wonky things with the text x position
+
+        final boolean ret = m_imGui.inputText("", a_buffer, InputTextFlag.EnterReturnsTrue.getI());
+
+        m_imGui.popItemWidth();
+        if (ret) {
+            return InputTextStatus.Done;
+        }
+
+        if (m_imGui.isAnyItemActive()) {
+            return InputTextStatus.Editing;
+        }
+
+        return InputTextStatus.Canceled;
     }
 
     public void addRect(Vec2 a_tl, Vec2 a_br, int a_color, float a_rounding, int a_corners, float a_thickness) {
@@ -179,6 +209,10 @@ class ImGuiWrapper {
         m_imGui.getWindowDrawList().addLine(a_p1, a_p2, a_color, a_thickness);
     }
 
+    public float getTextLineHeightWithSpacing() {
+        return m_imGui.getTextLineHeightWithSpacing();
+    }
+
     public Vec2 calcTextSize(String a_str, boolean a_hideTextAfterDoubleHash) {
         return m_imGui.calcTextSize(a_str, a_hideTextAfterDoubleHash);
     }
@@ -197,6 +231,14 @@ class ImGuiWrapper {
 
     public Vec2 getMousePos() {
         return m_imGui.getMousePos();
+    }
+
+    boolean isMouseDoubleClicked(int a_button) {
+        return m_imGui.isMouseDoubleClicked(a_button);
+    }
+
+    boolean isMouseClicked(int a_button, boolean a_doRepeat) {
+        return m_imGui.isMouseClicked(a_button, a_doRepeat);
     }
 
     public Vec2 getMouseDragDelta(int a_button, float a_lockThreshold) {

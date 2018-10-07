@@ -66,6 +66,10 @@ public class HuGMe {
                 }
             }
 
+            public void removeDependencyTo(Component a_component) {
+                m_allowedDependenciesTo.remove(a_component);
+            }
+
             public boolean allowedDependency(Component a_component) {
                 return m_allowedDependenciesTo.indexOf(a_component) >= 0;
             }

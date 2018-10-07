@@ -74,8 +74,9 @@ public class RectsAndArrows {
         //theArch.addComponent("client.part1.part1_1");
 
         //theArch.addComponent("global");
-        theArch.addComponent("client.part1");
-        theArch.addComponent("client.part2");
+        theArch.addComponent("part2");
+        theArch.addComponent("part2.client.part1");
+
         //theArch.addComponent("client");
 
 
@@ -411,6 +412,37 @@ public class RectsAndArrows {
                     }
                 }
 
+                // add dependenices
+                if (action != null && action.m_addDependenices != null) {
+                    for(HRoot.Action.NodeNamePair pair : action.m_addDependenices.m_nodes) {
+                        HuGMe.ArchDef.Component sC = a_arch.getComponent(pair.m_oldName);
+                        HuGMe.ArchDef.Component tC = a_arch.getComponent(pair.m_newName);
+                        if (tC == null) {
+                            System.out.println("Could not find component named: " + pair.m_newName);
+                        } else if (sC == null) {
+                            System.out.println("Could not find component named: " + pair.m_oldName);
+                        } else {
+                            sC.addDependencyTo(tC);
+                        }
+                    }
+                }
+
+                // remove dependenices
+                if (action != null && action.m_removeDependencies != null) {
+                    for(HRoot.Action.NodeNamePair pair : action.m_removeDependencies.m_nodes) {
+                        HuGMe.ArchDef.Component sC = a_arch.getComponent(pair.m_oldName);
+                        HuGMe.ArchDef.Component tC = a_arch.getComponent(pair.m_newName);
+                        if (tC == null) {
+                            System.out.println("Could not find component named: " + pair.m_newName);
+                        } else if (sC == null) {
+                            System.out.println("Could not find component named: " + pair.m_oldName);
+                        } else {
+                            sC.removeDependencyTo(tC);
+                        }
+                    }
+                }
+
+                // node renaming
                 if (action != null && action.m_hiearchyMove != null) {
                     for(HRoot.Action.NodeNamePair pair : action.m_hiearchyMove.m_nodes) {
                         HuGMe.ArchDef.Component c = a_arch.getComponent(pair.m_oldName);

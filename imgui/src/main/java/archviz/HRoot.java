@@ -21,7 +21,7 @@ public class HRoot {
             public String m_newName;
         }
         public static class HierarchyMove {
-            public ArrayList<NodeNamePair> m_nodes;
+            public ArrayList<NodeNamePair> m_nodes = new ArrayList<>();
 
             void addPair(NodeNamePair a_pair) {
                 if (!a_pair.m_oldName.contentEquals(a_pair.m_newName)) {
@@ -31,8 +31,9 @@ public class HRoot {
         }
 
         public ArrayList<String> m_nodeOrder;
-
         public HierarchyMove m_hiearchyMove;
+        public HierarchyMove m_addDependenices;
+        public HierarchyMove m_removeDependencies;
     }
 
     static class DragNDropData {
@@ -186,9 +187,9 @@ public class HRoot {
             for (HNode ch : a_parent.m_children) {
                 if (ch.m_name.contentEquals(a_names[0])) {
                     nextParent = ch;
-                    /*if (nextParent.m_children.size() == 0) {
+                    if (nextParent.m_children.size() == 0) {
                         addNode(nextParent.m_name, nextParent).setToParentNodeRepresentation();   // add the leaf that represent the parent
-                    }*/
+                    }
                     break;
                 }
             }
@@ -335,7 +336,7 @@ public class HRoot {
     }
 
     public Action render(Rect a_rect, ImGuiWrapper a_imgui) {
-        HNode.AddDependencyAction action;
+        HNode.Action action;
         m_leafNodeCounter = m_root.assignRenderOrderLeafNodeIx(0);  // leaf node indices need to be in rendering order and not in adding order.
 
         /*
@@ -353,16 +354,72 @@ public class HRoot {
 
         action = m_root.render(a_rect, a_imgui, m_leafNodeCounter, 255);
         if (action != null) {
+            if (action.m_addDependencyAction != null) {
 
+                action.m_addDependencyAction.m_source = action.m_addDependencyAction.m_source != null ? action.m_addDependencyAction.m_source : m_root.findLeafNode(action.m_addDependencyAction.m_ix);
+                action.m_addDependencyAction.m_target = action.m_addDependencyAction.m_target != null ? action.m_addDependencyAction.m_target : m_root.findLeafNode(action.m_addDependencyAction.m_ix);
 
-            action.m_source = action.m_source != null ? action.m_source : m_root.findLeafNode(action.m_ix);
-            action.m_target = action.m_target != null ? action.m_target : m_root.findLeafNode(action.m_ix);
+                boolean hasDependency = false;
+                for (HNode d : action.m_addDependencyAction.m_source.m_dependencies) {
+                    if (d == action.m_addDependencyAction.m_target) {
+                        hasDependency = true;
+                        break;
+                    }
+                }
 
-            a_imgui.beginTooltip();
-            a_imgui.text("Click to add dependency from " + action.m_source.getFullName() + " to " + action.m_target.getFullName());
-            a_imgui.endTooltip();
+                a_imgui.beginTooltip();
+                if (!hasDependency) {
+                    a_imgui.text("Click to add dependency from " + action.m_addDependencyAction.m_source.getFullName() + " to " + action.m_addDependencyAction.m_target.getFullName());
+                } else {
+                    a_imgui.text("Click to remove dependency from " + action.m_addDependencyAction.m_source.getFullName() + " to " + action.m_addDependencyAction.m_target.getFullName());
+                }
+                a_imgui.endTooltip();
 
-            action.m_source.renderDependency(a_imgui, action.m_target, m_leafNodeCounter);
+                action.m_addDependencyAction.m_source.renderDependency(a_imgui, action.m_addDependencyAction.m_target, m_leafNodeCounter);
+
+                if (a_imgui.isMouseClicked(0, false)) {
+                    Action a = new Action();
+                    ArrayList<Action.NodeNamePair> pairs;
+                    if (!hasDependency) {
+                        a.m_addDependenices = new Action.HierarchyMove();
+                        pairs = a.m_addDependenices.m_nodes;
+                    } else {
+                        a.m_removeDependencies = new Action.HierarchyMove();
+                        pairs = a.m_removeDependencies.m_nodes;
+                    }
+                    for (HNode sN : action.m_addDependencyAction.m_source.getConcreteNodes()) {
+                        for (HNode tN : action.m_addDependencyAction.m_target.getConcreteNodes()) {
+                            Action.NodeNamePair p = new Action.NodeNamePair();
+                            p.m_oldName = sN.getFullName();
+                            p.m_newName = tN.getFullName();
+                            pairs.add(p);
+                        }
+                    }
+
+                    // as we return we do this to avoid flicker...
+                    m_root.renderDependencies(a_imgui, m_leafNodeCounter);
+                    return a;
+                }
+            }
+            if (action.m_renameNodeAction != null) {
+                Action a = new Action();
+                a.m_hiearchyMove = new Action.HierarchyMove();
+                String originalName = action.m_renameNodeAction.m_node.m_name;
+
+                for (HNode n : action.m_renameNodeAction.m_node.getConcreteNodes()) {
+                    Action.NodeNamePair p = new Action.NodeNamePair();
+                    p.m_oldName = n.getFullName();
+                    action.m_renameNodeAction.m_node.m_name = action.m_renameNodeAction.a_newName;
+                    p.m_newName = n.getFullName();
+                    action.m_renameNodeAction.m_node.m_name = originalName;
+                    a.m_hiearchyMove.m_nodes.add(p);
+                }
+
+                // as we return we do this to avoid flicker...
+                m_root.renderDependencies(a_imgui, m_leafNodeCounter);
+
+                return a;
+            }
         }
         m_root.renderDependencies(a_imgui, m_leafNodeCounter);
 
@@ -378,7 +435,6 @@ public class HRoot {
                 Action a = new Action();
                 a.m_hiearchyMove = new Action.HierarchyMove();
 
-                a.m_hiearchyMove.m_nodes = new ArrayList<>();
                 for (HNode leaf : g_dnd.m_staleSourceNode.getConcreteNodes()) {
 
                     Action.NodeNamePair pair = new Action.NodeNamePair();
@@ -413,7 +469,6 @@ public class HRoot {
                 Action a = new Action();
                 a.m_hiearchyMove = new Action.HierarchyMove();
 
-                a.m_hiearchyMove.m_nodes = new ArrayList<>();
                 for (HNode concrete : g_dnd.m_staleSourceNode.getConcreteNodes()) {
                     Action.NodeNamePair pair = new Action.NodeNamePair();
                     pair.m_oldName = concrete.getFullName();

@@ -16,10 +16,7 @@ class HRootTest {
 
 
 
-    static class ImGuiWrapper extends archviz.ImGuiWrapper {
-        public ImGuiWrapper() {
-            super(null);
-        }
+    static class ImGuiWrapper extends ImGuiNullWrapper {
 
         private Vec2 m_mouseDragStart;
         private Vec2 m_mousePos = new Vec2(0, 0);
@@ -51,40 +48,6 @@ class HRootTest {
             m_isMouseDragging = a_start;
         }
 
-        public void addRect(Vec2 a_tl, Vec2 a_br, int a_color, float a_rounding, int a_corners, float a_thickness) {
-        }
-        public void addRectFilled(Vec2 a_tl, Vec2 a_br, int a_color, float a_rounding, int a_corners) {
-        }
-
-        public void addText(Vec2 a_pos, int a_color, String a_text) {
-        }
-
-        public void addCircle(Vec2 a_center, float a_radius, int a_color, int a_segments, float a_thickness) {
-        }
-
-        public void addLine(Vec2 a_p1, Vec2 a_p2, int a_color, float a_thickness) {
-        }
-
-        public void addDashedLine(Vec2 a_p1, Vec2 a_p2, int a_color, float a_thickness, float a_holeLength, float a_dashlength) {
-        }
-
-        public Vec2 calcTextSize(String a_str, boolean a_hideTextAfterDoubleHash) {
-            return new Vec2(0, 0);
-        }
-
-        public void beginTooltip() {
-        }
-
-        public void endTooltip() {
-        }
-
-        public void text(String a_text) {
-        }
-
-        public Vec2 getMousePos() {
-            return m_mousePos;
-        }
-
         public Vec2 getMouseDragDelta(int a_button, float a_lockThreshold) {
             if (m_mouseDragStart != null) {
                 return m_mousePos.minus(m_mouseDragStart);
@@ -96,9 +59,8 @@ class HRootTest {
             return m_isMouseDragging;
         }
 
-
-
-        public void stopWindowDrag() {
+        public Vec2 getMousePos() {
+            return m_mousePos;
         }
     }
 
@@ -419,6 +381,24 @@ class HRootTest {
         HRoot.Action.NodeNamePair[] expected = {new HRoot.Action.NodeNamePair("client.n1.n2", "client.n2"),
                                                 new HRoot.Action.NodeNamePair("client.n1.n2.n3", "client.n2.n3"),
                                                 new HRoot.Action.NodeNamePair("client.n1.n2.n4", "client.n2.n4")};
+
+        Assertions.assertTrue(checkPairSetEquality(expected, a.m_hiearchyMove.m_nodes));
+    }
+
+    @Test
+    void dragAbstractSubComponentToRoot() {
+        HRoot cut = new HRoot();
+
+        // drag n2 into client
+        HNode n2 = cut.add("n2");
+        HNode client = cut.add("n2.client.n1").m_parent;
+
+        assertEquals(true, n2.isConcreteNode());
+        assertEquals(false, n2.isAbstract());
+
+        HRoot.Action a = doDrag(cut, client, null);
+
+        HRoot.Action.NodeNamePair[] expected = {new HRoot.Action.NodeNamePair("n2.client.n1", "client.n1")};
 
         Assertions.assertTrue(checkPairSetEquality(expected, a.m_hiearchyMove.m_nodes));
     }
