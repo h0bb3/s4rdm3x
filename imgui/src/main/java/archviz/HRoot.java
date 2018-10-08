@@ -9,6 +9,11 @@ import java.util.Arrays;
 
 public class HRoot {
 
+    public static class State {
+        HNode.NodeNameEdit m_nne = new HNode.NodeNameEdit();
+        HNode.DragNDropData m_dNd = null;
+    }
+
     public static class Action {
         public static class NodeNamePair {
             NodeNamePair() {
@@ -36,13 +41,6 @@ public class HRoot {
         public HierarchyMove m_removeDependencies;
     }
 
-    static class DragNDropData {
-        Rect m_dragRect;
-        HNode m_staleSourceNode;
-        HNode m_target;
-    }
-
-
 
     private HNode findNode(String [] a_names) {
         HNode currentParent = m_root;
@@ -67,7 +65,7 @@ public class HRoot {
     public HNode liftDependencySource(HNode a_source, HNode a_dest) {
         HNode parent = a_source.m_parent;
 
-        if(parent == m_root) {
+        if(parent == m_root || parent.m_children.size() < 2) {
             return a_source;
         }
 
@@ -101,7 +99,7 @@ public class HRoot {
 
     public HNode liftDependencyDest(HNode a_source, HNode a_dest) {
         HNode parent = a_dest.m_parent;
-        if (parent == m_root) {
+        if (parent == m_root || parent.m_children.size() < 2) {
             return a_dest;
         }
 
@@ -137,6 +135,14 @@ public class HRoot {
     public void addDependency(String a_source, String a_dest) {
         HNode source = findNode(a_source.split("\\."));
         HNode dest = findNode(a_dest.split("\\."));
+
+        if (dest.getConcreteRepresentation() != null) {
+            dest = dest.getConcreteRepresentation();
+        }
+
+        if (source.getConcreteRepresentation() != null) {
+            source = source.getConcreteRepresentation();
+        }
 
         source.m_dependencies.add(dest);
 
@@ -185,7 +191,7 @@ public class HRoot {
         } else {
             HNode nextParent = null;
             for (HNode ch : a_parent.m_children) {
-                if (ch.m_name.contentEquals(a_names[0])) {
+                if (ch.m_name.contentEquals(a_names[0]) && ch.isParentNodeRepresentation() != true) {
                     nextParent = ch;
                     if (nextParent.m_children.size() == 0) {
                         addNode(nextParent.m_name, nextParent).setToParentNodeRepresentation();   // add the leaf that represent the parent
@@ -212,8 +218,6 @@ public class HRoot {
     public HNode add(String a_nodeName) {
         return addNode(a_nodeName.split("\\."), m_root);
     }
-
-    static DragNDropData g_dnd;
 
     public int getIndexOfFirstNonSimilarComponentInStr2(String a_str1, String a_str2) {
         int index = 0;
@@ -268,12 +272,12 @@ public class HRoot {
         return ret;
     }
 
-    public Action render(Rect a_area, ImGui a_imgui) {
-        return render(a_area, new ImGuiWrapper(a_imgui));
+    public Action render(Rect a_area, ImGui a_imgui, State a_state) {
+        return render(a_area, new ImGuiWrapper(a_imgui), a_state);
     }
 
 
-    private ArrayList<String> changeNodeOrder(Vec2 a_dropPos, ImGuiWrapper a_imgui) {
+    private ArrayList<String> changeNodeOrder(Vec2 a_dropPos, ImGuiWrapper a_imgui, HNode.DragNDropData a_dnd) {
         ArrayList<HNode> concreteNodes = new ArrayList<>();
         m_root.getConcreteNodes().forEach(n -> concreteNodes.add(n));
         //int sourceIx = getIndex(commonParent.m_children, g_dnd.m_staleSourceNode.getRootParent().getFullName());
@@ -293,7 +297,7 @@ public class HRoot {
             // i we find the mouse index node we insert the source targets after that one
             // we do not insert the nodes in the source, i.e. they are the concrete nodes we want to move
             boolean found = false;
-            for(HNode sN : g_dnd.m_staleSourceNode.getConcreteNodes()) {
+            for(HNode sN : a_dnd.m_staleSourceNode.getConcreteNodes()) {
                 if (sN.getFullName().contentEquals(n.getFullName())) {
                     found = true;
                     break;
@@ -302,7 +306,7 @@ public class HRoot {
 
             // dragging to the top left : add before anything
             if (!added && mousePosIx < 0) {
-                for (HNode cNode : g_dnd.m_staleSourceNode.getConcreteNodes()) {
+                for (HNode cNode : a_dnd.m_staleSourceNode.getConcreteNodes()) {
                     order.add(cNode.getFullName());
                     System.out.println(cNode.getFullName());
                 }
@@ -316,7 +320,7 @@ public class HRoot {
 
             // dragging in the area
             if (!added && mousePosIx >= 0 && mousePosIx < concreteNodes.size() && n == concreteNodes.get(mousePosIx)) {   // the mouse ix is done using the commonParent children so we probably need to look at something special here.
-                for (HNode cNode : g_dnd.m_staleSourceNode.getConcreteNodes()) {
+                for (HNode cNode : a_dnd.m_staleSourceNode.getConcreteNodes()) {
                     order.add(cNode.getFullName());
                     System.out.println(cNode.getFullName());
                 }
@@ -326,7 +330,7 @@ public class HRoot {
 
         // dragging to the bottom right : add last
         if (!added) {
-            for (HNode cNode : g_dnd.m_staleSourceNode.getConcreteNodes()) {
+            for (HNode cNode : a_dnd.m_staleSourceNode.getConcreteNodes()) {
                 order.add(cNode.getFullName());
                 System.out.println(cNode.getFullName());
             }
@@ -335,7 +339,7 @@ public class HRoot {
         return order;
     }
 
-    public Action render(Rect a_rect, ImGuiWrapper a_imgui) {
+    public Action render(Rect a_rect, ImGuiWrapper a_imgui, State a_state) {
         HNode.Action action;
         m_leafNodeCounter = m_root.assignRenderOrderLeafNodeIx(0);  // leaf node indices need to be in rendering order and not in adding order.
 
@@ -352,7 +356,7 @@ public class HRoot {
 
          */
 
-        action = m_root.render(a_rect, a_imgui, m_leafNodeCounter, 255);
+        action = m_root.render(a_rect, a_imgui, m_leafNodeCounter, 255, a_state.m_nne);
         if (action != null) {
             if (action.m_addDependencyAction != null) {
 
@@ -423,30 +427,30 @@ public class HRoot {
         }
         m_root.renderDependencies(a_imgui, m_leafNodeCounter);
 
-        if (g_dnd != null && !a_imgui.isMouseDragging(0, 1.0f)) {
+        if (a_state.m_dNd != null && !a_imgui.isMouseDragging(0, 1.0f)) {
             // convert g_dnd to action
-            if (g_dnd.m_target != null) {
+            if (a_state.m_dNd.m_target != null) {
 
                 // are we dropping into a child node?
-                if (getIndexOfFirstNonSimilarComponentInStr2(g_dnd.m_target.getFullName(), g_dnd.m_staleSourceNode.getFullName()) == g_dnd.m_staleSourceNode.getFullName().length()) {
-                    g_dnd = null;
+                if (getIndexOfFirstNonSimilarComponentInStr2(a_state.m_dNd.m_target.getFullName(), a_state.m_dNd.m_staleSourceNode.getFullName()) == a_state.m_dNd.m_staleSourceNode.getFullName().length()) {
+                    a_state.m_dNd = null;
                     return null;
                 }
                 Action a = new Action();
                 a.m_hiearchyMove = new Action.HierarchyMove();
 
-                for (HNode leaf : g_dnd.m_staleSourceNode.getConcreteNodes()) {
+                for (HNode leaf : a_state.m_dNd.m_staleSourceNode.getConcreteNodes()) {
 
                     Action.NodeNamePair pair = new Action.NodeNamePair();
                     pair.m_oldName = leaf.getFullName();
                     String oldName = pair.m_oldName;
-                    if (g_dnd.m_staleSourceNode.m_children.size() == 0) {
+                    if (a_state.m_dNd.m_staleSourceNode.m_children.size() == 0) {
                         // dragging leaf node so remove all of the old hierarchy
-                        oldName = g_dnd.m_staleSourceNode.m_name;
+                        oldName = a_state.m_dNd.m_staleSourceNode.m_name;
                     }
                     // remove any common part of the old name
-                    String targetFullName = g_dnd.m_target.getFullName();
-                    String strippedOldName = oldName.substring(getIndexOfFirstNonSimilarComponentInStr2(g_dnd.m_staleSourceNode.m_parent.getFullName(), oldName));
+                    String targetFullName = a_state.m_dNd.m_target.getFullName();
+                    String strippedOldName = oldName.substring(getIndexOfFirstNonSimilarComponentInStr2(a_state.m_dNd.m_staleSourceNode.m_parent.getFullName(), oldName));
 
                     if (targetFullName.length() > 0) {
                         pair.m_newName = strippedOldName.length() > 0 ? (targetFullName + "." + strippedOldName).replace("..", ".") : targetFullName;
@@ -460,20 +464,20 @@ public class HRoot {
                 }
 
                 // we may have a move action here too... but as we are acting in a non root node we need to take better care
-                a.m_nodeOrder = changeNodeOrder(a_imgui.getMousePos(), a_imgui);
+                a.m_nodeOrder = changeNodeOrder(a_imgui.getMousePos(), a_imgui, a_state.m_dNd);
 
-                g_dnd = null;
+                a_state.m_dNd = null;
                 return a;
             } else {
                 // move to root
                 Action a = new Action();
                 a.m_hiearchyMove = new Action.HierarchyMove();
 
-                for (HNode concrete : g_dnd.m_staleSourceNode.getConcreteNodes()) {
+                for (HNode concrete : a_state.m_dNd.m_staleSourceNode.getConcreteNodes()) {
                     Action.NodeNamePair pair = new Action.NodeNamePair();
                     pair.m_oldName = concrete.getFullName();
 
-                    String parentFullName = g_dnd.m_staleSourceNode.m_parent.m_name == null ? "" : g_dnd.m_staleSourceNode.m_parent.getFullName() + ".";   // +. as we know that there are children...
+                    String parentFullName = a_state.m_dNd.m_staleSourceNode.m_parent.m_name == null ? "" : a_state.m_dNd.m_staleSourceNode.m_parent.getFullName() + ".";   // +. as we know that there are children...
                     String strippedOldName = pair.m_oldName.substring(getIndexOfFirstNonSimilarComponentInStr2(parentFullName, pair.m_oldName));
 
                     pair.m_newName = strippedOldName;
@@ -483,16 +487,16 @@ public class HRoot {
                     a.m_hiearchyMove.addPair(pair);
                 }
 
-                a.m_nodeOrder = changeNodeOrder(a_imgui.getMousePos(), a_imgui);
+                a.m_nodeOrder = changeNodeOrder(a_imgui.getMousePos(), a_imgui, a_state.m_dNd);
 
-                g_dnd = null;
+                a_state.m_dNd = null;
                 return a;
             }
         } else {
-            if (g_dnd != null) {
+            if (a_state.m_dNd != null) {
                // changeNodeOrder(a_imgui.getMousePos(), a_imgui);
             }
-            g_dnd = m_root.doDragNDrop(a_imgui, g_dnd);
+            a_state.m_dNd = m_root.doDragNDrop(a_imgui, a_state.m_dNd);
         }
 
         return null;

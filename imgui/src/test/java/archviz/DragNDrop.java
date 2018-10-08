@@ -1,18 +1,15 @@
 package archviz;
 
-import static imgui.ImguiKt.COL32;
 import static org.junit.jupiter.api.Assertions.*;
 
 import glm_.vec2.Vec2;
-import imgui.ImGui;
-import imgui.WindowFlag;
 import imgui.internal.Rect;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 
-class HRootTest {
+class DragNDrop {
 
 
 
@@ -71,7 +68,7 @@ class HRootTest {
 
         ImGuiWrapper imgui = new ImGuiWrapper();
 
-        HRoot.Action a = cut.render(r, imgui);
+        HRoot.Action a = cut.render(r, imgui, new HRoot.State());
         assertEquals(null, a);
 
     }
@@ -327,23 +324,24 @@ class HRootTest {
 
     HRoot.Action doDrag(HRoot a_sut, HNode a_source, HNode a_target) {
         Rect r = new Rect(0, 0, 100, 100);
+        HRoot.State s = new HRoot.State();
 
         ImGuiWrapper imgui = new ImGuiWrapper();
 
-        a_sut.render(r, imgui);
+        a_sut.render(r, imgui, s);
 
         imgui.setMouseDragging(getSafePos(a_source), true);
-        HRoot.Action a = a_sut.render(r, imgui);
+        HRoot.Action a = a_sut.render(r, imgui, s);
         assertEquals(null, a);
 
         Vec2 dest = a_target == null ? new Vec2(-1, -1) : getSafePos(a_target);
 
         imgui.setMouseDragging(dest, true);
-        a = a_sut.render(r, imgui);
+        a = a_sut.render(r, imgui, s);
         assertEquals(null, a);
 
         imgui.setMouseDragging(dest, false);
-        a = a_sut.render(r, imgui);
+        a = a_sut.render(r, imgui, s);
 
         return a;
     }

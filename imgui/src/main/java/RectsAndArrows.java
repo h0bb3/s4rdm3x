@@ -124,6 +124,8 @@ public class RectsAndArrows {
     private boolean[] showAnotherWindow = {true};
     private int[] counter = {0};
 
+    HRoot.State m_vizState = new HRoot.State();
+
     private void getRectTopLeft(int a_index, Vec2 a_offset, Vec2 a_size, Vec2 a_outTopLeftCorner) {
         a_offset.plus(a_size.times(a_index, a_outTopLeftCorner), a_outTopLeftCorner);
     }
@@ -348,13 +350,8 @@ public class RectsAndArrows {
     }
 
     private void mainLoop(HuGMe.ArchDef a_arch) {
-
-
         // Start the Dear ImGui frame
         lwjglGlfw.newFrame();
-
-
-
 
         imgui.text("Hello, world!");                                // Display some text (you can use a format string too)
         imgui.sliderFloat("float", f, 1f, 5f, "%.3f", 1f);       // Edit 1 float using a slider from 0.0f to 1.0f
@@ -397,7 +394,7 @@ public class RectsAndArrows {
                 Vec2 size = new Vec2(r.getWidth() / components.length, r.getHeight() / components.length);
 
 
-                HRoot.Action action = root.render(r, imgui);
+                HRoot.Action action = root.render(r, imgui, m_vizState);
 
                 // we need to do resorting before renaming
                 if (action != null && action.m_nodeOrder != null) {
