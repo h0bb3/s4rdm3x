@@ -59,6 +59,14 @@ class DragNDrop {
         public Vec2 getMousePos() {
             return m_mousePos;
         }
+
+        public boolean isInside(Rect a_rect, Vec2 a_pos) {
+            return a_rect.contains(a_pos);
+        }
+
+        public boolean isInside(Vec2 a_center, float a_radius, Vec2 a_pos) {
+            return a_center.minus(a_pos).length2() <= a_radius * a_radius;
+        }
     }
 
     @org.junit.jupiter.api.Test

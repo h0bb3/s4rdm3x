@@ -12,6 +12,7 @@ public class HRoot {
     public static class State {
         HNode.NodeNameEdit m_nne = new HNode.NodeNameEdit();
         HNode.DragNDropData m_dNd = null;
+        HNode m_underPopUp = null;
     }
 
     public static class Action {
@@ -39,6 +40,9 @@ public class HRoot {
         public HierarchyMove m_hiearchyMove;
         public HierarchyMove m_addDependenices;
         public HierarchyMove m_removeDependencies;
+
+        public String m_addComponent;
+        public String m_deleteComponent;
     }
 
 
@@ -161,7 +165,6 @@ public class HRoot {
             newDest = liftDependencyDest(source, dest);
 
         }
-
     }
 
     private HNode addNode(String [] a_names, HNode a_parent) {
@@ -498,6 +501,38 @@ public class HRoot {
             }
             a_state.m_dNd = m_root.doDragNDrop(a_imgui, a_state.m_dNd);
         }
+
+        //if (a_imgui.isMouseDown(1)) {
+            if (a_imgui.m_imGui.beginPopupContextWindow("popup", 1, true)) {
+                a_state.m_dNd = null;
+                Action a = null;
+                if (a_state.m_underPopUp == null) {
+                    a_state.m_underPopUp = m_root.getNodeUnder(a_imgui.getMousePos());
+                    if (a_state.m_underPopUp == null) {
+                        a_state.m_underPopUp = m_root;
+                    }
+                }
+                if (a_imgui.button("Add Component", 150)) {
+                    a = new Action();
+
+                    a.m_addComponent = a_state.m_underPopUp.getFullName();
+                    if (a.m_addComponent.length() > 0) {
+                        a.m_addComponent += ".";
+                    }
+                    a.m_addComponent += "component_" + m_leafNodeCounter;
+                    a_imgui.m_imGui.closeCurrentPopup();
+                }
+                if (a_state.m_underPopUp.m_name != null && a_imgui.button("Delete " + a_state.m_underPopUp.m_name, 150)) {
+                    a_imgui.m_imGui.closeCurrentPopup();
+                }
+                a_imgui.m_imGui.endPopup();
+                if (a != null) {
+                    return a;
+                }
+            } else {
+                a_state.m_underPopUp = null;
+            }
+        //}
 
         return null;
     }

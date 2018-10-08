@@ -1,6 +1,7 @@
 package archviz;
 
 import glm_.vec2.Vec2;
+import imgui.internal.Rect;
 
 public class ImGuiNullWrapper extends ImGuiWrapper {
 
@@ -66,4 +67,8 @@ public class ImGuiNullWrapper extends ImGuiWrapper {
     }
 
     public void stopWindowDrag() {    }
+
+    public boolean isInside(Rect a_rect, Vec2 a_pos) {return false; }
+
+    public boolean isInside(Vec2 a_center, float a_radius, Vec2 a_pos) {return false;}
 }

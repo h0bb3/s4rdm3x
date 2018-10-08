@@ -6,7 +6,6 @@ import imgui.StyleVar;
 import imgui.TextEditState;
 import imgui.internal.DrawCornerFlag;
 import imgui.internal.Rect;
-import org.graphstream.algorithm.Eccentricity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,8 +24,8 @@ class HNode {
     Rect m_rect;
     int m_leafNodeIx = -1;
     private boolean m_parentNodeRepresentation = false;
-    static final int g_rounding = 20;
-    static final float g_margin = 10;
+    static final int g_rounding = 7;
+    static final float g_margin = 7;
 
 
 
@@ -221,7 +220,7 @@ class HNode {
         }
     }
 
-    private HNode getNodeUnder(Vec2 a_point) {
+    public HNode getNodeUnder(Vec2 a_point) {
         if (m_rect.contains(a_point)) {
             HNode child;
             for (HNode c : m_children) {
@@ -267,7 +266,7 @@ class HNode {
 
 
         // we may start dragging or editing
-        if (m_rect.contains(mousePos)) {
+        if (a_imgui.isInside(m_rect, mousePos)) {
             // first we check the children
             for (HNode c : m_children) {
                 a_dnd = c.doDragNDrop(a_imgui, a_dnd);
@@ -393,7 +392,7 @@ class HNode {
             p.setY(m_rect.getTl().getY());
             p.setX(m_rect.getTl().getX() + g_rounding + (m_rect.getWidth() - g_rounding * 2) / (getMinLeafNodeIx()) * (ix + 0.5f));
             a_imgui.addCircle(p, radius, COL32(175, 175, 175, a_alpha), 8, 1);
-            if (pointInCircle(mousePos, p, radius)) {
+            if (a_imgui.isInside(p, radius, mousePos)) {
                 ret = new Action();
                 ret.m_addDependencyAction = new Action.AddDependency();
                 ret.m_addDependencyAction.m_target = this;
@@ -407,7 +406,7 @@ class HNode {
             p.setX(m_rect.getTl().getX() + g_rounding + (m_rect.getWidth() - g_rounding * 2) / (a_leafNodeCount - getMaxLeafNodeIx() - 1) * (ix + 0.5f));
             a_imgui.addCircle(p, 3, COL32(175, 175, 175, a_alpha), 8, 1);
 
-            if (pointInCircle(mousePos, p, radius)) {
+            if (a_imgui.isInside(p, radius, mousePos)) {
                 ret = new Action();
                 ret.m_addDependencyAction = new Action.AddDependency();
                 ret.m_addDependencyAction.m_target = this;
@@ -421,7 +420,7 @@ class HNode {
             p.setY(m_rect.getTl().getY() + g_rounding + (m_rect.getHeight() - g_rounding * 2) / (a_leafNodeCount - getMaxLeafNodeIx() - 1) * (ix + 0.5f));
             a_imgui.addCircle(p, 3, COL32(175, 175, 175, a_alpha), 8, 1);
 
-            if (pointInCircle(mousePos, p, radius)) {
+            if (a_imgui.isInside(p, radius, mousePos)) {
                 ret = new Action();
                 ret.m_addDependencyAction = new Action.AddDependency();
                 ret.m_addDependencyAction.m_source = this;
@@ -435,7 +434,7 @@ class HNode {
             p.setY(m_rect.getTl().getY() + g_rounding + (m_rect.getHeight() - g_rounding * 2) / (getMinLeafNodeIx()) * (ix + 0.5f));
             a_imgui.addCircle(p, 3, COL32(175, 175, 175, a_alpha), 8, 1);
 
-            if (pointInCircle(mousePos, p, radius)) {
+            if (a_imgui.isInside(p, radius, mousePos)) {
                 ret = new Action();
                 ret.m_addDependencyAction = new Action.AddDependency();
                 ret.m_addDependencyAction.m_source = this;
@@ -444,10 +443,6 @@ class HNode {
         }
 
         return ret;
-    }
-
-    private boolean pointInCircle(Vec2 a_point, Vec2 a_cPoint, float a_cRad) {
-        return a_point.minus(a_cPoint).length2() < a_cRad * a_cRad;
     }
 
     void renderDependency(ImGuiWrapper a_imgui, HNode a_dest, final int a_leafNodeCount) {

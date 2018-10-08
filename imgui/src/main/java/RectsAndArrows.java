@@ -15,6 +15,10 @@ import se.lnu.siq.s4rdm3x.cmd.HuGMe;
 import uno.glfw.GlfwWindow;
 import uno.glfw.windowHint;
 
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import static imgui.ImguiKt.COL32;
@@ -97,6 +101,27 @@ public class RectsAndArrows {
         theArch.addComponent("mail");
         theArch.addComponent("bzip2");*/
 
+
+       /*
+        try {
+            FontConfig fc = new FontConfig();
+            byte[] bytes;
+            Class c = getClass();
+            ClassLoader cl = c.getClassLoader();
+            InputStream is = cl.getResourceAsStream("imgui/src/main/resources/fonts/Roboto-Medium.ttf");
+            bytes =  Files.readAllBytes(Paths.get("data/visuals/fonts/Roboto-Medium.ttf"));
+            char [] chars = new char[bytes.length];
+            for (int ix = 0; ix < chars.length; ix++) {
+                chars[ix] = (char)bytes[ix];
+            }
+
+            Font f = imgui.getIo().getFonts().addFontFromMemoryTTF(chars, 8, fc,new int[] {0x0020, 0x00FF} );
+            imgui.setCurrentFont(f);
+           // System.out.println("" + bytes[0]);
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        */
 
 
         window.loop(() -> {
@@ -354,7 +379,7 @@ public class RectsAndArrows {
         lwjglGlfw.newFrame();
 
         imgui.text("Hello, world!");                                // Display some text (you can use a format string too)
-        imgui.sliderFloat("float", f, 1f, 5f, "%.3f", 1f);       // Edit 1 float using a slider from 0.0f to 1.0f
+        imgui.sliderFloat("float", f, 0.25f, 5f, "%.3f", 1f);       // Edit 1 float using a slider from 0.0f to 1.0f
         imgui.getFont().setScale(f[0]);
         imgui.colorEdit3("clear color", clearColor, 0);               // Edit 3 floats representing a color
 
@@ -395,6 +420,10 @@ public class RectsAndArrows {
 
 
                 HRoot.Action action = root.render(r, imgui, m_vizState);
+
+                if (action != null && action.m_addComponent != null) {
+                    a_arch.addComponent(action.m_addComponent);
+                }
 
                 // we need to do resorting before renaming
                 if (action != null && action.m_nodeOrder != null) {

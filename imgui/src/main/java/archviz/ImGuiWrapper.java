@@ -1,14 +1,14 @@
 package archviz;
 
 import glm_.vec2.Vec2;
-import imgui.ImGui;
-import imgui.InputTextFlag;
-import imgui.WindowFlag;
+import glm_.vec4.Vec4;
+import imgui.*;
+import imgui.internal.Rect;
 
 import static imgui.ImguiKt.COL32;
 
 class ImGuiWrapper {
-    private ImGui m_imGui;
+    public ImGui m_imGui;
 
     protected static class DashContext {
         float m_remainingDrawLength;
@@ -175,10 +175,15 @@ class ImGuiWrapper {
         m_imGui.setCursorPos(textPos);
         m_imGui.pushItemWidth(a_width + m_imGui.getStyle().getFramePadding().getX() * 1 + m_imGui.getFontSize());   // we need to be a bit wider than *2 so that imgui does not make wonky things with the text x position
 
-        final boolean ret = m_imGui.inputText("", a_buffer, InputTextFlag.EnterReturnsTrue.getI());
+        boolean ret = m_imGui.inputText("", a_buffer, InputTextFlag.EnterReturnsTrue.getI());
 
+        // GLFW_KEY_KP_ENTER   335
+        if (m_imGui.isKeyDown(335)) {
+            ret = true;
+        }
         m_imGui.popItemWidth();
         if (ret) {
+
             return InputTextStatus.Done;
         }
 
@@ -241,6 +246,10 @@ class ImGuiWrapper {
         return m_imGui.isMouseClicked(a_button, a_doRepeat);
     }
 
+    boolean isMouseDown(int a_button) {
+        return m_imGui.isMouseDown(a_button);
+    }
+
     public Vec2 getMouseDragDelta(int a_button, float a_lockThreshold) {
         return m_imGui.getMouseDragDelta(a_button, 1.0f);
     }
@@ -251,5 +260,28 @@ class ImGuiWrapper {
 
     public void stopWindowDrag() {
         m_imGui.getCurrentWindow().setFlags(WindowFlag.NoMove.or(m_imGui.getCurrentWindow().getFlags()));
+    }
+
+    public boolean isInside(Vec2 a_center, float a_radius, Vec2 a_pos) {
+        if (m_imGui.getCurrentWindow().isActiveAndVisible() && m_imGui.isWindowHovered(HoveredFlag.RootWindow)) {
+            return a_center.minus(a_pos).length2() <= a_radius * a_radius;
+        }
+        return false;
+    }
+
+    public boolean isInside(Rect a_rect, Vec2 a_pos) {
+        if (m_imGui.getCurrentWindow().isActiveAndVisible() && m_imGui.isWindowHovered(HoveredFlag.RootWindow)) {
+            /*Vec4 clipRect = m_imGui.getCurrentWindow().getDrawList().getCurrentClipRect();
+            if (clipRect != null) {
+                return a_rect.contains(a_pos) && new Rect(clipRect).contains(a_pos);
+            }*/
+            return a_rect.contains(a_pos);
+        }
+
+        return false;
+    }
+
+    public boolean button(String a_text, float a_width) {
+        return m_imGui.button(a_text, new Vec2(a_width, 0));
     }
 }
