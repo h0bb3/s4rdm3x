@@ -3,23 +3,15 @@ package archviz;
 import glm_.vec2.Vec2;
 import glm_.vec4.Vec4;
 import imgui.*;
-import imgui.internal.DrawCornerFlag;
 import imgui.internal.Rect;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-
-import static imgui.ImguiKt.COL32;
 
 public class HRoot {
 
     public static class State {
-
-
-
-
 
 
         HNode.VisualsManager m_nvm = new HNode.VisualsManager();
@@ -40,12 +32,17 @@ public class HRoot {
             public String m_newName;
         }
         public static class HierarchyMove {
-            public ArrayList<NodeNamePair> m_nodes = new ArrayList<>();
+            private ArrayList<NodeNamePair> m_nodes = new ArrayList<>();
 
-            void addPair(NodeNamePair a_pair) {
+            void addPair(NodeNamePair a_pair, HNode.VisualsManager a_nvm) {
                 if (!a_pair.m_oldName.contentEquals(a_pair.m_newName)) {
+                    a_nvm.copyColorsToNewNode(a_pair.m_oldName, a_pair.m_newName);
                     m_nodes.add(a_pair);
                 }
+            }
+
+            public Iterable<NodeNamePair> getPairs() {
+                return m_nodes;
             }
         }
 
@@ -396,13 +393,13 @@ public class HRoot {
                 }
                 a_imgui.endTooltip();
 
-                action.m_addDependencyAction.m_source.renderDependency(a_imgui, action.m_addDependencyAction.m_target, m_leafNodeCounter);
+                action.m_addDependencyAction.m_source.renderDependency(a_imgui, action.m_addDependencyAction.m_target, m_leafNodeCounter, a_state.m_nvm);
 
                 if (a_imgui.isMouseClicked(0, false)) {
                     Action a = createDependencyAction(action.m_addDependencyAction.m_source, action.m_addDependencyAction.m_target, hasDependency);
 
                     // as we return we do this to avoid flicker...
-                    m_root.renderDependencies(a_imgui, m_leafNodeCounter);
+                    m_root.renderDependencies(a_imgui, m_leafNodeCounter, a_state.m_nvm);
                     return a;
                 }
             }
@@ -417,16 +414,16 @@ public class HRoot {
                     action.m_renameNodeAction.m_node.m_name = action.m_renameNodeAction.a_newName;
                     p.m_newName = n.getFullName();
                     action.m_renameNodeAction.m_node.m_name = originalName;
-                    a.m_hiearchyMove.m_nodes.add(p);
+                    a.m_hiearchyMove.addPair(p, a_state.m_nvm);
                 }
 
                 // as we return we do this to avoid flicker...
-                m_root.renderDependencies(a_imgui, m_leafNodeCounter);
+                m_root.renderDependencies(a_imgui, m_leafNodeCounter, a_state.m_nvm);
 
                 return a;
             }
         }
-        m_root.renderDependencies(a_imgui, m_leafNodeCounter);
+        m_root.renderDependencies(a_imgui, m_leafNodeCounter, a_state.m_nvm);
 
         if (a_state.m_dNd != null && !a_imgui.isMouseDragging(0, 1.0f)) {
             // convert g_dnd to action
@@ -460,7 +457,7 @@ public class HRoot {
                         pair.m_newName = strippedOldName;
                     }
 
-                    a.m_hiearchyMove.addPair(pair);
+                    a.m_hiearchyMove.addPair(pair, a_state.m_nvm);
                     System.out.println(pair.m_oldName + " -> " + pair.m_newName);
                 }
 
@@ -485,7 +482,7 @@ public class HRoot {
 
                     System.out.println(pair.m_oldName);
                     System.out.println(parentFullName);
-                    a.m_hiearchyMove.addPair(pair);
+                    a.m_hiearchyMove.addPair(pair, a_state.m_nvm);
                 }
 
                 a.m_nodeOrder = changeNodeOrder(a_imgui.getMousePos(), a_imgui, a_state.m_dNd);
@@ -556,7 +553,7 @@ public class HRoot {
                     if (parentName.length() > 0) {
                         parentName += ".";
                     }
-                    a.m_hiearchyMove.m_nodes.add(new Action.NodeNamePair(a_state.m_underPopUp.getFullName(), parentName + "virtual_" + m_root.countNodes() + "." + a_state.m_underPopUp.m_name));
+                    a.m_hiearchyMove.addPair(new Action.NodeNamePair(a_state.m_underPopUp.getFullName(), parentName + "virtual_" + m_root.countNodes() + "." + a_state.m_underPopUp.m_name), a_state.m_nvm);
                 }
                 if (a_state.m_underPopUp.m_name != null && a_imgui.m_imGui.menuItem("Delete " + a_state.m_underPopUp.m_name, "del", false, true)) {
                     a = new Action();
@@ -571,15 +568,22 @@ public class HRoot {
                 HNode.Visuals v = a_state.m_nvm.getNodeState(a_state.m_underPopUp);
                 if (v != null) {
                     a_imgui.m_imGui.separator();
-                    if (a_imgui.m_imGui.beginMenu("Set Color", true)) {
+                    if (a_imgui.m_imGui.beginMenu("Set Background Color", true)) {
 
-                        Vec4 col = v.m_color;
-                        a_imgui.m_imGui.colorEdit3("color", col, ColorEditFlag.PickerHueWheel.getI());
+                        Vec4 col = v.m_bgColor;
+                        a_imgui.m_imGui.colorEdit3("Pick Background Color", col, ColorEditFlag.PickerHueWheel.getI());
                         a_imgui.m_imGui.endMenu();
                     }
-                    if (a != null) {
-                        return a;
+                    if (a_imgui.m_imGui.beginMenu("Set Text Color", true)) {
+
+                        Vec4 col = v.m_textColor;
+                        a_imgui.m_imGui.colorEdit3("Pick Text Color", col, ColorEditFlag.PickerHueWheel.getI());
+                        a_imgui.m_imGui.endMenu();
                     }
+                }
+
+                if (a != null) {
+                    return a;
                 }
             } else {
                 a_state.m_underPopUp = null;

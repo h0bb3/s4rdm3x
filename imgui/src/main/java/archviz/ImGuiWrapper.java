@@ -215,7 +215,7 @@ class ImGuiWrapper {
     }
 
     public void addText(Vec2 a_pos, int a_color, String a_text) {
-        m_imGui.getWindowDrawList().addText(a_pos, COL32(175, 175, 175, 255), a_text.toCharArray(), a_text.length());
+        m_imGui.getWindowDrawList().addText(a_pos, a_color, a_text.toCharArray(), a_text.length());
     }
 
     public void addCircle(Vec2 a_center, float a_radius, int a_color, int a_segments, float a_thickness) {

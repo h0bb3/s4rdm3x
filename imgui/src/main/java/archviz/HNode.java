@@ -2,9 +2,6 @@ package archviz;
 
 import glm_.vec2.Vec2;
 import glm_.vec4.Vec4;
-import imgui.InputTextFlag;
-import imgui.StyleVar;
-import imgui.TextEditState;
 import imgui.internal.DrawCornerFlag;
 import imgui.internal.Rect;
 
@@ -13,7 +10,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 import static imgui.ImguiKt.COL32;
-import static imgui.ImguiKt.getNUL;
 
 class HNode {
 
@@ -54,25 +50,107 @@ class HNode {
     }
 
     static class Visuals {
-        Vec4 m_color = new Vec4(0.5, 0.5, 0.5, 1.0);
+        Vec4 m_bgColor = new Vec4(0.25, 0.25, 0.25, 1.0);
+        Vec4 m_textColor = new Vec4(0.85, 0.85, 0.85, 1.0);
+        Rect m_startRect;
+        Rect m_lastRenderedRect;
+        float m_timer;
 
-        int getIntColor(int a_alpha)  {
-            return COL32((int)(m_color.getX() * 255), (int)(m_color.getY() * 255), (int)(m_color.getZ() * 255), a_alpha);
+        boolean isEqual(Rect a_r1, Rect a_r2) {
+            Vec2 v1 = a_r1.getMax(), v2 = a_r2.getMax();
+
+            if (Math.abs(v1.getX() - v2.getX()) < 0.5 & Math.abs(v1.getY() - v2.getY()) < 0.5) {
+                v1 = a_r1.getMin(); v2 = a_r2.getMin();
+                if (Math.abs(v1.getX() - v2.getX()) < 0.5 & Math.abs(v1.getY() - v2.getY()) < 0.5) {
+                   return true;
+                }
+            }
+            return false;
+        }
+
+        void interpolateRect(float a_elapsedTime, Rect a_goal) {
+            final float timerStart = 1;
+            if (m_startRect == null || (m_timer < 0 && !isEqual(m_lastRenderedRect, a_goal))) {
+                if (m_startRect == null) {
+                    m_startRect = new Rect(a_goal.getCenter(), a_goal.getCenter());
+                    m_lastRenderedRect = new Rect(a_goal.getCenter(), a_goal.getCenter());
+                }
+                m_timer = timerStart;
+            } else {
+                m_timer -= a_elapsedTime;
+                if (m_timer <= 0) {
+                    m_lastRenderedRect.setMax(a_goal.getMax());
+                    m_lastRenderedRect.setMin(a_goal.getMin());
+
+                    m_startRect.setMax(a_goal.getMax());
+                    m_startRect.setMin(a_goal.getMin());
+
+                } else {
+                    float percent = 1.0f - (m_timer / timerStart);
+
+                    // smooth step it
+                    percent = (percent * percent * (3-2*percent));
+
+                    Vec2 maxDir = a_goal.getMax().minus(m_startRect.getMax());
+                    Vec2 minDir = a_goal.getMin().minus(m_startRect.getMin());
+
+                    m_lastRenderedRect.setMax(m_startRect.getMax().plus(maxDir.times(percent)));
+                    m_lastRenderedRect.setMin(m_startRect.getMin().plus(minDir.times(percent)));
+                }
+            }
+        }
+
+        int getBgColorAsInt(int a_alpha)  {
+            return getColorAsInt(m_bgColor, a_alpha);
+        }
+
+        int getTextColorAsInt(int a_alpha) {
+            return getColorAsInt(m_textColor, a_alpha);
+        }
+
+        private int getColorAsInt(Vec4 a_color, int a_alpha) {
+            return COL32((int)(a_color.getX() * 255), (int)(a_color.getY() * 255), (int)(a_color.getZ() * 255), a_alpha);
+        }
+
+        public void copyColors(Visuals a_v) {
+            m_bgColor = new Vec4(a_v.m_bgColor);
+            m_textColor = new Vec4(a_v.m_textColor);
         }
     }
+
 
     static class VisualsManager {
         HNode.Visuals addNew(HNode a_node) {
             HNode.Visuals ret = new HNode.Visuals();
+            copyColorsFromParent(a_node, ret);
             m_nodeState.put(a_node.getFullName(), ret);
-
-            ret.m_color = new Vec4(0.5, 0.5, 0.5, 1.0);
 
             return ret;
         }
 
+        private void copyColorsFromParent(HNode a_node, Visuals a_v) {
+            if (a_node.m_parent != null && a_node.m_parent.m_name != null) {
+                Visuals parentV = getNodeState(a_node.m_parent);
+                if (parentV != null) {
+                    a_v.copyColors(parentV);
+
+                } else {
+                    copyColorsFromParent(a_node.m_parent, a_v);
+                }
+            }
+        }
+
         HNode.Visuals getNodeState(HNode a_node) {
             return m_nodeState.get(a_node.getFullName());
+        }
+
+        public void copyColorsToNewNode(String a_from, String a_to) {
+            Visuals f = m_nodeState.get(a_from);
+            if (f != null) {
+                Visuals t = new Visuals();
+                t.copyColors(f);
+                m_nodeState.put(a_to, t);
+            }
         }
 
         HashMap<String, Visuals> m_nodeState = new HashMap<>();
@@ -320,7 +398,7 @@ class HNode {
 
                 Rect dragRect = new Rect(m_rect.getTl().plus(a_imgui.getMouseDragDelta(0, 1.0f)), m_rect.getBr().plus(a_imgui.getMouseDragDelta(0, 1.0f)));
 
-                a_imgui.addRect(dragRect.getTl(), dragRect.getBr(), COL32(175, 175, 175, 255), g_rounding, DrawCornerFlag.All.getI(), 2);
+                //a_imgui.addRect(dragRect.getTl(), dragRect.getBr(), COL32(175, 175, 175, 255), g_rounding, DrawCornerFlag.All.getI(), 2);
                 a_dnd = new DragNDropData();
                 a_dnd.m_dragRect = dragRect;
                 a_dnd.m_staleSourceNode = this;
@@ -343,16 +421,17 @@ class HNode {
                 v = a_nvm.addNew(this);
             }
 
+            //v.interpolateRect((float)a_imgui.m_imGui.getIo().getDeltaTime(), m_rect);
+            //a_imgui.addRectFilled(v.m_lastRenderedRect.getTl(), v.m_lastRenderedRect.getBr(), v.getBgColorAsInt(a_alpha), g_rounding, DrawCornerFlag.All.getI());
 
-            a_imgui.addRectFilled(m_rect.getTl(), m_rect.getBr(), v.getIntColor(a_alpha), g_rounding, DrawCornerFlag.All.getI());
+            a_imgui.addRectFilled(m_rect.getTl(), m_rect.getBr(), v.getBgColorAsInt(a_alpha), g_rounding, DrawCornerFlag.All.getI());
+
 
             if (m_parentNodeRepresentation) {
-                a_imgui.addDashedRect(m_rect.getTl(), m_rect.getBr(), COL32(175, 175, 175, a_alpha), 2, 5, 5, g_rounding);
+                a_imgui.addDashedRect(m_rect.getTl(), m_rect.getBr(), v.getTextColorAsInt(a_alpha), 2, 5, 5, g_rounding);
             } else {
-                a_imgui.addRect(m_rect.getTl(), m_rect.getBr(), COL32(175, 175, 175, a_alpha), g_rounding, DrawCornerFlag.All.getI(), 2);
+                a_imgui.addRect(m_rect.getTl(), m_rect.getBr(), v.getTextColorAsInt(a_alpha), g_rounding, DrawCornerFlag.All.getI(), 2);
             }
-
-
 
             Rect textRect = new Rect();
 
@@ -398,11 +477,11 @@ class HNode {
                     if (m_children.size() > 0) {
                         textPos.setY(m_rect.getTl().getY() + 3);
                     }
-                    a_imgui.addText(textPos, COL32(175, 175, 175, a_alpha), name);
+                    a_imgui.addText(textPos, v.getTextColorAsInt(a_alpha), name);
                 } break;
                 case None: {
 
-                    a_imgui.addText(textRect.getTl(), COL32(175, 175, 175, a_alpha), name);
+                    a_imgui.addText(textRect.getTl(), v.getTextColorAsInt(a_alpha), name);
                     if (textRect.contains(mousePos)) {
                         a_imgui.beginTooltip();
                         a_imgui.text(getFullName());
@@ -578,14 +657,23 @@ class HNode {
         return null;
     }
 
-    void renderDependency(ImGuiWrapper a_imgui, HNode a_dest, final int a_leafNodeCount) {
+    void renderDependency(ImGuiWrapper a_imgui, HNode a_dest, final int a_leafNodeCount, VisualsManager a_vm) {
         Vec2 sTL = m_rect.getTl();
         Vec2 sBR = m_rect.getBr();
         Vec2 sSize = m_rect.getSize();
-        final int color = COL32(175, 175, 175, 255);
+
         Vec2 dTL = a_dest.m_rect.getTl();
         Vec2 dBR = a_dest.m_rect.getBr();
         Vec2 dSize = a_dest.m_rect.getSize();
+
+        float lineThickness = 2.0f;
+
+        Visuals v = a_vm.getNodeState(this);
+        if (v == null) {
+            v = a_vm.addNew(this);
+        }
+        int color = v.getTextColorAsInt(255);
+
 
         if (sBR.getX() <= dTL.getX()) {
             Vec2 p1, p2;
@@ -598,18 +686,18 @@ class HNode {
             p2.setX(dTL.getX() + g_rounding + ((dSize.getX() -  g_rounding * 2) / a_dest.getMinLeafNodeIx()) * (a_dest.getMinLeafNodeIx() - getMaxLeafNodeIx() - 0.5f));
 
             p2.setY(p1.getY());
-            a_imgui.addLine(p1, p2, color, 1.0f);
+            a_imgui.addLine(p1, p2, color, lineThickness);
 
 
             p1.setX(p2.getX()); p1.setY(dTL.getY());
-            a_imgui.addLine(p2, p1, color, 1.0f);
+            a_imgui.addLine(p2, p1, color, lineThickness);
 
             p2.setX(p1.getX() - 5);
             p2.setY(p1.getY() - 10);
-            a_imgui.addLine(p1, p2, color, 1.0f);
+            a_imgui.addLine(p1, p2, color, lineThickness);
 
             p2.setX(p1.getX() + 5);
-            a_imgui.addLine(p1, p2, color, 1.0f);
+            a_imgui.addLine(p1, p2, color, lineThickness);
 
         } else {
             Vec2 p1, p2;
@@ -621,30 +709,30 @@ class HNode {
             p2 = new Vec2();
             p2.setX(dBR.getX() - g_rounding - (dSize.getX() - g_rounding * 2) / (a_leafNodeCount - a_dest.getMaxLeafNodeIx() - 1) * (getMinLeafNodeIx() - a_dest.getMaxLeafNodeIx() - 1 + 0.5f));
             p2.setY(p1.getY());
-            a_imgui.addLine(p1, p2, color, 1.0f);
+            a_imgui.addLine(p1, p2, color, lineThickness);
 
 
             p1.setX(p2.getX()); p1.setY(dBR.getY());
-            a_imgui.addLine(p2, p1, color, 1.0f);
+            a_imgui.addLine(p2, p1, color, lineThickness);
 
             p2.setX(p1.getX() - 5);
             p2.setY(p1.getY() + 10);
-            a_imgui.addLine(p1, p2, color, 1.0f);
+            a_imgui.addLine(p1, p2, color, lineThickness);
 
             p2.setX(p1.getX() + 5);
-            a_imgui.addLine(p1, p2, color, 1.0f);
+            a_imgui.addLine(p1, p2, color, lineThickness);
         }
 
     }
 
-    void renderDependencies(ImGuiWrapper a_imgui, final int a_leafNodeCount) {
+    void renderDependencies(ImGuiWrapper a_imgui, final int a_leafNodeCount, VisualsManager a_vm) {
 
         for(HNode dest : m_dependencies) {
-            renderDependency(a_imgui, dest, a_leafNodeCount);
+            renderDependency(a_imgui, dest, a_leafNodeCount, a_vm);
         }
 
         for (HNode c : m_children) {
-            c.renderDependencies(a_imgui, a_leafNodeCount);
+            c.renderDependencies(a_imgui, a_leafNodeCount, a_vm);
         }
     }
 

@@ -93,7 +93,7 @@ class DragNDrop {
         HRoot.Action a = doDrag(cut, n2, n1);
 
         HRoot.Action.NodeNamePair[] expected = {new HRoot.Action.NodeNamePair("n2", "n1.n2")};
-        Assertions.assertTrue(checkPairSetEquality(expected, a.m_hiearchyMove.m_nodes));
+        Assertions.assertTrue(checkPairSetEquality(expected, a.m_hiearchyMove.getPairs()));
 
 
     }
@@ -110,7 +110,7 @@ class DragNDrop {
         HRoot.Action a = doDrag(cut, n1, n2);
 
         HRoot.Action.NodeNamePair[] expected = {new HRoot.Action.NodeNamePair("n1", "n2.n1")};
-        Assertions.assertTrue(checkPairSetEquality(expected, a.m_hiearchyMove.m_nodes));
+        Assertions.assertTrue(checkPairSetEquality(expected, a.m_hiearchyMove.getPairs()));
     }
 
     @Test
@@ -126,7 +126,7 @@ class DragNDrop {
         HRoot.Action a = doDrag(cut, n3, client);
 
         HRoot.Action.NodeNamePair[] expected = {new HRoot.Action.NodeNamePair("n3", "client.n3")};
-        Assertions.assertTrue(checkPairSetEquality(expected, a.m_hiearchyMove.m_nodes));
+        Assertions.assertTrue(checkPairSetEquality(expected, a.m_hiearchyMove.getPairs()));
     }
 
     @Test
@@ -141,7 +141,7 @@ class DragNDrop {
         HRoot.Action a = doDrag(cut, c_n1, null);
 
         HRoot.Action.NodeNamePair[] expected = {new HRoot.Action.NodeNamePair("client.n1", "n1")};
-        Assertions.assertTrue(checkPairSetEquality(expected, a.m_hiearchyMove.m_nodes));
+        Assertions.assertTrue(checkPairSetEquality(expected, a.m_hiearchyMove.getPairs()));
     }
 
     @Test
@@ -158,7 +158,7 @@ class DragNDrop {
         HRoot.Action a = doDrag(cut, n1, null);
 
         HRoot.Action.NodeNamePair[] expected = {new HRoot.Action.NodeNamePair("client.n1", "n1")};
-        Assertions.assertTrue(checkPairSetEquality(expected, a.m_hiearchyMove.m_nodes));
+        Assertions.assertTrue(checkPairSetEquality(expected, a.m_hiearchyMove.getPairs()));
     }
 
     @Test
@@ -175,7 +175,7 @@ class DragNDrop {
         HRoot.Action.NodeNamePair[] expected = {new HRoot.Action.NodeNamePair("client.n1", "n4.client.n1"),
                 new HRoot.Action.NodeNamePair("client.n2", "n4.client.n2")};
 
-        Assertions.assertTrue(checkPairSetEquality(expected, a.m_hiearchyMove.m_nodes));
+        Assertions.assertTrue(checkPairSetEquality(expected, a.m_hiearchyMove.getPairs()));
     }
 
     @Test
@@ -194,7 +194,7 @@ class DragNDrop {
                 new HRoot.Action.NodeNamePair("client.n2", "n4.client.n2"),
                 new HRoot.Action.NodeNamePair("client", "n4.client")};
 
-        Assertions.assertTrue(checkPairSetEquality(expected, a.m_hiearchyMove.m_nodes));
+        Assertions.assertTrue(checkPairSetEquality(expected, a.m_hiearchyMove.getPairs()));
     }
 
     @Test
@@ -246,7 +246,7 @@ class DragNDrop {
         HRoot.Action.NodeNamePair[] expected = {new HRoot.Action.NodeNamePair("client.n1", "server.client.n1"),
                 new HRoot.Action.NodeNamePair("client.n2", "server.client.n2")};
 
-        Assertions.assertTrue(checkPairSetEquality(expected, a.m_hiearchyMove.m_nodes));
+        Assertions.assertTrue(checkPairSetEquality(expected, a.m_hiearchyMove.getPairs()));
     }
 
     private Vec2 getSafePos(HNode a_node) {
@@ -274,7 +274,7 @@ class DragNDrop {
                 new HRoot.Action.NodeNamePair("client.n2", "server.client.n2"),
                 new HRoot.Action.NodeNamePair("client", "server.client")};
 
-        Assertions.assertTrue(checkPairSetEquality(expected, a.m_hiearchyMove.m_nodes));
+        Assertions.assertTrue(checkPairSetEquality(expected, a.m_hiearchyMove.getPairs()));
     }
 
     @Test
@@ -293,10 +293,10 @@ class DragNDrop {
                 new HRoot.Action.NodeNamePair("client.n1.n2.n4", "n2.n4"),
                 new HRoot.Action.NodeNamePair("client.n1.n2", "n2")};
 
-        Assertions.assertTrue(checkPairSetEquality(expected, a.m_hiearchyMove.m_nodes));
+        Assertions.assertTrue(checkPairSetEquality(expected, a.m_hiearchyMove.getPairs()));
     }
 
-    boolean checkPairSetEquality(HRoot.Action.NodeNamePair[] a_expected, ArrayList<HRoot.Action.NodeNamePair> a_actual) {
+    boolean checkPairSetEquality(HRoot.Action.NodeNamePair[] a_expected, Iterable<HRoot.Action.NodeNamePair> a_actual) {
 
 
         for (HRoot.Action.NodeNamePair exp : a_expected) {
@@ -367,7 +367,9 @@ class DragNDrop {
         cut.add("client.n5");
 
         HRoot.Action a = doDrag(cut, clientConcrete, null);
-        assertEquals(0, a.m_hiearchyMove.m_nodes.size());
+        ArrayList<Integer> l = new ArrayList<>();
+        a.m_hiearchyMove.getPairs().forEach( p -> {l.add(1);});
+        assertEquals(0, l.size());
 
     }
 
@@ -388,7 +390,7 @@ class DragNDrop {
                                                 new HRoot.Action.NodeNamePair("client.n1.n2.n3", "client.n2.n3"),
                                                 new HRoot.Action.NodeNamePair("client.n1.n2.n4", "client.n2.n4")};
 
-        Assertions.assertTrue(checkPairSetEquality(expected, a.m_hiearchyMove.m_nodes));
+        Assertions.assertTrue(checkPairSetEquality(expected, a.m_hiearchyMove.getPairs()));
     }
 
     @Test
@@ -406,7 +408,7 @@ class DragNDrop {
 
         HRoot.Action.NodeNamePair[] expected = {new HRoot.Action.NodeNamePair("n2.client.n1", "client.n1")};
 
-        Assertions.assertTrue(checkPairSetEquality(expected, a.m_hiearchyMove.m_nodes));
+        Assertions.assertTrue(checkPairSetEquality(expected, a.m_hiearchyMove.getPairs()));
     }
 
 

@@ -446,7 +446,7 @@ public class RectsAndArrows {
 
                 // add dependenices
                 if (action != null && action.m_addDependenices != null) {
-                    for(HRoot.Action.NodeNamePair pair : action.m_addDependenices.m_nodes) {
+                    for(HRoot.Action.NodeNamePair pair : action.m_addDependenices.getPairs()) {
                         HuGMe.ArchDef.Component sC = a_arch.getComponent(pair.m_oldName);
                         HuGMe.ArchDef.Component tC = a_arch.getComponent(pair.m_newName);
                         if (tC == null) {
@@ -461,7 +461,7 @@ public class RectsAndArrows {
 
                 // remove dependenices
                 if (action != null && action.m_removeDependencies != null) {
-                    for(HRoot.Action.NodeNamePair pair : action.m_removeDependencies.m_nodes) {
+                    for(HRoot.Action.NodeNamePair pair : action.m_removeDependencies.getPairs()) {
                         HuGMe.ArchDef.Component sC = a_arch.getComponent(pair.m_oldName);
                         HuGMe.ArchDef.Component tC = a_arch.getComponent(pair.m_newName);
                         if (tC == null) {
@@ -476,7 +476,7 @@ public class RectsAndArrows {
 
                 // node renaming
                 if (action != null && action.m_hiearchyMove != null) {
-                    for(HRoot.Action.NodeNamePair pair : action.m_hiearchyMove.m_nodes) {
+                    for(HRoot.Action.NodeNamePair pair : action.m_hiearchyMove.getPairs()) {
                         HuGMe.ArchDef.Component c = a_arch.getComponent(pair.m_oldName);
                         if (c == null) {
                             System.out.println("Could not find component named: " + pair.m_oldName);
