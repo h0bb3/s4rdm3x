@@ -71,4 +71,16 @@ public class ImGuiNullWrapper extends ImGuiWrapper {
     public boolean isInside(Rect a_rect, Vec2 a_pos) {return false; }
 
     public boolean isInside(Vec2 a_center, float a_radius, Vec2 a_pos) {return false;}
+
+    public boolean beginPopupContextWindow(String a_strId, int a_mouseButton, boolean a_alsoOverItems) {
+        return false;
+    }
+
+    public void closeCurrentPopup() {
+    }
+
+    public void endPopup() {
+    }
+
+
 }

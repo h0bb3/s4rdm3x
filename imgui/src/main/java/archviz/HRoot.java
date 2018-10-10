@@ -1,15 +1,28 @@
 package archviz;
 
 import glm_.vec2.Vec2;
+import glm_.vec4.Vec4;
 import imgui.*;
+import imgui.internal.DrawCornerFlag;
 import imgui.internal.Rect;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+
+import static imgui.ImguiKt.COL32;
 
 public class HRoot {
 
     public static class State {
+
+
+
+
+
+
+        HNode.VisualsManager m_nvm = new HNode.VisualsManager();
         HNode.NodeNameEdit m_nne = new HNode.NodeNameEdit();
         HNode.DragNDropData m_dNd = null;
         HNode m_underPopUp = null;
@@ -42,7 +55,7 @@ public class HRoot {
         public HierarchyMove m_removeDependencies;
 
         public String m_addComponent;
-        public String m_deleteComponent;
+        public ArrayList<String> m_deletedComponents;
     }
 
 
@@ -171,8 +184,8 @@ public class HRoot {
         if (a_names.length == 1) {
             // the child may already exist
             for (HNode c : a_parent.m_children) {
-                if (c.m_name.contentEquals(a_names[0])) {
-                    // we are adding a children to a concrete node
+                if (c.m_name.contentEquals(a_names[0]) && !c.isParentNodeRepresentation()) {
+                    // we are adding a children to a virtual node so add the concrete node representaion
                     if (c.m_children.size() > 0) {
                         HNode n = new HNode();
                         n.m_name = c.m_name;
@@ -182,7 +195,6 @@ public class HRoot {
                     }
                     return c;
                 }
-
             }
             if (a_parent.isConcreteNode() && a_parent.m_children.size() == 0) {
                 addNode(a_parent.m_name, a_parent).setToParentNodeRepresentation();   // add the leaf that represent the parent
@@ -346,6 +358,8 @@ public class HRoot {
         HNode.Action action;
         m_leafNodeCounter = m_root.assignRenderOrderLeafNodeIx(0);  // leaf node indices need to be in rendering order and not in adding order.
 
+        // fix aney missing states
+
         /*
 
             targetLayOut = m_root.calculateLayout(a_rect, m_leadNodeCount);
@@ -359,20 +373,20 @@ public class HRoot {
 
          */
 
-        action = m_root.render(a_rect, a_imgui, m_leafNodeCounter, 255, a_state.m_nne);
+        action = m_root.render(a_rect, a_imgui, m_leafNodeCounter, 255, a_state.m_nvm, a_state.m_nne);
         if (action != null) {
             if (action.m_addDependencyAction != null) {
 
                 action.m_addDependencyAction.m_source = action.m_addDependencyAction.m_source != null ? action.m_addDependencyAction.m_source : m_root.findLeafNode(action.m_addDependencyAction.m_ix);
                 action.m_addDependencyAction.m_target = action.m_addDependencyAction.m_target != null ? action.m_addDependencyAction.m_target : m_root.findLeafNode(action.m_addDependencyAction.m_ix);
 
-                boolean hasDependency = false;
-                for (HNode d : action.m_addDependencyAction.m_source.m_dependencies) {
+                boolean hasDependency = action.m_addDependencyAction.m_source.hasDependencyTo(action.m_addDependencyAction.m_target);
+                /*for (HNode d : action.m_addDependencyAction.m_source.m_dependencies) {
                     if (d == action.m_addDependencyAction.m_target) {
                         hasDependency = true;
                         break;
                     }
-                }
+                }*/
 
                 a_imgui.beginTooltip();
                 if (!hasDependency) {
@@ -385,23 +399,7 @@ public class HRoot {
                 action.m_addDependencyAction.m_source.renderDependency(a_imgui, action.m_addDependencyAction.m_target, m_leafNodeCounter);
 
                 if (a_imgui.isMouseClicked(0, false)) {
-                    Action a = new Action();
-                    ArrayList<Action.NodeNamePair> pairs;
-                    if (!hasDependency) {
-                        a.m_addDependenices = new Action.HierarchyMove();
-                        pairs = a.m_addDependenices.m_nodes;
-                    } else {
-                        a.m_removeDependencies = new Action.HierarchyMove();
-                        pairs = a.m_removeDependencies.m_nodes;
-                    }
-                    for (HNode sN : action.m_addDependencyAction.m_source.getConcreteNodes()) {
-                        for (HNode tN : action.m_addDependencyAction.m_target.getConcreteNodes()) {
-                            Action.NodeNamePair p = new Action.NodeNamePair();
-                            p.m_oldName = sN.getFullName();
-                            p.m_newName = tN.getFullName();
-                            pairs.add(p);
-                        }
-                    }
+                    Action a = createDependencyAction(action.m_addDependencyAction.m_source, action.m_addDependencyAction.m_target, hasDependency);
 
                     // as we return we do this to avoid flicker...
                     m_root.renderDependencies(a_imgui, m_leafNodeCounter);
@@ -500,10 +498,16 @@ public class HRoot {
                // changeNodeOrder(a_imgui.getMousePos(), a_imgui);
             }
             a_state.m_dNd = m_root.doDragNDrop(a_imgui, a_state.m_dNd);
+            if (a_state.m_dNd != null) {
+
+                Rect drawRect = new Rect(a_state.m_dNd.m_dragRect.getTl().plus(a_imgui.getMouseDragDelta(0, 1.0f)), a_state.m_dNd.m_dragRect.getBr().plus(a_imgui.getMouseDragDelta(0, 1.0f)));
+                //a_imgui.addRect(drawRect.getTl(), drawRect.getBr(), COL32(175, 175, 175, 255), g_rounding, DrawCornerFlag.All.getI(), 2);
+                a_state.m_dNd.m_staleSourceNode.render(drawRect, a_imgui, a_state.m_dNd.m_staleSourceNode.getLeafNodeCount(), 100, a_state.m_nvm, new HNode.NodeNameEdit());
+            }
         }
 
         //if (a_imgui.isMouseDown(1)) {
-            if (a_imgui.m_imGui.beginPopupContextWindow("popup", 1, true)) {
+            if (a_imgui.beginPopupContextWindow("popup", 1, true)) {
                 a_state.m_dNd = null;
                 Action a = null;
                 if (a_state.m_underPopUp == null) {
@@ -511,23 +515,71 @@ public class HRoot {
                     if (a_state.m_underPopUp == null) {
                         a_state.m_underPopUp = m_root;
                     }
+                    //if (a_state.m_underPopUp.isParentNodeRepresentation()) {
+                    //    a_state.m_underPopUp = a_state.m_underPopUp.m_parent;
+                    //}
                 }
-                if (a_imgui.button("Add Component", 150)) {
+
+                if (a_state.m_underPopUp.m_name != null && a_imgui.m_imGui.beginMenu("Manage Dependencies", true)) {
+                    HNode to = m_root.doNameMenu(a_imgui, a_state.m_underPopUp);
+                    if (to != null)  {
+                        //a = new Action();
+                        boolean addDependency = a_state.m_underPopUp.hasDependencyTo(to);
+                        /*for (HNode n : a_state.m_underPopUp.m_dependencies) {
+                            if (to.getFullName().contentEquals(n.getFullName())) {
+                                addDependency = true;
+                            }
+                        }*/
+
+                        a = createDependencyAction(a_state.m_underPopUp, to, addDependency);
+
+                    }
+
+                    a_imgui.m_imGui.endMenu();
+                }
+
+                if (a_imgui.m_imGui.menuItem("Add Component", "CTRL+A", false, true)) {
                     a = new Action();
 
                     a.m_addComponent = a_state.m_underPopUp.getFullName();
                     if (a.m_addComponent.length() > 0) {
                         a.m_addComponent += ".";
                     }
-                    a.m_addComponent += "component_" + m_leafNodeCounter;
-                    a_imgui.m_imGui.closeCurrentPopup();
+                    a.m_addComponent += "component_" + m_root.countNodes();
+                    //a_imgui.closeCurrentPopup();
                 }
-                if (a_state.m_underPopUp.m_name != null && a_imgui.button("Delete " + a_state.m_underPopUp.m_name, 150)) {
-                    a_imgui.m_imGui.closeCurrentPopup();
+                if (a_state.m_underPopUp.m_name != null && a_imgui.m_imGui.menuItem("Add Parent", "", false, true)) {
+                    a = new Action();
+
+                    a.m_hiearchyMove = new Action.HierarchyMove();
+                    String parentName = a_state.m_underPopUp.m_parent.getFullName();
+                    if (parentName.length() > 0) {
+                        parentName += ".";
+                    }
+                    a.m_hiearchyMove.m_nodes.add(new Action.NodeNamePair(a_state.m_underPopUp.getFullName(), parentName + "virtual_" + m_root.countNodes() + "." + a_state.m_underPopUp.m_name));
                 }
-                a_imgui.m_imGui.endPopup();
-                if (a != null) {
-                    return a;
+                if (a_state.m_underPopUp.m_name != null && a_imgui.m_imGui.menuItem("Delete " + a_state.m_underPopUp.m_name, "del", false, true)) {
+                    a = new Action();
+                    a.m_deletedComponents = new ArrayList<>();
+
+                    for (HNode n : a_state.m_underPopUp.getConcreteNodes()) {
+                        a.m_deletedComponents.add(n.getFullName());
+                    }
+
+                }
+
+                HNode.Visuals v = a_state.m_nvm.getNodeState(a_state.m_underPopUp);
+                if (v != null) {
+                    a_imgui.m_imGui.separator();
+                    if (a_imgui.m_imGui.beginMenu("Set Color", true)) {
+
+                        Vec4 col = v.m_color;
+                        a_imgui.m_imGui.colorEdit3("color", col, ColorEditFlag.PickerHueWheel.getI());
+                        a_imgui.m_imGui.endMenu();
+                    }
+                    if (a != null) {
+                        return a;
+                    }
                 }
             } else {
                 a_state.m_underPopUp = null;
@@ -535,6 +587,28 @@ public class HRoot {
         //}
 
         return null;
+    }
+
+    @NotNull
+    private Action createDependencyAction(HNode a_source, HNode a_target, boolean a_doAdd) {
+        Action a = new Action();
+        ArrayList<Action.NodeNamePair> pairs;
+        if (!a_doAdd) {
+            a.m_addDependenices = new Action.HierarchyMove();
+            pairs = a.m_addDependenices.m_nodes;
+        } else {
+            a.m_removeDependencies = new Action.HierarchyMove();
+            pairs = a.m_removeDependencies.m_nodes;
+        }
+        for (HNode sN : a_source.getConcreteNodes()) {
+            for (HNode tN : a_target.getConcreteNodes()) {
+                Action.NodeNamePair p = new Action.NodeNamePair();
+                p.m_oldName = sN.getFullName();
+                p.m_newName = tN.getFullName();
+                pairs.add(p);
+            }
+        }
+        return a;
     }
 
     HNode m_root = new HNode();

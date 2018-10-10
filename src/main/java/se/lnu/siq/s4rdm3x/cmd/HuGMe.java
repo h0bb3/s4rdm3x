@@ -21,6 +21,10 @@ public class HuGMe {
             m_components = new ArrayList<>();
         }
 
+        public void removeComponent(Component a_component) {
+            m_components.remove(a_component);
+        }
+
         public static class Component {
             private String m_name;
             private ArrayList<Component> m_allowedDependenciesTo;

@@ -10,6 +10,18 @@ import static imgui.ImguiKt.COL32;
 class ImGuiWrapper {
     public ImGui m_imGui;
 
+    public boolean beginPopupContextWindow(String a_strId, int a_mouseButton, boolean a_alsoOverItems) {
+        return m_imGui.beginPopupContextWindow(a_strId, a_mouseButton, a_alsoOverItems);
+    }
+
+    public void closeCurrentPopup() {
+        m_imGui.closeCurrentPopup();
+    }
+
+    public void endPopup() {
+        m_imGui.endPopup();
+    }
+
     protected static class DashContext {
         float m_remainingDrawLength;
         int m_ix;

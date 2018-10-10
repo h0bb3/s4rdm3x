@@ -1,6 +1,7 @@
 package archviz;
 
 import glm_.vec2.Vec2;
+import glm_.vec4.Vec4;
 import imgui.InputTextFlag;
 import imgui.StyleVar;
 import imgui.TextEditState;
@@ -9,6 +10,7 @@ import imgui.internal.Rect;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 import static imgui.ImguiKt.COL32;
 import static imgui.ImguiKt.getNUL;
@@ -49,6 +51,31 @@ class HNode {
         Rect m_dragRect;
         HNode m_staleSourceNode;
         HNode m_target;
+    }
+
+    static class Visuals {
+        Vec4 m_color = new Vec4(0.5, 0.5, 0.5, 1.0);
+
+        int getIntColor(int a_alpha)  {
+            return COL32((int)(m_color.getX() * 255), (int)(m_color.getY() * 255), (int)(m_color.getZ() * 255), a_alpha);
+        }
+    }
+
+    static class VisualsManager {
+        HNode.Visuals addNew(HNode a_node) {
+            HNode.Visuals ret = new HNode.Visuals();
+            m_nodeState.put(a_node.getFullName(), ret);
+
+            ret.m_color = new Vec4(0.5, 0.5, 0.5, 1.0);
+
+            return ret;
+        }
+
+        HNode.Visuals getNodeState(HNode a_node) {
+            return m_nodeState.get(a_node.getFullName());
+        }
+
+        HashMap<String, Visuals> m_nodeState = new HashMap<>();
     }
 
     static class NodeNameEdit {
@@ -104,6 +131,15 @@ class HNode {
         }
     }
 
+    public int countNodes() {
+        int sum = m_name == null ? 0 : 1;
+        for (HNode n : m_children) {
+            sum += n.countNodes();
+        }
+
+        return sum;
+    }
+
     public int assignRenderOrderLeafNodeIx(int a_ix) {
         if (m_children.size() == 0) {
             m_leafNodeIx = a_ix;
@@ -154,18 +190,30 @@ class HNode {
         }
     }
 
-    void getParentNodePath(ArrayList<HNode> a_outPath) {
-        if (m_parent != null) {
-            m_parent.getParentNodePath(a_outPath);
-        }
-        a_outPath.add(this);
-    }
-
     Iterable<HNode> getConcreteNodes() {
         ArrayList<HNode> ret = new ArrayList<>();
         getConcreteNodes(ret);
         return ret;
     }
+
+    private void getAllNodes(ArrayList<HNode> a_nodes) {
+        if (m_children.size() > 0) {
+            for (HNode c : m_children) {
+                c.getConcreteNodes(a_nodes);
+            }
+        }
+
+        if (m_name != null) {
+            a_nodes.add(this);
+        }
+    }
+
+    Iterable<HNode> getAllNodes() {
+        ArrayList<HNode> ret = new ArrayList<>();
+        getAllNodes(ret);
+        return ret;
+    }
+
 
     HNode findLeafNode(int a_ix) {
         if (m_leafNodeIx == a_ix) {
@@ -239,15 +287,6 @@ class HNode {
         Vec2 mousePos = a_imgui.getMousePos();
         if (m_parentNodeRepresentation != true && a_dnd != null && a_imgui.isMouseDragging(0, 1.0f)) {
             a_dnd.m_target = getNodeUnder(mousePos);
-            /*a_imgui.beginTooltip();
-            String targetStr = a_dnd.m_target != null ? " into " + a_dnd.m_target.getFullName() : "";
-            a_imgui.text("Dragging " + a_dnd.m_staleSourceNode.getFullName() + targetStr);
-            a_imgui.endTooltip();*/
-            Rect drawRect = new Rect(a_dnd.m_dragRect.getTl().plus(a_imgui.getMouseDragDelta(0, 1.0f)), a_dnd.m_dragRect.getBr().plus(a_imgui.getMouseDragDelta(0, 1.0f)));
-
-            a_dnd.m_staleSourceNode.render(drawRect, a_imgui, a_dnd.m_staleSourceNode.getLeafNodeCount(), 100, new NodeNameEdit());
-            a_imgui.addRect(drawRect.getTl(), drawRect.getBr(), COL32(175, 175, 175, 255), g_rounding, DrawCornerFlag.All.getI(), 2);
-
 
             return a_dnd;
         }
@@ -292,14 +331,20 @@ class HNode {
         return null;
     }
 
-    Action render(Rect a_area, ImGuiWrapper a_imgui, final int a_leafNodeCount, int a_alpha, NodeNameEdit a_nne) {
+    Action render(Rect a_area, ImGuiWrapper a_imgui, final int a_leafNodeCount, int a_alpha, VisualsManager a_nvm, NodeNameEdit a_nne) {
         m_rect = new Rect(a_area);
         Action ret = null;
         Vec2 mousePos = a_imgui.getMousePos();
         Rect childArea = new Rect(m_rect);
         if (m_name != null) {
 
-            a_imgui.addRectFilled(m_rect.getTl(), m_rect.getBr(), COL32(75, 75, 75, a_alpha), g_rounding, DrawCornerFlag.All.getI());
+            Visuals v = a_nvm.getNodeState(this);
+            if (v == null) {
+                v = a_nvm.addNew(this);
+            }
+
+
+            a_imgui.addRectFilled(m_rect.getTl(), m_rect.getBr(), v.getIntColor(a_alpha), g_rounding, DrawCornerFlag.All.getI());
 
             if (m_parentNodeRepresentation) {
                 a_imgui.addDashedRect(m_rect.getTl(), m_rect.getBr(), COL32(175, 175, 175, a_alpha), 2, 5, 5, g_rounding);
@@ -378,7 +423,7 @@ class HNode {
             HNode child = m_children.get(ix);
             Rect childRect = new Rect(childArea.getTl().plus(size.times(consumedLeafNodes)), childArea.getTl().plus(size.times(consumedLeafNodes + child.getLeafNodeCount())));
             Action childAction;
-            childAction = child.render(childRect, a_imgui, a_leafNodeCount, a_alpha, a_nne);
+            childAction = child.render(childRect, a_imgui, a_leafNodeCount, a_alpha, a_nvm, a_nne);
             if (ret == null) {
                 ret = childAction;
             }
@@ -391,58 +436,146 @@ class HNode {
             Vec2 p = new Vec2();
             p.setY(m_rect.getTl().getY());
             p.setX(m_rect.getTl().getX() + g_rounding + (m_rect.getWidth() - g_rounding * 2) / (getMinLeafNodeIx()) * (ix + 0.5f));
-            a_imgui.addCircle(p, radius, COL32(175, 175, 175, a_alpha), 8, 1);
+            /*a_imgui.addCircle(p, radius, COL32(175, 175, 175, a_alpha), 8, 1);
             if (a_imgui.isInside(p, radius, mousePos)) {
                 ret = new Action();
                 ret.m_addDependencyAction = new Action.AddDependency();
                 ret.m_addDependencyAction.m_target = this;
                 ret.m_addDependencyAction.m_ix = getMinLeafNodeIx() - 1 - ix;
-            }
+            }*/
         }
 
         for (int ix = 0; ix < a_leafNodeCount - getMaxLeafNodeIx() - 1; ix++) {
             Vec2 p = new Vec2();
             p.setY(m_rect.getBr().getY());
             p.setX(m_rect.getTl().getX() + g_rounding + (m_rect.getWidth() - g_rounding * 2) / (a_leafNodeCount - getMaxLeafNodeIx() - 1) * (ix + 0.5f));
-            a_imgui.addCircle(p, 3, COL32(175, 175, 175, a_alpha), 8, 1);
-
+            /*a_imgui.addCircle(p, 3, COL32(175, 175, 175, a_alpha), 8, 1);
             if (a_imgui.isInside(p, radius, mousePos)) {
                 ret = new Action();
                 ret.m_addDependencyAction = new Action.AddDependency();
                 ret.m_addDependencyAction.m_target = this;
                 ret.m_addDependencyAction.m_ix = a_leafNodeCount - ix - 1;
-            }
+            }*/
         }
 
         for (int ix = 0; ix < a_leafNodeCount - getMaxLeafNodeIx() - 1; ix++) {
             Vec2 p = new Vec2();
             p.setX(m_rect.getBr().getX());
             p.setY(m_rect.getTl().getY() + g_rounding + (m_rect.getHeight() - g_rounding * 2) / (a_leafNodeCount - getMaxLeafNodeIx() - 1) * (ix + 0.5f));
-            a_imgui.addCircle(p, 3, COL32(175, 175, 175, a_alpha), 8, 1);
+            /*a_imgui.addCircle(p, 3, COL32(175, 175, 175, a_alpha), 8, 1);
 
             if (a_imgui.isInside(p, radius, mousePos)) {
                 ret = new Action();
                 ret.m_addDependencyAction = new Action.AddDependency();
                 ret.m_addDependencyAction.m_source = this;
                 ret.m_addDependencyAction.m_ix = a_leafNodeCount - 1 - ix;
-            }
+            }*/
         }
 
         for (int ix = 0; ix < getMinLeafNodeIx(); ix++) {
             Vec2 p = new Vec2();
             p.setX(m_rect.getTl().getX());
             p.setY(m_rect.getTl().getY() + g_rounding + (m_rect.getHeight() - g_rounding * 2) / (getMinLeafNodeIx()) * (ix + 0.5f));
-            a_imgui.addCircle(p, 3, COL32(175, 175, 175, a_alpha), 8, 1);
+            /*a_imgui.addCircle(p, 3, COL32(175, 175, 175, a_alpha), 8, 1);
 
             if (a_imgui.isInside(p, radius, mousePos)) {
                 ret = new Action();
                 ret.m_addDependencyAction = new Action.AddDependency();
                 ret.m_addDependencyAction.m_source = this;
                 ret.m_addDependencyAction.m_ix = getMinLeafNodeIx() - 1 - ix;
-            }
+            }*/
         }
 
         return ret;
+    }
+
+    boolean hasDependencyTo(HNode a_target) {
+        if (m_name == null) {
+            return false;
+        }
+        for (HNode d : m_dependencies) {
+            if (d.getFullName().contentEquals(a_target.getFullName())) {
+                return true;
+            }
+        }
+
+        // check all the on my own side
+        if (m_parent.m_name !=  null) {
+            if (m_parent.hasDependencyTo(a_target)) {
+                return true;
+            }
+        }
+
+        // check all the parents on target side
+        if (a_target.m_parent.m_name != null) {
+            if (hasDependencyTo(a_target.m_parent)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    HNode doNameMenu(ImGuiWrapper a_imgui, HNode a_staleSourceNode) {
+        if (m_children.size() > 0) {
+            if (m_name != null) {
+                if (a_imgui.m_imGui.beginMenu(m_name, true)) {
+                    if (!a_staleSourceNode.getFullName().contentEquals(getFullName())) {
+                        boolean [] selected = {a_staleSourceNode.hasDependencyTo(this)};
+                        /*for (HNode d : a_staleSourceNode.m_dependencies) {
+                            if (d.getFullName().contentEquals(getFullName())) {
+                                selected[0] = true;
+                                break;
+                            }
+                        }*/
+
+                        if (a_imgui.m_imGui.menuItem("*", "", selected, true)) {
+                            a_imgui.m_imGui.endMenu();
+                            return this;
+                        }
+
+                        if (getConcreteRepresentation() == null) {
+                            a_imgui.m_imGui.separator();
+                        }
+                    }
+
+                    for (HNode n : m_children) {
+                        HNode ret = n.doNameMenu(a_imgui, a_staleSourceNode);
+                        if (ret !=  null) {
+                            a_imgui.m_imGui.endMenu();
+                            return ret;
+                        }
+                    }
+                    a_imgui.m_imGui.endMenu();
+                }
+            } else {
+                for (HNode n : m_children) {
+                    HNode ret = n.doNameMenu(a_imgui, a_staleSourceNode);
+                    if (ret !=  null) {
+                        return ret;
+                    }
+                }
+            }
+
+        } else if (!a_staleSourceNode.getFullName().contentEquals(getFullName())) {
+            boolean [] selected = new boolean[] {a_staleSourceNode.hasDependencyTo(this)};
+
+            /*for (HNode d : a_staleSourceNode.m_dependencies) {
+                if (d.getFullName().contentEquals(getFullName())) {
+                    selected[0] = true;
+                    break;
+                }
+            }*/
+
+            if (a_imgui.m_imGui.menuItem(m_name, "", selected, true)) {
+                return this;
+            }
+            if (m_parentNodeRepresentation) {
+                a_imgui.m_imGui.separator();
+            }
+        }
+
+        return null;
     }
 
     void renderDependency(ImGuiWrapper a_imgui, HNode a_dest, final int a_leafNodeCount) {

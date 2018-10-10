@@ -78,8 +78,8 @@ public class RectsAndArrows {
         //theArch.addComponent("client.part1.part1_1");
 
         //theArch.addComponent("global");
+        theArch.addComponent("part1");
         theArch.addComponent("part2");
-        theArch.addComponent("part2.client.part1");
 
         //theArch.addComponent("client");
 
@@ -423,6 +423,12 @@ public class RectsAndArrows {
 
                 if (action != null && action.m_addComponent != null) {
                     a_arch.addComponent(action.m_addComponent);
+                }
+
+                if (action != null && action.m_deletedComponents != null) {
+                    for (String cName : action.m_deletedComponents) {
+                        a_arch.removeComponent(a_arch.getComponent(cName));
+                    }
                 }
 
                 // we need to do resorting before renaming
