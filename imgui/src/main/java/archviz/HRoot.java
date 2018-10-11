@@ -517,7 +517,7 @@ public class HRoot {
                     //}
                 }
 
-                if (a_state.m_underPopUp.m_name != null && a_imgui.m_imGui.beginMenu("Manage Dependencies", true)) {
+                if (a_state.m_underPopUp.m_name != null && a_imgui.imgui().beginMenu("Manage Dependencies", true)) {
                     HNode to = m_root.doNameMenu(a_imgui, a_state.m_underPopUp);
                     if (to != null)  {
                         //a = new Action();
@@ -532,10 +532,10 @@ public class HRoot {
 
                     }
 
-                    a_imgui.m_imGui.endMenu();
+                    a_imgui.imgui().endMenu();
                 }
 
-                if (a_imgui.m_imGui.menuItem("Add Component", "CTRL+A", false, true)) {
+                if (a_imgui.imgui().menuItem("Add Component", "CTRL+A", false, true)) {
                     a = new Action();
 
                     a.m_addComponent = a_state.m_underPopUp.getFullName();
@@ -545,7 +545,7 @@ public class HRoot {
                     a.m_addComponent += "component_" + m_root.countNodes();
                     //a_imgui.closeCurrentPopup();
                 }
-                if (a_state.m_underPopUp.m_name != null && a_imgui.m_imGui.menuItem("Add Parent", "", false, true)) {
+                if (a_state.m_underPopUp.m_name != null && a_imgui.imgui().menuItem("Add Parent", "", false, true)) {
                     a = new Action();
 
                     a.m_hiearchyMove = new Action.HierarchyMove();
@@ -555,7 +555,7 @@ public class HRoot {
                     }
                     a.m_hiearchyMove.addPair(new Action.NodeNamePair(a_state.m_underPopUp.getFullName(), parentName + "virtual_" + m_root.countNodes() + "." + a_state.m_underPopUp.m_name), a_state.m_nvm);
                 }
-                if (a_state.m_underPopUp.m_name != null && a_imgui.m_imGui.menuItem("Delete " + a_state.m_underPopUp.m_name, "del", false, true)) {
+                if (a_state.m_underPopUp.m_name != null && a_imgui.imgui().menuItem("Delete " + a_state.m_underPopUp.m_name, "del", false, true)) {
                     a = new Action();
                     a.m_deletedComponents = new ArrayList<>();
 
@@ -567,18 +567,18 @@ public class HRoot {
 
                 HNode.Visuals v = a_state.m_nvm.getNodeState(a_state.m_underPopUp);
                 if (v != null) {
-                    a_imgui.m_imGui.separator();
-                    if (a_imgui.m_imGui.beginMenu("Set Background Color", true)) {
+                    a_imgui.imgui().separator();
+                    if (a_imgui.imgui().beginMenu("Set Background Color", true)) {
 
                         Vec4 col = v.m_bgColor;
-                        a_imgui.m_imGui.colorEdit3("Pick Background Color", col, ColorEditFlag.PickerHueWheel.getI());
-                        a_imgui.m_imGui.endMenu();
+                        a_imgui.imgui().colorEdit3("Pick Background Color", col, ColorEditFlag.PickerHueWheel.getI());
+                        a_imgui.imgui().endMenu();
                     }
-                    if (a_imgui.m_imGui.beginMenu("Set Text Color", true)) {
+                    if (a_imgui.imgui().beginMenu("Set Text Color", true)) {
 
                         Vec4 col = v.m_textColor;
-                        a_imgui.m_imGui.colorEdit3("Pick Text Color", col, ColorEditFlag.PickerHueWheel.getI());
-                        a_imgui.m_imGui.endMenu();
+                        a_imgui.imgui().colorEdit3("Pick Text Color", col, ColorEditFlag.PickerHueWheel.getI());
+                        a_imgui.imgui().endMenu();
                     }
                 }
 

@@ -3,35 +3,27 @@ package archviz;
 import static org.junit.jupiter.api.Assertions.*;
 
 import glm_.vec2.Vec2;
+import imgui.ImGui;
 import imgui.internal.Rect;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 
+import static org.mockito.Mockito.*;
+
+//@PrepareForTest({ImGui.class})
 class DragNDrop {
-
-
-
-    static class ImGuiWrapper extends ImGuiNullWrapper {
+    static class ImGuiWrapper extends archviz.ImGuiWrapper {
 
         private Vec2 m_mouseDragStart;
         private Vec2 m_mousePos = new Vec2(0, 0);
         private boolean m_isMouseDragging = false;
 
-        public void setMousePos(float a_x, float a_y) {
-            if (m_mousePos == null) {
-                m_mousePos = new Vec2(a_x, a_y);
-            } else {
-              m_mousePos.setX(a_x);
-              m_mousePos.setY(a_y);
-            }
+        public ImGuiWrapper() {
+            super(mock(ImGui.class, new ImGuiNullWrapper()));
         }
-
-        public void setMousePos(final Vec2 a_pos) {
-            m_mousePos = new Vec2(a_pos);
-        }
-
+        
         public void setMouseDragging(final Vec2 a_pos, boolean a_start) {
             setMouseDragging(a_pos.getX(), a_pos.getY(), a_start);
         }
@@ -334,11 +326,16 @@ class DragNDrop {
         Rect r = new Rect(0, 0, 100, 100);
         HRoot.State s = new HRoot.State();
 
+        //ImGuiWrapper mimgui = mock(ImGuiWrapper.class);
+
+
+
         ImGuiWrapper imgui = new ImGuiWrapper();
 
         a_sut.render(r, imgui, s);
 
         imgui.setMouseDragging(getSafePos(a_source), true);
+
         HRoot.Action a = a_sut.render(r, imgui, s);
         assertEquals(null, a);
 

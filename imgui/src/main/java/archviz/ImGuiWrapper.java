@@ -8,7 +8,11 @@ import imgui.internal.Rect;
 import static imgui.ImguiKt.COL32;
 
 class ImGuiWrapper {
-    public ImGui m_imGui;
+    private ImGui m_imGui;
+
+    public ImGui imgui() {
+        return m_imGui;
+    }
 
     public boolean beginPopupContextWindow(String a_strId, int a_mouseButton, boolean a_alsoOverItems) {
         return m_imGui.beginPopupContextWindow(a_strId, a_mouseButton, a_alsoOverItems);

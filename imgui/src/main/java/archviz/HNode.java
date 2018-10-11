@@ -13,8 +13,6 @@ import static imgui.ImguiKt.COL32;
 
 class HNode {
 
-
-
     public String m_name;
     ArrayList<HNode> m_children = new ArrayList<>();
     ArrayList<HNode> m_dependencies = new ArrayList<>();
@@ -24,8 +22,6 @@ class HNode {
     private boolean m_parentNodeRepresentation = false;
     static final int g_rounding = 7;
     static final float g_margin = 7;
-
-
 
     static class Action {
         static class AddDependency {
@@ -598,7 +594,7 @@ class HNode {
     HNode doNameMenu(ImGuiWrapper a_imgui, HNode a_staleSourceNode) {
         if (m_children.size() > 0) {
             if (m_name != null) {
-                if (a_imgui.m_imGui.beginMenu(m_name, true)) {
+                if (a_imgui.imgui().beginMenu(m_name, true)) {
                     if (!a_staleSourceNode.getFullName().contentEquals(getFullName())) {
                         boolean [] selected = {a_staleSourceNode.hasDependencyTo(this)};
                         /*for (HNode d : a_staleSourceNode.m_dependencies) {
@@ -608,24 +604,24 @@ class HNode {
                             }
                         }*/
 
-                        if (a_imgui.m_imGui.menuItem("*", "", selected, true)) {
-                            a_imgui.m_imGui.endMenu();
+                        if (a_imgui.imgui().menuItem("*", "", selected, true)) {
+                            a_imgui.imgui().endMenu();
                             return this;
                         }
 
                         if (getConcreteRepresentation() == null) {
-                            a_imgui.m_imGui.separator();
+                            a_imgui.imgui().separator();
                         }
                     }
 
                     for (HNode n : m_children) {
                         HNode ret = n.doNameMenu(a_imgui, a_staleSourceNode);
                         if (ret !=  null) {
-                            a_imgui.m_imGui.endMenu();
+                            a_imgui.imgui().endMenu();
                             return ret;
                         }
                     }
-                    a_imgui.m_imGui.endMenu();
+                    a_imgui.imgui().endMenu();
                 }
             } else {
                 for (HNode n : m_children) {
@@ -646,11 +642,11 @@ class HNode {
                 }
             }*/
 
-            if (a_imgui.m_imGui.menuItem(m_name, "", selected, true)) {
+            if (a_imgui.imgui().menuItem(m_name, "", selected, true)) {
                 return this;
             }
             if (m_parentNodeRepresentation) {
-                a_imgui.m_imGui.separator();
+                a_imgui.imgui().separator();
             }
         }
 
