@@ -79,19 +79,13 @@ public class HRoot {
     public HNode liftDependencySource(HNode a_source, HNode a_dest) {
         HNode parent = a_source.m_parent;
 
-        if(parent == m_root || parent.m_children.size() < 2) {
+        if(parent == m_root) {
             return a_source;
         }
 
         boolean foundInAllChildren = true;
         for (HNode c : parent.m_children) {
-            boolean foundInChild = false;
-            for (HNode d : c.m_dependencies) {
-                if (d == a_dest) {
-                    foundInChild = true;
-                    break;
-                }
-            }
+            boolean foundInChild = c.hasDependencyTo(a_dest);
 
             if (!foundInChild) {
                 foundInAllChildren = false;
@@ -100,12 +94,11 @@ public class HRoot {
         }
 
         if (foundInAllChildren) {
-            parent.m_dependencies.add(a_dest);
+
             for (HNode c : parent.m_children) {
                 c.m_dependencies.remove(a_dest);
             }
-
-            return liftDependencySource(parent, a_dest);
+            addDependency(parent, a_dest);
         }
 
         return a_source;
@@ -113,20 +106,14 @@ public class HRoot {
 
     public HNode liftDependencyDest(HNode a_source, HNode a_dest) {
         HNode parent = a_dest.m_parent;
-        if (parent == m_root || parent.m_children.size() < 2) {
+        if (parent == m_root) {
             return a_dest;
         }
 
         boolean foundDepToAllChildren = true;
         for(HNode c : parent.m_children) {
 
-            boolean foundDepInChild = false;
-            for(HNode d : a_source.m_dependencies) {
-                if (d == c) {
-                    foundDepInChild = true;
-                    break;
-                }
-            }
+            boolean foundDepInChild = a_source.hasDependencyTo(c);
 
             if (!foundDepInChild) {
                 foundDepToAllChildren = false;
@@ -138,13 +125,10 @@ public class HRoot {
             for(HNode c : parent.m_children) {
                 a_source.m_dependencies.remove(c);
             }
-            a_source.m_dependencies.add(parent);
-
-            return liftDependencyDest(a_source, parent);
+            addDependency(a_source, parent);
         }
         return a_dest;
     }
-
 
     public void addDependency(String a_source, String a_dest) {
         HNode source = findNode(a_source.split("\\."));
@@ -158,22 +142,37 @@ public class HRoot {
             source = source.getConcreteRepresentation();
         }
 
-        source.m_dependencies.add(dest);
+        addDependency(source, dest);
+    }
+
+
+    private void addDependency(HNode a_source, HNode a_dest) {
+
+        a_source.m_dependencies.add(a_dest);
 
         // if all children of source.parent has dest, parent could get dest dependency instead
-        HNode newSource = liftDependencySource(source, dest);
+        liftDependencySource(a_source, a_dest);
 
         // if source has dependency to all children in dest.parent, dest.parent should be the dest
-        HNode newDest = liftDependencyDest(source, dest);
+        liftDependencyDest(a_source, a_dest);
 
-        // repeat the consolidation until no more changes...
-        while (newSource != source || newDest != dest) {
-            source = newSource;
-            dest = newDest;
+        // we now need to check all nodes for possible redundant dependencies
+        // as an addition can affect the parents of the source and destination
+        // doing this for all nodes i probably too much but...
+        for (HNode n : m_root.getAllNodes()) {
+            HNode parent = n.m_parent;
+            if (parent != m_root) {
+                ArrayList<HNode> toBeRemoved = new ArrayList<>();
+                for (HNode d : n.m_dependencies) {
+                    if (parent.hasDependencyTo(d)) {
+                        toBeRemoved.add(d);
+                    }
+                }
 
-            newSource = liftDependencySource(source, dest);
-            newDest = liftDependencyDest(source, dest);
-
+                for (HNode d : toBeRemoved) {
+                    n.m_dependencies.remove(d);
+                }
+            }
         }
     }
 
@@ -549,11 +548,20 @@ public class HRoot {
                     a = new Action();
 
                     a.m_hiearchyMove = new Action.HierarchyMove();
-                    String parentName = a_state.m_underPopUp.m_parent.getFullName();
-                    if (parentName.length() > 0) {
-                        parentName += ".";
+                    for (HNode concreteNode : a_state.m_underPopUp.getConcreteNodes()) {
+
+
+                        String parentFullName = concreteNode.m_parent.getFullName();
+                        if (parentFullName.length() > 0) {
+                            parentFullName += ".";
+                        }
+
+                        // we do this so that the call to full name will be correct...
+                        String parentName = concreteNode.m_parent.m_name;
+                        concreteNode.m_parent.m_name = null;
+                        a.m_hiearchyMove.addPair(new Action.NodeNamePair(concreteNode.getFullName(), parentFullName + "virtual_" + m_root.countNodes() + "." + concreteNode.getFullName()), a_state.m_nvm);
+                        concreteNode.m_parent.m_name = parentName;
                     }
-                    a.m_hiearchyMove.addPair(new Action.NodeNamePair(a_state.m_underPopUp.getFullName(), parentName + "virtual_" + m_root.countNodes() + "." + a_state.m_underPopUp.m_name), a_state.m_nvm);
                 }
                 if (a_state.m_underPopUp.m_name != null && a_imgui.imgui().menuItem("Delete " + a_state.m_underPopUp.m_name, "del", false, true)) {
                     a = new Action();

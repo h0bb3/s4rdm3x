@@ -9,9 +9,7 @@ import org.mockito.stubbing.Answer;
 
 import static org.mockito.Mockito.*;
 
-public class ImGuiNullWrapper implements Answer<Object> {
-
-
+public class ImGuiMock implements Answer<Object> {
 
     @Override
     public Object answer(InvocationOnMock invocation) throws Throwable {

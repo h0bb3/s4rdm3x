@@ -21,9 +21,9 @@ class DragNDrop {
         private boolean m_isMouseDragging = false;
 
         public ImGuiWrapper() {
-            super(mock(ImGui.class, new ImGuiNullWrapper()));
+            super(mock(ImGui.class, new ImGuiMock()));
         }
-        
+
         public void setMouseDragging(final Vec2 a_pos, boolean a_start) {
             setMouseDragging(a_pos.getX(), a_pos.getY(), a_start);
         }
@@ -407,6 +407,8 @@ class DragNDrop {
 
         Assertions.assertTrue(checkPairSetEquality(expected, a.m_hiearchyMove.getPairs()));
     }
+
+
 
 
 

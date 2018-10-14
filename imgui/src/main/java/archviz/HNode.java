@@ -119,7 +119,7 @@ class HNode {
         HNode.Visuals addNew(HNode a_node) {
             HNode.Visuals ret = new HNode.Visuals();
             copyColorsFromParent(a_node, ret);
-            m_nodeState.put(a_node.getFullName(), ret);
+            m_nodeState.put(a_node.getUniqueName(), ret);
 
             return ret;
         }
@@ -137,7 +137,7 @@ class HNode {
         }
 
         HNode.Visuals getNodeState(HNode a_node) {
-            return m_nodeState.get(a_node.getFullName());
+            return m_nodeState.get(a_node.getUniqueName());
         }
 
         public void copyColorsToNewNode(String a_from, String a_to) {
@@ -273,7 +273,7 @@ class HNode {
     private void getAllNodes(ArrayList<HNode> a_nodes) {
         if (m_children.size() > 0) {
             for (HNode c : m_children) {
-                c.getConcreteNodes(a_nodes);
+                c.getAllNodes(a_nodes);
             }
         }
 
@@ -569,10 +569,11 @@ class HNode {
             return false;
         }
         for (HNode d : m_dependencies) {
-            if (d.getFullName().contentEquals(a_target.getFullName())) {
+            if (d.getUniqueName().contentEquals(a_target.getUniqueName())) {
                 return true;
             }
         }
+
 
         // check all the on my own side
         if (m_parent.m_name !=  null) {
@@ -730,6 +731,16 @@ class HNode {
         for (HNode c : m_children) {
             c.renderDependencies(a_imgui, a_leafNodeCount, a_vm);
         }
+    }
+
+    public String getUniqueName() {
+        String name = getFullName();
+
+        if (m_parentNodeRepresentation) {
+            name += "$";
+        }
+
+        return name;
     }
 
     public String getFullName() {
