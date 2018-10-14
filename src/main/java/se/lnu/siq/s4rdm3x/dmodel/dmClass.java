@@ -13,15 +13,18 @@ public class dmClass {
     private String m_name;
     private List<dmDependency> m_deps;
 
-    private int m_lineCount;
+    private int m_lineCount = 0;
+    private int m_methodCount = 0;
 
     void incLineCount() {
         m_lineCount++;
     }
-
     public int getLineCount() {
         return m_lineCount;
     }
+
+    void incMethodCount() { m_methodCount++; }
+    public int getMethodCount() {return m_methodCount; }
 
     public dmClass(String a_name) {
         m_name = a_name;

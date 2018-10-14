@@ -142,6 +142,8 @@ public class ASMdmProjectBuilder extends ClassVisitor {
                 return  null;
             }
 
+            m_currentClass.incMethodCount();
+
             if ((access & Opcodes.ACC_STATIC) > 0) {
                 m_methodArgCount = 0;  // we do not have this in static methods
                 /*if (name.compareTo("<clinit>") == 0) {
@@ -156,6 +158,7 @@ public class ASMdmProjectBuilder extends ClassVisitor {
                     };
                 }*/
             }
+
 
             {
                 Textifier t = new Textifier();
