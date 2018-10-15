@@ -91,6 +91,85 @@ public class MetricsTest {
         }
     }
 
+    @Test
+    void branches_BranchesTest() {
+        try {
+            ASMdmProjectBuilder pb = getAsMdmProjectBuilder(g_classesDir + "BranchesTest.class");
+
+            assertTrue(pb.getProject() != null);
+
+            dmClass c = pb.getProject().findClass(g_classesPkg + "BranchesTest");
+            assertTrue(c != null);
+
+            assertEquals(1, c.getMethods("if_").get(0).getBranchStatementCount());
+            assertEquals(1, c.getMethods("if_else").get(0).getBranchStatementCount());
+            assertEquals(2, c.getMethods("if_elseif_else").get(0).getBranchStatementCount());
+            assertEquals(1, c.getMethods("question").get(0).getBranchStatementCount());
+
+            assertEquals(2, c.getMethods("if_and").get(0).getBranchStatementCount());
+            assertEquals(2, c.getMethods("if_or").get(0).getBranchStatementCount());
+
+            assertEquals(1, c.getMethods("for_").get(0).getBranchStatementCount());
+            assertEquals(1, c.getMethods("while_").get(0).getBranchStatementCount());
+            assertEquals(1, c.getMethods("do_while").get(0).getBranchStatementCount());
+
+            assertEquals(2, c.getMethods("catch_").get(0).getBranchStatementCount());
+
+            assertEquals(5, c.getMethods("switch_").get(0).getBranchStatementCount());
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+    @Test
+    void branches_NCSS_Test72() {
+        try {
+            ASMdmProjectBuilder pb = getAsMdmProjectBuilder(g_classesDir + "NCSS_Test72.class");
+
+            assertTrue(pb.getProject() != null);
+
+            dmClass c = pb.getProject().findClass(g_classesPkg + "NCSS_Test72");
+            assertTrue(c != null);
+
+            assertEquals(3, c.getMethods("testPWS").get(0).getBranchStatementCount());
+            assertEquals(3, c.getMethods("testPWU10").get(0).getBranchStatementCount());
+            assertEquals(4, c.getMethods("intersect").get(0).getBranchStatementCount());
+            assertEquals(7, c.getMethods("verboseIntersect").get(0).getBranchStatementCount());
+            assertEquals(1, c.getMethods("testQuestionMark").get(0).getBranchStatementCount());
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+    @Test
+    void instructionCount_NCSS_Test72() {
+        try {
+            ASMdmProjectBuilder pb = getAsMdmProjectBuilder(g_classesDir + "NCSS_Test72.class");
+
+            assertTrue(pb.getProject() != null);
+
+            dmClass c = pb.getProject().findClass(g_classesPkg + "NCSS_Test72");
+            assertTrue(c != null);
+
+            assertEquals(40, c.getMethods("testPWS").get(0).getInstructionCount()); // -1
+            assertEquals(41, c.getMethods("testPWU10").get(0).getInstructionCount()); // -1
+            assertEquals(24, c.getMethods("intersect").get(0).getInstructionCount()); // -3
+            assertEquals(44, c.getMethods("verboseIntersect").get(0).getInstructionCount()); // -9
+            assertEquals(12, c.getMethods("testQuestionMark").get(0).getInstructionCount()); //-1
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
     private ASMdmProjectBuilder getAsMdmProjectBuilder(String name) throws IOException {
         InputStream in = ASMdmProjectBuilder.class.getResourceAsStream(name);
         ASMdmProjectBuilder pb = new ASMdmProjectBuilder();

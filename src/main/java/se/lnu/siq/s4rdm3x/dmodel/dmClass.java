@@ -10,11 +10,42 @@ import java.util.List;
  * Created by tohto on 2017-04-24.
  */
 public class dmClass {
+
+    public static class Method {
+
+        public Method(String a_name) {
+            m_name = a_name;
+        }
+
+        private String m_name;
+
+
+        private int m_branchStatementCount = 0;
+        public int getBranchStatementCount() { return m_branchStatementCount; }
+        public void incBranchStatementCount() {
+            m_branchStatementCount++;
+        }
+
+        private int m_instructionCount = 0;
+        public void incInstructionCount() {
+            m_instructionCount++;
+        }
+        public int getInstructionCount() {
+            return m_instructionCount;
+        }
+
+        public String getName() {
+            return m_name;
+        }
+    }
+
+
     private String m_name;
     private List<dmDependency> m_deps;
+    private ArrayList<Method> m_methods;
 
     private int m_lineCount = 0;
-    private int m_methodCount = 0;
+
 
     void incLineCount() {
         m_lineCount++;
@@ -23,12 +54,30 @@ public class dmClass {
         return m_lineCount;
     }
 
-    void incMethodCount() { m_methodCount++; }
-    public int getMethodCount() {return m_methodCount; }
+    Method addMethod(String a_name) {
+        Method ret = new Method(a_name);
+        m_methods.add(ret);
+
+        return ret;
+    }
+    public int getMethodCount() {return m_methods.size(); }
+
+    public ArrayList<Method> getMethods(String a_name) {
+        ArrayList<Method> ret = new ArrayList<>();
+        for (Method m : m_methods) {
+            if (a_name.contentEquals(m.getName())) {
+                ret.add(m);
+            }
+        }
+
+        return ret;
+    }
+
 
     public dmClass(String a_name) {
         m_name = a_name;
         m_deps = new ArrayList<dmDependency>();
+        m_methods = new ArrayList<>();
     }
 
     public String getFileName() {
