@@ -1,11 +1,7 @@
 package se.lnu.siq.s4rdm3x.experiments.metric;
 
-import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.cmd.HuGMe;
 import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
-import se.lnu.siq.s4rdm3x.dmodel.dmClass;
-import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
 
 public class FanOut extends Metric {
 
@@ -15,15 +11,15 @@ public class FanOut extends Metric {
     }
 
     @Override
-    public void assignMetric(Graph a_g, HuGMe.ArchDef a_arch) {
+    public void assignMetric(Iterable<Node> a_nodes) {
         AttributeUtil au = new AttributeUtil();
-        FanHelper fh = new FanHelper(a_g, a_arch);
-        for(Node n : a_arch.getMappedNodes(a_g.getNodeSet())) {
+        FanHelper fh = new FanHelper(a_nodes);
+        for(Node n : a_nodes) {
             setMetric(n, fh.getFanOut(n));
         }
     }
 
-    public void reassignMetric(Graph a_g, HuGMe.ArchDef a_arch) {
+    public void reassignMetric(Iterable<Node> a_nodes) {
         // the fan out will not change so...
     }
 

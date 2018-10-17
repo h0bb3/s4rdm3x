@@ -14,22 +14,20 @@ public class LineCount extends Metric {
 
 
     @Override
-    public void assignMetric(Graph a_g, HuGMe.ArchDef a_arch) {
+    public void assignMetric(Iterable<Node> a_nodes) {
         AttributeUtil au = new AttributeUtil();
 
-        for(Node n : a_g.getEachNode()) {
+        for(Node n : a_nodes) {
 
-            if (a_arch.getMappedComponent(n) != null) {
-                double size = 0;
-                for (dmClass c : au.getClasses(n)) {
-                    size += c.getLineCount();
-                }
-                setMetric(n, size);
+            double size = 0;
+            for (dmClass c : au.getClasses(n)) {
+                size += c.getLineCount();
             }
+            setMetric(n, size);
         }
     }
 
-    public void reassignMetric(Graph a_g, HuGMe.ArchDef a_arch) {
+    public void reassignMetric(Iterable<Node> a_nodes) {
 
     }
 }

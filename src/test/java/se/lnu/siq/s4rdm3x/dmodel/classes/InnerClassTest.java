@@ -7,8 +7,9 @@ public class InnerClassTest {
 
     private class Inner {
 
+        Integer m_int;
         public Inner(Integer anInt) {
-
+            m_int = anInt;
         }
 
         public String toString() {

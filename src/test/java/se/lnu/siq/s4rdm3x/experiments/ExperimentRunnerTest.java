@@ -21,8 +21,8 @@ class ExperimentRunnerTest {
         }
 
         public String getName() { return "MetricTestHelper"; };
-        public void assignMetric(Graph a_g, HuGMe.ArchDef a_arch) {}
-        public void reassignMetric(Graph a_g, HuGMe.ArchDef a_arch) {}
+        public void assignMetric(Iterable<Node> a_nodes) {}
+        public void reassignMetric(Iterable<Node> a_nodes) {}
 
     }
 

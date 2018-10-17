@@ -1,45 +1,32 @@
 package se.lnu.siq.s4rdm3x.experiments.metric;
 
-import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.cmd.HuGMe;
 import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 
-public class RelativeLineCount extends Metric {
-
-    private Metric m_rel;
-
-    public RelativeLineCount(Metric a_rel) {
-        m_rel = a_rel;
-    }
+public class ByteCodeInstructions extends Metric {
 
     @Override
     public String getName() {
-        return m_rel.getName() + "_linecount";
+        return "ByteCodeInstructions";
     }
-
 
     @Override
     public void assignMetric(Iterable<Node> a_nodes) {
-
-        m_rel.assignMetric(a_nodes);
-
         AttributeUtil au = new AttributeUtil();
 
         for(Node n : a_nodes) {
-
             double size = 0;
             for (dmClass c : au.getClasses(n)) {
-                size += c.getLineCount();
+                for (dmClass.Method m : c.getMethods()) {
+                    size += m.getInstructionCount();
+                }
             }
-            if (size == 0) {
-                size = 1;
-            }
-            setMetric(n, getMetric(n) / size);
+            setMetric(n, size);
         }
     }
 
+    @Override
     public void reassignMetric(Iterable<Node> a_nodes) {
 
     }

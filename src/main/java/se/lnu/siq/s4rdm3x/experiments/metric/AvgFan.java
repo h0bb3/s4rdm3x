@@ -1,8 +1,6 @@
 package se.lnu.siq.s4rdm3x.experiments.metric;
 
-import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.cmd.HuGMe;
 
 public class AvgFan extends Metric {
 
@@ -10,15 +8,15 @@ public class AvgFan extends Metric {
         return "avgfan";
     }
 
-    public void assignMetric(Graph a_g, HuGMe.ArchDef a_arch) {
-        FanHelper fh = new FanHelper(a_g, a_arch);
+    public void assignMetric(Iterable<Node> a_nodes) {
+        FanHelper fh = new FanHelper(a_nodes);
 
-        for(Node n : a_arch.getMappedNodes(a_g.getNodeSet())) {
+        for(Node n : a_nodes) {
             setMetric(n, (fh.getFanIn(n) + fh.getFanOut(n)) * 0.5);
         }
     }
 
-    public void reassignMetric(Graph a_g, HuGMe.ArchDef a_arch) {
+    public void reassignMetric(Iterable<Node> a_nodes) {
         // the fan in will not change so...
     }
 }

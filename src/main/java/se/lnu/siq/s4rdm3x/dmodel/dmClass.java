@@ -11,6 +11,8 @@ import java.util.List;
  */
 public class dmClass {
 
+    public double get;
+
     public static class Method {
 
         public Method(String a_name) {
@@ -18,6 +20,16 @@ public class dmClass {
         }
 
         private String m_name;
+
+        private HashSet<String> m_usedFields = new HashSet<>();
+
+        public void useField(String a_name) {
+            m_usedFields.add(a_name);
+        }
+
+        public int getUsedFieldCount() {
+            return m_usedFields.size();
+        }
 
 
         private int m_branchStatementCount = 0;
@@ -46,6 +58,16 @@ public class dmClass {
 
     private int m_lineCount = 0;
 
+    // we can not rely on dependencies to fields as these can be blacklisted
+    // or of template type List<Object> etc.
+    private int m_fieldCount = 0;
+    void incFieldCount() {
+        m_fieldCount++;
+    }
+    public int getFieldCount() {
+        return m_fieldCount;
+    }
+
 
     void incLineCount() {
         m_lineCount++;
@@ -62,10 +84,13 @@ public class dmClass {
     }
     public int getMethodCount() {return m_methods.size(); }
 
-    public ArrayList<Method> getMethods(String a_name) {
+    public Iterable<Method> getMethods() {
+        return m_methods;
+    }
+    public ArrayList<Method> getMethods(String a_methodName) {
         ArrayList<Method> ret = new ArrayList<>();
         for (Method m : m_methods) {
-            if (a_name.contentEquals(m.getName())) {
+            if (a_methodName.contentEquals(m.getName())) {
                 ret.add(m);
             }
         }

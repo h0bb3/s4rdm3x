@@ -15,6 +15,6 @@ public abstract class Metric {
 
     public abstract String getName();
 
-    public abstract void assignMetric(Graph a_g, HuGMe.ArchDef a_arch);
-    public abstract void reassignMetric(Graph a_g, HuGMe.ArchDef a_arch);
+    public abstract void assignMetric(Iterable<Node> a_nodes);
+    public abstract void reassignMetric(Iterable<Node> a_nodes);
 }

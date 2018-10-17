@@ -23,4 +23,6 @@ public class ArrayTest {
     public void localVar() {
         Object[] arr = new Object[17];
     }
+
+    public void arrayVar() { m_strings[12] = "Olle Badboll"; }
 }

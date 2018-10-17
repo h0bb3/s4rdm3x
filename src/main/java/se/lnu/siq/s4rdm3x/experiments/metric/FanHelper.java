@@ -11,8 +11,8 @@ import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
 public class FanHelper {
     FanInCache m_fic;
     AttributeUtil m_au;
-    public FanHelper(Graph a_g, HuGMe.ArchDef a_arch) {
-        m_fic = new FanInCache(a_arch.getMappedNodes(a_g.getNodeSet()));
+    public FanHelper(Iterable<Node> a_nodes) {
+        m_fic = new FanInCache(a_nodes);
         m_au = new AttributeUtil();
     }
 

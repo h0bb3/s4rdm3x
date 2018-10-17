@@ -104,6 +104,8 @@ public class ASMdmProjectBuilder extends ClassVisitor {
                 return  null;
             }
 
+            m_currentClass.incFieldCount();
+
             if ((access & Opcodes.ACC_STATIC) > 0 && (access & Opcodes.ACC_FINAL) > 0) {
                 println("Constant Field");
                 m_project.addConstant(value, m_currentClass);
@@ -140,6 +142,7 @@ public class ASMdmProjectBuilder extends ClassVisitor {
             // Skip synthetic methods that are not lambda expressions...
             if ((access & Opcodes.ACC_SYNTHETIC) > 0 && name.startsWith("access$")) {
                 println("Skippnig Synthetic method");
+                return null;
             } else {
 
                 if ((access & Opcodes.ACC_STATIC) > 0) {
@@ -299,12 +302,14 @@ public class ASMdmProjectBuilder extends ClassVisitor {
                     owner = owner.replace('/', '.');
                     println("Field Instruction: " + owner + " " + name + " " + desc);
                     if (name.startsWith("this$")) { // this$X represents containing class
+                        //m.useField(name);
                         println("skipped field");
                         return;
                     }
                     //String ownerName = Type.getType(owner).getClassName();
                     if (owner.compareTo(m_currentClass.getName()) == 0) {
                         // in this case we have a field that corresponds to the type
+                        m.useField(name);
                         addDependency(Type.getType(desc).getClassName(), dmDependency.Type.OwnFieldUse);
                     } else {
                         // in this case we have a field in some other type (owner) that is used

@@ -10,15 +10,15 @@ public class Fan extends Metric {
         return "fan";
     }
 
-    public void assignMetric(Graph a_g, HuGMe.ArchDef a_arch) {
-        FanHelper fh = new FanHelper(a_g, a_arch);
+    public void assignMetric(Iterable<Node> a_nodes) {
+        FanHelper fh = new FanHelper(a_nodes);
 
-        for(Node n : a_arch.getMappedNodes(a_g.getNodeSet())) {
+        for(Node n : a_nodes) {
             setMetric(n, fh.getFanIn(n) + fh.getFanOut(n));
         }
     }
 
-    public void reassignMetric(Graph a_g, HuGMe.ArchDef a_arch) {
+    public void reassignMetric(Iterable<Node> a_nodes) {
         // the fan in will not change so...
     }
 }

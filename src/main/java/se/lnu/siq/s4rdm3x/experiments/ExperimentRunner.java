@@ -76,7 +76,7 @@ public class ExperimentRunner {
         HuGMe.ArchDef arch = m_sua.createAndMapArch(a_g);
 
 
-        m_metric.assignMetric(a_g, arch);
+        m_metric.assignMetric(arch.getMappedNodes(a_g.getNodeSet()));
 
         m_state = State.Running;
         while(m_state == State.Running) {
@@ -130,7 +130,7 @@ public class ExperimentRunner {
             }
 
             i++;
-            m_metric.reassignMetric(a_g, arch);
+            m_metric.reassignMetric(arch.getMappedNodes(a_g.getNodeSet()));
         }
 
         m_state = State.Idle;

@@ -25,9 +25,9 @@ public class CustomMetric extends Metric {
         return m_name;
     }
 
-    public void assignMetric(Graph a_g, HuGMe.ArchDef a_arch) {
+    public void assignMetric(Iterable<Node> a_nodes) {
         AttributeUtil au = new AttributeUtil();
-        for(Node n : a_arch.getMappedNodes(a_g.getNodeSet())) {
+        for(Node n : a_nodes) {
             if (m_metrics.containsKey(au.getName(n))) {
                 setMetric(n, m_metrics.get(au.getName(n)));
             } else {
@@ -37,7 +37,7 @@ public class CustomMetric extends Metric {
         }
     }
 
-    public void reassignMetric(Graph a_g, HuGMe.ArchDef a_arch){
+    public void reassignMetric(Iterable<Node> a_nodes){
         // this will not change so...
     }
 }

@@ -1,5 +1,7 @@
 package se.lnu.siq.s4rdm3x.dmodel.classes;
 
+import java.util.ArrayList;
+
 public class BranchesTest {
 
     public void if_(int a_arg) {
@@ -87,5 +89,14 @@ public class BranchesTest {
                 System.out.println("Over 4");
 
         }
+    }
+
+    public void forEach(ArrayList<Float> a_floats) {
+        float sum = 0;
+        for(Float f : a_floats) {
+            sum += f;
+        }
+
+        System.out.println("" + sum);
     }
 }

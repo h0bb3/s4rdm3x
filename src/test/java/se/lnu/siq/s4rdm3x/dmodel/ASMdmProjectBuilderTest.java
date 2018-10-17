@@ -469,6 +469,10 @@ class ASMdmProjectBuilderTest {
             expected.addDependency("java.lang.Object", dmDependency.Type.LocalVar);
             expected.addDependency("java.lang.Object", dmDependency.Type.ConstructorCall);
 
+            // arrayVar
+            expected.addDependency("void", dmDependency.Type.Returns);
+            expected.addDependency("java.lang.String", dmDependency.Type.OwnFieldUse);
+
             ASMdmProjectBuilder pb = getAsMdmProjectBuilder(g_classesDir + "ArrayTest.class");
 
             assertTrue(pb.getProject() != null);
@@ -639,7 +643,14 @@ class ASMdmProjectBuilderTest {
             expected.addDependency("java.lang.Object", dmDependency.Type.ConstructorCall);
             expected.addDependency("void", dmDependency.Type.Returns);
 
+            expected.addDependency("java.lang.Integer", dmDependency.Type.Field);
+
+
+            // constructor
+            expected.addDependency("java.lang.Integer", dmDependency.Type.OwnFieldUse);
             expected.addDependency("java.lang.Integer", dmDependency.Type.Argument);
+
+
 
             // toString
             expected.addDependency("java.lang.String", dmDependency.Type.Returns);

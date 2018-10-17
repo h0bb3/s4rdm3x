@@ -16,16 +16,14 @@ public class Rand extends Metric {
 
 
     @Override
-    public void assignMetric(Graph a_g, HuGMe.ArchDef a_arch) {
+    public void assignMetric(Iterable<Node> a_nodes) {
 
-        for(Node n : a_g.getEachNode()) {
-            if (a_arch.getMappedComponent(n) != null) {
-                setMetric(n, g_rand.nextDouble());
-            }
+        for(Node n : a_nodes) {
+            setMetric(n, g_rand.nextDouble());
         }
     }
 
-    public void reassignMetric(Graph a_g, HuGMe.ArchDef a_arch) {
-        assignMetric(a_g, a_arch);
+    public void reassignMetric(Iterable<Node> a_nodes) {
+        assignMetric(a_nodes);
     }
 }

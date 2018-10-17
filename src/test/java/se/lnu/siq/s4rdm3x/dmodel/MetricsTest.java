@@ -17,12 +17,7 @@ public class MetricsTest {
     @Test
     void numberOfMethods_Test1() {
         try {
-            ASMdmProjectBuilder pb = getAsMdmProjectBuilder(g_classesDir + "Test1.class");
-
-            assertTrue(pb.getProject() != null);
-
-            dmClass c = pb.getProject().findClass(g_classesPkg + "Test1");
-            assertTrue(c != null);
+            dmClass c = getTestClass("Test1");
 
             assertEquals(4, c.getMethodCount());
 
@@ -36,12 +31,7 @@ public class MetricsTest {
     @Test
     void numberOfMethods_Test2() {
         try {
-            ASMdmProjectBuilder pb = getAsMdmProjectBuilder(g_classesDir + "Test2.class");
-
-            assertTrue(pb.getProject() != null);
-
-            dmClass c = pb.getProject().findClass(g_classesPkg + "Test2");
-            assertTrue(c != null);
+            dmClass c = getTestClass("Test2");
 
             assertEquals(6, c.getMethodCount());
 
@@ -55,13 +45,8 @@ public class MetricsTest {
     @Test
     void numberOfMethods_Test3() {
         try {
-            ASMdmProjectBuilder pb = getAsMdmProjectBuilder(g_classesDir + "Test3.class");
 
-            assertTrue(pb.getProject() != null);
-
-            dmClass c = pb.getProject().findClass(g_classesPkg + "Test3");
-            assertTrue(c != null);
-
+            dmClass c = getTestClass("Test3");
             assertEquals(5, c.getMethodCount());
 
         } catch (Exception e) {
@@ -74,13 +59,8 @@ public class MetricsTest {
     @Test
     void numberOfMethods_EnumTest() {
         try {
-            ASMdmProjectBuilder pb = getAsMdmProjectBuilder(g_classesDir + "EnumTest.class");
 
-            assertTrue(pb.getProject() != null);
-
-            dmClass c = pb.getProject().findClass(g_classesPkg + "EnumTest");
-            assertTrue(c != null);
-
+            dmClass c = getTestClass("EnumTest");
             // enums generate 4 methods, values, valueOf, <init> and <clinit>
             assertEquals(4, c.getMethodCount());
 
@@ -94,12 +74,7 @@ public class MetricsTest {
     @Test
     void branches_BranchesTest() {
         try {
-            ASMdmProjectBuilder pb = getAsMdmProjectBuilder(g_classesDir + "BranchesTest.class");
-
-            assertTrue(pb.getProject() != null);
-
-            dmClass c = pb.getProject().findClass(g_classesPkg + "BranchesTest");
-            assertTrue(c != null);
+            dmClass c = getTestClass("BranchesTest");
 
             assertEquals(1, c.getMethods("if_").get(0).getBranchStatementCount());
             assertEquals(1, c.getMethods("if_else").get(0).getBranchStatementCount());
@@ -117,6 +92,8 @@ public class MetricsTest {
 
             assertEquals(5, c.getMethods("switch_").get(0).getBranchStatementCount());
 
+            assertEquals(1, c.getMethods("forEach").get(0).getBranchStatementCount());
+
         } catch (Exception e) {
             System.out.println(e.getMessage());
             e.printStackTrace();
@@ -127,13 +104,7 @@ public class MetricsTest {
     @Test
     void branches_NCSS_Test72() {
         try {
-            ASMdmProjectBuilder pb = getAsMdmProjectBuilder(g_classesDir + "NCSS_Test72.class");
-
-            assertTrue(pb.getProject() != null);
-
-            dmClass c = pb.getProject().findClass(g_classesPkg + "NCSS_Test72");
-            assertTrue(c != null);
-
+            dmClass c = getTestClass("NCSS_Test72");
             assertEquals(3, c.getMethods("testPWS").get(0).getBranchStatementCount());
             assertEquals(3, c.getMethods("testPWU10").get(0).getBranchStatementCount());
             assertEquals(4, c.getMethods("intersect").get(0).getBranchStatementCount());
@@ -150,23 +121,84 @@ public class MetricsTest {
     @Test
     void instructionCount_NCSS_Test72() {
         try {
-            ASMdmProjectBuilder pb = getAsMdmProjectBuilder(g_classesDir + "NCSS_Test72.class");
-
-            assertTrue(pb.getProject() != null);
-
-            dmClass c = pb.getProject().findClass(g_classesPkg + "NCSS_Test72");
-            assertTrue(c != null);
-
-            assertEquals(40, c.getMethods("testPWS").get(0).getInstructionCount()); // -1
-            assertEquals(41, c.getMethods("testPWU10").get(0).getInstructionCount()); // -1
-            assertEquals(24, c.getMethods("intersect").get(0).getInstructionCount()); // -3
-            assertEquals(44, c.getMethods("verboseIntersect").get(0).getInstructionCount()); // -9
-            assertEquals(12, c.getMethods("testQuestionMark").get(0).getInstructionCount()); //-1
+            dmClass c = getTestClass("NCSS_Test72");
+            assertEquals(40, c.getMethods("testPWS").get(0).getInstructionCount());
+            assertEquals(41, c.getMethods("testPWU10").get(0).getInstructionCount());
+            assertEquals(24, c.getMethods("intersect").get(0).getInstructionCount());
+            assertEquals(44, c.getMethods("verboseIntersect").get(0).getInstructionCount());
+            assertEquals(12, c.getMethods("testQuestionMark").get(0).getInstructionCount());
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
             e.printStackTrace();
             assertTrue(false);
+        }
+    }
+
+    @Test
+    void fieldCount_Test3() {
+        dmClass c = getTestClass("Test3");
+        assertEquals(4, c.getFieldCount());
+    }
+
+    @Test
+    void fieldCount_EnumTest() {
+        dmClass c = getTestClass("EnumTest");
+        assertEquals(3, c.getFieldCount());
+    }
+
+    @Test
+    void fieldCount_ArrayTest() {
+        dmClass c = getTestClass("ArrayTest");
+        assertEquals(2, c.getFieldCount());
+    }
+
+    @Test
+    void fieldCount_InnerClassTest() {
+        dmClass c = getTestClass("InnerClassTest");
+        assertEquals(3, c.getFieldCount());
+    }
+
+    @Test
+    void fieldCount_InnerClassTest_Inner() {
+        dmClass c = getTestClass("InnerClassTest$Inner");
+        assertEquals(1, c.getFieldCount());
+    }
+
+    @Test
+    void getUsedFieldCount_NCSS_Test72() {
+        dmClass c = getTestClass("NCSS_Test72");
+        assertEquals(0, c.getMethods("testPWS").get(0).getUsedFieldCount());
+        assertEquals(2, c.getMethods("testPWU10").get(0).getUsedFieldCount());
+        assertEquals(4, c.getMethods("intersect").get(0).getUsedFieldCount());
+        assertEquals(4, c.getMethods("verboseIntersect").get(0).getUsedFieldCount());
+        assertEquals(2, c.getMethods("testQuestionMark").get(0).getUsedFieldCount());
+    }
+
+    @Test
+    void getUsedFieldCount_ArrayTest() {
+        dmClass c = getTestClass("ArrayTest");
+        assertEquals(2, c.getMethods("<init>").get(0).getUsedFieldCount());
+        assertEquals(0, c.getMethods("getIntegers").get(0).getUsedFieldCount());
+        assertEquals(0, c.getMethods("setFloats").get(0).getUsedFieldCount());
+        assertEquals(0, c.getMethods("localVar").get(0).getUsedFieldCount());
+        assertEquals(1, c.getMethods("arrayVar").get(0).getUsedFieldCount());
+    }
+
+    private dmClass getTestClass(String a_className) {
+        try {
+            ASMdmProjectBuilder pb = getAsMdmProjectBuilder(g_classesDir + a_className + ".class");
+
+            assertTrue(pb.getProject() != null);
+
+            dmClass c = pb.getProject().findClass(g_classesPkg + a_className);
+            assertTrue(c != null);
+            return c;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+            assertTrue(false);
+            return null;
         }
     }
 
