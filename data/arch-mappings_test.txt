@@ -3,7 +3,7 @@
 // JabRef 3.5
 //
 load_jar data/JabRef-3.5.jar net/sf/jabref/,osx/macadapter/
-load_arch data/systems/jabref/3.7/jabref-3_7-system_model_1.txt
+load_arch data/systems/jabref/3.7/jabref-3_5-archmodel.txt
 
 add_node_tag mapped (tag:globals OR tag:preferences OR tag:model OR tag:logic OR tag:gui OR tag:cli)
 add_node_tag unmapped NOT(tag:mapped) AND (pkg:net/sf/jabref/ OR pkg:osx/macadapter/)

@@ -39,4 +39,18 @@ public class FanHelper {
 
         return count;
     }
+
+    public boolean hasDirectDependency(Node a_from, Node a_to, dmDependency.Type a_type) {
+        for (dmClass c : m_au.getClasses(a_from)) {
+            for (dmDependency d : c.getDependencies()) {
+                if (d.getType() == a_type) {
+                    if (m_au.hasClass(a_to, d.getTarget())) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
 }

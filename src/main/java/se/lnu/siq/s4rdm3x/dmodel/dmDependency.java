@@ -14,6 +14,10 @@ public class dmDependency {
         return m_target;
     }
 
+    public dmClass getSource() {
+        return m_source;
+    }
+
     public Iterable<Integer> lines() { return m_lines; }
 
     public Type getType() {
@@ -44,10 +48,12 @@ public class dmDependency {
     }
 
     private dmClass m_target;
+    private dmClass m_source;
     private Type m_type;
     private List<Integer> m_lines;
 
-    public dmDependency(dmClass a_target, Type a_type, int a_line) {
+    public dmDependency(dmClass a_source, dmClass a_target, Type a_type, int a_line) {
+        m_source = a_source;
         m_target = a_target;
         m_type = a_type;
         m_lines = new ArrayList<>();

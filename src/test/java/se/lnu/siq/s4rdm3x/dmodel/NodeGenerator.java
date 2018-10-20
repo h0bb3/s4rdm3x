@@ -17,12 +17,22 @@ public class NodeGenerator {
         }
     }
 
+    private void setBranchStatementCount(dmClass.Method a_m, int count) {
+        for (int i = 0; i < count; i++) {
+            a_m.incBranchStatementCount();
+        }
+    }
+
+
     public Graph getGraph1() {
         Graph ret = new MultiGraph("graph1");
 
         dmClass c1 = new dmClass("c1");
         setInstructionCount(c1.addMethod("m1"), 17);
         setInstructionCount(c1.addMethod("m2"), 17);
+
+        setBranchStatementCount(c1.addMethod("m3"), 8);
+        setBranchStatementCount(c1.addMethod("m4"), 5);
 
         Node n1 = ret.addNode("n1");
         AttributeUtil au = new AttributeUtil();
@@ -36,10 +46,14 @@ public class NodeGenerator {
         Graph ret = new MultiGraph("graph2");
 
         dmClass c1 = new dmClass("c1");
-        setInstructionCount(c1.addMethod("m1"), 17);
+        dmClass.Method m1 = c1.addMethod("m1");
+        setInstructionCount(m1, 17);
+        setBranchStatementCount(m1, 9);
 
         dmClass c2 = new dmClass("c2");
-        setInstructionCount(c2.addMethod("m1"), 17);
+        m1 = c2.addMethod("m1");
+        setInstructionCount(m1, 17);
+        setBranchStatementCount(m1, 6);
 
         Node n1 = ret.addNode("n1");
         AttributeUtil au = new AttributeUtil();
@@ -50,12 +64,19 @@ public class NodeGenerator {
         return ret;
     }
 
-
     public Graph generateGraph(String [] a_edgesAsNodePairs) {
-        Graph ret = new MultiGraph("test");
+        return addToGraph(new MultiGraph("test"), dmDependency.Type.MethodCall, a_edgesAsNodePairs);
+    }
+
+    public Graph generateGraph(dmDependency.Type a_dependency, String [] a_edgesAsNodePairs) {
+        return addToGraph(new MultiGraph("test"), a_dependency, a_edgesAsNodePairs);
+    }
+
+
+    public Graph addToGraph(Graph a_g, dmDependency.Type a_dependency, String [] a_edgesAsNodePairs) {
+        Graph ret = a_g;
         String[] edgeIds = a_edgesAsNodePairs;
         HashMap<String, dmClass> classes = new HashMap<>();
-        HashMap<String, Node> nodes = new HashMap<>();
         AttributeUtil au = new AttributeUtil();
         for (String id : edgeIds) {
             String first = id.substring(0, 1), second = id.substring(1, 2);
@@ -68,16 +89,14 @@ public class NodeGenerator {
 
             dmClass cFirst = classes.get(first);
             dmClass cSecond = classes.get(second);
-            cFirst.addDependency(cSecond, dmDependency.Type.MethodCall, 0);
+            cFirst.addDependency(cSecond, a_dependency, 0);
 
-            if (nodes.get(first) == null) {
+            if (a_g.getNode(first) == null) {
                 Node n = ret.addNode(first);
-                nodes.put(first, n);
                 au.addClass(n, cFirst);
             }
-            if (nodes.get(second) == null) {
+            if (a_g.getNode(second) == null) {
                 Node n = ret.addNode(second);
-                nodes.put(second, n);
                 au.addClass(n, cSecond);
             }
         }

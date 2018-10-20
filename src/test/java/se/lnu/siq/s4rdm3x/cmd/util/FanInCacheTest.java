@@ -94,6 +94,7 @@ class FanInCacheTest {
     @Test
     void getFanIn2() {
         m_c1_1.addDependency(m_c2_1, dmDependency.Type.FieldUse, 0);
+        m_c1_1.addDependency(m_c2_1, dmDependency.Type.FieldUse, 1);
         m_c1_1.addDependency(m_c2_1, dmDependency.Type.Field, 1);
         m_c1_1.addDependency(m_c2_1, dmDependency.Type.Argument, 2);
         m_c1_2.addDependency(m_c2_1, dmDependency.Type.FieldUse, 0);
@@ -102,12 +103,12 @@ class FanInCacheTest {
         FanInCache fic = new FanInCache(m_g.getNodeSet());
 
         assertEquals(0, fic.getFanIn(m_n1));
-        assertEquals(6, fic.getFanIn(m_n2));
+        assertEquals(7, fic.getFanIn(m_n2));
         assertEquals(0, fic.getFanIn(m_n3));
 
         assertEquals(0, fic.getFanIn(m_n1, m_n2));
         assertEquals(0, fic.getFanIn(m_n1, m_n3));
-        assertEquals(6, fic.getFanIn(m_n2, m_n1));
+        assertEquals(7, fic.getFanIn(m_n2, m_n1));
         assertEquals(0, fic.getFanIn(m_n2, m_n3));
         assertEquals(0, fic.getFanIn(m_n3, m_n1));
         assertEquals(0, fic.getFanIn(m_n3, m_n2));

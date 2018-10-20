@@ -43,6 +43,10 @@ public class AttributeUtil {
         }
     }
 
+    public boolean hasClass(Node a_node, dmClass a_class) {
+        return getClasses(a_node).contains(a_class);
+    }
+
     public void addClass(Node a_node, dmClass a_class) {
         if (!a_node.hasAttribute(g_classKey)) {
             a_node.setAttribute(g_classKey, new ArrayList<dmClass>());

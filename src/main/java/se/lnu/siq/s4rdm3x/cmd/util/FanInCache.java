@@ -34,6 +34,8 @@ public class FanInCache {
                 }
             }
         }
+
+        m_nodeFanInMap = new HashMap<>();
     }
 
     private double countDependenciesTo(dmClass a_from, dmClass a_to) {
@@ -50,23 +52,41 @@ public class FanInCache {
     }
 
     public double getFanIn(Node a_to) {
-        HashMap<Node, Double> toMap = m_nodeFanInMap.get(a_to);
+        /*HashMap<Node, Double> toMap = m_nodeFanInMap.get(a_to);
         double ret = 0;
         for(Double d : toMap.values()) {
             ret += d;
+        }*/
+
+        double ret = 0;
+        AttributeUtil au = new AttributeUtil();
+        for (dmClass c : au.getClasses(a_to)) {
+            for (dmDependency d : c.getIncomingDependencies()) {
+                ret += d.getCount();
+            }
         }
 
         return ret;
     }
 
     public double getFanIn(Node a_to, Node a_from) {
-        HashMap<Node, Double> toMap = m_nodeFanInMap.get(a_to);
+        /*HashMap<Node, Double> toMap = m_nodeFanInMap.get(a_to);
 
         assert(a_to != null);
         if (toMap.containsKey(a_from)) {
             return toMap.get(a_from);
+        }*/
+
+        double ret = 0;
+        AttributeUtil au = new AttributeUtil();
+        for (dmClass c : au.getClasses(a_to)) {
+            for (dmDependency d : c.getIncomingDependencies()) {
+                if (au.hasClass(a_from, d.getSource())) {
+                    ret += d.getCount();
+                }
+            }
         }
 
-        return 0;
+        return ret;
     }
 }
