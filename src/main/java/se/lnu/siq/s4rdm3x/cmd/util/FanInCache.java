@@ -62,7 +62,9 @@ public class FanInCache {
         AttributeUtil au = new AttributeUtil();
         for (dmClass c : au.getClasses(a_to)) {
             for (dmDependency d : c.getIncomingDependencies()) {
-                ret += d.getCount();
+                if (!au.hasClass(a_to, d.getSource())) {    // we do not count self references
+                    ret += d.getCount();
+                }
             }
         }
 

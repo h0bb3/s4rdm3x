@@ -1,26 +1,30 @@
 package se.lnu.siq.s4rdm3x.experiments.metric;
 
 import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
 
-public class FanOut extends Metric {
+public class CouplingOut extends Metric {
 
-    @Override
     public String getName() {
-        return "fanout";
+        return "CouplingIn";
     }
 
-    @Override
     public void assignMetric(Iterable<Node> a_nodes) {
         FanHelper fh = new FanHelper(a_nodes);
         for(Node n : a_nodes) {
-            setMetric(n, fh.getFanOut(n));
+            double cin = 0;
+
+            for (Node m :  a_nodes) {
+                if (m != n && fh.hasDirectDependency(n, m)) {
+                    cin += 1;
+                }
+            }
+
+            setMetric(n, cin);
         }
     }
 
     public void reassignMetric(Iterable<Node> a_nodes) {
-        // the fan out will not change so...
-    }
 
+    }
 
 }

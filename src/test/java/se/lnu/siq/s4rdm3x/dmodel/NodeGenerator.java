@@ -92,13 +92,21 @@ public class NodeGenerator {
             cFirst.addDependency(cSecond, a_dependency, 0);
 
             if (a_g.getNode(first) == null) {
-                Node n = ret.addNode(first);
+                ret.addNode(first);
+            }
+            Node n = a_g.getNode(first);
+            if (!au.hasClass(n, cFirst)) {
                 au.addClass(n, cFirst);
             }
+
             if (a_g.getNode(second) == null) {
-                Node n = ret.addNode(second);
+                ret.addNode(second);
+            }
+            n = a_g.getNode(second);
+            if (!au.hasClass(n, cSecond)) {
                 au.addClass(n, cSecond);
             }
+
         }
 
         return ret;

@@ -23,21 +23,35 @@ public class FanHelper {
     public double getFanOut(Node a_n) {
         double fanOut = 0;
         for (dmClass from : m_au.getClasses(a_n)) {
-            fanOut += countDependenciesFrom(from);
+            fanOut += countDependenciesFrom(a_n, from);
         }
 
         return fanOut;
     }
 
-    private double countDependenciesFrom(dmClass a_c) {
+    private double countDependenciesFrom(Node a_source, dmClass a_c) {
         double count = 0;
         // TODO: we should have some weight here
 
         for(dmDependency d : a_c.getDependencies()) {
-            count += d.getCount();
+            if (!m_au.hasClass(a_source, d.getTarget())) {
+                count += d.getCount();
+            }
         }
 
         return count;
+    }
+
+    public boolean hasDirectDependency(Node a_from, Node a_to) {
+        for (dmClass c : m_au.getClasses(a_from)) {
+            for (dmDependency d : c.getDependencies()) {
+                if (m_au.hasClass(a_to, d.getTarget())) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     public boolean hasDirectDependency(Node a_from, Node a_to, dmDependency.Type a_type) {
