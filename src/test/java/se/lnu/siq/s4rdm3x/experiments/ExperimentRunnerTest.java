@@ -86,7 +86,7 @@ class ExperimentRunnerTest {
         ExperimentRunner er = new ExperimentRunner(null, ms);
         NodeUtil nu = new NodeUtil(g);
 
-                           //1  4  6  6  7  7  7
+
                            //0  1  2  3  4  5  6  7  8
         double [] metrics = {7, 4, 6, 6, 7, 7, 1};
         ArrayList<Node> nodes = new ArrayList<>();
@@ -98,7 +98,7 @@ class ExperimentRunnerTest {
         }
 
         ArrayList<Node> ws = er.getWorkingSetTestHelper(nodes, 1);
-        assertTrue(ws.get(0) == nodes.get(06) || ws.get(0) == nodes.get(4) || ws.get(0) == nodes.get(5));
+        assertTrue(ws.get(0) == nodes.get(0) || ws.get(0) == nodes.get(4) || ws.get(0) == nodes.get(5));
         assertEquals(ms.getMetric(ws.get(0)), 7);
 
         ws = er.getWorkingSetTestHelper(nodes, 3);

@@ -22,8 +22,23 @@ public class Main {
 
 
 
+    private static String[] getExperimentMetricsArray() {
+        final String[] metrics = {"rand", "linecount", "fanin", "fanout", "noc", "nof", "nom", "nop", "rank", "cin", "cout", "bccc", "bci"};
+
+
+        String[] ret = new String[metrics.length + metrics.length - 2];
+        for (int ix = 0; ix < metrics.length; ix++) {
+            ret[ix] = metrics[ix];
+        }
+        for (int ix = 2; ix < metrics.length; ix++) {
+            ret[metrics.length + ix - 2] = "lcrel_" + metrics[ix];
+        }
+
+        return ret;
+    }
+
     private static String[] getInternalMetricsArray() {
-        final String[] metrics = {"rand", "linecount", "fanin", "fanout", "fan", "maxfan", "minfan", "avgfan"};
+        final String[] metrics = {"rand", "linecount", "fanin", "fanout", "fan", "maxfan", "minfan", "avgfan", "noc", "nof", "nom", "nop", "rank", "cin", "cout", "bccc", "bci"};
 
         String[] ret = new String[metrics.length + metrics.length - 2];
         for (int ix = 0; ix < metrics.length; ix++) {
@@ -67,6 +82,24 @@ public class Main {
             return new RelativeLineCount(new MinFan());
         } else if (a_metric.equalsIgnoreCase(metrics[ix++])) {
             return new RelativeLineCount(new AvgFan());
+        } else if (a_metric.equalsIgnoreCase(metrics[ix++])) {
+            return new RelativeLineCount(new NumberOfChildren());
+        } else if (a_metric.equalsIgnoreCase(metrics[ix++])) {
+            return new RelativeLineCount(new NumberOfFields());
+        } else if (a_metric.equalsIgnoreCase(metrics[ix++])) {
+            return new RelativeLineCount(new NumberOfMethods());
+        } else if (a_metric.equalsIgnoreCase(metrics[ix++])) {
+            return new RelativeLineCount(new NumberOfParents());
+        } else if (a_metric.equalsIgnoreCase(metrics[ix++])) {
+            return new RelativeLineCount(new Rank());
+        } else if (a_metric.equalsIgnoreCase(metrics[ix++])) {
+            return new RelativeLineCount(new CouplingIn());
+        } else if (a_metric.equalsIgnoreCase(metrics[ix++])) {
+            return new RelativeLineCount(new CouplingOut());
+        } else if (a_metric.equalsIgnoreCase(metrics[ix++])) {
+            return new RelativeLineCount(new ByteCodeCyclomaticComplexity());
+        } else if (a_metric.equalsIgnoreCase(metrics[ix++])) {
+            return new RelativeLineCount(new ByteCodeInstructions());
         }
 
         return null;
@@ -226,7 +259,8 @@ public class Main {
             } else {
 
                 ArrayList<String> metricNames = new ArrayList<>();
-                for(String mStr : getInternalMetricsArray()) metricNames.add(mStr);
+                //for(String mStr : getInternalMetricsArray()) metricNames.add(mStr);
+                for(String mStr : getExperimentMetricsArray()) metricNames.add(mStr);
 
                 if (sua.getCustomMetricsFile() != null) {
                     CSVRow mRow = new CSVRow();

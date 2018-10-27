@@ -3,10 +3,13 @@ package se.lnu.siq.s4rdm3x.dmodel;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
+import org.objectweb.asm.ClassReader;
 import org.w3c.dom.Attr;
 import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
 import se.lnu.siq.s4rdm3x.cmd.util.NodeUtil;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 
 public class NodeGenerator {
@@ -62,6 +65,36 @@ public class NodeGenerator {
         au.addClass(n1, c2);
 
         return ret;
+    }
+
+    private ASMdmProjectBuilder getAsMdmProjectBuilder(String name) throws IOException {
+        InputStream in = ASMdmProjectBuilder.class.getResourceAsStream(name);
+        ASMdmProjectBuilder pb = new ASMdmProjectBuilder();
+        pb.getProject().doTrackConstantDeps(true);
+        ClassReader classReader = new ClassReader(in);
+        classReader.accept(pb, 0);
+        return pb;
+    }
+
+    public Graph loadGraph(String a_javaClassName) {
+        try {
+            ASMdmProjectBuilder pb = getAsMdmProjectBuilder(a_javaClassName);
+
+            Graph g = new MultiGraph("Test");
+            NodeUtil nu = new NodeUtil(g);
+            AttributeUtil au = new AttributeUtil();
+
+            for (dmClass c : pb.getProject().getClasses()) {
+                String cName = c.getFileName();
+                Node n = nu.createNode(cName);
+                au.addClass(n, c);
+            }
+
+            return g;
+
+        } catch (IOException e) {
+            return null;
+        }
     }
 
     public Graph generateGraph(String [] a_edgesAsNodePairs) {
