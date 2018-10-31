@@ -3,6 +3,8 @@ package se.lnu.siq.s4rdm3x;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import se.lnu.siq.s4rdm3x.cmd.*;
+import se.lnu.siq.s4rdm3x.cmd.metrics.ComputeMetrics;
+import se.lnu.siq.s4rdm3x.cmd.metrics.GetMetrics;
 import se.lnu.siq.s4rdm3x.cmd.saerocon18.Cluster1;
 import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
 import se.lnu.siq.s4rdm3x.cmd.util.Selector;
@@ -237,6 +239,47 @@ public class StringCommandHandler {
                 }
                 ret.add("Nodes: " + nodes);
                 ret.add("Classes: " + classes);
+            }  else if (in.startsWith("compute_metrics")) {
+
+                String[] cargs = in.split(" ");
+                Selector.ISelector s = new Selector.All();
+                if (cargs.length > 1) {
+                    SelectorBuilder bs = new SelectorBuilder();
+                    s = bs.buildFromString(join(cargs, 1, " "));
+                }
+
+                ComputeMetrics c = new ComputeMetrics(s);
+                c.run(graph);
+
+            } else if (in.startsWith("print_metrics")) {
+
+                String[] cargs = in.split(" ");
+                Selector.ISelector s = new Selector.All();
+                if (cargs.length > 1) {
+                    SelectorBuilder bs = new SelectorBuilder();
+                    s = bs.buildFromString(join(cargs, 1, " "));
+                }
+
+                GetMetrics c = new GetMetrics(s);
+                c.run(graph);
+                AttributeUtil au = new AttributeUtil();
+
+                String header = "file";
+                for (String metric : c.m_result.getMetrics()) {
+                    header += "\t" + metric;
+                }
+
+                ret.add(header);
+
+                for (Node n : c.m_result.getNodes()) {
+                    String row = au.getName(n);
+
+                    for (double v : c.m_result.getRow(n)) {
+                        row += "\t" + v;
+                    }
+                    ret.add(row);
+                }
+
             } else if (in.length() > 0) {
                 ret.add("Unknown command: " + in);
             }

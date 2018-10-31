@@ -23,8 +23,8 @@ public class InnerClassTest {
         }
     }
 
-    private String m_str1;
-    private String m_str2;
+    private String m_str1;  // This one will get a synthetic accessor method access$000 to allow inner classes to access it
+    private String m_str2;  // This one will get a synthetic accessor method access$100 to allow inner classes to access it
     private Inner2 m_inner2;
 
     public Object asReturnType1() {

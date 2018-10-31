@@ -19,7 +19,7 @@ public class LCOMHS extends Metric {
 
             for (dmClass c : au.getClasses(n)) {
                 if (!c.isInner()) {
-                    double m = c.getMethodCount();
+                    double m = c.getConcreteMethodCount();
                     double f = c.getFieldCount();
                     double lcom = 0;
                     if (m - 1 > 0 && f > 0) {
@@ -39,7 +39,9 @@ public class LCOMHS extends Metric {
         double sum = 0;
 
         for (dmClass.Method m : a_class.getMethods()) {
-            sum += m.getUsedFieldCount();
+            if (m.isConcrete()) {
+                sum += m.getUsedFieldCount();
+            }
         }
 
         return sum;

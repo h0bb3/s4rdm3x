@@ -3,15 +3,8 @@ package se.lnu.siq.s4rdm3x.dmodel;
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.ClassReader;
 
-import org.objectweb.asm.Opcodes;
-import se.lnu.siq.s4rdm3x.dmodel.classes.SelfCall;
-import se.lnu.siq.s4rdm3x.dmodel.classes.Test2;
-import se.lnu.siq.s4rdm3x.dmodel.dmClass;
-import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
-
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -41,7 +34,7 @@ class ASMdmProjectBuilderTest {
             Iterator<Integer> lines = src.lines().iterator();
             dmDependency cpy = new dmDependency(src.getSource(), src.getTarget(), src.getType(), lines.next());
             while (lines.hasNext()) {
-                cpy.inc(lines.next());
+                cpy.addLine(lines.next());
             }
 
             ret.add(cpy);
@@ -584,6 +577,15 @@ class ASMdmProjectBuilderTest {
             // asDeepNesting
             expected.addDependency("java.lang.Object", dmDependency.Type.Returns);
             expected.addDependency(g_classesPkg + "InnerClassTest$3", ConstructorCall);
+
+            // synthetic accessors generated as we access m_str1 and m_str2
+            expected.addDependency(g_classesPkg + "InnerClassTest", dmDependency.Type.Argument);
+            expected.addDependency("java.lang.String", dmDependency.Type.OwnFieldUse);
+            expected.addDependency("java.lang.String", dmDependency.Type.Returns);
+            expected.addDependency(g_classesPkg + "InnerClassTest", dmDependency.Type.Argument);
+            expected.addDependency("java.lang.String", dmDependency.Type.OwnFieldUse);
+            expected.addDependency("java.lang.String", dmDependency.Type.Returns);
+
 
             ASMdmProjectBuilder pb = getAsMdmProjectBuilder(g_classesDir+ "InnerClassTest.class");
 

@@ -13,16 +13,35 @@ public class dmClass {
 
     public static class Method {
 
-        public Method(String a_name) {
-            m_name = a_name;
+        static class DependencyLine {
+            public dmDependency m_dependency;
+            public int m_line;
+
+            DependencyLine(dmDependency a_dep, int a_line) {
+                m_dependency = a_dep;
+                m_line = a_line;
+            }
         }
 
+        public Method(String a_name, boolean a_isAbstract, boolean a_isSynthetic) {
+            m_name = a_name;
+            m_isAbstract = a_isAbstract;
+            m_isSynthetic = a_isSynthetic;
+            m_dependencies = new ArrayList<>();
+        }
+
+        private boolean m_isAbstract;
+        private boolean m_isSynthetic;
         private String m_name;
+        private ArrayList<DependencyLine> m_dependencies;
 
         private HashSet<String> m_usedFields = new HashSet<>();
 
         public void useField(String a_name) {
             m_usedFields.add(a_name);
+        }
+        public void addDependency(dmDependency a_dependency, int a_line) {
+            m_dependencies.add(new DependencyLine(a_dependency, a_line));
         }
 
         public int getUsedFieldCount() {
@@ -46,6 +65,12 @@ public class dmClass {
 
         public String getName() {
             return m_name;
+        }
+        public boolean isAbstract() {return m_isAbstract;}
+        public boolean isSynthetic() {return m_isSynthetic;}
+
+        public boolean isConcrete() {
+            return !isAbstract() && !isSynthetic();
         }
     }
 
@@ -75,13 +100,19 @@ public class dmClass {
         return m_lineCount;
     }
 
-    Method addMethod(String a_name) {
-        Method ret = new Method(a_name);
+    Method addMethod(String a_name, boolean a_isAbstract, boolean a_isSynthetic) {
+        Method ret = new Method(a_name, a_isAbstract, a_isSynthetic);
         m_methods.add(ret);
 
         return ret;
     }
     public int getMethodCount() {return m_methods.size(); }
+
+    public int getConcreteMethodCount() {
+        final int [] c = new int[] {0};
+        m_methods.forEach(m->{if (m.isConcrete()) {c[0]++;}});
+        return c[0];
+    }
 
     public Iterable<Method> getMethods() {
         return m_methods;
@@ -241,7 +272,7 @@ public class dmClass {
     public void addDependency(String a_className, dmDependency.Type a_type, int a_line) {
         for (dmDependency d : m_deps) {
             if (d.getTarget().getName().compareTo(a_className) == 0 && d.getType() == a_type) {
-                d.inc(a_line);
+                d.addLine(a_line);
                 return;
             }
         }
@@ -252,17 +283,23 @@ public class dmClass {
         m_deps.add(d);
     }
 
-    public void addDependency(dmClass a_target, dmDependency.Type a_type, int a_line) {
+    public dmDependency addDependency(dmClass a_target, dmDependency.Type a_type, int a_line) {
         for (dmDependency d : m_deps) {
             if (d.getTarget() == a_target && d.getType() == a_type) {
-                d.inc(a_line);
-                return;
+                d.addLine(a_line);
+                return d;
             }
         }
 
         dmDependency d = new dmDependency(this, a_target, a_type, a_line);
         a_target.m_incomingDeps.add(d);
         m_deps.add(d);
+        return d;
+    }
+
+    public void addDependency(dmClass a_target, dmDependency.Type a_type, int a_line, Method a_method) {
+        dmDependency d = addDependency(a_target, a_type, a_line);
+        a_method.addDependency(d, a_line);
     }
 
     public Iterable<dmDependency> getDependencies() {

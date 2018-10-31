@@ -5,7 +5,7 @@ import org.graphstream.graph.Node;
 public class CouplingOut extends Metric {
 
     public String getName() {
-        return "CouplingIn";
+        return "CouplingOut";
     }
 
     public void assignMetric(Iterable<Node> a_nodes) {

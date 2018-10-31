@@ -19,7 +19,10 @@ public class ByteCodeCyclomaticComplexity extends Metric {
             double cc = 0;
             for (dmClass c : au.getClasses(n)) {
                 for (dmClass.Method m : c.getMethods()) {
-                    cc += 1 + m.getBranchStatementCount();
+                    cc += m.getBranchStatementCount();
+                    if (!m.isAbstract()) {
+                        cc++;
+                    }
                 }
             }
             setMetric(n, cc);

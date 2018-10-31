@@ -6,6 +6,9 @@ import org.graphstream.graph.Node;
 import org.graphstream.ui.graphicGraph.GraphicNode;
 import org.graphstream.ui.view.Viewer;
 
+import java.util.ArrayList;
+import java.util.regex.Pattern;
+
 /**
  * Created by tohto on 2017-09-22.
  */
@@ -32,6 +35,18 @@ public class NodeUtil {
             }
         }
         return null;
+    }
+
+
+    public ArrayList<Node> searchNode(String a_pattern) {
+        ArrayList<Node> ret = new ArrayList<>();
+        Pattern p = Pattern.compile(a_pattern);
+        for (Node n : m_g.getNodeSet()) {
+            if (p.matcher(getName(n)).find()) {
+                ret.add(n);
+            }
+        }
+        return ret;
     }
 
     public Node createNode(String a_name) {

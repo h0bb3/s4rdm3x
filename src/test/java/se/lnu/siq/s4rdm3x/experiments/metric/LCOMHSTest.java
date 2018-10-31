@@ -7,6 +7,9 @@ import se.lnu.siq.s4rdm3x.cmd.util.NodeUtil;
 import se.lnu.siq.s4rdm3x.dmodel.NodeGenerator;
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class LCOMHSTest {
@@ -18,13 +21,10 @@ public class LCOMHSTest {
     void test1() {
         LCOMHS sut = new LCOMHS();
         NodeGenerator ng = new NodeGenerator();
-        Graph g = ng.loadGraph("/" + g_classesDir + "LCOMTest1.class");
-        NodeUtil nu = new NodeUtil(g);
-        Node a = nu.findNode(g_classesDir + "LCOMTest1.java");
+        Node a = ng.loadNode("LCOMTest1");
 
-        sut.assignMetric(g.getNodeSet());
+        sut.assignMetric(Arrays.asList(a));
 
-        sut.assignMetric(g.getNodeSet());
         assertEquals(1, sut.getMetric(a));
     }
 
@@ -32,13 +32,10 @@ public class LCOMHSTest {
     void test2() {
         LCOMHS sut = new LCOMHS();
         NodeGenerator ng = new NodeGenerator();
-        Graph g = ng.loadGraph("/" + g_classesDir + "ArrayTest.class");
-        NodeUtil nu = new NodeUtil(g);
-        Node a = nu.findNode(g_classesDir + "ArrayTest.java");
+        Node a = ng.loadNode("ArrayTest");
 
-        sut.assignMetric(g.getNodeSet());
+        sut.assignMetric(Arrays.asList(a));
 
-        sut.assignMetric(g.getNodeSet());
         assertEquals(0.875, sut.getMetric(a));
     }
 
@@ -47,13 +44,10 @@ public class LCOMHSTest {
     void test3() {
         LCOMHS sut = new LCOMHS();
         NodeGenerator ng = new NodeGenerator();
-        Graph g = ng.loadGraph("/" + g_classesDir + "InnerClassTest.class");
-        NodeUtil nu = new NodeUtil(g);
-        Node a = nu.findNode(g_classesDir + "InnerClassTest.java");
 
-        sut.assignMetric(g.getNodeSet());
+        Node a = ng.loadNode("InnerClassTest");
+        sut.assignMetric(Arrays.asList(a));
 
-        sut.assignMetric(g.getNodeSet());
         assertEquals(1.333, sut.getMetric(a), 0.001);
     }
 
@@ -62,13 +56,10 @@ public class LCOMHSTest {
     void test4() {
         LCOMHS sut = new LCOMHS();
         NodeGenerator ng = new NodeGenerator();
-        Graph g = ng.loadGraph("/" + g_classesDir + "NCSS_Test72.class");
-        NodeUtil nu = new NodeUtil(g);
-        Node a = nu.findNode(g_classesDir + "NCSS_Test72.java");
 
-        sut.assignMetric(g.getNodeSet());
+        Node a = ng.loadNode("NCSS_Test72");
+        sut.assignMetric(Arrays.asList(a));
 
-        sut.assignMetric(g.getNodeSet());
         assertEquals(0.733, sut.getMetric(a), 0.001);
     }
 
@@ -77,13 +68,10 @@ public class LCOMHSTest {
     void test5() {
         LCOMHS sut = new LCOMHS();
         NodeGenerator ng = new NodeGenerator();
-        Graph g = ng.loadGraph("/" + g_classesDir + "SelfCall.class");
-        NodeUtil nu = new NodeUtil(g);
-        Node a = nu.findNode(g_classesDir + "SelfCall.java");
 
-        sut.assignMetric(g.getNodeSet());
 
-        sut.assignMetric(g.getNodeSet());
+        Node a = ng.loadNode("SelfCall");
+        sut.assignMetric(Arrays.asList(a));
         assertEquals(0, sut.getMetric(a), 0.001);
     }
 }

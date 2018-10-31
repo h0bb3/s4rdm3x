@@ -1,13 +1,15 @@
-package se.lnu.siq.s4rdm3x.experiments.metric;
+package se.lnu.siq.s4rdm3x.experiments.metric.aggregated;
 
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import se.lnu.siq.s4rdm3x.cmd.HuGMe;
+import se.lnu.siq.s4rdm3x.experiments.metric.FanHelper;
+import se.lnu.siq.s4rdm3x.experiments.metric.Metric;
 
-public class MinFan extends Metric {
+public class MaxFan extends Metric {
 
     public String getName() {
-        return "minfan";
+        return "maxfan";
     }
 
     public void assignMetric(Iterable<Node> a_nodes) {
@@ -22,4 +24,3 @@ public class MinFan extends Metric {
         // the fan in will not change so...
     }
 }
-

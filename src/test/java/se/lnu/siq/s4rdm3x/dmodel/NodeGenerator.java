@@ -14,6 +14,9 @@ import java.util.HashMap;
 
 public class NodeGenerator {
 
+    static final String g_classesPkg = "se.lnu.siq.s4rdm3x.dmodel.classes.";
+    static final String g_classesDir = "se/lnu/siq/s4rdm3x/dmodel/classes/";
+
     private void setInstructionCount(dmClass.Method a_m, int count) {
         for (int i = 0; i < count; i++) {
             a_m.incInstructionCount();
@@ -31,11 +34,11 @@ public class NodeGenerator {
         Graph ret = new MultiGraph("graph1");
 
         dmClass c1 = new dmClass("c1");
-        setInstructionCount(c1.addMethod("m1"), 17);
-        setInstructionCount(c1.addMethod("m2"), 17);
+        setInstructionCount(c1.addMethod("m1", false, false), 17);
+        setInstructionCount(c1.addMethod("m2", false, false), 17);
 
-        setBranchStatementCount(c1.addMethod("m3"), 8);
-        setBranchStatementCount(c1.addMethod("m4"), 5);
+        setBranchStatementCount(c1.addMethod("m3", false, false), 8);
+        setBranchStatementCount(c1.addMethod("m4", false, false), 5);
 
         Node n1 = ret.addNode("n1");
         AttributeUtil au = new AttributeUtil();
@@ -49,12 +52,12 @@ public class NodeGenerator {
         Graph ret = new MultiGraph("graph2");
 
         dmClass c1 = new dmClass("c1");
-        dmClass.Method m1 = c1.addMethod("m1");
+        dmClass.Method m1 = c1.addMethod("m1", false, false);
         setInstructionCount(m1, 17);
         setBranchStatementCount(m1, 9);
 
         dmClass c2 = new dmClass("c2");
-        m1 = c2.addMethod("m1");
+        m1 = c2.addMethod("m1", false, false);
         setInstructionCount(m1, 17);
         setBranchStatementCount(m1, 6);
 
@@ -74,6 +77,19 @@ public class NodeGenerator {
         ClassReader classReader = new ClassReader(in);
         classReader.accept(pb, 0);
         return pb;
+    }
+
+    public Node loadNode(String a_javaClassName) {
+        Graph g = loadGraph("/" + g_classesDir + a_javaClassName + ".class");
+        NodeUtil nu = new NodeUtil(g);
+        //Node a = nu.findNode(g_classesDir + a_javaClassName + ".java");
+
+        dmClass c = new dmClass(a_javaClassName);
+
+
+        Node a = nu.searchNode(".*/" + c.getFileName().replace(".", "\\.")).get(0);
+
+        return a;
     }
 
     public Graph loadGraph(String a_javaClassName) {

@@ -16,7 +16,7 @@ public class FanHelper {
         m_au = new AttributeUtil();
     }
 
-    double getFanIn(Node a_n) {
+    public double getFanIn(Node a_n) {
         return m_fic.getFanIn(a_n);
     }
 

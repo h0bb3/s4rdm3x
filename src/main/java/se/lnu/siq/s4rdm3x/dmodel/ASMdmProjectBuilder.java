@@ -60,7 +60,7 @@ public class ASMdmProjectBuilder extends ClassVisitor {
         return m_project;
     }
 
-    private void addDependency(String a_targetName, dmDependency.Type a_type) {
+    private void addDependency(String a_targetName, dmDependency.Type a_type, dmClass.Method a_method) {
 
         // remove array markers: []
         a_targetName = stripArrayBrackets(a_targetName);
@@ -68,7 +68,12 @@ public class ASMdmProjectBuilder extends ClassVisitor {
         a_targetName = a_targetName.replace('/', '.');
         dmClass destClass = m_project.addClass(a_targetName);
         if (destClass != null) {
-            m_currentClass.addDependency(destClass, a_type, m_currentLine);
+            if (a_method == null) {
+                m_currentClass.addDependency(destClass, a_type, m_currentLine);
+            } else {
+                m_currentClass.addDependency(destClass, a_type, m_currentLine, a_method);
+            }
+
         }
     }
 
@@ -84,12 +89,12 @@ public class ASMdmProjectBuilder extends ClassVisitor {
         if (m_currentClass != null) {
             if (superName != null) {
                 println("Extends: " + superName);
-                addDependency(superName, dmDependency.Type.Extends);
+                addDependency(superName, dmDependency.Type.Extends, null);
             }
             if (interfaces != null) {
                 for (String interfaceName : interfaces) {
                     println("Implements: " + interfaceName);
-                    addDependency(interfaceName, dmDependency.Type.Implements);
+                    addDependency(interfaceName, dmDependency.Type.Implements, null);
                 }
             }
         }
@@ -116,14 +121,14 @@ public class ASMdmProjectBuilder extends ClassVisitor {
             if (signature != null) {
                 new SignatureReader(signature).accept(new SignatureVisitor(g_opcodes) {
                     public void visitClassType(String name) {
-                        addDependency(name, dmDependency.Type.Field);
+                        addDependency(name, dmDependency.Type.Field, null);
                         println("visitClassType: " + name);
                     }
                 });
             } else {
 
                 println("Type.getType: " + Type.getType(desc).getClassName());
-                addDependency(Type.getType(desc).getClassName(), dmDependency.Type.Field);
+                addDependency(Type.getType(desc).getClassName(), dmDependency.Type.Field, null);
             }
 
         }
@@ -139,8 +144,10 @@ public class ASMdmProjectBuilder extends ClassVisitor {
             println("Method: " + access + " " + name + " " + desc);
             m_tabs = 2;
 
+            dmClass.Method m = m_currentClass.addMethod(name, (access & Opcodes.ACC_ABSTRACT) != 0, (access & Opcodes.ACC_SYNTHETIC) != 0);
+
             // Skip synthetic methods that are not lambda expressions...
-            if ((access & Opcodes.ACC_SYNTHETIC) > 0 && name.startsWith("access$")) {
+            if (false && (access & Opcodes.ACC_SYNTHETIC) > 0 && name.startsWith("access$")) {
                 println("Skippnig Synthetic method");
                 return null;
             } else {
@@ -161,6 +168,7 @@ public class ASMdmProjectBuilder extends ClassVisitor {
                 }
 
 
+
                 {
                     Textifier t = new Textifier();
                     StringWriter sw = new StringWriter();
@@ -175,13 +183,13 @@ public class ASMdmProjectBuilder extends ClassVisitor {
                 if (exceptions != null) {
                     for (String e : exceptions) {
                         println("\tThrows: " + e);
-                        addDependency(e, dmDependency.Type.Throws);
+                        addDependency(e, dmDependency.Type.Throws, m);
                     }
                 }
 
                 if (signature == null) {
                     println("\tType.getReturnType: " + Type.getReturnType(desc).getClassName());
-                    addDependency(Type.getReturnType(desc).getClassName(), dmDependency.Type.Returns);
+                    addDependency(Type.getReturnType(desc).getClassName(), dmDependency.Type.Returns, m);
                     //println("\tType.getReturnType: " + Type.getReturnType(desc).getClassName());
                     //addDependency(Type.getReturnType(desc).getClassName(), dmDependency.Type.Returns);
 
@@ -196,7 +204,7 @@ public class ASMdmProjectBuilder extends ClassVisitor {
                             } else {
 
                                 println("\tType.getArgumentTypes[x]: " + t.getClassName());
-                                addDependency(t.getClassName(), dmDependency.Type.Argument);
+                                addDependency(t.getClassName(), dmDependency.Type.Argument, m);
                             }
                             m_methodArgCount++;
                         }
@@ -213,7 +221,7 @@ public class ASMdmProjectBuilder extends ClassVisitor {
 
 
                                 public void visitClassType(String name) {
-                                    addDependency(name, dmDependency.Type.Returns);
+                                    addDependency(name, dmDependency.Type.Returns, m);
                                     println("\tvisitReturnType - visitClassType: " + name);
                                     returnAdded[0] = true;
 
@@ -225,7 +233,7 @@ public class ASMdmProjectBuilder extends ClassVisitor {
                             return new SignatureVisitor(g_opcodes) {
 
                                 public void visitClassType(String name) {
-                                    addDependency(name, dmDependency.Type.Argument);
+                                    addDependency(name, dmDependency.Type.Argument, m);
                                     println("\tvisitArgumentType - visitClassType: " + name);
                                     m_methodArgCount++;
                                 }
@@ -235,13 +243,10 @@ public class ASMdmProjectBuilder extends ClassVisitor {
 
                     if (!returnAdded[0]) {
                         println("\tType.getReturnType: " + Type.getReturnType(desc).getClassName());
-                        addDependency(Type.getReturnType(desc).getClassName(), dmDependency.Type.Returns);
+                        addDependency(Type.getReturnType(desc).getClassName(), dmDependency.Type.Returns, m);
                     }
                 }
             }
-
-
-            dmClass.Method m = m_currentClass.addMethod(name);
 
             return new MethodVisitor(g_opcodes) {
 
@@ -250,7 +255,7 @@ public class ASMdmProjectBuilder extends ClassVisitor {
                         //addDependency(a_className, dmDependency.Type.ArgumentUse);
                         println("addArgumentUse (skipped)" + a_className + ", index: " + a_index + ", arg count: " + m_methodArgCount);
                     } else {
-                        addDependency(a_className, dmDependency.Type.LocalVar);
+                        addDependency(a_className, dmDependency.Type.LocalVar, m);
                         println("addLocalVar: " + a_className);
                     }
                 }
@@ -264,6 +269,13 @@ public class ASMdmProjectBuilder extends ClassVisitor {
                 public void visitLdcInsn(Object cst) {
                     m.incInstructionCount();
                     println("visitLdcInsn: " + cst.getClass().getName() + ", toString: " + cst.toString());
+                    {
+                        Textifier t = new Textifier();
+                        StringWriter sw = new StringWriter();
+                        t.visitLdcInsn(cst);
+                        t.print(new PrintWriter(sw));
+                        println("\ttextifier: " + sw.toString());
+                    }
                     m_project.addConstantDependency(cst, m_currentClass, m_currentLine);
                 }
 
@@ -299,8 +311,18 @@ public class ASMdmProjectBuilder extends ClassVisitor {
                 @Override
                 public void visitFieldInsn(int opcode, String owner, String name, String desc) {
                     m.incInstructionCount();
+
+
+
                     owner = owner.replace('/', '.');
                     println("Field Instruction: " + owner + " " + name + " " + desc);
+                    {
+                        Textifier t = new Textifier();
+                        StringWriter sw = new StringWriter();
+                        t.visitFieldInsn(opcode, owner, name, desc);
+                        t.print(new PrintWriter(sw));
+                        println("\ttextifier: " + sw.toString());
+                    }
                     if (name.startsWith("this$")) { // this$X represents containing class
                         //m.useField(name);
                         println("skipped field");
@@ -310,10 +332,10 @@ public class ASMdmProjectBuilder extends ClassVisitor {
                     if (owner.compareTo(m_currentClass.getName()) == 0) {
                         // in this case we have a field that corresponds to the type
                         m.useField(name);
-                        addDependency(Type.getType(desc).getClassName(), dmDependency.Type.OwnFieldUse);
+                        addDependency(Type.getType(desc).getClassName(), dmDependency.Type.OwnFieldUse, m);
                     } else {
                         // in this case we have a field in some other type (owner) that is used
-                        addDependency(owner, dmDependency.Type.FieldUse);
+                        addDependency(owner, dmDependency.Type.FieldUse, m);
                     }
                 }
 
@@ -346,7 +368,7 @@ public class ASMdmProjectBuilder extends ClassVisitor {
 
                 @Override
                 public void visitTableSwitchInsn(int min, int max, Label dflt, Label... labels) {
-                    m.incInstructionCount();
+                    //m.incInstructionCount(); // Possibly not counted by JArchitect
                     println("visitTableSwitchInsn: " + min + ":" + max);
                     for (int i = 0; i < max - min + 1; i++) {
                         m.incBranchStatementCount();
@@ -366,7 +388,7 @@ public class ASMdmProjectBuilder extends ClassVisitor {
                 @Override
                 public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
                     // TODO: should this one be counted in branching in some way
-                    m.incInstructionCount();
+                    //m.incInstructionCount(); Possibly not counted by JArchitect
                 }
 
                 @Override
@@ -392,13 +414,13 @@ public class ASMdmProjectBuilder extends ClassVisitor {
                         println("Type.getMethodType: " + owner);
                     }
                     owner = stripArrayBrackets(owner);
-                    addDependency(owner, dmDependency.Type.ConstructorCall);
+                    addDependency(owner, dmDependency.Type.ConstructorCall, m);
 
                 }
 
                 @Override
                 public void visitTypeInsn(int var1, String var2) {
-                    m.incInstructionCount();
+
                     println("visitTypeInsn: " + var2);
                     {
                         Textifier t = new Textifier();
@@ -421,7 +443,9 @@ public class ASMdmProjectBuilder extends ClassVisitor {
                             println("Type.getMethodType: " + owner);
                         }
                         owner = stripArrayBrackets(owner);
-                        addDependency(owner, dmDependency.Type.ConstructorCall);
+                        addDependency(owner, dmDependency.Type.ConstructorCall, m);
+                    } else {
+                        m.incInstructionCount();
                     }
 
                 }
@@ -476,17 +500,17 @@ public class ASMdmProjectBuilder extends ClassVisitor {
 
                         println("Method call on: " + owner + "." + name + "(" + desc + ")");
                         if (name.startsWith("access$")) {
-                            addDependency(owner, dmDependency.Type.FieldUse);
+                            addDependency(owner, dmDependency.Type.FieldUse, m);
                         } else {
                             if (name.contentEquals("<init>")) {
-                                addDependency(owner, dmDependency.Type.ConstructorCall);
+                                addDependency(owner, dmDependency.Type.ConstructorCall, m);
                             } else {
-                                addDependency(owner, dmDependency.Type.MethodCall);
+                                addDependency(owner, dmDependency.Type.MethodCall, m);
                             }
                         }
                     } else if (name.contentEquals("<init>")) {
-                        // we track dependencies to self if they are contsructor calls
-                        addDependency(owner, dmDependency.Type.ConstructorCall);
+                        // we track dependencies to self if they are constructor calls
+                        addDependency(owner, dmDependency.Type.ConstructorCall, m);
                     }
                 }
 

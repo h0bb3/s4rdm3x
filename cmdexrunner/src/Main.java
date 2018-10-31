@@ -1,10 +1,10 @@
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.MultiGraph;
 import se.lnu.siq.metrics.CSVRow;
-import se.lnu.siq.s4rdm3x.cmd.saerocon18.ClusterExperiment10;
 import se.lnu.siq.s4rdm3x.experiments.ExperimentRunner;
 import se.lnu.siq.s4rdm3x.experiments.RunFileSaver;
 import se.lnu.siq.s4rdm3x.experiments.metric.*;
+import se.lnu.siq.s4rdm3x.experiments.metric.aggregated.*;
 import se.lnu.siq.s4rdm3x.experiments.system.System;
 import se.lnu.siq.s4rdm3x.experiments.system.*;
 
@@ -70,6 +70,24 @@ public class Main {
             return new MinFan();
         } else if (a_metric.equalsIgnoreCase(metrics[ix++])) {
             return new AvgFan();
+        }  else if (a_metric.equalsIgnoreCase(metrics[ix++])) {
+            return new NumberOfChildren();
+        } else if (a_metric.equalsIgnoreCase(metrics[ix++])) {
+            return new NumberOfFields();
+        } else if (a_metric.equalsIgnoreCase(metrics[ix++])) {
+            return new NumberOfMethods();
+        } else if (a_metric.equalsIgnoreCase(metrics[ix++])) {
+            return new NumberOfParents();
+        } else if (a_metric.equalsIgnoreCase(metrics[ix++])) {
+            return new Rank();
+        } else if (a_metric.equalsIgnoreCase(metrics[ix++])) {
+            return new CouplingIn();
+        } else if (a_metric.equalsIgnoreCase(metrics[ix++])) {
+            return new CouplingOut();
+        } else if (a_metric.equalsIgnoreCase(metrics[ix++])) {
+            return new ByteCodeCyclomaticComplexity();
+        } else if (a_metric.equalsIgnoreCase(metrics[ix++])) {
+            return new ByteCodeInstructions();
         } else if (a_metric.equalsIgnoreCase(metrics[ix++])) {
             return new RelativeLineCount(new FanIn());
         } else if (a_metric.equalsIgnoreCase(metrics[ix++])) {

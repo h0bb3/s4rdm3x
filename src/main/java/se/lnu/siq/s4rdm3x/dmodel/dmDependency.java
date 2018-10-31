@@ -28,7 +28,7 @@ public class dmDependency {
         return m_lines.size();
     }
 
-    public void inc(int a_line) {
+    public void addLine(int a_line) {
         m_lines.add(a_line);
     }
 
