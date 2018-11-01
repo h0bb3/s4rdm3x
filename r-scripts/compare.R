@@ -7,16 +7,27 @@ source("functions/getFilteredData.R")
 source("functions/loadData.R")
 
 
-d_1 <- getFilteredData(0.1, 25, loadData("jabref_37_1/rand.csv"))
-d_2 <- getFilteredData(0.1, 25, loadData("jabref_37_1/linecount.csv"))
+d_1 <- getFilteredData(1.00, 250, loadData("2018-10-29_own_metrics/jabref_37_1/bccc.csv"))
+d_2 <- getFilteredData(1.00, 250, loadData("180921/jabref_37_1/bccc.csv"))
 
 d_1 <- getFilteredData(0.1, 25, loadData("lucene/rand.csv"))
 d_2 <- getFilteredData(0.1, 25, loadData("lucene/linecount.csv"))
 
 
+d_1$phi_min
+d_1$phi_max
+d_2$phi_min
+d_2$phi_max
+
+d_1$omega_min
+d_1$omega_max
+d_2$omega_min
+d_2$omega_max
 
 
-d_2$data$metric = "linecount_old"
+
+d_1$data$metric = "bccc_new"
+d_2$data$metric = "bccc_old"
 
 nrow(d_1$data)
 nrow(d_2$data)
@@ -30,13 +41,18 @@ boxplot(mr~metric, data=data)
 boxplot(mp~metric, data=data)
 boxplot(mappingPercent~metric, data=data)
 boxplot(initialClustered~metric, data=data)
-plot(ap~phi, data=d_1$data)
-plot(ap~phi, data=d_2$data)
+boxplot(h_mam~metric, data=data)
+plot(h_mam~phi, data=d_1$data)
+plot(h_mam~phi, data=d_2$data)
 
 
 wilcox.test(d_1$data$ap, d_2$data$ap, conf.int=TRUE)
 median(d_1$data$ap) - median(d_2$data$ap)
 wilcox_test(data$ap~data$metric)
+
+wilcox.test(d_1$data$h_mam, d_2$data$h_mam, conf.int=TRUE)
+median(d_1$data$h_mam) - median(d_2$data$h_mam)
+wilcox_test(data$h_mam~data$metric)
 
 # compute effect size r
 #https://stats.stackexchange.com/questions/133077/effect-size-to-wilcoxon-signed-rank-test

@@ -158,7 +158,7 @@ public class Main {
         }
 
         public void run() {
-            java.lang.System.out.println("Running Experiment " + m_ix + "...");
+            java.lang.System.out.print("" + m_ix + ", ");
             Graph graph = new MultiGraph("main" + m_ix);
             m_fs = new RunFileSaver(m_sua.getName(), m_metric.getName(), m_doSaveMappings);
             m_exr = new ExperimentRunner(m_sua, m_metric);
@@ -192,6 +192,7 @@ public class Main {
 
     private static ArrayList<ExThread> startThreads(int a_threadCount, System a_sua, Metric a_metric, boolean a_doSaveMappings) {
         ArrayList<ExThread> ret = new ArrayList<>();
+        java.lang.System.out.print("Running experiments: ");
         for(int i = 0; i < a_threadCount; i++) {
             final int ix = i;
 
@@ -340,6 +341,7 @@ public class Main {
                 java.lang.System.out.println("Also saving experiment mappings.");
             }
             ArrayList<ExThread> threads = startThreads(a_threadCount, a_sua, a_m, a_doSaveMappings);
+            java.lang.System.out.println("\nAll experiment threads Started!");
 
             while (sumRows(threads) < a_rows) {
                 try {
@@ -356,6 +358,7 @@ public class Main {
                 } catch (Exception e) {
                 }
             }
+            java.lang.System.out.println("\nAll experiment threads Done!");
         }
     }
 

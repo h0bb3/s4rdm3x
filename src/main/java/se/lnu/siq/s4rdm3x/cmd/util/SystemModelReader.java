@@ -24,7 +24,11 @@ public class SystemModelReader {
     public String m_name = "undefined name";
     public ArrayList<String> m_jars = new ArrayList<>();
     public ArrayList<String> m_roots = new ArrayList<>();
-    public String m_metrics = "undefined metrics file";
+    private String m_metrics = "undefined metrics file";
+
+    public String getMetricsFile() {
+        return m_metrics;
+    }
 
     private enum Context {
         Module,

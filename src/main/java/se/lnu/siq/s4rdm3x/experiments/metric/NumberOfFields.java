@@ -6,7 +6,7 @@ import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 
 public class NumberOfFields extends Metric {
     public String getName() {
-        return "NumberOfMethods";
+        return "NumberOfFields";
     }
     public void assignMetric(Iterable<Node> a_nodes) {
         AttributeUtil au = new AttributeUtil();

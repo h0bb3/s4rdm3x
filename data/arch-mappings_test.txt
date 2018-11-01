@@ -36,6 +36,8 @@ add_relations to_unmapped 9 (tag:mapped)|(tag:unmapped)
 
 print_nodes tag:unmapped AND edgTo:to_unmapped
 
+compute_metrics pkg:net/sf/jabref/
+print_metrics pkg:net/sf/jabref/
 
 
 //

@@ -7,6 +7,7 @@ import se.lnu.siq.s4rdm3x.cmd.util.ArchCreator;
 import se.lnu.siq.s4rdm3x.cmd.util.SystemModelReader;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -32,7 +33,12 @@ public class FileBased extends System {
     }
 
     public Path getCustomMetricsFile() {
-        return Paths.get(Paths.get(m_file).getParent().toString(), m_smr.m_metrics);
+        Path p = Paths.get(Paths.get(m_file).getParent().toString(), m_smr.getMetricsFile());
+        if (Files.exists(p)) {
+            return p;
+        }
+
+        return null;
     }
 
     public boolean load(Graph a_g) {
