@@ -39,6 +39,12 @@ public class ArchCreator {
             HuGMe.ArchDef.Component from, to;
             from = arch.getComponent(relation.m_moduleNameFrom);
             to = arch.getComponent(relation.m_moduleNameTo);
+            if (from == null) {
+                throw new NullPointerException("Could not find component: " + relation.m_moduleNameFrom + " on line: " + relation.m_line);
+            }
+            if (to == null) {
+                throw new NullPointerException("Could not find component: " + relation.m_moduleNameTo + " on line: " + relation.m_line);
+            }
             from.addDependencyTo(to);
         }
 

@@ -31,6 +31,10 @@ class ImGuiWrapper {
         int m_ix;
     }
 
+    public boolean menuItem(String a_label, String a_shortCut, boolean a_selected, boolean a_enabled) {
+        return m_imGui.menuItem(a_label, a_shortCut, a_selected, a_enabled);
+    }
+
     public void addDashedCircle(Vec2 a_center, float a_radius, int a_color, int a_segments, float a_thickness, float a_holeLength, float a_dashlength) {
         DashContext dc = new DashContext();
         double segmentStep = 2 * Math.PI / a_segments;

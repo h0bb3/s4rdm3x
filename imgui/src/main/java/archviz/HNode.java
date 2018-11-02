@@ -205,10 +205,10 @@ class HNode {
         }
     }
 
-    public int countNodes() {
-        int sum = m_name == null ? 0 : 1;
+    public int countChildren() {
+        int sum = 0;
         for (HNode n : m_children) {
-            sum += n.countNodes();
+            sum += 1 + n.countChildren();
         }
 
         return sum;

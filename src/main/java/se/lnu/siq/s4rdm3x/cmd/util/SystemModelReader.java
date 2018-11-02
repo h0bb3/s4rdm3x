@@ -16,6 +16,7 @@ public class SystemModelReader {
     public static class Relation {
         public String m_moduleNameFrom;
         public String m_moduleNameTo;
+        public int m_line;
     }
 
     public ArrayList<Module> m_modules = new ArrayList<>();
@@ -25,6 +26,8 @@ public class SystemModelReader {
     public ArrayList<String> m_jars = new ArrayList<>();
     public ArrayList<String> m_roots = new ArrayList<>();
     private String m_metrics = "undefined metrics file";
+
+    private int m_line = 0;
 
     public String getMetricsFile() {
         return m_metrics;
@@ -60,6 +63,7 @@ public class SystemModelReader {
                 Relation r = new Relation();
                 r.m_moduleNameFrom = parts[0];
                 r.m_moduleNameTo = parts[1];
+                r.m_line = m_line;
                 m_relations.add(r);
             } break;
             case Name: {
@@ -83,6 +87,7 @@ public class SystemModelReader {
         try (BufferedReader br = new BufferedReader(new FileReader(a_file))) {
             String line;
             while( (line = br.readLine()) != null) {
+                m_line++;
                 if (line.startsWith("# modules")) {
                     context = Context.Module;
                 } else if (line.startsWith("# mapping")) {

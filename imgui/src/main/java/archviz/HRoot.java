@@ -534,36 +534,39 @@ public class HRoot {
                     a_imgui.imgui().endMenu();
                 }
 
-                if (a_imgui.imgui().menuItem("Add Component", "CTRL+A", false, true)) {
+                if (a_imgui.menuItem("Add Component", "CTRL+A", false, true)) {
                     a = new Action();
 
                     a.m_addComponent = a_state.m_underPopUp.getFullName();
                     if (a.m_addComponent.length() > 0) {
                         a.m_addComponent += ".";
                     }
-                    a.m_addComponent += "component_" + m_root.countNodes();
+                    a.m_addComponent += "component_" + m_root.countChildren();
                     //a_imgui.closeCurrentPopup();
                 }
-                if (a_state.m_underPopUp.m_name != null && a_imgui.imgui().menuItem("Add Parent", "", false, true)) {
+                if (a_state.m_underPopUp.m_name != null && a_imgui.menuItem("Add Parent", "", false, true)) {
                     a = new Action();
+
+                    String parentFullName = a_state.m_underPopUp.m_parent.getFullName();
+                    if (parentFullName.length() > 0) {
+                        parentFullName += ".";
+                    }
 
                     a.m_hiearchyMove = new Action.HierarchyMove();
                     for (HNode concreteNode : a_state.m_underPopUp.getConcreteNodes()) {
 
-
-                        String parentFullName = concreteNode.m_parent.getFullName();
-                        if (parentFullName.length() > 0) {
-                            parentFullName += ".";
-                        }
-
                         // we do this so that the call to full name will be correct...
-                        String parentName = concreteNode.m_parent.m_name;
-                        concreteNode.m_parent.m_name = null;
-                        a.m_hiearchyMove.addPair(new Action.NodeNamePair(concreteNode.getFullName(), parentFullName + "virtual_" + m_root.countNodes() + "." + concreteNode.getFullName()), a_state.m_nvm);
-                        concreteNode.m_parent.m_name = parentName;
+                        // we need to remove the path of the under popup name and insert the new name there.
+                        // x.y.z.q.k under popup x.y.z -> x.y. new . z.q.k
+
+                        String concreteNodeOriginalName = concreteNode.getFullName();
+                        String parentName = a_state.m_underPopUp.m_parent.m_name;
+                        a_state.m_underPopUp.m_parent.m_name = null;
+                        a.m_hiearchyMove.addPair(new Action.NodeNamePair(concreteNodeOriginalName, parentFullName + "virtual_" + m_root.countChildren() + "." + concreteNode.getFullName()), a_state.m_nvm);
+                        a_state.m_underPopUp.m_parent.m_name = parentName;
                     }
                 }
-                if (a_state.m_underPopUp.m_name != null && a_imgui.imgui().menuItem("Delete " + a_state.m_underPopUp.m_name, "del", false, true)) {
+                if (a_state.m_underPopUp.m_name != null && a_imgui.menuItem("Delete " + a_state.m_underPopUp.m_name, "del", false, true)) {
                     a = new Action();
                     a.m_deletedComponents = new ArrayList<>();
 

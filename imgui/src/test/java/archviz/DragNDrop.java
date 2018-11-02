@@ -14,7 +14,7 @@ import static org.mockito.Mockito.*;
 
 //@PrepareForTest({ImGui.class})
 class DragNDrop {
-    static class ImGuiWrapper extends archviz.ImGuiWrapper {
+  private static class ImGuiWrapper extends archviz.ImGuiWrapper {
 
         private Vec2 m_mouseDragStart;
         private Vec2 m_mousePos = new Vec2(0, 0);
@@ -59,6 +59,8 @@ class DragNDrop {
         public boolean isInside(Vec2 a_center, float a_radius, Vec2 a_pos) {
             return a_center.minus(a_pos).length2() <= a_radius * a_radius;
         }
+
+
     }
 
     @org.junit.jupiter.api.Test
@@ -211,8 +213,6 @@ class DragNDrop {
         HRoot cut = new HRoot();
         Rect r = new Rect(0, 0, 100, 100);
 
-        ImGuiWrapper imgui = new ImGuiWrapper();
-
         HNode client = cut.add("client");
         cut.add("client.n1");   //0,0-25,25 12.5, 12.5
         HNode c_n2 = cut.add("client.n2");   //25,25-50,50 37.5,37.5
@@ -241,7 +241,7 @@ class DragNDrop {
         Assertions.assertTrue(checkPairSetEquality(expected, a.m_hiearchyMove.getPairs()));
     }
 
-    private Vec2 getSafePos(HNode a_node) {
+    protected Vec2 getSafePos(HNode a_node) {
         if (a_node.m_children.size() > 0) {
             return a_node.m_rect.getTl().plus(2);
         }
