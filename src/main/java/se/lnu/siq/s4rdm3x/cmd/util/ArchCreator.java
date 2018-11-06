@@ -48,8 +48,47 @@ public class ArchCreator {
             from.addDependencyTo(to);
         }
 
-
-
         return arch;
+    }
+
+    public SystemModelReader createSystemModel(HuGMe.ArchDef a_arch, Iterable<Node> a_nodesToMap) {
+        SystemModelReader ret = new SystemModelReader();
+
+        ret.m_name = "created system";
+
+        for (HuGMe.ArchDef.Component c : a_arch.getComponents()) {
+
+            SystemModelReader.Module module = new SystemModelReader.Module();
+            module.m_name = c.getName();
+            ret.m_modules.add(module);
+
+
+
+            for (HuGMe.ArchDef.Component to : a_arch.getComponents()) {
+                if (c.allowedDependency(to)) {
+                    SystemModelReader.Relation relation = new SystemModelReader.Relation();
+                    relation.m_moduleNameFrom = c.getName();
+                    relation.m_moduleNameTo = to.getName();
+
+                    ret.m_relations.add(relation);
+                }
+            }
+
+
+            for (Node n : a_nodesToMap) {
+                NodeUtil nu = new NodeUtil(null);
+                if (c.isMappedTo(n)) {
+                    SystemModelReader.Mapping m = new SystemModelReader.Mapping();
+
+                    m.m_moduleName = c.getName();
+                    m.m_regexp = nu.getName(n);
+
+                    ret.m_mappings.add(m);
+                }
+            }
+        }
+
+        return ret;
+
     }
 }

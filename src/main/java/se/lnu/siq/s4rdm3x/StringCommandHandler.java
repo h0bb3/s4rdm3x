@@ -15,8 +15,25 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class StringCommandHandler {
+
+
+
+    public interface ICommand {
+        public static class Result {
+            public boolean m_handled = false;
+            public ArrayList<String> m_output = new ArrayList<>();
+        }
+        Result execute(String a_command, Graph a_g, HuGMe.ArchDef a_arch);
+    }
+
+
+    ArrayList<ICommand> m_commands = new ArrayList<>();
     HuGMe.ArchDef m_arch = null;
 
+
+    public void addCommand(ICommand a_command) {
+        m_commands.add(a_command);
+    }
 
     private String join(String [] a_parts, int a_startIx, String a_delim) {
 
@@ -180,7 +197,7 @@ public class StringCommandHandler {
                 Exporter c = new Exporter(cargs[1], s);
                 c.run(graph);
 
-            } else if (in.startsWith("load_arch")) {
+            } else if (in.startsWith("load_arch ")) {
                 String[] cargs = in.split(" ");
                 LoadArch la = new LoadArch(cargs[1]);
                 la.run(graph);
@@ -190,8 +207,12 @@ public class StringCommandHandler {
                 } else {
                     ret.add("Failed to load Architecture from: " + cargs[1]);
                 }
-            } else if (in.startsWith("report_violations")) {
+            } else if (in.startsWith("save_arch ")) {
                 String[] cargs = in.split(" ");
+                SaveArch la = new SaveArch(m_arch, cargs[1]);
+                la.run(graph);
+
+            } else if (in.startsWith("report_violations")) {
                 CheckViolations cv = new CheckViolations();
                 cv.run(graph, m_arch);
                 ret.add("Divergencies:");
@@ -281,7 +302,19 @@ public class StringCommandHandler {
                 }
 
             } else if (in.length() > 0) {
-                ret.add("Unknown command: " + in);
+                ICommand.Result r = null;
+                for (ICommand c : m_commands) {
+                     r = c.execute(in, a_g, m_arch);
+                    if (r.m_handled) {
+                       break;
+                    }
+                }
+
+                if (r != null && r.m_handled) {
+                    ret.addAll(r.m_output);
+                } else {
+                    ret.add("Unknown command: " + in);
+                }
             }
         } catch(Exception e) {
             ret.add("Something when wrong when executing command: " + in);

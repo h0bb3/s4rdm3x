@@ -123,6 +123,9 @@ public class RectsAndArrows {
         }
         */
 
+       archviz.Command c = new archviz.Command(m_vizState);
+       sch.addCommand(c);
+
 
         window.loop(() -> {
 

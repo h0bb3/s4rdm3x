@@ -1,8 +1,6 @@
 package se.lnu.siq.s4rdm3x.cmd.util;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 
 public class SystemModelReader {
@@ -113,4 +111,49 @@ public class SystemModelReader {
             return false;
         }
     }
+
+    public void writeFile(String a_file) throws IOException {
+
+        BufferedWriter bw = new BufferedWriter(new FileWriter(a_file));
+
+        bw.write("# name"); bw.newLine();
+        bw.write(m_name); bw.newLine();
+
+        bw.write("# metrics file"); bw.newLine();
+        bw.write(m_metrics); bw.newLine();
+
+        bw.write("# modules"); bw.newLine();
+        for (Module m : m_modules) {
+            bw.write(m.m_name); bw.newLine();
+        }
+        bw.newLine();
+
+        bw.write("# mapping"); bw.newLine();
+        for (Mapping m : m_mappings) {
+            bw.write(m.m_moduleName + " " + m.m_regexp); bw.newLine();
+        }
+        bw.newLine();
+
+        bw.write("# relations"); bw.newLine();
+        for (Relation r : m_relations) {
+            bw.write(r.m_moduleNameFrom + " " + r.m_moduleNameTo); bw.newLine();
+        }
+        bw.newLine();
+
+        bw.write("# jar"); bw.newLine();
+        for (String jar : m_jars) {
+            bw.write(jar); bw.newLine();
+        }
+        bw.newLine();
+
+        bw.write("# root-packages"); bw.newLine();
+        for (String root : m_roots) {
+            bw.write(root); bw.newLine();
+        }
+
+        bw.close();
+
+    }
+
+
 }

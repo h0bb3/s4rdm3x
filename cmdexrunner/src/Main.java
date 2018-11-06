@@ -23,7 +23,7 @@ public class Main {
 
 
     private static String[] getExperimentMetricsArray() {
-        final String[] metrics = {"rand", "linecount", "fanin", "fanout", "noc", "nof", "nom", "nop", "rank", "cin", "cout", "bccc", "bci"};
+        final String[] metrics = {"rand", "linecount", "fanin", "fanout", "noc", "nof", "nom", "nop", "rank", "cin", "cout", "bccc", "bci", "lcomhs"};
 
 
         String[] ret = new String[metrics.length + metrics.length - 2];
@@ -38,7 +38,7 @@ public class Main {
     }
 
     private static String[] getInternalMetricsArray() {
-        final String[] metrics = {"rand", "linecount", "fanin", "fanout", "fan", "maxfan", "minfan", "avgfan", "noc", "nof", "nom", "nop", "rank", "cin", "cout", "bccc", "bci"};
+        final String[] metrics = {"rand", "linecount", "fanin", "fanout", "fan", "maxfan", "minfan", "avgfan", "noc", "nof", "nom", "nop", "rank", "cin", "cout", "bccc", "bci", "lcomhs"};
 
         String[] ret = new String[metrics.length + metrics.length - 2];
         for (int ix = 0; ix < metrics.length; ix++) {
@@ -118,6 +118,8 @@ public class Main {
             return new RelativeLineCount(new ByteCodeCyclomaticComplexity());
         } else if (a_metric.equalsIgnoreCase(metrics[ix++])) {
             return new RelativeLineCount(new ByteCodeInstructions());
+        } else if (a_metric.equalsIgnoreCase(metrics[ix++])) {
+            return new RelativeLineCount(new LCOMHS());
         }
 
         return null;

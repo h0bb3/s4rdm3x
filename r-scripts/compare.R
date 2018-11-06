@@ -6,6 +6,7 @@ setwd("C:/hObbE/projects/coding/research/s4rdm3x/r-scripts")
 source("functions/getFilteredData.R")
 source("functions/loadData.R")
 
+# comparison of individual metrics
 
 d_1 <- getFilteredData(1.00, 250, loadData("2018-10-29_own_metrics/jabref_37_1/bccc.csv"))
 d_2 <- getFilteredData(1.00, 250, loadData("180921/jabref_37_1/bccc.csv"))
@@ -60,13 +61,56 @@ abs(statistic(wilcox_test(data$ap~data$metric)) / sqrt(nrow(data)))
 
 
 # load all
+
+source("functions/getFilteredData.R")
+source("functions/loadData.R")
+
+
 all <- getFilteredData(0.001, 25, loadData("180921/argouml/all.csv"))
-all <- getFilteredData(0.001, 25, loadData("180921/jabref_37_1/all.csv"))
+oldall <- getFilteredData(0.1, 25, loadData("180921/jabref_37_1/all.csv"))
 all <- getFilteredData(0.001, 25, loadData("180921/teammates/all.csv"))
 all <- getFilteredData(0.001, 25, loadData("180921/ant/all.csv"))
 all <- getFilteredData(0.001, 25, loadData("180921/lucene/all.csv"))
 all <- getFilteredData(0.001, 25, loadData("180921/sweethome3d/all.csv"))
 
+# icsa2019 own metrics
+icsa2019_rand <- getFilteredData(0.1, 25, loadData("ICSA2019/jabref_37_1/rand.csv")) 
+icsa2019_rand$phi_min
+icsa2019_rand$phi_max
+icsa2019_rand$omega_min
+icsa2019_rand$omega_max
+
+all_loaded <- loadData("ICSA2019/jabref_37_1/all.csv")
+rand_loaded <- loadData("ICSA2019/jabref_37_1/rand.csv");
+
+plot(omega~phi, data = rand_loaded)
+
+rand_omegaphi <- getOmegaPhi(0.001, rand_loaded)
+#all<- getFilteredData(0.1, 25, loadData("ICSA2019/jabref_37_1/all.csv"))
+all <- getFilteredData_OmegaPhi(10, 25, rand_omegaphi, all_loaded)
+metrics <- with(all$data, reorder(metric, -h_mam, FUN=median))
+boxplot(h_mam~metrics, data=all$data, las=2)
+metrics
+nrow(all$data)
+median(all$data$h_mam[all$data$metric == "Rank"])
+rand_omegaphi$omega_min
+rand_omegaphi$omega_max
+rand_omegaphi$phi_min
+rand_omegaphi$phi_max
+
+
+compare_data <- all$data[all$data$metric == "rand" | all$data$metric == "fanout_linecount",]
+nrow(compare_data)
+wilcox_test(compare_data$h_mam~compare_data$metric)
+
+statistic(wilcox_test(compare_data$h_mam~compare_data$metric))
+
+abs(statistic(wilcox_test(compare_data$h_mam~compare_data$metric)) / sqrt(nrow(compare_data)))
+
+median(compare_data$h_mam[compare_data$metric == "rand"]) - median(compare_data$h_mam[compare_data$metric == "fanout_linecount"])
+
+
+hist(all$data$h_mam[all$data$metric == "fanout"])
 
 length(unique(all$data$metric))
 nrow(all$data)
@@ -92,6 +136,10 @@ boxplot(mp~metrics, data=all$data, las=2)
 
 metrics <- with(all$data, reorder(metric, -h_mam, FUN=median))
 boxplot(h_mam~metrics, data=all$data, las=2)
+
+metrics <- with(oldall$data, reorder(metric, -h_mam, FUN=median))
+boxplot(h_mam~metrics, data=oldall$data, las=2)
+
 
 boxplot(h_am~metric, data=all$data, las=2)
 

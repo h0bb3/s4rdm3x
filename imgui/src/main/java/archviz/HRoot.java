@@ -55,7 +55,6 @@ public class HRoot {
         public ArrayList<String> m_deletedComponents;
     }
 
-
     private HNode findNode(String [] a_names) {
         HNode currentParent = m_root;
 
