@@ -593,18 +593,59 @@ class HNode {
         return false;
     }
 
+    HNode.Visuals doVisualsMenu(ImGuiWrapper a_imgui, VisualsManager a_vm, HNode a_staleSourceNode) {
+        if (m_children.size() > 0) {
+            if (m_name != null) {
+                if (a_imgui.imgui().beginMenu(m_name, true)) {
+                    if (!a_staleSourceNode.getFullName().contentEquals(getFullName())) {
+
+                        if (a_imgui.imgui().menuItem("*", "", false, true)) {
+                            a_imgui.imgui().endMenu();
+                            a_vm.getNodeState(this);
+                        }
+
+                        if (getConcreteRepresentation() == null) {
+                            a_imgui.imgui().separator();
+                        }
+                    }
+
+                    for (HNode n : m_children) {
+                        Visuals ret = n.doVisualsMenu(a_imgui, a_vm, a_staleSourceNode);
+                        if (ret !=  null) {
+                            a_imgui.imgui().endMenu();
+                            return ret;
+                        }
+                    }
+                    a_imgui.imgui().endMenu();
+                }
+            } else {
+                for (HNode n : m_children) {
+                    Visuals ret = n.doVisualsMenu(a_imgui, a_vm, a_staleSourceNode);
+                    if (ret !=  null) {
+                        return ret;
+                    }
+                }
+            }
+
+        } else if (!a_staleSourceNode.getFullName().contentEquals(getFullName())) {
+
+            if (a_imgui.imgui().menuItem(m_name, "", false, true)) {
+                return a_vm.getNodeState(this);
+            }
+            if (m_parentNodeRepresentation) {
+                a_imgui.imgui().separator();
+            }
+        }
+
+        return null;
+    }
+
     HNode doNameMenu(ImGuiWrapper a_imgui, HNode a_staleSourceNode) {
         if (m_children.size() > 0) {
             if (m_name != null) {
                 if (a_imgui.imgui().beginMenu(m_name, true)) {
                     if (!a_staleSourceNode.getFullName().contentEquals(getFullName())) {
                         boolean [] selected = {a_staleSourceNode.hasDependencyTo(this)};
-                        /*for (HNode d : a_staleSourceNode.m_dependencies) {
-                            if (d.getFullName().contentEquals(getFullName())) {
-                                selected[0] = true;
-                                break;
-                            }
-                        }*/
 
                         if (a_imgui.imgui().menuItem("*", "", selected, true)) {
                             a_imgui.imgui().endMenu();
@@ -636,13 +677,6 @@ class HNode {
 
         } else if (!a_staleSourceNode.getFullName().contentEquals(getFullName())) {
             boolean [] selected = new boolean[] {a_staleSourceNode.hasDependencyTo(this)};
-
-            /*for (HNode d : a_staleSourceNode.m_dependencies) {
-                if (d.getFullName().contentEquals(getFullName())) {
-                    selected[0] = true;
-                    break;
-                }
-            }*/
 
             if (a_imgui.imgui().menuItem(m_name, "", selected, true)) {
                 return this;

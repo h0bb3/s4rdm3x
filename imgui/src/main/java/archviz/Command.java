@@ -82,7 +82,7 @@ public class Command implements StringCommandHandler.ICommand {
                 StreamResult result = new StreamResult(new File(cargs[1]));
                 transformer.transform(source, result);
 
-                ret.m_output.add("Architecture Visuals Save to: " + cargs[1]);
+                ret.m_output.add("Architecture Visuals Saved to: " + cargs[1]);
                 } catch (Exception e) {
                     ret.m_output.add("Error when saving xml: " + e.getMessage());
                     e.printStackTrace(System.out);
@@ -121,7 +121,7 @@ public class Command implements StringCommandHandler.ICommand {
 
 
                     ret.m_handled = true;
-                    ret.m_output.add("not implemented");
+                    ret.m_output.add("Arch Visuals Loaded from: " + cargs[1]);
                 }  catch (Exception e) {
                     ret.m_handled = true;
                     ret.m_output.add("Error when loading xml: " + e.getMessage());

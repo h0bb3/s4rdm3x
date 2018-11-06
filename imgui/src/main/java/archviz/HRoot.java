@@ -590,6 +590,20 @@ public class HRoot {
                         a_imgui.imgui().colorEdit3("Pick Text Color", col, ColorEditFlag.PickerHueWheel.getI());
                         a_imgui.imgui().endMenu();
                     }
+
+                    HNode.Visuals parentV = a_state.m_nvm.getNodeState(a_state.m_underPopUp.m_parent);
+                    if (a_imgui.menuItem("Copy Colors from Parent", "", false, true)) {
+                        v.copyColors(parentV);
+                    }
+
+                    if (a_imgui.imgui().beginMenu("Copy Colors from", true)) {
+                        HNode.Visuals from = m_root.doVisualsMenu(a_imgui, a_state.m_nvm, a_state.m_underPopUp);
+                        if (from != null) {
+                            v.copyColors(from);
+                        }
+                    }
+
+
                 }
 
                 if (a != null) {
