@@ -14,7 +14,7 @@ import static org.mockito.Mockito.*;
 
 //@PrepareForTest({ImGui.class})
 class DragNDrop {
-  private static class ImGuiWrapper extends archviz.ImGuiWrapper {
+  private static class ImGuiWrapper extends gui.ImGuiWrapper {
 
         private Vec2 m_mouseDragStart;
         private Vec2 m_mousePos = new Vec2(0, 0);

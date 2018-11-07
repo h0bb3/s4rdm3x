@@ -1,14 +1,19 @@
-package archviz;
+package gui;
 
 import glm_.vec2.Vec2;
 import glm_.vec4.Vec4;
 import imgui.*;
 import imgui.internal.Rect;
+import org.w3c.dom.Text;
+
+import java.util.Arrays;
 
 import static imgui.ImguiKt.COL32;
 
-class ImGuiWrapper {
+public class ImGuiWrapper {
     private ImGui m_imGui;
+
+    static private int g_textBufferExtraSize = 256;
 
     public ImGui imgui() {
         return m_imGui;
@@ -187,6 +192,38 @@ class ImGuiWrapper {
         Canceled
     }
 
+    public String inputTextSingleLine(String a_label, String a_text) {
+
+
+        // we may copy a really large chunk of data from the clipboard so we need to handle that
+        //String clipboard = imgui().getIo().getGetClipboardTextFn() != null ? imgui().getIo().getGetClipboardTextFn().invoke(imgui().getIo().getClipboardUserData()).toString() : "";
+        // TODO: This is not a good way to handle this but I can not seem to get a hold of the clipboard data or use any callbacks.
+        try {
+            char[] buffer = new char[a_text.length() + g_textBufferExtraSize];
+            Arrays.fill(buffer, '\0');
+            for (int i = 0; i < a_text.length() && i < buffer.length; i++) {
+                buffer[i] = a_text.charAt(i);
+            }
+
+            if (m_imGui.inputText("Root", buffer, 0)) {
+                String txt = new String();
+                for (int i = 0; i < buffer.length; i++) {
+                    if (buffer[i] == '\0') {
+                        break;
+                    }
+                    txt += buffer[i];
+                }
+                return txt;
+            }
+            return a_text;
+        } catch (ArrayIndexOutOfBoundsException e) {
+            g_textBufferExtraSize *= 2;
+            imgui().clearActiveId();
+            return a_text;
+            //rounds++;
+        }
+    }
+
     public InputTextStatus inputTextSingleLine(Vec2 a_pos, float a_width, String a_label, char[] a_buffer) {
         Vec2 textPos = a_pos.minus(m_imGui.getWindowPos());
 
@@ -258,11 +295,11 @@ class ImGuiWrapper {
         return m_imGui.getMousePos();
     }
 
-    boolean isMouseDoubleClicked(int a_button) {
+    public boolean isMouseDoubleClicked(int a_button) {
         return m_imGui.isMouseDoubleClicked(a_button);
     }
 
-    boolean isMouseClicked(int a_button, boolean a_doRepeat) {
+    public boolean isMouseClicked(int a_button, boolean a_doRepeat) {
         return m_imGui.isMouseClicked(a_button, a_doRepeat);
     }
 

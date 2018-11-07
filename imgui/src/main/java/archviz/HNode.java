@@ -2,10 +2,10 @@ package archviz;
 
 import glm_.vec2.Vec2;
 import glm_.vec4.Vec4;
+import gui.ImGuiWrapper;
 import imgui.internal.DrawCornerFlag;
 import imgui.internal.Rect;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;

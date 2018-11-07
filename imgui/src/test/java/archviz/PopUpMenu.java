@@ -12,7 +12,7 @@ import static org.mockito.Mockito.mock;
 
 public class PopUpMenu extends DragNDrop {
 
-    private static class ImGuiWrapper extends archviz.ImGuiWrapper {
+    private static class ImGuiWrapper extends gui.ImGuiWrapper {
 
         private Vec2 m_mousePos = new Vec2();
         private String m_activeMenuLabel = null;

@@ -2,6 +2,7 @@ package archviz;
 
 import glm_.vec2.Vec2;
 import glm_.vec4.Vec4;
+import gui.ImGuiWrapper;
 import imgui.*;
 import imgui.internal.Rect;
 import org.jetbrains.annotations.NotNull;
@@ -180,7 +181,7 @@ public class HRoot {
             // the child may already exist
             for (HNode c : a_parent.m_children) {
                 if (c.m_name.contentEquals(a_names[0]) && !c.isParentNodeRepresentation()) {
-                    // we are adding a children to a virtual node so add the concrete node representaion
+                    // we are adding a children to a virtual node so add the concrete node representation
                     if (c.m_children.size() > 0) {
                         HNode n = new HNode();
                         n.m_name = c.m_name;
