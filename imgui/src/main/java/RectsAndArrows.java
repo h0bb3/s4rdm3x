@@ -2,8 +2,6 @@ import archviz.HRoot;
 import glm_.vec2.Vec2;
 import glm_.vec2.Vec2i;
 import glm_.vec4.Vec4;
-import gui.ImGuiWrapper;
-import hiviz.Tree;
 import imgui.*;
 import imgui.impl.ImplGL3;
 import imgui.impl.LwjglGlfw;
@@ -158,10 +156,13 @@ public class RectsAndArrows {
     private Vec4 clearColor = new Vec4(0.45f, 0.55f, 0.6f, 1f);
     private boolean[] showArchitecture = {true};
     private boolean[] showTreeView = {true};
+    private boolean[] showGraphView = {true};
     private int[] counter = {0};
 
-    private int[] treeViewSelection = {0};
-    private String[] treeViewRoots = {"", "", ""};
+    private TreeView m_treeView = new TreeView();
+    private GraphView m_graphView = new GraphView();
+
+
 
     HRoot.State m_vizState = new HRoot.State();
 
@@ -198,6 +199,7 @@ public class RectsAndArrows {
 
         imgui.checkbox("Architectural Structure", showArchitecture);
         imgui.checkbox("Tree View", showTreeView);
+        imgui.checkbox("Graph View", showGraphView);
 
         if (imgui.button("Button", new Vec2()))                               // Buttons return true when clicked (NB: most widgets return true when edited/activated)
             counter[0]++;
@@ -210,63 +212,20 @@ public class RectsAndArrows {
         // 2. Show another simple window. In most cases you will use an explicit begin/end pair to name the window.
         if (showArchitecture[0]) {
             imgui.begin("Architectural Structure", showArchitecture, 0);
-            doArchStructure(a_arch, treeViewRoots[0]);
+            doArchStructure(a_arch, m_treeView.getArchRootFilter(), a_g);
             imgui.end();
         }
 
         if (showTreeView[0]) {
             if (imgui.begin("Tree Views", showTreeView, 0)) {
-                hiviz.Tree tree = new hiviz.Tree();
-                ArrayList<String> items = new ArrayList<>();
-                items.add("Architecture");
-                items.add("Classes");
-                items.add("Files");
+                m_treeView.doTreeView(imgui, a_arch, a_g, m_vizState.m_nvm);
+                imgui.end();
+            }
+        }
 
-                if (imgui.combo("", treeViewSelection, items, items.size())) {
-                }
-
-                ImGuiWrapper iw = new ImGuiWrapper(imgui);
-                treeViewRoots[treeViewSelection[0]] = iw.inputTextSingleLine("Root", treeViewRoots[treeViewSelection[0]]);
-
-                switch (treeViewSelection[0]) {
-                    case 0: {
-                        for(HuGMe.ArchDef.Component c : a_arch.getComponents()) {
-                            if (c.getName().startsWith(treeViewRoots[0]))
-                            tree.addNode(c.getName());
-                        }
-                    } break;
-                    case 1: {
-                        AttributeUtil au = new AttributeUtil();
-                        for (Node n : a_g.getEachNode()) {
-
-                            HuGMe.ArchDef.Component component = a_arch.getMappedComponent(n);
-
-                            for (dmClass c : au.getClasses(n)) {
-                                if (!c.isInner()) {
-                                    if (c.getName().startsWith(treeViewRoots[1])) {
-
-                                        Tree.TNode tn = tree.addNode(c.getName());
-                                        if (component != null) {
-                                            tn.setName(tn.getName() + " (" + component.getName() + ")");
-                                        }
-                                    }
-                                } else {
-                                    // tree.addNode(c.getName().replace("$", ".") + " (inner class)");
-                                }
-                            }
-                        }
-                    } break;
-                    case 2: {
-                    } break;
-                }
-
-
-                //NodeUtil nu = new NodeUtil(a_g);
-
-
-
-                tree.doTree(imgui);
-
+        if (showGraphView[0]) {
+            if (imgui.begin("Graph View", showGraphView, 0)) {
+                m_graphView.doGraphView(imgui, a_g.getNodeSet(), a_arch, m_vizState.m_nvm, io.getDeltaTime());
                 imgui.end();
             }
         }
@@ -284,7 +243,7 @@ public class RectsAndArrows {
     }
 
 
-    private void doArchStructure(HuGMe.ArchDef a_arch, String a_rootComponentFilter) {
+    private void doArchStructure(HuGMe.ArchDef a_arch, String a_rootComponentFilter, Graph a_g) {
         if (a_arch !=  null) {
 
             HRoot root = new HRoot();
@@ -371,7 +330,13 @@ public class RectsAndArrows {
                     if (c == null) {
                         System.out.println("Could not find component named: " + pair.m_oldName);
                     } else {
-                        a_arch.setComponentName(c, pair.m_newName);
+                        ArrayList<Node> nodes = new ArrayList<>();
+                        for(Node n : a_g.getNodeSet()) {
+                            if (c.isMappedTo(n)) {
+                                nodes.add(n);
+                            }
+                        }
+                        a_arch.setComponentName(c, pair.m_newName, nodes);
                     }
                 }
             }

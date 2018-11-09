@@ -15,7 +15,7 @@ public class HRoot {
     public static class State {
 
 
-        HNode.VisualsManager m_nvm = new HNode.VisualsManager();
+        public HNode.VisualsManager m_nvm = new HNode.VisualsManager();
         HNode.NodeNameEdit m_nne = new HNode.NodeNameEdit();
         HNode.DragNDropData m_dNd = null;
         HNode m_underPopUp = null;

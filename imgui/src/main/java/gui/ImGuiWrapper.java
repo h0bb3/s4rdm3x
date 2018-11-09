@@ -267,6 +267,10 @@ public class ImGuiWrapper {
         m_imGui.getWindowDrawList().addCircle(a_center, a_radius, a_color, a_segments, a_thickness);
     }
 
+    public void addCircleFilled(Vec2 a_center, float a_radius, int a_color, int a_segments) {
+        m_imGui.getWindowDrawList().addCircleFilled(a_center, a_radius, a_color, a_segments);
+    }
+
     public void addLine(Vec2 a_p1, Vec2 a_p2, int a_color, float a_thickness) {
         m_imGui.getWindowDrawList().addLine(a_p1, a_p2, a_color, a_thickness);
     }
@@ -324,6 +328,10 @@ public class ImGuiWrapper {
             return a_center.minus(a_pos).length2() <= a_radius * a_radius;
         }
         return false;
+    }
+
+    public int toColor(Vec4 a_v) {
+        return COL32((int)(a_v.getX() * 255), (int)(a_v.getY() * 255), (int)(a_v.getZ() * 255), (int)(a_v.getW() * 255));
     }
 
     public boolean isInside(Rect a_rect, Vec2 a_pos) {

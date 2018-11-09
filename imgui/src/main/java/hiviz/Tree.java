@@ -1,5 +1,6 @@
 package hiviz;
 
+import glm_.vec2.Vec2;
 import glm_.vec4.Vec4;
 import gui.ImGuiWrapper;
 import imgui.Col;
@@ -8,6 +9,8 @@ import imgui.ImGui;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import static imgui.ImguiKt.COL32;
+
 public class Tree {
     public static class TNode {
         private String m_name;
@@ -15,7 +18,17 @@ public class Tree {
         TNode m_parent;
         boolean m_parentNodeRepresentation;
         boolean m_isLeaf;
+        Mapping m_mapping;
+        private static class Mapping {
+            Vec4 m_color;
+            String m_mappedTo;
+        }
 
+        public void setMapping(String a_name, Vec4 a_color) {
+            m_mapping = new Mapping();
+            m_mapping.m_mappedTo = a_name;
+            m_mapping.m_color = a_color;
+        }
 
         TNode(String a_name, TNode a_parent) {
             m_name = a_name;
@@ -23,6 +36,7 @@ public class Tree {
             m_parentNodeRepresentation = false;
             m_children = new ArrayList<>();
             m_isLeaf = false;
+
         }
 
         public String getName() {
@@ -46,21 +60,78 @@ public class Tree {
         void doTree(ImGuiWrapper a_imgui) {
             if (m_name != null) {
                 if (m_children.size() == 0) {
-                    //a_imgui.imgui().pushStyleColor(Col., new Vec4(1, 1, 1, 1));
+
+                    if (m_mapping != null) {
+
+                        Vec2 pos = a_imgui.imgui().getCursorPos().plus(a_imgui.imgui().getWindowPos());
+
+                        float radius = a_imgui.getTextLineHeightWithSpacing() / 2;
+                        pos.setY(pos.getY() + radius - 1 - a_imgui.imgui().getScrollY());
+                        pos.setX(pos.getX() + a_imgui.imgui().calcTextSize(m_name, false).getX() + radius);
+
+                        doMapping(a_imgui, pos, radius, m_mapping);
+                    }
                     a_imgui.text(m_name);
-                    //a_imgui.imgui().popStyleColor(1);
+
                 } else if (m_children.size() > 0) {
+
+                    ArrayList<Mapping> mappings = new ArrayList<>();
+
+                    for (TNode c : m_children) {
+                        c.getMappingColors(mappings);
+                    }
+
+                    Vec2 pos = a_imgui.imgui().getCursorPos().plus(a_imgui.imgui().getWindowPos());
+
+                    float radius = a_imgui.getTextLineHeightWithSpacing() / 2;
+                    pos.setY(pos.getY() + radius - 1 - a_imgui.imgui().getScrollY());
+                    pos.setX(pos.getX() + a_imgui.imgui().calcTextSize(m_name, false).getX() + radius + a_imgui.imgui().getTreeNodeToLabelSpacing());
+
+
                     if (a_imgui.imgui().treeNode(m_name)) {
                         for (TNode c : m_children) {
                             c.doTree(a_imgui);
                         }
                         a_imgui.imgui().treePop();
                     }
+
+                    for (int ix = 0; ix < mappings.size(); ix++) {
+                        doMapping(a_imgui, pos, radius, mappings.get(ix));
+                        pos.setX(pos.getX() + radius + 2);
+                    }
                 }
             } else {
                 for (TNode c : m_children) {
                     c.doTree(a_imgui);
                 }
+            }
+        }
+
+        private void doMapping(ImGuiWrapper a_imgui, Vec2 pos, float radius, Mapping a_mapping) {
+            a_imgui.addCircleFilled(pos, radius - 4, COL32((int) (a_mapping.m_color.getX() * 255), (int) (a_mapping.m_color.getY() * 255), (int) (a_mapping.m_color.getZ() * 255), 255), 16);
+            if (a_imgui.isInside(pos, radius - 4, a_imgui.getMousePos())) {
+                a_imgui.beginTooltip();
+                a_imgui.text(a_mapping.m_mappedTo);
+                a_imgui.endTooltip();
+            }
+        }
+
+        private void getMappingColors(ArrayList<Mapping> a_mappings) {
+            if (m_mapping != null) {
+                boolean found = false;
+                for (Mapping m : a_mappings) {
+                    if (m.m_color == m_mapping.m_color) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    a_mappings.add(m_mapping);
+                }
+            }
+
+            for (TNode c : m_children) {
+                c.getMappingColors(a_mappings);
             }
         }
 

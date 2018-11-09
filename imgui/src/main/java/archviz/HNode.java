@@ -12,7 +12,7 @@ import java.util.HashMap;
 
 import static imgui.ImguiKt.COL32;
 
-class HNode {
+public class HNode {
 
     public String m_name;
     ArrayList<HNode> m_children = new ArrayList<>();
@@ -116,13 +116,22 @@ class HNode {
     }
 
 
-    static class VisualsManager {
+    public static class VisualsManager {
         HNode.Visuals addNew(HNode a_node) {
             HNode.Visuals ret = new HNode.Visuals();
             copyColorsFromParent(a_node, ret);
             m_nodeState.put(a_node.getUniqueName(), ret);
 
             return ret;
+        }
+
+        public Vec4 getBGColor(String a_node) {
+            Visuals v = m_nodeState.get(a_node);
+            if (v != null) {
+                return v.m_bgColor;
+            } else {
+                return new Vec4(1, 1, 1, 1);
+            }
         }
 
         private void copyColorsFromParent(HNode a_node, Visuals a_v) {

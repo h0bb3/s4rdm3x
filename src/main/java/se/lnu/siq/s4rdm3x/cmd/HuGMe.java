@@ -8,13 +8,17 @@ import se.lnu.siq.s4rdm3x.cmd.util.Selector;
 import se.lnu.siq.s4rdm3x.stats;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class HuGMe {
     public static class ArchDef {
 
-        public void setComponentName(Component a_c, String a_name) {
+        public void setComponentName(Component a_c, String a_name, Iterable<Node> a_nodesToRemap) {
+
             // Todo: check so that names are unique
             a_c.m_name = a_name;
+            a_c.mapToNodes(a_nodesToRemap);
+
         }
 
         public void clear() {
@@ -120,6 +124,13 @@ public class HuGMe {
 
             private void tagNode(Node a_n, String a_tag, AttributeUtil a_au) {
                 a_au.addTag(a_n, a_tag);
+            }
+
+            public void mapToNodes(Iterable<Node> a_nodesToRemap) {
+                AttributeUtil au = new AttributeUtil();
+                for (Node n : a_nodesToRemap) {
+                    tagNode(n, m_name, au);
+                }
             }
 
             public void mapToNodes(Graph a_g, Selector.ISelector a_selector) {
