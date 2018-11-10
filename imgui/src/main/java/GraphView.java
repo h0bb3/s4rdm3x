@@ -4,6 +4,7 @@ import glm_.vec4.Vec4;
 import gui.ImGuiWrapper;
 import imgui.ImGui;
 import imgui.WindowFlag;
+import imgui.internal.Rect;
 import org.graphstream.graph.Node;
 import se.lnu.siq.s4rdm3x.cmd.HuGMe;
 import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
@@ -21,6 +22,7 @@ public class GraphView {
     private boolean[] m_doFreeze = {false};
     private float[] m_collisionRadiusMultiplier = {2};
     private float[] m_collisionForceMultiplier = {8};
+    private float[] m_scale = {1};
 
     private Vec2 m_lastSize = new Vec2();
 
@@ -48,8 +50,8 @@ public class GraphView {
             m_pos.plus(m_v.times(a_dt), m_pos);
         }
 
-        public void render(ImGuiWrapper a_imgui, Vec2 a_offset) {
-            a_imgui.addCircle(a_offset.plus(m_pos), m_radius, m_color, 4, 1.0f);
+        public void render(ImGuiWrapper a_imgui, Vec2 a_offset, float a_scale) {
+            a_imgui.addCircle(a_offset.plus(m_pos.times(a_scale)), m_radius * a_scale, m_color, 4, 1.0f);
             m_isAlive = false;
         }
     }
@@ -61,6 +63,7 @@ public class GraphView {
         Particle m_attractedTo = null;
 
         private static Vec2 g_tl = new Vec2(), g_br = new Vec2();
+        private static Vec2 g_p = new Vec2();
 
         public void setSize(Vec2 a_size) {
             m_size.setX(a_size.getX() / 2);
@@ -68,13 +71,15 @@ public class GraphView {
             m_radius = a_size.length();
         }
 
-        public void render(ImGuiWrapper a_imgui, Vec2 a_offset) {
+        public void render(ImGuiWrapper a_imgui, Vec2 a_offset, float a_scale) {
 
-            g_tl.setX(m_pos.getX() + a_offset.getX() - m_size.getX());
-            g_tl.setY(m_pos.getY() + a_offset.getY() - m_size.getY());
+            m_pos.times(a_scale, g_p).plus(a_offset, g_p);
 
-            g_br.setX(m_pos.getX() + a_offset.getX() + m_size.getX());
-            g_br.setY(m_pos.getY() + a_offset.getY() + m_size.getY());
+            g_tl.setX(g_p.getX() - m_size.getX());
+            g_tl.setY(g_p.getY() - m_size.getY());
+
+            g_br.setX(g_p.getX() + m_size.getX());
+            g_br.setY(g_p.getY() + m_size.getY());
 
             a_imgui.addRect(g_tl, g_br, m_color, 0, 0, 1);
             a_imgui.addText(g_tl, m_color, m_name);
@@ -92,8 +97,7 @@ public class GraphView {
     Particle[] m_componentParticles = new Particle[0];
 
 
-
-    void doGraphView(ImGui a_imgui, Iterable<Node> a_nodes, HuGMe.ArchDef m_arch, archviz.HNode.VisualsManager a_nvm, float a_dt) {
+    void doGraphView(ImGui a_imgui, Iterable<Node> a_nodes, HuGMe.ArchDef a_arch, archviz.HNode.VisualsManager a_nvm, float a_dt) {
         ImGuiWrapper imgui = new ImGuiWrapper(a_imgui);
 
         imgui.imgui().beginColumns("graphviewcolumns", 2, 0);
@@ -102,34 +106,27 @@ public class GraphView {
         imgui.imgui().checkbox("Freeze Updates", m_doFreeze);
         imgui.imgui().sliderFloat("Collision Radius", m_collisionRadiusMultiplier, 1, 20, "%.2f", 1);
         imgui.imgui().sliderFloat("Collision Force", m_collisionForceMultiplier, 1, 50, "%.2f", 1);
+        imgui.imgui().sliderFloat("Scale", m_scale, 0.001f, 10, "%.2f", 1);
 
+        final float scale = m_scale[0];
 
         imgui.imgui().nextColumn();
 
         AttributeUtil au = new AttributeUtil();
 
-        for (int cIx = 0; cIx < m_arch.getComponentCount(); cIx++) {
-            HuGMe.ArchDef.Component c = m_arch.getComponent(cIx);
+        for (int cIx = 0; cIx < a_arch.getComponentCount(); cIx++) {
+            HuGMe.ArchDef.Component c = a_arch.getComponent(cIx);
 
             if (m_componentParticles.length < cIx + 1) {
                 //m_arNodes.ensureCapacity(n.getIndex() + 1);
                 m_componentParticles = Arrays.copyOf(m_componentParticles, cIx + 1);
                 m_componentParticles[cIx] = new Particle();
-                initParticle(m_componentParticles[cIx], c.getName());
 
+                initParticle(m_componentParticles[cIx], c.getName(), imgui.toColor(a_nvm.getBGColor(c.getName())));
                 System.out.println(c.getName());
 
-                Vec4 color = a_nvm.getBGColor(c.getName());
-                m_componentParticles[cIx].m_color = imgui.toColor(color);
 
-                for(Node n : a_nodes) {
-                    if (n.getIndex() < m_fileParticles.length) {
-                        if (c.isMappedTo(n)) {
-                            m_fileParticles[n.getIndex()].m_attractedTo = m_componentParticles[cIx];
-                            m_fileParticles[n.getIndex()].m_color = m_componentParticles[cIx].m_color;
-                        }
-                    }
-                }
+                setFileParticleAttractions(a_nodes, m_componentParticles[cIx], c);
             }
 
             Particle cp = m_componentParticles[cIx];
@@ -144,6 +141,19 @@ public class GraphView {
                         m_fileParticles[fpIx].m_color = cp.m_color;
                     }
                 }
+            }
+
+            // component has changed name or a new component has been added/loaded
+            if (cp.m_name != c.getName()) {
+                initParticle(cp, c.getName(), imgui.toColor(a_nvm.getBGColor(c.getName())));
+
+                for (int fpIx = 0; fpIx < m_fileParticles.length; fpIx++) {
+                    if (m_fileParticles[fpIx].m_attractedTo == cp) {
+                        m_fileParticles[fpIx].m_attractedTo = null;
+                    }
+                }
+
+                setFileParticleAttractions(a_nodes, cp, c);
             }
 
         }
@@ -164,8 +174,8 @@ public class GraphView {
                 initParticle(gn, name);
                 gn.setSize(size);
 
-                for (int cIx = 0; cIx < m_arch.getComponentCount(); cIx++) {
-                    HuGMe.ArchDef.Component c = m_arch.getComponent(cIx);
+                for (int cIx = 0; cIx < a_arch.getComponentCount(); cIx++) {
+                    HuGMe.ArchDef.Component c = a_arch.getComponent(cIx);
 
                     if (c.isMappedTo(n)) {
                         gn.m_attractedTo = m_componentParticles[cIx];
@@ -182,10 +192,12 @@ public class GraphView {
 
             gn.m_isAlive = true;
 
-            if (gn.m_attractedTo != null) {
-                Vec2 toAttraction = gn.m_attractedTo.m_pos.minus(gn.m_pos);
-                toAttraction.times(0.25f, toAttraction);
-                gn.m_force.plus(toAttraction, gn.m_force);
+            if (m_doFreeze[0] != true) {
+                if (gn.m_attractedTo != null) {
+                    Vec2 toAttraction = gn.m_attractedTo.m_pos.minus(gn.m_pos);
+                    toAttraction.times(0.25f, toAttraction);
+                    gn.m_force.plus(toAttraction, gn.m_force);
+                }
             }
         }
 
@@ -218,7 +230,7 @@ public class GraphView {
             }
         }
 
-        Vec2 size = new Vec2(maxX - minX, maxY - minY);
+        Vec2 size = new Vec2((maxX - minX) * scale, (maxY - minY) * scale);
 
 
         Vec2 offset = size.times(0.5f);
@@ -230,27 +242,49 @@ public class GraphView {
         m_lastSize.setY(columnSize.getY());
 
         imgui.imgui().beginChild("particles_parent", columnSize, true, WindowFlag.HorizontalScrollbar.getI());
+
         imgui.imgui().beginChild("particles", size, true, 0);
 
-        offset = offset.plus(imgui.imgui().getWindowPos());
+        Vec2 winPos = imgui.imgui().getCurrentWindow().getParentWindow().getPos();
+        Rect winRect = new Rect(winPos, winPos.plus(imgui.imgui().getCurrentWindow().getParentWindow().getSizeContents()));
+        Vec2 mousePos = imgui.getMousePos();
+        if (imgui.isInside(winRect, mousePos)) {
+            if (imgui.isMouseDragging(0, 0)) {
+                imgui.stopWindowDrag();
+                imgui.imgui().getCurrentWindow().getParentWindow().setScroll(imgui.imgui().getCurrentWindow().getParentWindow().getScroll().plus(imgui.imgui().getIo().getMouseDelta().negate()));
+            }
+        }
+
+        offset = offset.plus(imgui.imgui().getCurrentWindow().getPos());
 
         imgui.addCircle(imgui.imgui().getWindowPos(), 10, COL32(175, 255, 175, 255), 16, 1.0f);
         imgui.addCircle(offset, 10, COL32(255, 175, 175, 255), 16, 1.0f);
 
         imgui.addText(offset, COL32(255, 175, 175, 255), "Particules Be Here");
 
-        renderParticles(m_fileParticles, imgui, offset);
-        renderParticles(m_componentParticles, imgui, offset);
+        renderParticles(m_fileParticles, imgui, offset, scale);
+        renderParticles(m_componentParticles, imgui, offset, scale);
         imgui.imgui().endChild();
         imgui.imgui().endChild();
 
         imgui.imgui().endColumns();
     }
 
-    private void renderParticles(Particle[] a_particles, ImGuiWrapper a_imgui, Vec2 offset) {
+    private void setFileParticleAttractions(Iterable<Node> a_nodes, Particle a_source, HuGMe.ArchDef.Component a_c) {
+        for(Node n : a_nodes) {
+            if (n.getIndex() < m_fileParticles.length) {
+                if (a_c.isMappedTo(n)) {
+                    m_fileParticles[n.getIndex()].m_attractedTo = a_source;
+                    m_fileParticles[n.getIndex()].m_color = a_source.m_color;
+                }
+            }
+        }
+    }
+
+    private void renderParticles(Particle[] a_particles, ImGuiWrapper a_imgui, Vec2 offset, float a_scale) {
         for (int p1Ix = 0; p1Ix < a_particles.length; p1Ix++) {
             Particle p = a_particles[p1Ix];
-            p.render(a_imgui, offset);
+            p.render(a_imgui, offset, a_scale);
         }
     }
 
@@ -284,6 +318,11 @@ public class GraphView {
                 }
             }
         }
+    }
+
+    private void initParticle(Particle a_p, String a_name, int a_color) {
+        initParticle(a_p, a_name);
+        a_p.m_color = a_color;
     }
 
     private void initParticle(Particle a_p, String a_name) {

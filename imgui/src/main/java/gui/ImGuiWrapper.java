@@ -4,6 +4,7 @@ import glm_.vec2.Vec2;
 import glm_.vec4.Vec4;
 import imgui.*;
 import imgui.internal.Rect;
+import imgui.internal.Window;
 import org.w3c.dom.Text;
 
 import java.util.Arrays;
@@ -320,7 +321,12 @@ public class ImGuiWrapper {
     }
 
     public void stopWindowDrag() {
-        m_imGui.getCurrentWindow().setFlags(WindowFlag.NoMove.or(m_imGui.getCurrentWindow().getFlags()));
+        Window wnd = m_imGui.getCurrentWindow();
+
+        while (wnd.getParentWindow() != null) {
+            wnd = wnd.getParentWindow();
+        }
+        wnd.setFlags(WindowFlag.NoMove.or(wnd.getFlags()));
     }
 
     public boolean isInside(Vec2 a_center, float a_radius, Vec2 a_pos) {
@@ -335,7 +341,7 @@ public class ImGuiWrapper {
     }
 
     public boolean isInside(Rect a_rect, Vec2 a_pos) {
-        if (m_imGui.getCurrentWindow().isActiveAndVisible() && m_imGui.isWindowHovered(HoveredFlag.RootWindow)) {
+        if (m_imGui.getCurrentWindow().isActiveAndVisible() && m_imGui.isWindowHovered(HoveredFlag.RootAndChildWindows)) {
             /*Vec4 clipRect = m_imGui.getCurrentWindow().getDrawList().getCurrentClipRect();
             if (clipRect != null) {
                 return a_rect.contains(a_pos) && new Rect(clipRect).contains(a_pos);
