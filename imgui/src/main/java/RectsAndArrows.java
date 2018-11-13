@@ -227,6 +227,7 @@ public class RectsAndArrows {
             if (imgui.begin("Graph View", showGraphView, 0)) {
                 m_graphView.doGraphView(imgui, a_g.getNodeSet(), a_arch, m_vizState.m_nvm, io.getDeltaTime());
                 imgui.end();
+
             }
         }
 
@@ -237,6 +238,7 @@ public class RectsAndArrows {
         glClear(GL_COLOR_BUFFER_BIT);
 
         imgui.render();
+
         implGL3.renderDrawData(imgui.getDrawData());
 
         gln.GlnKt.checkError("loop", true); // TODO remove

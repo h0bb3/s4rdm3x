@@ -89,6 +89,8 @@ public class Main {
         } else if (a_metric.equalsIgnoreCase(metrics[ix++])) {
             return new ByteCodeInstructions();
         } else if (a_metric.equalsIgnoreCase(metrics[ix++])) {
+            return new LCOMHS();
+        } else if (a_metric.equalsIgnoreCase(metrics[ix++])) {
             return new RelativeLineCount(new FanIn());
         } else if (a_metric.equalsIgnoreCase(metrics[ix++])) {
             return new RelativeLineCount(new FanOut());
