@@ -91,4 +91,16 @@ public class NumberOfParentsTest {
         sut.assignMetric(g.getNodeSet());
         assertEquals(2.0, sut.getMetric(a));
     }
+
+
+    @Test
+    void testSameDistantParent() {
+        NumberOfParents sut = new NumberOfParents();
+        NodeGenerator ng = new NodeGenerator();
+        Graph g = ng.generateGraph(dmDependency.Type.Implements, new String [] {"AB", "BC", "AD", "DC"});
+        Node a = g.getNode("A");
+
+        sut.assignMetric(g.getNodeSet());
+        assertEquals(3.0, sut.getMetric(a));
+    }
 }

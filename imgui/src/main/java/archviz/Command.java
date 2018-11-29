@@ -7,7 +7,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import se.lnu.siq.s4rdm3x.StringCommandHandler;
-import se.lnu.siq.s4rdm3x.cmd.HuGMe;
+import se.lnu.siq.s4rdm3x.cmd.hugme.HuGMe;
 
 import java.io.*;
 

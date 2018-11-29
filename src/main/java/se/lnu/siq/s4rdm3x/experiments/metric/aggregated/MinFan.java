@@ -1,8 +1,6 @@
 package se.lnu.siq.s4rdm3x.experiments.metric.aggregated;
 
-import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.cmd.HuGMe;
 import se.lnu.siq.s4rdm3x.experiments.metric.FanHelper;
 import se.lnu.siq.s4rdm3x.experiments.metric.Metric;
 

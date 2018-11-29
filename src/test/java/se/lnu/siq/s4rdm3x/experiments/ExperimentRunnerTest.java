@@ -4,7 +4,6 @@ import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
 import org.junit.jupiter.api.Test;
-import se.lnu.siq.s4rdm3x.cmd.HuGMe;
 import se.lnu.siq.s4rdm3x.cmd.util.NodeUtil;
 import se.lnu.siq.s4rdm3x.experiments.metric.Metric;
 

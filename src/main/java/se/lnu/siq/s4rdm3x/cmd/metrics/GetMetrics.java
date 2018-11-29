@@ -39,7 +39,7 @@ public class GetMetrics {
         int m_colCount;
 
         HashMap<Node, Integer> m_node2Row = new HashMap<>();
-        HashMap<String, Integer> m_metric2Row = new HashMap<>();
+        HashMap<String, Integer> m_metric2Col = new HashMap<>();
 
 
         public int addRow(Node a_node) {
@@ -53,13 +53,13 @@ public class GetMetrics {
         }
 
         public int addColumn(String a_metricName) {
-            if (!m_metric2Row.containsKey(a_metricName)) {
+            if (!m_metric2Col.containsKey(a_metricName)) {
                 m_metrics = Arrays.copyOf(m_metrics, m_rowCount * (m_colCount + 1));
-                m_metric2Row.put(a_metricName, m_colCount);
+                m_metric2Col.put(a_metricName, m_colCount);
                 m_colCount++;
             }
 
-            return m_metric2Row.get(a_metricName);
+            return m_metric2Col.get(a_metricName);
         }
 
         public void add(Node a_n, String a_metric, double a_value) {
@@ -74,7 +74,7 @@ public class GetMetrics {
             return m_node2Row.keySet();
         }
         public Iterable<String> getMetrics() {
-            return m_metric2Row.keySet();
+            return m_metric2Col.keySet();
         }
 
         public double[] getRow(Node a_node) {
@@ -83,6 +83,12 @@ public class GetMetrics {
                 return Arrays.copyOfRange(m_metrics, ix, ix + m_colCount);
             }
             return null;
+        }
+
+        public double get(Node a_row, String a_col) {
+            int rowIx = m_node2Row.get(a_row);
+            int colIx = m_metric2Col.get(a_col);
+            return m_metrics[colIx + rowIx * m_colCount];
         }
     }
 

@@ -77,4 +77,15 @@ public class NumberOfChildrenTest {
         sut.assignMetric(g.getNodeSet());
         assertEquals(2.0, sut.getMetric(n1));
     }
+
+    @Test
+    void testDiamond() {
+        NumberOfChildren sut = new NumberOfChildren();
+        NodeGenerator ng = new NodeGenerator();
+        Graph g = ng.generateGraph(dmDependency.Type.Implements, new String [] {"BA", "CA", "DC", "DB"});
+        Node n1 = g.getNode("A");
+
+        sut.assignMetric(g.getNodeSet());
+        assertEquals(3.0, sut.getMetric(n1));
+    }
 }

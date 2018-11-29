@@ -1,5 +1,7 @@
 package se.lnu.siq.s4rdm3x.cmd;
 
+import se.lnu.siq.s4rdm3x.cmd.hugme.HuGMe;
+
 import java.util.Map;
 
 public class ArchDef {

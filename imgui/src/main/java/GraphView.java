@@ -1,12 +1,11 @@
 import glm_.vec2.Vec2;
-import glm_.vec4.Vec4;
 import gui.ImGuiWrapper;
 import imgui.ImGui;
 import imgui.WindowFlag;
 import imgui.internal.Rect;
 import imgui.internal.Window;
 import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.cmd.HuGMe;
+import se.lnu.siq.s4rdm3x.cmd.hugme.HuGMe;
 import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 

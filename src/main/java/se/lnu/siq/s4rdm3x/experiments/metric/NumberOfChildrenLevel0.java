@@ -1,17 +1,14 @@
 package se.lnu.siq.s4rdm3x.experiments.metric;
 
 import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
-import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
-public class NumberOfChildren extends Metric {
+public class NumberOfChildrenLevel0 extends Metric {
 
     public String getName() {
-        return "NumberOfChildren";
+        return "NumberOfChildrenLevel0";
     }
 
     public void assignMetric(Iterable<Node> a_nodes) {
@@ -33,12 +30,12 @@ public class NumberOfChildren extends Metric {
                 if (a_fh.hasDirectDependency(n, a_source, dmDependency.Type.Extends) ||
                         a_fh.hasDirectDependency(n, a_source, dmDependency.Type.Implements)) {
 
-                    ret += 1 + noc(n, a_path, a_nodes, a_fh);
+                    ret += 1;
                 }
             }
         }
 
-        //a_path.remove(a_source);
+        a_path.remove(a_source);
         return ret;
     }
 

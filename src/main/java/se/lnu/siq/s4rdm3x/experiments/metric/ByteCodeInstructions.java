@@ -16,14 +16,19 @@ public class ByteCodeInstructions extends Metric {
         AttributeUtil au = new AttributeUtil();
 
         for(Node n : a_nodes) {
-            double size = 0;
-            for (dmClass c : au.getClasses(n)) {
-                for (dmClass.Method m : c.getMethods()) {
-                    size += m.getInstructionCount();
-                }
-            }
+            double size = compute(n, au);
             setMetric(n, size);
         }
+    }
+
+    public double compute(Node a_n, AttributeUtil a_au) {
+        double size = 0;
+        for (dmClass c : a_au.getClasses(a_n)) {
+            for (dmClass.Method m : c.getMethods()) {
+                size += m.getInstructionCount();
+            }
+        }
+        return size;
     }
 
     @Override

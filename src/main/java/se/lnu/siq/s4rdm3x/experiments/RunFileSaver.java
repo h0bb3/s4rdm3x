@@ -2,7 +2,7 @@ package se.lnu.siq.s4rdm3x.experiments;
 
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.cmd.HuGMe;
+import se.lnu.siq.s4rdm3x.cmd.hugme.HuGMe;
 import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
 
 import java.io.File;

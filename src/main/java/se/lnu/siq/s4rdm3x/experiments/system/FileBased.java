@@ -1,7 +1,7 @@
 package se.lnu.siq.s4rdm3x.experiments.system;
 
 import org.graphstream.graph.Graph;
-import se.lnu.siq.s4rdm3x.cmd.HuGMe;
+import se.lnu.siq.s4rdm3x.cmd.hugme.HuGMe;
 import se.lnu.siq.s4rdm3x.cmd.LoadJar;
 import se.lnu.siq.s4rdm3x.cmd.util.ArchCreator;
 import se.lnu.siq.s4rdm3x.cmd.util.SystemModelReader;

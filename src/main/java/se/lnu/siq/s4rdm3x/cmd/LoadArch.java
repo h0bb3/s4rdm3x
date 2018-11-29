@@ -1,10 +1,8 @@
 package se.lnu.siq.s4rdm3x.cmd;
 
 import org.graphstream.graph.Graph;
-import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.cmd.HuGMe;
+import se.lnu.siq.s4rdm3x.cmd.hugme.HuGMe;
 import se.lnu.siq.s4rdm3x.cmd.util.ArchCreator;
-import se.lnu.siq.s4rdm3x.cmd.util.Selector;
 import se.lnu.siq.s4rdm3x.cmd.util.SystemModelReader;
 
 public class LoadArch {

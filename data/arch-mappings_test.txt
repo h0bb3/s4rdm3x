@@ -18,10 +18,18 @@ add_relations to_unmapped 9 (tag:mapped)|(tag:unmapped)
 print_nodes tag:unmapped AND edgTo:to_unmapped
 
 
+
+
 //
 // JabRef 3.7
 //
-load_jar data/systems/JabRef/3.7/JabRef-3.7.jar net.sf.jabref.
+
+	load_arch_visuals data/slask/jabref_visuals.xml
+	load_jar data/systems/JabRef/3.7/JabRef-3.7.jar net.sf.jabref.
+	load_arch data/slask/jabref.txt
+
+load_jar data/systems/JabRef/3.7/JabRef-3.7.jar net.sf.jabref
+	
 load_arch data/systems/JabRef/3.7/jabref-3_7-system_model_1.txt
 	
 add_node_tag mapped (tag:globals OR tag:preferences OR tag:model OR tag:logic OR tag:gui OR tag:cli OR tag:guiapi OR tag:db)
@@ -39,6 +47,9 @@ print_nodes tag:unmapped AND edgTo:to_unmapped
 compute_metrics pkg:net/sf/jabref/
 print_metrics pkg:net/sf/jabref/
 
+print_component_fan
+print_node_component_fan
+
 
 //
 // ArgoUML
@@ -46,9 +57,12 @@ print_metrics pkg:net/sf/jabref/
 //load_jar data/argouml.jar org/argouml
 //load_jar data/argouml_week_020_rev_013713_date_2007-11-04.jar org\argouml
 clear_graph
-load_jar data/systems/argouml/argouml-0.24.jar
-load_jar data/systems/argouml/argouml-0.24-model.jar
+load_jar data/systems/argouml/argouml-0.24.jar org.argouml
+load_jar data/systems/argouml/argouml-0.24-model.jar org.argouml
 load_arch data/systems/argouml/argouml-archmodel.txt
+
+compute_metrics pkg:org/argouml
+print_metrics pkg:org/argouml
 
 
 count_n tag:application
@@ -95,7 +109,8 @@ count_n tag:profile
 //
 // Sweet Home 3D
 //
-load_jar data/systems/sweethome3d/sweethome3d_week_020_rev_002382_date_2010-02-21.jar com/eteks/sweethome3d
+load_jar data/systems/sweethome3d/sweethome3d_week_020_rev_002382_date_2010-02-21.jar com.eteks.sweethome3d
+load_jar data/systems/sweethome3d/SweetHome3D-2.3_2010_03_21.jar com.eteks.sweethome3d
 load_arch data/systems/sweethome3d/sweethome3d-system_model.txt
 
 add_node_tag mapped tag:sweetHome3DModel OR tag:sweetHome3DTools OR tag:sweetHome3DPlugin OR tag:sweetHome3DViewController OR tag:sweetHome3DSwing OR tag:sweetHome3DJava3D
@@ -105,11 +120,17 @@ add_node_tag (unmapped NOT(tag:mapped) AND pkg:com/eteks/sweethome3d)
 count_n tag:mapped
 count_n tag:unmapped
 
+compute_metrics pkg:com/eteks/sweethome3d
+print_metrics pkg:com/eteks/sweethome3d
+
 //
 // Ant
 //
 load_jar data\systems\ant\ant_week_020_rev_584500_date_2007-10-14.jar org.apache.tools
 load_arch data\systems\ant\ant-archmodel.txt
+
+compute_metrics pkg:org/apache/tools
+print_metrics pkg:org/apache/tools
 
 add_node_tag mapped tag:optional OR tag:compilers OR tag:condition OR tag:rmic OR tag:cvslib OR tag:email OR tag:repository OR tag:taskdefs OR tag:listener
 add_node_tag mapped tag:types OR tag:ant OR tag:ant.util OR tag:zip OR tag:tar OR tag:mail OR tag:bzip2
@@ -133,6 +154,9 @@ load_arch data\systems\lucene\lucene-archmodel.txt
 add_node_tag mapped tag:queryparser OR tag:search OR tag:index OR tag:store OR tag:analysis OR tag:util OR tag:document
 add_node_tag unmapped NOT(tag:mapped) AND pkg:org/apache/lucene
 
+compute_metrics pkg:org/apache/lucene
+print_metrics pkg:org/apache/lucene
+
 count_n tag:queryparser
 count_n tag:search
 
@@ -149,6 +173,10 @@ print_nodes tag:unmapped
 load_jar data/systems/teammates/teammatesV5.110.jar test.teammates
 load_jar data/systems/teammates/teammatesV5.110.jar main.teammates
 load_arch data/systems/teammates/teammates-system_model.txt
+load_arch data/systems/teammates/teammates_notests-system_model.txt
+
+compute_metrics pkg:teammates
+print_metrics pkg:teammates
 
 add_node_tag mapped tag:client.scripts OR tag:client.remoteAPI OR tag:common.util OR tag:common.exception OR tag:common.dataTransfer OR tag:ui.automated OR tag:ui.controller OR tag:ui.view OR tag:logic.core OR tag:logic.api OR tag:logic.backdoor OR tag:storage.entity OR tag:storage.api OR tag:storage.search OR tag:testDriver
 

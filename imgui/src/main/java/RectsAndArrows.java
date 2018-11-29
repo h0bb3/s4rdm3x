@@ -12,15 +12,11 @@ import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
 import se.lnu.siq.s4rdm3x.GUIConsole;
 import se.lnu.siq.s4rdm3x.StringCommandHandler;
-import se.lnu.siq.s4rdm3x.cmd.HuGMe;
-import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
-import se.lnu.siq.s4rdm3x.cmd.util.NodeUtil;
-import se.lnu.siq.s4rdm3x.dmodel.dmClass;
+import se.lnu.siq.s4rdm3x.cmd.hugme.HuGMe;
 import uno.glfw.GlfwWindow;
 import uno.glfw.windowHint;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.glClear;

@@ -3,6 +3,9 @@ package se.lnu.siq.s4rdm3x;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import se.lnu.siq.s4rdm3x.cmd.*;
+import se.lnu.siq.s4rdm3x.cmd.hugme.GetComponentFan;
+import se.lnu.siq.s4rdm3x.cmd.hugme.GetNodeComponentCoupling;
+import se.lnu.siq.s4rdm3x.cmd.hugme.HuGMe;
 import se.lnu.siq.s4rdm3x.cmd.metrics.ComputeMetrics;
 import se.lnu.siq.s4rdm3x.cmd.metrics.GetMetrics;
 import se.lnu.siq.s4rdm3x.cmd.saerocon18.Cluster1;
@@ -294,11 +297,76 @@ public class StringCommandHandler {
 
                 for (Node n : c.m_result.getNodes()) {
                     String row = au.getName(n);
-
-                    for (double v : c.m_result.getRow(n)) {
-                        row += "\t" + v;
+                    for (String m : c.m_result.getMetrics()) {
+                        row += "\t" + c.m_result.get(n, m);
                     }
+
                     ret.add(row);
+                }
+
+            } else if (in.startsWith("print_node_component_fan")) {
+
+                GetNodeComponentCoupling c = new GetNodeComponentCoupling(m_arch);
+                c.run(graph);
+                AttributeUtil au = new AttributeUtil();
+
+                String header = "file";
+                for (String metric : c.m_result.getMetrics()) {
+                    header += "\t" + metric;
+                }
+
+                ret.add(header);
+
+                for (Node n : c.m_result.getNodes()) {
+                    String row = au.getName(n);
+                    for (String m : c.m_result.getMetrics()) {
+                        row += "\t" + c.m_result.get(n, m);
+                    }
+
+                    ret.add(row);
+                }
+
+            } else if (in.startsWith("print_component_fan")) {
+
+                String[] cargs = in.split(" ");
+
+                GetComponentFan c = new GetComponentFan(m_arch);
+                c.run(graph);
+                AttributeUtil au = new AttributeUtil();
+
+                ret.add("Architectural Components Fan Out");
+                String header = "from/to";
+                for (HuGMe.ArchDef.Component component : c.m_fanOut.getColumnObjects()) {
+                    header += "\t" + component.getName();
+                }
+
+                ret.add(header);
+
+                for (HuGMe.ArchDef.Component row : c.m_fanOut.getRowObjects()) {
+                    String rowStr = row.getName();
+
+                    for (HuGMe.ArchDef.Component col : c.m_fanOut.getColumnObjects()) {
+                        rowStr += "\t" + c.m_fanOut.get(row, col);
+                    }
+                    ret.add(rowStr);
+                }
+
+
+                ret.add("Architectural Components Fan In");
+                header = "from/to";
+                for (HuGMe.ArchDef.Component component : c.m_fanIn.getColumnObjects()) {
+                    header += "\t" + component.getName();
+                }
+
+                ret.add(header);
+
+                for (HuGMe.ArchDef.Component row : c.m_fanIn.getRowObjects()) {
+                    String rowStr = row.getName();
+
+                    for (HuGMe.ArchDef.Component col : c.m_fanIn.getColumnObjects()) {
+                        rowStr += "\t" + c.m_fanIn.get(row, col);
+                    }
+                    ret.add(rowStr);
                 }
 
             } else if (in.length() > 0) {

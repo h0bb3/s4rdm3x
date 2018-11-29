@@ -1,4 +1,4 @@
-package se.lnu.siq.s4rdm3x.cmd;
+package se.lnu.siq.s4rdm3x.cmd.hugme;
 
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -8,7 +8,6 @@ import se.lnu.siq.s4rdm3x.cmd.util.Selector;
 import se.lnu.siq.s4rdm3x.stats;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 public class HuGMe {
     public static class ArchDef {

@@ -40,7 +40,7 @@ public class NumberOfParents extends Metric {
             }
         }
 
-        a_path.remove(a_source);
+        //a_path.remove(a_source);
         return ret;
     }
 }
