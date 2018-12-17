@@ -7,6 +7,7 @@ import se.lnu.siq.s4rdm3x.cmd.hugme.GetComponentFan;
 import se.lnu.siq.s4rdm3x.cmd.hugme.GetNodeComponentCoupling;
 import se.lnu.siq.s4rdm3x.cmd.hugme.HuGMe;
 import se.lnu.siq.s4rdm3x.cmd.metrics.ComputeMetrics;
+import se.lnu.siq.s4rdm3x.cmd.metrics.GetMetric;
 import se.lnu.siq.s4rdm3x.cmd.metrics.GetMetrics;
 import se.lnu.siq.s4rdm3x.cmd.saerocon18.Cluster1;
 import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
@@ -303,6 +304,21 @@ public class StringCommandHandler {
 
                     ret.add(row);
                 }
+
+            } else if (in.startsWith("print_metric")) {
+
+                String[] cargs = in.split(" ");
+                String metric = cargs[1];
+                Selector.ISelector s = new Selector.All();
+                if (cargs.length > 2) {
+                    SelectorBuilder bs = new SelectorBuilder();
+                    s = bs.buildFromString(join(cargs, 2, " "));
+                }
+
+                GetMetric c = new GetMetric(metric, s);
+                c.run(graph);
+
+                ret.add(metric +": " + c.m_result);
 
             } else if (in.startsWith("print_node_component_fan")) {
 

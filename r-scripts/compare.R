@@ -317,6 +317,29 @@ addInitialDistributionColumn <- function(a_data) {
 	return(a_data)
 }
 
+initialDistributionZeroCount<- function(a_distribution) {
+	str <- as.character(a_distribution)
+	str <- substr(str, 2, nchar(str) - 1)
+	parts <- strsplit(str, ",")
+
+	number_of_concrete_elements = c()
+	for (i in 1: length(parts[[1]])) {
+		n <- as.numeric(strsplit(parts[[1]][i], ":")[[1]][2])
+		number_of_concrete_elements = append(number_of_concrete_elements,n)
+	}
+
+	return(sum(number_of_concrete_elements == 0))
+
+}
+
+addInitialZeroCountColumn <- function(a_data) {
+	a_data$zeroCount <- NA
+	for (rIx in 1:nrow(a_data)) {
+		a_data$zeroCount[rIx] <- initialDistributionZeroCount(a_data$initialDistribution[rIx])
+	}
+	return(a_data)
+}
+
 
 apply(jabref_filtered$data, 1, initialDistributionToGini)
 jabref_filtered$data$gini <- initialDistributionToGini(jabref_filtered$data$initialDistribution)
@@ -342,6 +365,8 @@ printOmegaPhi(lucene_filtered)
 
 jabref_filtered <- invisible(analyzeSystem(best_percent, jabref_loaded, 20, 35))
 jabref_filtered$data <- addInitialDistributionColumn(jabref_filtered$data)
+jabref_filtered$data <- addInitialZeroCountColumn(jabref_filtered$data)
+
 
 teammates_filtered <- invisible(analyzeSystem(best_percent, teammates_loaded, 20, 35))
 teammates_filtered$data <- addInitialDistributionColumn(teammates_filtered$data)
@@ -357,11 +382,14 @@ sweethome3d_filtered$data <- addInitialDistributionColumn(sweethome3d_filtered$d
 
 lucene_filtered <- invisible(analyzeSystem(best_percent, lucene_loaded, 20, 35))
 lucene_filtered$data <- addInitialDistributionColumn(lucene_filtered$data)
+lucene_filtered$data <- addInitialZeroCountColumn(lucene_filtered$data)
+
+plot(ap~zeroCount, data=jabref_filtered$data[jabref_filtered$data$metric=="rand",])
 
 boxplotMetrics(jabref_filtered$data, h_mam)
-boxplotMetrics(teammates_filtered$data, h_mam)
-boxplotMetrics(argouml_filtered$data, h_mam)
-boxplotMetrics(ant_filtered$data, h_mam)
+boxplotMetrics(teammates_filtered$data, gini)
+boxplotMetrics(argouml_filtered$data, gini)
+boxplotMetrics(ant_filtered$data, gini)
 
 boxplotMetrics(lucene_filtered$data, h_mam)
 boxplotMetrics(sweethome3d_filtered$data, h_mam)

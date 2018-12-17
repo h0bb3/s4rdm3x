@@ -46,6 +46,7 @@ public class Rank extends Metric {
             setMetric(n, rank);
         }
     }
+
     public void reassignMetric(Iterable<Node> a_nodes) {
 
     }

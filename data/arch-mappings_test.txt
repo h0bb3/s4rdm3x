@@ -127,7 +127,7 @@ print_metrics pkg:com/eteks/sweethome3d
 // Ant
 //
 load_jar data\systems\ant\ant_week_020_rev_584500_date_2007-10-14.jar org.apache.tools
-load_arch data\systems\ant\ant-archmodel.txt
+load_arch data\systems\ant\ant-system_model.txt
 
 compute_metrics pkg:org/apache/tools
 print_metrics pkg:org/apache/tools
