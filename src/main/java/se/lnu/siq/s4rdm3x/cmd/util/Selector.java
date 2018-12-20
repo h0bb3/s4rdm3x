@@ -4,6 +4,7 @@ import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
+import se.lnu.siq.s4rdm3x.model.CNode;
 
 import java.util.ArrayList;
 import java.util.regex.Pattern;
@@ -15,41 +16,41 @@ public class Selector {
 
     public interface ISelector {
 
-        public boolean isSelected(Node a_node);
+        public boolean isSelected(CNode a_node);
 
     }
 
     public static class All implements ISelector {
-        public boolean isSelected(Node a_node) {return true;}
+        public boolean isSelected(CNode a_node) {return true;}
     }
 
     public static class NodeCollection implements ISelector {
-        ArrayList<Node> m_nodes = new ArrayList<>();
+        ArrayList<CNode> m_nodes = new ArrayList<>();
 
         public NodeCollection() {
 
         }
 
-        public NodeCollection(Node a_n) {
+        public NodeCollection(CNode a_n) {
             m_nodes.add(a_n);
         }
 
-        public NodeCollection(Node a_n0, Node a_n1) {
+        public NodeCollection(CNode a_n0, CNode a_n1) {
             m_nodes.add(a_n0);
             m_nodes.add(a_n1);
         }
 
-        public NodeCollection(Node a_n0, Node a_n1, Node a_n2) {
+        public NodeCollection(CNode a_n0, CNode a_n1, CNode a_n2) {
             m_nodes.add(a_n0);
             m_nodes.add(a_n1);
             m_nodes.add(a_n2);
         }
 
-        public void Add(Node a_n) {
+        public void Add(CNode a_n) {
             m_nodes.add(a_n);
         }
 
-        public boolean isSelected(Node a_node) {
+        public boolean isSelected(CNode a_node) {
             return m_nodes.contains(a_node);
         }
     }
@@ -59,14 +60,8 @@ public class Selector {
 
         public EdgTo(String a_edgeTag) {m_edgeTag = a_edgeTag;}
 
-        public boolean isSelected(Node a_node) {
-            for(Edge e : a_node.getEachEdge()) {
-                if (g_au.hasAnyTag(e, m_edgeTag)) {
-                    return true;
-                }
-            }
-
-            return false;
+        public boolean isSelected(CNode a_node) {
+            return a_node.hasEdgeTag(m_edgeTag);
         }
     }
 
@@ -77,8 +72,8 @@ public class Selector {
             m_tag = a_tag;
         }
 
-        public boolean isSelected(Node a_node) {
-            return g_au.hasAnyTag(a_node, m_tag);
+        public boolean isSelected(CNode a_node) {
+            return a_node.hasAnyTag(m_tag);
         }
     }
 
@@ -91,13 +86,8 @@ public class Selector {
             m_cPattern = Pattern.compile(m_sPattern);
         }
 
-        public boolean isSelected(Node a_node) {
-            for (dmClass c : g_au.getClasses(a_node)) {
-                if (m_cPattern.matcher(c.getName()).find()) {
-                    return true;
-                }
-            }
-            return false;
+        public boolean isSelected(CNode a_node) {
+            return a_node.matchesAnyClassName(m_cPattern);
         }
     }
 
@@ -108,13 +98,9 @@ public class Selector {
             m_package = a_package;
         }
 
-        public boolean isSelected(Node a_node) {
-            for (dmClass c : g_au.getClasses(a_node)) {
-                if (c.getFileName().contains(m_package)) {
-                    return true;
-                }
-            }
-            return false;
+        public boolean isSelected(CNode a_node) {
+
+            a_node.matchesAnyPackageName(m_package);
         }
     }
 
@@ -126,7 +112,7 @@ public class Selector {
             m_right = a_right;
         }
 
-        public boolean isSelected(Node a_node) {
+        public boolean isSelected(CNode a_node) {
             return m_left.isSelected(a_node) && m_right.isSelected(a_node);
         }
     }
@@ -139,7 +125,7 @@ public class Selector {
             m_right = a_right;
         }
 
-        public boolean isSelected(Node a_node) {
+        public boolean isSelected(CNode a_node) {
             return m_left.isSelected(a_node) || m_right.isSelected(a_node);
         }
     }
@@ -151,7 +137,7 @@ public class Selector {
             m_right = a_right;
         }
 
-        public boolean isSelected(Node a_node) {
+        public boolean isSelected(CNode a_node) {
             return !m_right.isSelected(a_node);
         }
     }
