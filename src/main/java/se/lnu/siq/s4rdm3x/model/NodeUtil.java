@@ -1,10 +1,11 @@
-package se.lnu.siq.s4rdm3x.cmd.util;
+package se.lnu.siq.s4rdm3x.model;
 
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.ui.graphicGraph.GraphicNode;
 import org.graphstream.ui.view.Viewer;
+import se.lnu.siq.s4rdm3x.model.AttributeUtil;
 
 import java.util.ArrayList;
 import java.util.regex.Pattern;

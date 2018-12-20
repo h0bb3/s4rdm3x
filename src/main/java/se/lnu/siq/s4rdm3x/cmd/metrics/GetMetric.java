@@ -1,11 +1,8 @@
 package se.lnu.siq.s4rdm3x.cmd.metrics;
 
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
-import se.lnu.siq.s4rdm3x.cmd.util.Selector;
-import se.lnu.siq.s4rdm3x.experiments.metric.Metric;
-import se.lnu.siq.s4rdm3x.experiments.metric.MetricFactory;
+import se.lnu.siq.s4rdm3x.model.CGraph;
+import se.lnu.siq.s4rdm3x.model.CNode;
+import se.lnu.siq.s4rdm3x.model.Selector;
 
 public class GetMetric {
     public double m_result;
@@ -17,24 +14,22 @@ public class GetMetric {
         m_metric = a_metricName;
     }
 
-    public void run(Graph a_g) {
+    public void run(CGraph a_g) {
 
         m_result = 0;
-        for (Node n : a_g.getNodeSet()) {
-            if (m_selection.isSelected(n)) {
-                ComputeMetrics.Map map = n.getAttribute(ComputeMetrics.g_metricsMapKey);
+        for (CNode n : a_g.getNodes(m_selection)) {
 
-                if (map == null) {
-                    AttributeUtil au = new AttributeUtil();
-                    throw new IllegalArgumentException("No metrics in node: " + au.getName(n));
-                }
+            CNode.MetricMap map = n.getMetricMap();
 
-                if (!map.containsKey(m_metric)) {
-                    throw new IllegalArgumentException("No such metric: " + m_metric);
-                }
-
-                m_result += map.get(m_metric);
+            if (map == null) {
+                throw new IllegalArgumentException("No metrics in node: " + n.getFileName());
             }
+
+            if (!map.containsKey(m_metric)) {
+                throw new IllegalArgumentException("No such metric: " + m_metric);
+            }
+
+            m_result += map.get(m_metric);
         }
     }
 

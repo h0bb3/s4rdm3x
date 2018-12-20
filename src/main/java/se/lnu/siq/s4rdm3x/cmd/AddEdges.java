@@ -3,12 +3,8 @@ package se.lnu.siq.s4rdm3x.cmd;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
-import se.lnu.siq.s4rdm3x.cmd.util.NodeUtil;
-import se.lnu.siq.s4rdm3x.cmd.util.Selector;
-
-import java.util.ArrayList;
-import java.util.LinkedList;
+import se.lnu.siq.s4rdm3x.model.NodeUtil;
+import se.lnu.siq.s4rdm3x.model.Selector;
 
 /**
  * Created by tohto on 2017-08-22.
@@ -25,7 +21,7 @@ public class AddEdges {
     }
 
     public void run(Graph a_g) {
-        AttributeUtil au = new AttributeUtil();
+        /*AttributeUtil au = new AttributeUtil();
         NodeUtil nu = new NodeUtil(a_g);
         LinkedList<Node> packageNodes = new LinkedList();
 
@@ -77,7 +73,7 @@ public class AddEdges {
             try {
                 Thread.sleep(30);
             } catch (InterruptedException ex) {}
-        }
+        }*/
 
 
 

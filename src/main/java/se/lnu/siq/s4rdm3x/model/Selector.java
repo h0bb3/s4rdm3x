@@ -1,9 +1,6 @@
-package se.lnu.siq.s4rdm3x.cmd.util;
+package se.lnu.siq.s4rdm3x.model;
 
-import org.graphstream.graph.Edge;
-import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
-import se.lnu.siq.s4rdm3x.dmodel.dmClass;
+import se.lnu.siq.s4rdm3x.model.AttributeUtil;
 import se.lnu.siq.s4rdm3x.model.CNode;
 
 import java.util.ArrayList;
@@ -100,7 +97,7 @@ public class Selector {
 
         public boolean isSelected(CNode a_node) {
 
-            a_node.matchesAnyPackageName(m_package);
+            return a_node.matchesAnyPackageName(m_package);
         }
     }
 

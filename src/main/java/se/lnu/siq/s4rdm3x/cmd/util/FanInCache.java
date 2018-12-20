@@ -3,6 +3,7 @@ package se.lnu.siq.s4rdm3x.cmd.util;
 import org.graphstream.graph.Node;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
+import se.lnu.siq.s4rdm3x.model.AttributeUtil;
 
 import java.util.HashMap;
 

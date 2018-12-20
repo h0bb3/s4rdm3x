@@ -1,7 +1,7 @@
 package se.lnu.siq.s4rdm3x.experiments.metric;
 
 import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
+import se.lnu.siq.s4rdm3x.model.CNode;
 
 public class FanOut extends Metric {
 
@@ -11,16 +11,27 @@ public class FanOut extends Metric {
     }
 
     @Override
-    public void assignMetric(Iterable<Node> a_nodes) {
-        FanHelper fh = new FanHelper(a_nodes);
-        for(Node n : a_nodes) {
-            setMetric(n, fh.getFanOut(n));
+    public void assignMetric(Iterable<CNode> a_nodes) {
+        for(CNode n : a_nodes) {
+            double fout = compute(n, a_nodes);
+            n.setMetric(getName(), fout);
         }
     }
 
-    public void reassignMetric(Iterable<Node> a_nodes) {
+    public void reassignMetric(Iterable<CNode> a_nodes) {
         // the fan out will not change so...
     }
 
 
+    public double compute(CNode a_n, Iterable<CNode> a_nodes) {
+        double fout = 0;
+        for (CNode m : a_nodes) {
+
+            if (a_n != m) {
+                fout += a_n.getDependencyCount(m);
+            }
+        }
+
+        return fout;
+    }
 }

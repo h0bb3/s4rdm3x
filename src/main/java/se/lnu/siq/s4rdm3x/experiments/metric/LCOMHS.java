@@ -1,23 +1,20 @@
 package se.lnu.siq.s4rdm3x.experiments.metric;
 
 import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
+import se.lnu.siq.s4rdm3x.model.AttributeUtil;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
+import se.lnu.siq.s4rdm3x.model.CNode;
 
 public class LCOMHS extends Metric {
     public String getName() {
         return "LackOfCohesionOfMethods_HS";
     }
 
-    public void assignMetric(Iterable<Node> a_nodes) {
-        AttributeUtil au = new AttributeUtil();
+    public void assignMetric(Iterable<CNode> a_nodes) {
 
 
-        for(Node n : a_nodes) {
-
-
-
-            for (dmClass c : au.getClasses(n)) {
+        for(CNode n : a_nodes) {
+            for (dmClass c : n.getClasses()) {
                 if (!c.isInner()) {
                     double m = c.getConcreteMethodCount();
                     double f = c.getFieldCount();
@@ -27,7 +24,7 @@ public class LCOMHS extends Metric {
                         lcom = (m - (sum_fm / f)) / (m - 1);
                     }
 
-                    setMetric(n, lcom);
+                    n.setMetric(getName(), lcom);
 
                     break;
                 }
@@ -47,7 +44,7 @@ public class LCOMHS extends Metric {
         return sum;
     }
 
-    public void reassignMetric(Iterable<Node> a_nodes) {
+    public void reassignMetric(Iterable<CNode> a_nodes) {
 
     }
 }

@@ -1,10 +1,10 @@
 package se.lnu.siq.s4rdm3x.cmd.hugme;
 
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
+import se.lnu.siq.s4rdm3x.model.AttributeUtil;
 import se.lnu.siq.s4rdm3x.cmd.util.FanInCache;
-import se.lnu.siq.s4rdm3x.cmd.util.Selector;
+import se.lnu.siq.s4rdm3x.model.Selector;
+import se.lnu.siq.s4rdm3x.model.CGraph;
+import se.lnu.siq.s4rdm3x.model.CNode;
 import se.lnu.siq.s4rdm3x.stats;
 
 import java.util.ArrayList;
@@ -12,7 +12,7 @@ import java.util.ArrayList;
 public class HuGMe {
     public static class ArchDef {
 
-        public void setComponentName(Component a_c, String a_name, Iterable<Node> a_nodesToRemap) {
+        public void setComponentName(Component a_c, String a_name, Iterable<CNode> a_nodesToRemap) {
 
             // Todo: check so that names are unique
             a_c.m_name = a_name;
@@ -44,18 +44,17 @@ public class HuGMe {
                 Initial
             }
 
-            public ClusteringType getClusteringType(Node a_n) {
-                AttributeUtil au = new AttributeUtil();
-                if (au.hasAnyTag(a_n, ClusteringType.Manual.toString())) {
+            public ClusteringType getClusteringType(CNode a_n) {
+                if (a_n.hasAnyTag(ClusteringType.Manual.toString())) {
                     return ClusteringType.Manual;
                 }
-                if (au.hasAnyTag(a_n, ClusteringType.Automatic.toString())) {
+                if (a_n.hasAnyTag(ClusteringType.Automatic.toString())) {
                     return ClusteringType.Automatic;
                 }
-                if (au.hasAnyTag(a_n, ClusteringType.ManualFailed.toString())) {
+                if (a_n.hasAnyTag(ClusteringType.ManualFailed.toString())) {
                     return ClusteringType.ManualFailed;
                 }
-                if (au.hasAnyTag(a_n, ClusteringType.Initial.toString())) {
+                if (a_n.hasAnyTag(ClusteringType.Initial.toString())) {
                     return ClusteringType.Initial;
                 }
 
@@ -89,55 +88,40 @@ public class HuGMe {
                 return m_name;
             }
 
-            public void removeClustering(Node a_n, AttributeUtil a_au) {
-                a_au.removeTag(a_n, getClusterName());
+            public void removeClustering(CNode a_n) {
+                a_n.removeTag(getClusterName());
                 for (ClusteringType ct : ClusteringType.values()) {
-                    a_au.removeTag(a_n, ct.toString());
+                    a_n.removeTag(ct.toString());
                 }
             }
 
-            public void clusterToNode(Node a_n, ClusteringType a_ct) {
-                AttributeUtil au = new AttributeUtil();
-                tagNode(a_n, getClusterName(), au);
-                tagNode(a_n, a_ct.toString(), au);
+            public void clusterToNode(CNode a_n, ClusteringType a_ct) {
+                a_n.addTag(getClusterName());
+                a_n.addTag(a_ct.toString());
             }
 
-            public void unmap(Node a_n) {
-                AttributeUtil au = new AttributeUtil();
-                au.removeTag(a_n, m_name);
+            public void unmap(CNode a_n) {
+                a_n.removeTag(m_name);
             }
 
-            public void mapToNode(Node a_n) {
-                AttributeUtil au = new AttributeUtil();
-                tagNode(a_n, m_name, au);
+            public void mapToNode(CNode a_n) {
+                a_n.addTag(m_name);
             }
 
-            public boolean isMappedTo(Node a_n, AttributeUtil a_au) {
-                return a_au.hasAnyTag(a_n, m_name);
+            public boolean isMappedTo(CNode a_n) {
+                return a_n.hasAnyTag(m_name);
             }
 
-            public boolean isMappedTo(Node a_n) {
-                AttributeUtil au = new AttributeUtil();
-                return isMappedTo(a_n, au);
-            }
-
-            private void tagNode(Node a_n, String a_tag, AttributeUtil a_au) {
-                a_au.addTag(a_n, a_tag);
-            }
-
-            public void mapToNodes(Iterable<Node> a_nodesToRemap) {
-                AttributeUtil au = new AttributeUtil();
-                for (Node n : a_nodesToRemap) {
-                    tagNode(n, m_name, au);
+            public void mapToNodes(Iterable<CNode> a_nodesToRemap) {
+                for (CNode n : a_nodesToRemap) {
+                    n.addTag(m_name);
                 }
             }
 
-            public void mapToNodes(Graph a_g, Selector.ISelector a_selector) {
+            public void mapToNodes(CGraph a_g, Selector.ISelector a_selector) {
                 AttributeUtil au = new AttributeUtil();
-                for (Node n : a_g) {
-                    if (a_selector.isSelected(n)) {
-                        tagNode(n, m_name, au);
-                    }
+                for (CNode n : a_g.getNodes(a_selector)) {
+                    n.addTag(m_name);
                 }
             }
         }
@@ -191,50 +175,63 @@ public class HuGMe {
             return null;
         }
 
-        public Iterable<Node> getMappedNodes(Iterable<Node> a_nodes) {
-            AttributeUtil au = new AttributeUtil();
-            return au.getNodesWithAnyTag(a_nodes, getComponentNames());
+        public Iterable<CNode> getMappedNodes(Iterable<CNode> a_nodes) {
+            ArrayList<CNode> ret = new ArrayList<>();
+            for (CNode n : a_nodes) {
+                if (n.hasAnyTag(getComponentNames())) {
+                    ret.add(n);
+                }
+            }
+            return ret;
         }
 
-        public void cleanNodeClusters(Iterable<Node> a_nodes) {
-            AttributeUtil au = new AttributeUtil();
-            for (Node n : a_nodes) {
+        public void cleanNodeClusters(Iterable<CNode> a_nodes) {
+            for (CNode n : a_nodes) {
                 Component c = getClusteredComponent(n);
                 while (c!= null) {
-                    c.removeClustering(n, au);
+                    c.removeClustering(n);
                     c = getClusteredComponent(n);
                 }
             }
         }
 
-        public Component getClusteredComponent(Node a_n) {
-            AttributeUtil au = new AttributeUtil();
+        public Component getClusteredComponent(CNode a_n) {
             for(Component c : m_components) {
-                if (au.hasAnyTag(a_n, c.getClusterName())) {
+                if (a_n.hasAnyTag(c.getClusterName())) {
                     return c;
                 }
             }
             return null;
         }
 
-        public Component getMappedComponent(Node a_n) {
-            AttributeUtil au = new AttributeUtil();
+        public Component getMappedComponent(CNode a_n) {
             for(Component c : m_components) {
-                if (au.hasAnyTag(a_n, c.getName())) {
+                if (a_n.hasAnyTag(c.getName())) {
                     return c;
                 }
             }
             return null;
         }
 
-        public int getMappedNodeCount(Iterable<Node> a_nodes) {
-            AttributeUtil au = new AttributeUtil();
-            return au.getNodesWithAnyTag(a_nodes, getComponentNames()).size();
+        public int getMappedNodeCount(Iterable<CNode> a_nodes) {
+            int count = 0;
+            for (CNode n : a_nodes) {
+                if (n.hasAnyTag(getComponentNames())) {
+                    count++;
+                }
+            }
+            return count;
         }
 
-        public int getClusteredNodeCount(Iterable<Node> a_nodes) {
-            AttributeUtil au = new AttributeUtil();
-            return au.getNodesWithAnyTag(a_nodes, getClusterNames()).size();
+        public int getClusteredNodeCount(Iterable<CNode> a_nodes) {
+
+            int count = 0;
+            for (CNode n : a_nodes) {
+                if (n.hasAnyTag(getClusterNames())) {
+                    count++;
+                }
+            }
+            return count;
         }
 
         public Iterable<Component> getComponents() {
@@ -244,13 +241,13 @@ public class HuGMe {
 
     private double m_filterThreshold;   // omega in paper
     private double m_violationWeight;   // psi in paper
-    private FanInCache m_fic;
+    //private FanInCache m_fic;
 
     private boolean m_doManualMapping;
 
     private ArchDef m_arch;
 
-    public ArrayList<Node> m_clusteredElements;
+    public ArrayList<CNode> m_clusteredElements;
 
     public int m_consideredNodes = 0;           // all nodes that pass the filter
     public int m_automaticallyMappedNodes = 0;
@@ -265,13 +262,13 @@ public class HuGMe {
         m_filterThreshold = a_filterThreshold;
         m_doManualMapping = a_doManualMapping;
         m_arch = a_arch;
-        m_fic = a_fic;
+       // m_fic = a_fic;
     }
 
 
 
 
-    public void run(Graph a_g) {
+    public void run(CGraph a_g) {
         AttributeUtil au = new AttributeUtil();
 
         final String [] originalMappingTags = m_arch.getComponentNames();
@@ -279,21 +276,21 @@ public class HuGMe {
         m_clusteredElements = new ArrayList<>();
 
         // all considered nodes to unmapped
-        java.util.ArrayList<Node> unmapped = new ArrayList<>();
-        for (Node n : a_g.getEachNode()) {
+        java.util.ArrayList<CNode> unmapped = new ArrayList<>();
+        for (CNode n : a_g.getNodes()) {
             if (m_arch.getMappedComponent(n) != null && m_arch.getClusteredComponent(n) == null) {
                 unmapped.add(n);
             }
         }
 
         // create the current clusters
-        java.util.ArrayList<java.util.ArrayList<Node>> clusters = new ArrayList<>();
+        java.util.ArrayList<java.util.ArrayList<CNode>> clusters = new ArrayList<>();
         for(int i = 0; i < m_arch.getComponentCount(); i++) {
-            ArrayList<Node> c = new ArrayList<>();
+            ArrayList<CNode> c = new ArrayList<>();
             clusters.add(c);
             HuGMe.ArchDef.Component targetComponent = m_arch.getComponent(i);
 
-            for(Node n : a_g.getNodeSet()) {
+            for(CNode n : a_g.getNodes()) {
                 if (m_arch.getClusteredComponent(n) == targetComponent) {
                     c.add(n);
                 }
@@ -303,22 +300,22 @@ public class HuGMe {
 
         m_unmappedNodesFromStart = unmapped.size();
 
-        java.util.ArrayList<Node> candidates = new ArrayList<>(unmapped);
-        for (Node n : unmapped) {
+        java.util.ArrayList<CNode> candidates = new ArrayList<>(unmapped);
+        for (CNode n : unmapped) {
             // count all dependencies to this class from all other unmapped classes
             int toMappedCountC = 0, totalCountC = 0;
-            for (Node otherNode : unmapped) {
+            for (CNode otherNode : unmapped) {
                 if (n != otherNode) {
-                    totalCountC += m_fic.getFanIn(n, otherNode);
-                    totalCountC += m_fic.getFanIn(otherNode, n);
+                    totalCountC += n.getDependencyCount(otherNode); //m_fic.getFanIn(n, otherNode);
+                    totalCountC += otherNode.getDependencyCount(n); //m_fic.getFanIn(otherNode, n);
                 }
             }
 
-            for (ArrayList<Node> cluster : clusters) {
-                for (Node nMapped : cluster) {
+            for (ArrayList<CNode> cluster : clusters) {
+                for (CNode nMapped : cluster) {
 
-                    double fromClustered = m_fic.getFanIn(nMapped, n);
-                    double toClustered = m_fic.getFanIn(n, nMapped);
+                    double fromClustered = nMapped.getDependencyCount(n);//m_fic.getFanIn(nMapped, n);
+                    double toClustered = n.getDependencyCount(nMapped);//m_fic.getFanIn(n, nMapped);
                     toMappedCountC += toClustered;
                     toMappedCountC += fromClustered;
                     totalCountC += fromClustered;
@@ -341,22 +338,22 @@ public class HuGMe {
         m_consideredNodes = candidates.size();
 
         // 3 Count the attraction to the clusters, there will be one sum for each cluster
-        for (Node n : candidates) {
+        for (CNode n : candidates) {
             double attractions[] = new double[m_arch.getComponentCount()];
             for (int i = 0; i < m_arch.getComponentCount(); i++) {
                 // TODO: Implement weights for different types of relations
                 //attractions[i] = CountAttract(n, clusters.get(i));
                 attractions[i] = CountAttractP(n, i, clusters);
             }
-            n.setAttribute("attractions", attractions);
+            n.setAttractions(attractions);
         }
 
         // 4 Find 2 candidate sets of attractions
         //      First set is based on >= mean of all attractions
         //      Second set is based on > standard deviation of all attractions
 
-        for (Node n : candidates) {
-            double attractions[] = n.getAttribute("attractions");
+        for (CNode n : candidates) {
+            double attractions[] = n.getAttractions();
             double mean = stats.mean(attractions);
             double sd = stats.stdDev(attractions, mean);
 
@@ -466,7 +463,7 @@ public class HuGMe {
     }
 
 
-    private double CountAttractP(Node a_node, int a_cluster, ArrayList<ArrayList<Node>> a_clusters) {
+    private double CountAttractP(CNode a_node, int a_cluster, ArrayList<ArrayList<CNode>> a_clusters) {
         double overall = 0;
         double toOthers = 0;
 
@@ -506,14 +503,14 @@ public class HuGMe {
         return overall - toOthers;
     }
 
-    private double CountAttract(Node a_node, Iterable<Node> a_cluster, double a_weightFromNode, double a_weightFromCluster) {
+    private double CountAttract(CNode a_node, Iterable<CNode> a_cluster, double a_weightFromNode, double a_weightFromCluster) {
         AttributeUtil au = new AttributeUtil();
         double count = 0;
 
         double cCount = 0;
-        for (Node nTo:a_cluster) {
-            cCount += m_fic.getFanIn(nTo, a_node) * a_weightFromNode;
-            cCount += m_fic.getFanIn(a_node, nTo) * a_weightFromCluster;
+        for (CNode nTo : a_cluster) {
+            cCount += a_node.getDependencyCount(nTo) * a_weightFromNode; //m_fic.getFanIn(nTo, a_node) * a_weightFromNode;
+            cCount += nTo.getDependencyCount(a_node) * a_weightFromCluster;//m_fic.getFanIn(a_node, nTo) * a_weightFromCluster;
         }
 
         count = cCount;

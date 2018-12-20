@@ -1,8 +1,9 @@
 package se.lnu.siq.s4rdm3x.experiments.metric;
 
 import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
+import se.lnu.siq.s4rdm3x.model.AttributeUtil;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
+import se.lnu.siq.s4rdm3x.model.CNode;
 
 public class LineCount extends Metric {
     @Override
@@ -12,32 +13,29 @@ public class LineCount extends Metric {
 
 
     @Override
-    public void assignMetric(Iterable<Node> a_nodes) {
-        AttributeUtil au = new AttributeUtil();
+    public void assignMetric(Iterable<CNode> a_nodes) {
         ByteCodeInstructions bci = new ByteCodeInstructions();
 
-        for(Node n : a_nodes) {
-
-
-            double size = compute(n, au, bci);
-            setMetric(n, size);
+        for(CNode n : a_nodes) {
+            double size = compute(n, bci);
+            n.setMetric(getName(), size);
         }
     }
 
-    public double compute(Node a_n, AttributeUtil a_au, ByteCodeInstructions a_bci) {
+    public double compute(CNode a_n, ByteCodeInstructions a_bci) {
         double size = 0;
-        for (dmClass c : a_au.getClasses(a_n)) {
+        for (dmClass c : a_n.getClasses()) {
             size += c.getLineCount();
         }
 
         if (size == 0) {
-            size = a_bci.compute(a_n, a_au) * 0.2143;    // constant computed based on metrics from jabref, teammates, lucene & ant
+            size = a_bci.compute(a_n) * 0.2143;    // constant computed based on metrics from jabref, teammates, lucene & ant
         }
 
         return size;
     }
 
-    public void reassignMetric(Iterable<Node> a_nodes) {
+    public void reassignMetric(Iterable<CNode> a_nodes) {
 
     }
 }

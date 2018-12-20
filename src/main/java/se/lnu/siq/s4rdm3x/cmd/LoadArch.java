@@ -4,6 +4,7 @@ import org.graphstream.graph.Graph;
 import se.lnu.siq.s4rdm3x.cmd.hugme.HuGMe;
 import se.lnu.siq.s4rdm3x.cmd.util.ArchCreator;
 import se.lnu.siq.s4rdm3x.cmd.util.SystemModelReader;
+import se.lnu.siq.s4rdm3x.model.CGraph;
 
 public class LoadArch {
     String m_file;
@@ -13,7 +14,7 @@ public class LoadArch {
         m_file = a_file;
     }
 
-    public void run(Graph a_g) {
+    public void run(CGraph a_g) {
         SystemModelReader smr = new SystemModelReader();
         if (smr.readFile(m_file)) {
             ArchCreator ac = new ArchCreator();

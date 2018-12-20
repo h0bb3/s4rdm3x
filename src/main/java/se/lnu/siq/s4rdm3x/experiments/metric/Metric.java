@@ -1,6 +1,6 @@
 package se.lnu.siq.s4rdm3x.experiments.metric;
 
-import org.graphstream.graph.Node;
+import se.lnu.siq.s4rdm3x.model.CNode;
 
 public abstract class Metric {
 
@@ -31,16 +31,8 @@ public abstract class Metric {
         }
     }
 
-    private static String g_metricName = "metric";
-    protected void setMetric(Node a_node, double a_metric) {
-        a_node.setAttribute(g_metricName, a_metric);
-    }
-    public double getMetric(Node a_node) {
-        return a_node.getAttribute(g_metricName);
-    }
-
     public abstract String getName();
 
-    public abstract void assignMetric(Iterable<Node> a_nodes);
-    public abstract void reassignMetric(Iterable<Node> a_nodes);
+    public abstract void assignMetric(Iterable<CNode> a_nodes);
+    public abstract void reassignMetric(Iterable<CNode> a_nodes);
 }

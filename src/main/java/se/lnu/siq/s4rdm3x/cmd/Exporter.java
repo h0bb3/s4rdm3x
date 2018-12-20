@@ -1,11 +1,11 @@
 package se.lnu.siq.s4rdm3x.cmd;
 
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
-import se.lnu.siq.s4rdm3x.cmd.util.Selector;
+import se.lnu.siq.s4rdm3x.model.AttributeUtil;
+import se.lnu.siq.s4rdm3x.model.Selector;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
+import se.lnu.siq.s4rdm3x.model.CGraph;
+import se.lnu.siq.s4rdm3x.model.CNode;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -21,7 +21,7 @@ public class Exporter {
         m_selector = a_selector;
     }
 
-    public void run(Graph a_g) {
+    public void run(CGraph a_g) {
         AttributeUtil au = new AttributeUtil();
         BufferedWriter writer = null;
         try {
@@ -29,16 +29,16 @@ public class Exporter {
             writer = new BufferedWriter(new FileWriter(exportFile));
             final String newLine = "\r\n";
 
-            for (Node n : a_g.getEachNode()) {
-                if (m_selector.isSelected(n)) {
-                    writer.write(au.getClasses(n).get(0).getFileName() + newLine);
-                    for (dmClass c : au.getClasses(n)) {
-                        writer.write("\t" + c.getName() + newLine);
-                        for (dmDependency d : c.getDependencies()) {
-                            writer.write("\t\t" + d.getType() + " " + d.getCount() + " " + d.getTarget().getName() + newLine);
-                        }
+            for (CNode n : a_g.getNodes(m_selector)) {
+
+                writer.write(n.getFileName() + newLine);
+                for (dmClass c : n.getClasses()) {
+                    writer.write("\t" + c.getName() + newLine);
+                    for (dmDependency d : c.getDependencies()) {
+                        writer.write("\t\t" + d.getType() + " " + d.getCount() + " " + d.getTarget().getName() + newLine);
                     }
                 }
+
             }
             writer.close();
         } catch (Exception e) {

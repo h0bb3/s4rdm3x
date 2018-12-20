@@ -1,21 +1,17 @@
 package se.lnu.siq.s4rdm3x.cmd;
 
-import org.graphstream.graph.Edge;
-import org.graphstream.graph.Graph;
-import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
-
 public class SetEdgeAttr {
     private String m_key;
     private String m_value;
     private String m_edgeTag;
 
-    public SetEdgeAttr(String a_key, String a_value, String a_edgeTag) {
+    private SetEdgeAttr(String a_key, String a_value, String a_edgeTag) {
         m_key = a_key;
         m_value = a_value;
         m_edgeTag = a_edgeTag;
     }
 
-    public void run(Graph a_g) {
+    /*public void run(Graph a_g) {
 
         AttributeUtil au = new AttributeUtil();
         for (Edge e : a_g.getEachEdge()) {
@@ -27,6 +23,6 @@ public class SetEdgeAttr {
                 }
             }
         }
-    }
+    }*/
 
 }

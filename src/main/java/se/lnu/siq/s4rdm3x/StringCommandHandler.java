@@ -10,8 +10,8 @@ import se.lnu.siq.s4rdm3x.cmd.metrics.ComputeMetrics;
 import se.lnu.siq.s4rdm3x.cmd.metrics.GetMetric;
 import se.lnu.siq.s4rdm3x.cmd.metrics.GetMetrics;
 import se.lnu.siq.s4rdm3x.cmd.saerocon18.Cluster1;
-import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
-import se.lnu.siq.s4rdm3x.cmd.util.Selector;
+import se.lnu.siq.s4rdm3x.model.AttributeUtil;
+import se.lnu.siq.s4rdm3x.model.Selector;
 import se.lnu.siq.s4rdm3x.cmd.util.SelectorBuilder;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 

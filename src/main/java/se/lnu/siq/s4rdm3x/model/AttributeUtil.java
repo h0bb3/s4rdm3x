@@ -1,4 +1,4 @@
-package se.lnu.siq.s4rdm3x.cmd.util;
+package se.lnu.siq.s4rdm3x.model;
 
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;

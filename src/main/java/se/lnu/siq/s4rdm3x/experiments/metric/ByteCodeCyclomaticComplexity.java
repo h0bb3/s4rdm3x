@@ -1,8 +1,9 @@
 package se.lnu.siq.s4rdm3x.experiments.metric;
 
 import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
+import se.lnu.siq.s4rdm3x.model.AttributeUtil;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
+import se.lnu.siq.s4rdm3x.model.CNode;
 
 public class ByteCodeCyclomaticComplexity extends Metric {
 
@@ -12,12 +13,11 @@ public class ByteCodeCyclomaticComplexity extends Metric {
     }
 
     @Override
-    public void assignMetric(Iterable<Node> a_nodes) {
-        AttributeUtil au = new AttributeUtil();
+    public void assignMetric(Iterable<CNode> a_nodes) {
 
-        for(Node n : a_nodes) {
+        for(CNode n : a_nodes) {
             double cc = 0;
-            for (dmClass c : au.getClasses(n)) {
+            for (dmClass c : n.getClasses()) {
                 for (dmClass.Method m : c.getMethods()) {
                     cc += m.getBranchStatementCount();
                     if (!m.isAbstract()) {
@@ -25,12 +25,12 @@ public class ByteCodeCyclomaticComplexity extends Metric {
                     }
                 }
             }
-            setMetric(n, cc);
+            n.setMetric(getName(), cc);
         }
     }
 
     @Override
-    public void reassignMetric(Iterable<Node> a_nodes) {
+    public void reassignMetric(Iterable<CNode> a_nodes) {
 
     }
 }

@@ -1,8 +1,7 @@
 import glm_.vec2.Vec2;
 import gui.ImGuiWrapper;
 import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
-import se.lnu.siq.s4rdm3x.cmd.util.NodeUtil;
+import se.lnu.siq.s4rdm3x.model.AttributeUtil;
 
 import static imgui.ImguiKt.COL32;
 

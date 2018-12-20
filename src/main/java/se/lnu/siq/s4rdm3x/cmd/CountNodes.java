@@ -1,8 +1,8 @@
 package se.lnu.siq.s4rdm3x.cmd;
 
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.cmd.util.Selector;
+import se.lnu.siq.s4rdm3x.model.Selector;
+import se.lnu.siq.s4rdm3x.model.CGraph;
+import se.lnu.siq.s4rdm3x.model.CNode;
 
 /**
  * Created by tohto on 2018-04-27.
@@ -15,11 +15,10 @@ public class CountNodes {
         m_selection = a_selection;
     }
 
-    public void run(Graph a_g) {
-        for (Node n : a_g.getEachNode()) {
-            if (m_selection.isSelected(n)) {
-                m_count++;
-            }
+    public void run(CGraph a_g) {
+
+        for (CNode n : a_g.getNodes(m_selection)) {
+            m_count++;
         }
     }
 }

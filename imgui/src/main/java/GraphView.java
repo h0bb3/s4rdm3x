@@ -6,7 +6,7 @@ import imgui.internal.Rect;
 import imgui.internal.Window;
 import org.graphstream.graph.Node;
 import se.lnu.siq.s4rdm3x.cmd.hugme.HuGMe;
-import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
+import se.lnu.siq.s4rdm3x.model.AttributeUtil;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 
 import java.util.ArrayList;

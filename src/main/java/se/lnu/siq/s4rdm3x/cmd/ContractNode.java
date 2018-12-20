@@ -3,8 +3,8 @@ package se.lnu.siq.s4rdm3x.cmd;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.cmd.util.NodeUtil;
-import se.lnu.siq.s4rdm3x.cmd.util.Selector;
+import se.lnu.siq.s4rdm3x.model.NodeUtil;
+import se.lnu.siq.s4rdm3x.model.Selector;
 
 
 /**
@@ -20,13 +20,13 @@ public class ContractNode {
     }
 
     public void run(Graph a_g) {
-        NodeUtil nu = new NodeUtil(a_g);
+     /*   NodeUtil nu = new NodeUtil(a_g);
 
         for (Node n : a_g.getNodeSet()) {
             if (m_selection.isSelected(n)) {
                 contract(n, nu);
             }
-        }
+        }*/
     }
 
     public void contract(Node a_n, NodeUtil a_nu) {

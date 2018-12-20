@@ -1,11 +1,6 @@
 package se.lnu.siq.s4rdm3x.experiments.metric;
 
-import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
-import se.lnu.siq.s4rdm3x.dmodel.dmClass;
-import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
-
-import java.util.HashSet;
+import se.lnu.siq.s4rdm3x.model.CNode;
 
 public class CouplingIn extends Metric {
 
@@ -13,22 +8,21 @@ public class CouplingIn extends Metric {
         return "CouplingIn";
     }
 
-    public void assignMetric(Iterable<Node> a_nodes) {
-        FanHelper fh = new FanHelper(a_nodes);
-        for(Node n : a_nodes) {
+    public void assignMetric(Iterable<CNode> a_nodes) {
+        for(CNode n : a_nodes) {
             double cin = 0;
 
-            for (Node m :  a_nodes) {
-                if (m != n && fh.hasDirectDependency(m, n)) {
+            for (CNode m :  a_nodes) {
+                if (m != n && m.hasDependency(n)) {
                     cin += 1;
                 }
             }
 
-            setMetric(n, cin);
+            n.setMetric(getName(), cin);
         }
     }
 
-    public void reassignMetric(Iterable<Node> a_nodes) {
+    public void reassignMetric(Iterable<CNode> a_nodes) {
 
     }
 

@@ -1,6 +1,7 @@
 package se.lnu.siq.s4rdm3x.experiments.metric;
 
 import org.graphstream.graph.Node;
+import se.lnu.siq.s4rdm3x.model.CNode;
 
 public class CouplingOut extends Metric {
 
@@ -8,22 +9,21 @@ public class CouplingOut extends Metric {
         return "CouplingOut";
     }
 
-    public void assignMetric(Iterable<Node> a_nodes) {
-        FanHelper fh = new FanHelper(a_nodes);
-        for(Node n : a_nodes) {
-            double cin = 0;
+    public void assignMetric(Iterable<CNode> a_nodes) {
+        for(CNode n : a_nodes) {
+            double cout = 0;
 
-            for (Node m :  a_nodes) {
-                if (m != n && fh.hasDirectDependency(n, m)) {
-                    cin += 1;
+            for (CNode m :  a_nodes) {
+                if (m != n && n.hasDependency(m)) {
+                    cout += 1;
                 }
             }
 
-            setMetric(n, cin);
+            n.setMetric(getName(), cout);
         }
     }
 
-    public void reassignMetric(Iterable<Node> a_nodes) {
+    public void reassignMetric(Iterable<CNode> a_nodes) {
 
     }
 

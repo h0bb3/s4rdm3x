@@ -1,13 +1,9 @@
 package se.lnu.siq.s4rdm3x.experiments.metric;
 
-import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.junit.jupiter.api.Test;
-import se.lnu.siq.s4rdm3x.cmd.util.NodeUtil;
 import se.lnu.siq.s4rdm3x.dmodel.NodeGenerator;
-import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

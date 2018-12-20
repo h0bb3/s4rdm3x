@@ -2,7 +2,7 @@ package se.lnu.siq.s4rdm3x.cmd.hugme;
 
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
+import se.lnu.siq.s4rdm3x.model.AttributeUtil;
 import se.lnu.siq.s4rdm3x.experiments.metric.FanHelper;
 
 import java.util.ArrayList;

@@ -7,22 +7,31 @@ import java.util.ArrayList;
 
 public class CGraph {
 
-    private MultiGraph m_g;
+    private NodeUtil m_nu;
+    ArrayList<CNode> m_nodes = new ArrayList<>();
 
-    public CGraph(String a_name) {
-        m_g = new MultiGraph(a_name);
+    public CGraph() {
     }
 
-    Iterable<CNode> getNodes() {
-        ArrayList<CNode> nodes = new ArrayList<>();
+    public Iterable<CNode> getNodes(Selector.ISelector a_selector) {
+        ArrayList<CNode> ret = new ArrayList<>();
 
-        for (Node n : m_g.getEachNode()) {
-
-            nodes.add(new CNode(n));
+        for(CNode n : getNodes()) {
+            if (a_selector.isSelected(n)) {
+                ret.add(n);
+            }
         }
 
-        return nodes;
+        return ret;
+    }
+
+    public Iterable<CNode> getNodes() {
+        return m_nodes;
     }
 
 
+    public CNode createNode(String a_name) {
+        Node n = m_nu.createNode(a_name);
+        return new CNode(n);
+    }
 }

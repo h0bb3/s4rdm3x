@@ -1,7 +1,6 @@
 package se.lnu.siq.s4rdm3x.experiments.metric;
 
-import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
+import se.lnu.siq.s4rdm3x.model.CNode;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,19 +22,17 @@ public class CustomMetric extends Metric {
         return m_name;
     }
 
-    public void assignMetric(Iterable<Node> a_nodes) {
-        AttributeUtil au = new AttributeUtil();
-        for(Node n : a_nodes) {
-            if (m_metrics.containsKey(au.getName(n))) {
-                setMetric(n, m_metrics.get(au.getName(n)));
+    public void assignMetric(Iterable<CNode> a_nodes) {
+        for(CNode n : a_nodes) {
+            if (m_metrics.containsKey(n.getFileName())) {
+                n.setMetric(getName(), m_metrics.get(n.getFileName()));
             } else {
-                System.out.println("No metric " + getName() + " found for: " + au.getName(n));
-                setMetric(n, -1);
+                throw new IllegalArgumentException("No metric " + getName() + " found for: " + n.getFileName());
             }
         }
     }
 
-    public void reassignMetric(Iterable<Node> a_nodes){
+    public void reassignMetric(Iterable<CNode> a_nodes){
         // this will not change so...
     }
 }

@@ -1,7 +1,7 @@
 package se.lnu.siq.s4rdm3x.experiments.metric;
 
 import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
+import se.lnu.siq.s4rdm3x.model.CNode;
 
 import java.util.ArrayList;
 
@@ -11,36 +11,33 @@ public class NumberOfChildrenLevel0 extends Metric {
         return "NumberOfChildrenLevel0";
     }
 
-    public void assignMetric(Iterable<Node> a_nodes) {
-        FanHelper fh = new FanHelper(a_nodes);
+    public void assignMetric(Iterable<CNode> a_nodes) {
         double noc = 0;
-        for (Node n : a_nodes) {
-            ArrayList<Node> path = new ArrayList<>();
-            noc = noc(n, path, a_nodes, fh);
-            setMetric(n, noc);
+        for (CNode n : a_nodes) {
+            ArrayList<CNode> path = new ArrayList<>();
+            noc = noc(n, path, a_nodes);
+            n.setMetric(getName(), noc);
         }
     }
 
-    private double noc(Node a_source, ArrayList<Node> a_path, Iterable<Node> a_nodes, FanHelper a_fh) {
+    private double noc(CNode a_source, ArrayList<CNode> a_path, Iterable<CNode> a_nodes) {
         double ret = 0;
         a_path.add(a_source);
 
-        for (Node n : a_nodes) {
+        for (CNode n : a_nodes) {
             if (!a_path.contains(n)) {
-                if (a_fh.hasDirectDependency(n, a_source, dmDependency.Type.Extends) ||
-                        a_fh.hasDirectDependency(n, a_source, dmDependency.Type.Implements)) {
+                if (n.isSpecializationOf(a_source)) {
 
                     ret += 1;
                 }
             }
         }
 
-        a_path.remove(a_source);
         return ret;
     }
 
 
 
-    public void reassignMetric(Iterable<Node> a_nodes) {
+    public void reassignMetric(Iterable<CNode> a_nodes) {
     }
 }

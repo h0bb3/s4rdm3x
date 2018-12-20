@@ -3,7 +3,7 @@ package se.lnu.siq.s4rdm3x.experiments.system;
 import org.graphstream.graph.Graph;
 import se.lnu.siq.s4rdm3x.cmd.hugme.HuGMe;
 import se.lnu.siq.s4rdm3x.cmd.LoadJar;
-import se.lnu.siq.s4rdm3x.cmd.util.Selector;
+import se.lnu.siq.s4rdm3x.model.Selector;
 
 import java.io.IOException;
 

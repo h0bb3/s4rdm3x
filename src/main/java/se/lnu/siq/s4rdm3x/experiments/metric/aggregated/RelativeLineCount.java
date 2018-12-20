@@ -1,10 +1,9 @@
 package se.lnu.siq.s4rdm3x.experiments.metric.aggregated;
 
-import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
 import se.lnu.siq.s4rdm3x.experiments.metric.ByteCodeInstructions;
 import se.lnu.siq.s4rdm3x.experiments.metric.LineCount;
 import se.lnu.siq.s4rdm3x.experiments.metric.Metric;
+import se.lnu.siq.s4rdm3x.model.CNode;
 
 public class RelativeLineCount extends Metric {
 
@@ -21,24 +20,23 @@ public class RelativeLineCount extends Metric {
 
 
     @Override
-    public void assignMetric(Iterable<Node> a_nodes) {
+    public void assignMetric(Iterable<CNode> a_nodes) {
 
         m_rel.assignMetric(a_nodes);
 
-        AttributeUtil au = new AttributeUtil();
         LineCount lc = new LineCount();
         ByteCodeInstructions bci = new ByteCodeInstructions();
 
-        for(Node n : a_nodes) {
-            double lineCount = lc.compute(n, au, bci);
+        for(CNode n : a_nodes) {
+            double lineCount = lc.compute(n, bci);
             if (lineCount == 0) {
                 lineCount = 1;
             }
-            setMetric(n, getMetric(n) / lineCount);
+            n.setMetric(getName(), n.getMetric(m_rel.getName()) / lineCount);
         }
     }
 
-    public void reassignMetric(Iterable<Node> a_nodes) {
+    public void reassignMetric(Iterable<CNode> a_nodes) {
 
     }
 }

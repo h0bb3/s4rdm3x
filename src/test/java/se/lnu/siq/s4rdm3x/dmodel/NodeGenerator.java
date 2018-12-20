@@ -4,9 +4,8 @@ import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
 import org.objectweb.asm.ClassReader;
-import org.w3c.dom.Attr;
-import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
-import se.lnu.siq.s4rdm3x.cmd.util.NodeUtil;
+import se.lnu.siq.s4rdm3x.model.AttributeUtil;
+import se.lnu.siq.s4rdm3x.model.NodeUtil;
 
 import java.io.IOException;
 import java.io.InputStream;

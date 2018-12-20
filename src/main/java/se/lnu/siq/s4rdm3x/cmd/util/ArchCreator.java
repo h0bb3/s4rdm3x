@@ -1,12 +1,15 @@
 package se.lnu.siq.s4rdm3x.cmd.util;
 
-import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import se.lnu.siq.s4rdm3x.cmd.hugme.HuGMe;
+import se.lnu.siq.s4rdm3x.model.CGraph;
+import se.lnu.siq.s4rdm3x.model.CNode;
+import se.lnu.siq.s4rdm3x.model.NodeUtil;
+import se.lnu.siq.s4rdm3x.model.Selector;
 
 public class ArchCreator {
 
-    public void mapArch(HuGMe.ArchDef  a_arch, SystemModelReader a_model, Graph a_g) {
+    public void mapArch(HuGMe.ArchDef  a_arch, SystemModelReader a_model, CGraph a_g) {
         for (SystemModelReader.Mapping mapping : a_model.m_mappings) {
             HuGMe.ArchDef.Component c = a_arch.getComponent(mapping.m_moduleName);
             Selector.Pat p = new Selector.Pat(mapping.m_regexp);
@@ -51,7 +54,7 @@ public class ArchCreator {
         return arch;
     }
 
-    public SystemModelReader createSystemModel(HuGMe.ArchDef a_arch, Iterable<Node> a_nodesToMap) {
+    public SystemModelReader createSystemModel(HuGMe.ArchDef a_arch, Iterable<CNode> a_nodesToMap) {
         SystemModelReader ret = new SystemModelReader();
 
         ret.m_name = "created system";

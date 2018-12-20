@@ -3,9 +3,9 @@ package se.lnu.siq.s4rdm3x.cmd;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
-import se.lnu.siq.s4rdm3x.cmd.util.NodeUtil;
-import se.lnu.siq.s4rdm3x.cmd.util.Selector;
+import se.lnu.siq.s4rdm3x.model.AttributeUtil;
+import se.lnu.siq.s4rdm3x.model.NodeUtil;
+import se.lnu.siq.s4rdm3x.model.Selector;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
 
@@ -31,7 +31,7 @@ public class AddRelationEdges {
 
     public void run(Graph a_g) {
 
-        LinkedList<Node> from = new LinkedList();
+       /* LinkedList<Node> from = new LinkedList();
         LinkedList<Node> to = new LinkedList();
 
 
@@ -48,7 +48,7 @@ public class AddRelationEdges {
         }
 
 
-        addEdges(from, to, a_g, m_edgeTag, m_edgeLength);
+        addEdges(from, to, a_g, m_edgeTag, m_edgeLength);*/
     }
 
     private int getDirectEdgeCount(Node a_from, Node a_to) {

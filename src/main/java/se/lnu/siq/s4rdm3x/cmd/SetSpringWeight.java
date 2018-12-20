@@ -10,12 +10,12 @@ public class SetSpringWeight {
     private float m_newWeight;
     private String [] m_springTags;
 
-    public SetSpringWeight(String[] a_springTags, float a_newWeight) {
+    private SetSpringWeight(String[] a_springTags, float a_newWeight) {
         m_newWeight = a_newWeight;
         m_springTags = a_springTags;
     }
 
-    public void run(Graph a_g) {
+    /*public void run(Graph a_g) {
         for (Edge e: a_g.getEdgeSet()) {
             for(String tag : m_springTags) {
 
@@ -31,5 +31,5 @@ public class SetSpringWeight {
                 }
             }
         }
-    }
+    }*/
 }

@@ -1,12 +1,6 @@
 package se.lnu.siq.s4rdm3x.cmd;
 
-import org.graphstream.graph.Edge;
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.cmd.util.NodeUtil;
-import se.lnu.siq.s4rdm3x.cmd.util.Selector;
-
-import java.util.LinkedList;
+import se.lnu.siq.s4rdm3x.model.Selector;
 
 /**
  * Created by tohto on 2017-08-22.
@@ -16,12 +10,12 @@ public class ShowNode {
     Selector.ISelector m_selection;
     boolean m_doShow;
 
-    public ShowNode(Selector.ISelector a_selection, boolean a_doShow) {
+    private ShowNode(Selector.ISelector a_selection, boolean a_doShow) {
         m_selection = a_selection;
         m_doShow = a_doShow;
     }
 
-    public void run(Graph a_g) {
+    /*public void run(Graph a_g) {
         NodeUtil nu = new NodeUtil(a_g);
         LinkedList<Node> shownNodes = new LinkedList<>();
 
@@ -48,5 +42,5 @@ public class ShowNode {
                 }
             }
         }
-    }
+    }*/
 }

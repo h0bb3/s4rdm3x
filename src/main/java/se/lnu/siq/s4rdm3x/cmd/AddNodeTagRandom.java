@@ -1,9 +1,9 @@
 package se.lnu.siq.s4rdm3x.cmd;
 
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.cmd.util.AttributeUtil;
-import se.lnu.siq.s4rdm3x.cmd.util.Selector;
+import se.lnu.siq.s4rdm3x.model.AttributeUtil;
+import se.lnu.siq.s4rdm3x.model.Selector;
+import se.lnu.siq.s4rdm3x.model.CGraph;
+import se.lnu.siq.s4rdm3x.model.CNode;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -30,14 +30,13 @@ public class AddNodeTagRandom {
         }
     }
 
-    public void run(Graph a_g) {
+    public void run(CGraph a_g) {
         AttributeUtil au = new AttributeUtil();
-        java.util.ArrayList<Node> selected = new ArrayList<>();
+        java.util.ArrayList<CNode> selected = new ArrayList<>();
 
-        for (Node n : a_g.getEachNode()) {
-            if (m_selection.isSelected(n)) {
-                selected.add(n);
-            }
+        for (CNode n : a_g.getNodes(m_selection)) {
+            selected.add(n);
+
         }
 
         int elementsToRemove = selected.size() - (int)(selected.size() * m_percentToUse);
@@ -50,8 +49,8 @@ public class AddNodeTagRandom {
             elementsToRemove--;
         }
 
-        for (Node n:selected) {
-            au.addTag(n, m_nodeTag);
+        for (CNode n : selected) {
+            n.addTag(m_nodeTag);
         }
 
     }

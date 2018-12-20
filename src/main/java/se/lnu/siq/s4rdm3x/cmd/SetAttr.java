@@ -1,8 +1,8 @@
 package se.lnu.siq.s4rdm3x.cmd;
 
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.cmd.util.Selector;
+import se.lnu.siq.s4rdm3x.model.Selector;
+import se.lnu.siq.s4rdm3x.model.CGraph;
+import se.lnu.siq.s4rdm3x.model.CNode;
 
 /**
  * Created by tohto on 2017-09-07.
@@ -12,17 +12,15 @@ public class SetAttr {
     String m_key;
     String m_value;
 
-    public SetAttr(String a_key, String a_value, Selector.ISelector a_selection) {
+    private SetAttr(String a_key, String a_value, Selector.ISelector a_selection) {
         m_key = a_key;
         m_value = a_value;
         m_selection = a_selection;
     }
 
-    public void run(Graph a_g) {
-        for (Node n : a_g.getEachNode()) {
-            if (m_selection.isSelected(n)) {
-                n.setAttribute(m_key, m_value);
-            }
+    public void run(CGraph a_g) {
+        for (CNode n : a_g.getNodes(m_selection)) {
+            //n.setAttribute(m_key, m_value);
         }
     }
 }
