@@ -5,6 +5,8 @@ import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
 import org.objectweb.asm.ClassReader;
 import se.lnu.siq.s4rdm3x.model.AttributeUtil;
+import se.lnu.siq.s4rdm3x.model.CGraph;
+import se.lnu.siq.s4rdm3x.model.CNode;
 import se.lnu.siq.s4rdm3x.model.NodeUtil;
 
 import java.io.IOException;
@@ -29,8 +31,8 @@ public class NodeGenerator {
     }
 
 
-    public Graph getGraph1() {
-        Graph ret = new MultiGraph("graph1");
+    public CGraph getGraph1() {
+        CGraph ret = new CGraph();
 
         dmClass c1 = new dmClass("c1");
         setInstructionCount(c1.addMethod("m1", false, false), 17);
@@ -39,16 +41,14 @@ public class NodeGenerator {
         setBranchStatementCount(c1.addMethod("m3", false, false), 8);
         setBranchStatementCount(c1.addMethod("m4", false, false), 5);
 
-        Node n1 = ret.addNode("n1");
-        AttributeUtil au = new AttributeUtil();
-
-        au.addClass(n1, c1);
+        CNode n1 = ret.createNode("n1");
+        n1.addClass(c1);
 
         return ret;
     }
 
-    public Graph getGraph2() {
-        Graph ret = new MultiGraph("graph2");
+    public CGraph getGraph2() {
+        CGraph ret = new CGraph();
 
         dmClass c1 = new dmClass("c1");
         dmClass.Method m1 = c1.addMethod("m1", false, false);
@@ -60,11 +60,11 @@ public class NodeGenerator {
         setInstructionCount(m1, 17);
         setBranchStatementCount(m1, 6);
 
-        Node n1 = ret.addNode("n1");
+        CNode n1 = ret.createNode("n1");
         AttributeUtil au = new AttributeUtil();
 
-        au.addClass(n1, c1);
-        au.addClass(n1, c2);
+        n1.addClass(c1);
+        n1.addClass(c2);
 
         return ret;
     }
@@ -78,31 +78,26 @@ public class NodeGenerator {
         return pb;
     }
 
-    public Node loadNode(String a_javaClassName) {
-        Graph g = loadGraph("/" + g_classesDir + a_javaClassName + ".class");
-        NodeUtil nu = new NodeUtil(g);
-        //Node a = nu.findNode(g_classesDir + a_javaClassName + ".java");
+    public CNode loadNode(String a_javaClassName) {
+        CGraph g = loadGraph("/" + g_classesDir + a_javaClassName + ".class");
 
         dmClass c = new dmClass(a_javaClassName);
 
-
-        Node a = nu.searchNode(".*/" + c.getFileName().replace(".", "\\.")).get(0);
+        CNode a = g.searchNode(".*/" + c.getFileName().replace(".", "\\.")).get(0);
 
         return a;
     }
 
-    public Graph loadGraph(String a_javaClassName) {
+    public CGraph loadGraph(String a_javaClassName) {
         try {
             ASMdmProjectBuilder pb = getAsMdmProjectBuilder(a_javaClassName);
 
-            Graph g = new MultiGraph("Test");
-            NodeUtil nu = new NodeUtil(g);
-            AttributeUtil au = new AttributeUtil();
+            CGraph g = new CGraph();
 
             for (dmClass c : pb.getProject().getClasses()) {
                 String cName = c.getFileName();
-                Node n = nu.createNode(cName);
-                au.addClass(n, c);
+                CNode n = g.createNode(cName);
+                n.addClass(c);
             }
 
             return g;
@@ -112,17 +107,17 @@ public class NodeGenerator {
         }
     }
 
-    public Graph generateGraph(String [] a_edgesAsNodePairs) {
-        return addToGraph(new MultiGraph("test"), dmDependency.Type.MethodCall, a_edgesAsNodePairs);
+    public CGraph generateGraph(String [] a_edgesAsNodePairs) {
+        return addToGraph(new CGraph(), dmDependency.Type.MethodCall, a_edgesAsNodePairs);
     }
 
-    public Graph generateGraph(dmDependency.Type a_dependency, String [] a_edgesAsNodePairs) {
-        return addToGraph(new MultiGraph("test"), a_dependency, a_edgesAsNodePairs);
+    public CGraph generateGraph(dmDependency.Type a_dependency, String [] a_edgesAsNodePairs) {
+        return addToGraph(new CGraph(), a_dependency, a_edgesAsNodePairs);
     }
 
 
-    public Graph addToGraph(Graph a_g, dmDependency.Type a_dependency, String [] a_edgesAsNodePairs) {
-        Graph ret = a_g;
+    public CGraph addToGraph(CGraph a_g, dmDependency.Type a_dependency, String [] a_edgesAsNodePairs) {
+        CGraph ret = a_g;
         String[] edgeIds = a_edgesAsNodePairs;
         HashMap<String, dmClass> classes = new HashMap<>();
         AttributeUtil au = new AttributeUtil();
@@ -140,19 +135,19 @@ public class NodeGenerator {
             cFirst.addDependency(cSecond, a_dependency, 0);
 
             if (a_g.getNode(first) == null) {
-                ret.addNode(first);
+                ret.createNode(first);
             }
-            Node n = a_g.getNode(first);
-            if (!au.hasClass(n, cFirst)) {
-                au.addClass(n, cFirst);
+            CNode n = a_g.getNode(first);
+            if (!n.containsClass(cFirst)) {
+                n.addClass(cFirst);
             }
 
             if (a_g.getNode(second) == null) {
-                ret.addNode(second);
+                ret.createNode(second);
             }
             n = a_g.getNode(second);
-            if (!au.hasClass(n, cSecond)) {
-                au.addClass(n, cSecond);
+            if (!n.containsClass(cSecond)) {
+                n.addClass(cSecond);
             }
 
         }

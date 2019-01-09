@@ -4,10 +4,10 @@ import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
 
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 public class CGraph {
 
-    private NodeUtil m_nu;
     ArrayList<CNode> m_nodes = new ArrayList<>();
 
     public CGraph() {
@@ -31,7 +31,41 @@ public class CGraph {
 
 
     public CNode createNode(String a_name) {
-        Node n = m_nu.createNode(a_name);
-        return new CNode(n);
+
+        CNode ret = getNode(a_name);
+
+        if (ret != null) {
+            return ret;
+        }
+
+        ret = new CNode(a_name, m_nodes.size());
+        m_nodes.add(ret);
+
+        return ret;
+    }
+
+    public void clear() {
+        m_nodes.clear();
+    }
+
+    public CNode getNode(String a_name) {
+        for (CNode n : m_nodes) {
+            if (n.getName().contentEquals(a_name)) {
+                return n;
+            }
+        }
+
+        return null;
+    }
+
+    public ArrayList<CNode> searchNode(String a_namePattern) {
+        ArrayList<CNode> ret = new ArrayList<>();
+        Pattern p = Pattern.compile(a_namePattern);
+        for (CNode n : m_nodes) {
+            if (p.matcher(n.getName()).find()) {
+                ret.add(n);
+            }
+        }
+        return ret;
     }
 }

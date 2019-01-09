@@ -6,6 +6,8 @@ import se.lnu.siq.s4rdm3x.cmd.hugme.HuGMe;
 import se.lnu.siq.s4rdm3x.cmd.util.FanInCache;
 import se.lnu.siq.s4rdm3x.experiments.metric.Metric;
 import se.lnu.siq.s4rdm3x.experiments.system.System;
+import se.lnu.siq.s4rdm3x.model.CGraph;
+import se.lnu.siq.s4rdm3x.model.CNode;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -41,8 +43,8 @@ public class ExperimentRunner {
     }
 
     public interface RunListener {
-        BasicRunData OnRunInit(BasicRunData a_rd, Graph a_g, HuGMe.ArchDef a_arch);
-        void OnRunCompleted(BasicRunData a_rd, Graph a_g, HuGMe.ArchDef a_arch);
+        BasicRunData OnRunInit(BasicRunData a_rd, CGraph a_g, HuGMe.ArchDef a_arch);
+        void OnRunCompleted(BasicRunData a_rd, CGraph a_g, HuGMe.ArchDef a_arch);
     }
 
     public static class BasicRunData {
@@ -64,7 +66,7 @@ public class ExperimentRunner {
         m_listener = a_listener;
     }
 
-    public void run(Graph a_g) {
+    public void run(CGraph a_g) {
 
         int i = 0;
 
@@ -76,7 +78,7 @@ public class ExperimentRunner {
         HuGMe.ArchDef arch = m_sua.createAndMapArch(a_g);
 
 
-        m_metric.assignMetric(arch.getMappedNodes(a_g.getNodeSet()));
+        m_metric.assignMetric(arch.getMappedNodes(a_g.getNodes()));
 
         m_state = State.Running;
         while(m_state == State.Running) {
@@ -88,7 +90,7 @@ public class ExperimentRunner {
             rd.m_phi = m_rand.nextDouble();
             rd.m_omega = m_rand.nextDouble();
 
-            arch.cleanNodeClusters(a_g);
+            arch.cleanNodeClusters(a_g.getNodes());
             assignInitialClusters(a_g, arch, rd.m_initialClusteringPercent);
             //assignInitialClustersPerComponent(a_g, arch, rd.m_initialClusteringPercent);
 
@@ -101,7 +103,7 @@ public class ExperimentRunner {
             rd.m_id = i;
 
             if (fic == null) {
-                fic = new FanInCache(arch.getMappedNodes(a_g.getNodeSet()));
+                fic = new FanInCache(arch.getMappedNodes(a_g.getNodes()));
             }
 
             if (m_listener != null) {
@@ -130,22 +132,22 @@ public class ExperimentRunner {
             }
 
             i++;
-            m_metric.reassignMetric(arch.getMappedNodes(a_g.getNodeSet()));
+            m_metric.reassignMetric(arch.getMappedNodes(a_g.getNodes()));
         }
 
         m_state = State.Idle;
     }
 
 
-    private void assignInitialClusters(Graph a_g, HuGMe.ArchDef a_arch, double a_percentage) {
-        ArrayList<Node> nodes = new ArrayList<>();
-        a_arch.getMappedNodes(a_g.getNodeSet()).forEach(a_n -> nodes.add(a_n));
+    private void assignInitialClusters(CGraph a_g, HuGMe.ArchDef a_arch, double a_percentage) {
+        ArrayList<CNode> nodes = new ArrayList<>();
+        a_arch.getMappedNodes(a_g.getNodes()).forEach(a_n -> nodes.add(a_n));
 
         int nodeCount = (int) ((double) nodes.size() * a_percentage);
         if (nodeCount <= 0) {
             nodeCount = 1;
         }
-        ArrayList<Node> workingSet = getWorkingSet(nodes, nodeCount);
+        ArrayList<CNode> workingSet = getWorkingSet(nodes, nodeCount);
 
         // we may have added too many nodes (i.e. the last batch may be bigger)
         while (workingSet.size() > nodeCount) {
@@ -153,18 +155,18 @@ public class ExperimentRunner {
             workingSet.remove(Math.abs(m_rand.nextInt()) % firstBatchSize);
         }
 
-        for (Node n : workingSet) {
+        for (CNode n : workingSet) {
             HuGMe.ArchDef.Component component = a_arch.getMappedComponent(n);
             component.clusterToNode(n, HuGMe.ArchDef.Component.ClusteringType.Initial);
         }
     }
 
-    private void assignInitialClustersPerComponent(Graph a_g, HuGMe.ArchDef a_arch, double a_percentage) {
+    private void assignInitialClustersPerComponent(CGraph a_g, HuGMe.ArchDef a_arch, double a_percentage) {
         // OBS this assigns a number of classes per component, this is not actually that realistic
         for (HuGMe.ArchDef.Component component : a_arch.getComponents()) {
 
-            ArrayList<Node> nodes = new ArrayList<>();
-            for (Node n : a_g.getEachNode()) {
+            ArrayList<CNode> nodes = new ArrayList<>();
+            for (CNode n : a_g.getNodes()) {
                 if (component.isMappedTo(n)) {
                     nodes.add(n);
                 }
@@ -175,9 +177,9 @@ public class ExperimentRunner {
                 nodeCount = 1;
             }
 
-            ArrayList<Node> workingSet = getWorkingSet(nodes, nodeCount);
+            ArrayList<CNode> workingSet = getWorkingSet(nodes, nodeCount);
 
-            for (Node n : workingSet) {
+            for (CNode n : workingSet) {
                 component.clusterToNode(n, HuGMe.ArchDef.Component.ClusteringType.Initial);
             }
         }
@@ -185,7 +187,7 @@ public class ExperimentRunner {
 
 
 
-    private int getFirstBatchSize(ArrayList<Node> a_set) {
+    private int getFirstBatchSize(ArrayList<CNode> a_set) {
         int firstBatchSize = 1;
         double firstBatchFan = m_metric.getMetric(a_set.get(0));
         while(firstBatchSize < a_set.size() && firstBatchFan == m_metric.getMetric(a_set.get(firstBatchSize))) {
@@ -195,16 +197,16 @@ public class ExperimentRunner {
         return firstBatchSize;
     }
 
-    private ArrayList<Node> getWorkingSet(Iterable<Node> a_nodes, int a_nodesToAdd) {
+    private ArrayList<CNode> getWorkingSet(Iterable<CNode> a_nodes, int a_nodesToAdd) {
         // this sorts to lowest first
-        ArrayList<Node> sortedNodes = new ArrayList<>();
+        ArrayList<CNode> sortedNodes = new ArrayList<>();
         a_nodes.forEach(a_n -> {sortedNodes.add(a_n);});
         sortedNodes.sort(Comparator.comparingDouble(a_n -> {
             return m_metric.getMetric(a_n);
         }));
 
         // things can have the same metric so we need to count this
-        ArrayList<Node> workingSet = new ArrayList<>();
+        ArrayList<CNode> workingSet = new ArrayList<>();
         double  currentMetric = m_metric.getMetric(sortedNodes.get(sortedNodes.size() - 1));
         int ix = sortedNodes.size() - 1;
         int count = 0;
@@ -235,7 +237,7 @@ public class ExperimentRunner {
         return workingSet;
     }
 
-    ArrayList<Node> getWorkingSetTestHelper(Iterable<Node> a_nodes, int a_nodesToAdd) {
+    ArrayList<CNode> getWorkingSetTestHelper(Iterable<CNode> a_nodes, int a_nodesToAdd) {
         return getWorkingSet(a_nodes, a_nodesToAdd);
     }
 

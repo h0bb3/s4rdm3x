@@ -4,6 +4,8 @@ import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import se.lnu.siq.s4rdm3x.model.AttributeUtil;
 import se.lnu.siq.s4rdm3x.experiments.metric.FanHelper;
+import se.lnu.siq.s4rdm3x.model.CGraph;
+import se.lnu.siq.s4rdm3x.model.CNode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,18 +23,18 @@ public class GetComponentFan {
         m_fanOut = new Table();
     }
 
-    public void run(Graph a_g)  {
-        FanHelper fh = new FanHelper(a_g.getNodeSet());
-        HashMap<HuGMe.ArchDef.Component, ArrayList<Node>> mappedNodes = new HashMap<>();
+    public void run(CGraph a_g)  {
+        FanHelper fh = new FanHelper(a_g.getNodes());
+        HashMap<HuGMe.ArchDef.Component, ArrayList<CNode>> mappedNodes = new HashMap<>();
         AttributeUtil au = new AttributeUtil();
 
         for (HuGMe.ArchDef.Component c : m_arch.getComponents()) {
 
-            ArrayList<Node> nodes = new ArrayList<>();
+            ArrayList<CNode> nodes = new ArrayList<>();
             mappedNodes.put(c, nodes);
 
-            for (Node n : a_g.getNodeSet()) {
-                if (c.isMappedTo(n, au)) {
+            for (CNode n : a_g.getNodes()) {
+                if (c.isMappedTo(n)) {
                     nodes.add(n);
                 }
             }

@@ -5,7 +5,7 @@ import se.lnu.siq.s4rdm3x.cmd.hugme.HuGMe;
 import se.lnu.siq.s4rdm3x.cmd.LoadJar;
 
 import java.io.IOException;
-
+/*
 public class JabRefSAEroCon18 extends System {
 
     @Override
@@ -52,3 +52,4 @@ public class JabRefSAEroCon18 extends System {
     }
 
 }
+*/

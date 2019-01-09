@@ -33,6 +33,9 @@ public abstract class Metric {
 
     public abstract String getName();
 
+    public double getMetric(CNode a_node) {
+        return a_node.getMetric(getName());
+    }
     public abstract void assignMetric(Iterable<CNode> a_nodes);
     public abstract void reassignMetric(Iterable<CNode> a_nodes);
 }

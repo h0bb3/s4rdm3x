@@ -52,7 +52,7 @@ public class Selector {
         }
     }
 
-    public static class EdgTo implements ISelector {
+    /*public static class EdgTo implements ISelector {
         private String m_edgeTag;
 
         public EdgTo(String a_edgeTag) {m_edgeTag = a_edgeTag;}
@@ -60,7 +60,7 @@ public class Selector {
         public boolean isSelected(CNode a_node) {
             return a_node.hasEdgeTag(m_edgeTag);
         }
-    }
+    }*/
 
     public static class Tag implements ISelector {
         private String m_tag;
@@ -70,7 +70,7 @@ public class Selector {
         }
 
         public boolean isSelected(CNode a_node) {
-            return a_node.hasAnyTag(m_tag);
+            return a_node.hasAnyTag(m_tag.split(","));
         }
     }
 

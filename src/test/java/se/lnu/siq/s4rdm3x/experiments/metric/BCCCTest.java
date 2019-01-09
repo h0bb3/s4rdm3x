@@ -4,6 +4,8 @@ import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.junit.jupiter.api.Test;
 import se.lnu.siq.s4rdm3x.dmodel.NodeGenerator;
+import se.lnu.siq.s4rdm3x.model.CGraph;
+import se.lnu.siq.s4rdm3x.model.CNode;
 
 import java.util.Arrays;
 
@@ -16,7 +18,7 @@ public class BCCCTest {
     double getMetric(String a_javaClass) {
         NodeGenerator ng = new NodeGenerator();
 
-        Node a = ng.loadNode(a_javaClass);
+        CNode a = ng.loadNode(a_javaClass);
         m_sut.assignMetric(Arrays.asList(a));
 
         return  m_sut.getMetric(a);
@@ -25,20 +27,20 @@ public class BCCCTest {
     @Test
     void test1() {
         NodeGenerator ng = new NodeGenerator();
-        Graph g = ng.getGraph1();
-        Node n1 = g.getNode("n1");
+        CGraph g = ng.getGraph1();
+        CNode n1 = g.getNode("n1");
 
-        m_sut.assignMetric(g.getNodeSet());
+        m_sut.assignMetric(g.getNodes());
         assertEquals(17, m_sut.getMetric(n1));
     }
 
     @Test
     void test2() {
         NodeGenerator ng = new NodeGenerator();
-        Graph g = ng.getGraph2();
-        Node n1 = g.getNode("n1");
+        CGraph g = ng.getGraph2();
+        CNode n1 = g.getNode("n1");
 
-        m_sut.assignMetric(g.getNodeSet());
+        m_sut.assignMetric(g.getNodes());
         assertEquals(17, m_sut.getMetric(n1));
     }
 

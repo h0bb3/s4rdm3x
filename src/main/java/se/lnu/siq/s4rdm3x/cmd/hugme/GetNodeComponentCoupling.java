@@ -4,6 +4,8 @@ import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import se.lnu.siq.s4rdm3x.model.AttributeUtil;
 import se.lnu.siq.s4rdm3x.experiments.metric.FanHelper;
+import se.lnu.siq.s4rdm3x.model.CGraph;
+import se.lnu.siq.s4rdm3x.model.CNode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,21 +21,20 @@ public class GetNodeComponentCoupling {
         m_result = new Table();
     }
 
-    public void run(Graph a_g)  {
-        FanHelper fh = new FanHelper(a_g.getNodeSet());
+    public void run(CGraph a_g)  {
+        FanHelper fh = new FanHelper(a_g.getNodes());
 
-        AttributeUtil au = new AttributeUtil();
-        Iterable<Node> mappedNodes = m_arch.getMappedNodes(a_g.getNodeSet());
+        Iterable<CNode> mappedNodes = m_arch.getMappedNodes(a_g.getNodes());
 
-        for (Node n : mappedNodes) {
+        for (CNode n : mappedNodes) {
             double fanIn = 0, fanOut = 0;
             double couplingIn = 0, couplingOut = 0;
             double violationFanIn = 0, violationCouplingIn = 0;
             double violationFanOut = 0, violationCouplingOut = 0;
             HuGMe.ArchDef.Component c = m_arch.getMappedComponent(n);
 
-            ArrayList<Node> couplings = fh.getCoupledNodes(n, mappedNodes);
-            for (Node cNode : couplings) {
+            ArrayList<CNode> couplings = fh.getCoupledNodes(n, mappedNodes);
+            for (CNode cNode : couplings) {
                 HuGMe.ArchDef.Component otherComponent = m_arch.getMappedComponent(cNode);
                 if (c != otherComponent) {
                     final boolean isViolationOut = c.allowedDependency(otherComponent);
@@ -90,11 +91,11 @@ public class GetNodeComponentCoupling {
         int m_rowCount;
         int m_colCount;
 
-        HashMap<Node, Integer> m_node2Row = new HashMap<>();
+        HashMap<CNode, Integer> m_node2Row = new HashMap<>();
         HashMap<String, Integer> m_metric2Col = new HashMap<>();
 
 
-        public int addRow(Node a_node) {
+        public int addRow(CNode a_node) {
             if (!m_node2Row.containsKey(a_node)) {
                 m_metrics = Arrays.copyOf(m_metrics, (m_rowCount + 1) * m_colCount);
                 m_node2Row.put(a_node, m_rowCount);
@@ -114,7 +115,7 @@ public class GetNodeComponentCoupling {
             return m_metric2Col.get(a_metricName);
         }
 
-        public void add(Node a_n, String a_metric, Object a_value) {
+        public void add(CNode a_n, String a_metric, Object a_value) {
             int row = addRow(a_n);
             int col = addColumn(a_metric);
 
@@ -122,7 +123,7 @@ public class GetNodeComponentCoupling {
         }
 
 
-        public Iterable<Node> getNodes() {
+        public Iterable<CNode> getNodes() {
             return m_node2Row.keySet();
         }
         public Iterable<String> getMetrics() {
@@ -130,7 +131,7 @@ public class GetNodeComponentCoupling {
         }
 
 
-        public Object get(Node a_row, String a_col) {
+        public Object get(CNode a_row, String a_col) {
             int rowIx = m_node2Row.get(a_row);
             int colIx = m_metric2Col.get(a_col);
             return m_metrics[colIx + rowIx * m_colCount];

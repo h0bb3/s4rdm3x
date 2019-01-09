@@ -60,7 +60,7 @@ public class ClusterExperiment {
             mapPackages(a_g, packages[cIx], Cluster1.g_originalMappingTags[cIx], colors[cIx]);
             if (a_mappingPercent > 0) {
                 AddNodeTagRandom c = new AddNodeTagRandom(Cluster1.g_clusterTags[cIx], new Selector.Tag(Cluster1.g_originalMappingTags[cIx]), a_mappingPercent);
-                c.run(a_g);
+                //c.run(a_g);
             }
         }
 
@@ -93,27 +93,27 @@ public class ClusterExperiment {
     protected void mapPackages(Graph a_g, String[] a_packages, String a_clusterTag, String a_fillColor) {
         for(String pkg : a_packages) {
             AddNodeTag c = new AddNodeTag(a_clusterTag, new Selector.Pkg(pkg));
-            c.run(a_g);
+           // c.run(a_g);
         }
-        SetAttr c = new SetAttr("ui.style", "fill-color:" + a_fillColor, new Selector.Tag(a_clusterTag));
-        c.run(a_g);
+        //SetAttr c = new SetAttr("ui.style", "fill-color:" + a_fillColor, new Selector.Tag(a_clusterTag));
+        //c.run(a_g);
     }
 
     protected boolean loadJabRef(Graph a_g) {
         {
             LoadJar c = new LoadJar("data/jabref-3.7.jar", "net/sf/jabref/");
-            try {
+            /*try {
                 c.run(a_g);
             } catch (IOException e) {
                 System.out.println(e);
                 return false;
-            }
+            }*/
         }
 
         //hide NOT pkg:/jabref/
         {
-            ShowNode c = new ShowNode(new Selector.Not(new Selector.Pkg("/jabref/")), false);
-            c.run(a_g);
+            //ShowNode c = new ShowNode(new Selector.Not(new Selector.Pkg("/jabref/")), false);
+          //  c.run(a_g);
         }
 
         return false;

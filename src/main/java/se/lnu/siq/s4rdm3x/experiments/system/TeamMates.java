@@ -6,7 +6,7 @@ import se.lnu.siq.s4rdm3x.cmd.LoadJar;
 import se.lnu.siq.s4rdm3x.model.Selector;
 
 import java.io.IOException;
-
+/*
 public class TeamMates extends System {
 
     @Override
@@ -93,4 +93,4 @@ public class TeamMates extends System {
         c.mapToNodes(a_g, new Selector.Pkg(a_package));
         return c;
     }
-}
+}*/

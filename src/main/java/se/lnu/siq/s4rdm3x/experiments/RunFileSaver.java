@@ -4,6 +4,8 @@ import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import se.lnu.siq.s4rdm3x.cmd.hugme.HuGMe;
 import se.lnu.siq.s4rdm3x.model.AttributeUtil;
+import se.lnu.siq.s4rdm3x.model.CGraph;
+import se.lnu.siq.s4rdm3x.model.CNode;
 
 import java.io.File;
 import java.nio.file.*;
@@ -90,11 +92,11 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
     }
 
 
-    public ExperimentRunner.BasicRunData OnRunInit(ExperimentRunner.BasicRunData a_rd, Graph a_g, HuGMe.ArchDef a_arch) {
+    public ExperimentRunner.BasicRunData OnRunInit(ExperimentRunner.BasicRunData a_rd, CGraph a_g, HuGMe.ArchDef a_arch) {
         m_rd = new RunData();
 
-        m_rd.m_initialClustered = a_arch.getClusteredNodeCount(a_g.getNodeSet());
-        m_rd.m_totalMapped= a_arch.getMappedNodeCount(a_g.getNodeSet());
+        m_rd.m_initialClustered = a_arch.getClusteredNodeCount(a_g.getNodes());
+        m_rd.m_totalMapped= a_arch.getMappedNodeCount(a_g.getNodes());
 
         m_rd.m_initialDistribution = getInitialClusterDistributionString(a_g, a_arch);
 
@@ -104,7 +106,7 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
         return a_rd;
     }
 
-    public void OnRunCompleted(ExperimentRunner.BasicRunData a_rd, Graph a_g, HuGMe.ArchDef a_arch) {
+    public void OnRunCompleted(ExperimentRunner.BasicRunData a_rd, CGraph a_g, HuGMe.ArchDef a_arch) {
         ArrayList<String> row = new ArrayList<>();
         row.add(m_rd.m_date);
         row.add("" + a_rd.m_time);
@@ -127,7 +129,7 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
 
         if (m_mappingsFilePath != null) {
             AttributeUtil au = new AttributeUtil();
-            for(Node n: a_g.getEachNode()) {
+            for(CNode n: a_g.getNodes()) {
                 HuGMe.ArchDef.Component mapped;
 
                 mapped = a_arch.getMappedComponent(n);
@@ -139,7 +141,7 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
                     row = new ArrayList<>();
                     row.add("" + a_rd.m_id);
                     row.add(m_filePath.toString());
-                    row.add(au.getName(n));
+                    row.add(n.getName());
                     row.add(mapped.getName());
                     if (clustered !=  null) {
                         row.add(clustered.getName());
@@ -253,12 +255,12 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
         return fp;
     }
 
-    private String getInitialClusterDistributionString(Graph a_g, HuGMe.ArchDef a_arch) {
+    private String getInitialClusterDistributionString(CGraph a_g, HuGMe.ArchDef a_arch) {
         String ret="";
 
         for (HuGMe.ArchDef.Component c : a_arch.getComponents()) {
             int count = 0;
-            for (Node a_n : a_g.getEachNode()) {
+            for (CNode a_n : a_g.getNodes()) {
                 if (c == a_arch.getClusteredComponent(a_n)) {
                     count++;
                 }

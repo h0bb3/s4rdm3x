@@ -5,6 +5,8 @@ import org.graphstream.graph.Node;
 import org.junit.jupiter.api.Test;
 import se.lnu.siq.s4rdm3x.dmodel.NodeGenerator;
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
+import se.lnu.siq.s4rdm3x.model.CGraph;
+import se.lnu.siq.s4rdm3x.model.CNode;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -15,20 +17,20 @@ public class FanTest {
         FanIn sutIn = new FanIn();
         FanOut sutOut = new FanOut();
         NodeGenerator ng = new NodeGenerator();
-        Graph g = ng.generateGraph(dmDependency.Type.Extends, new String [] {"AB", "AC"});
-        Node a = g.getNode("A");
-        Node b = g.getNode("B");
-        Node c = g.getNode("C");
+        CGraph g = ng.generateGraph(dmDependency.Type.Extends, new String [] {"AB", "AC"});
+        CNode a = g.getNode("A");
+        CNode b = g.getNode("B");
+        CNode c = g.getNode("C");
 
-        sutIn.assignMetric(g.getNodeSet());
+        sutIn.assignMetric(g.getNodes());
         assertEquals(0, sutIn.getMetric(a));
         assertEquals(1, sutIn.getMetric(b));
         assertEquals(1, sutIn.getMetric(c));
 
-        sutOut.assignMetric(g.getNodeSet());
-        assertEquals(2, sutIn.getMetric(a));
-        assertEquals(0, sutIn.getMetric(b));
-        assertEquals(0, sutIn.getMetric(c));
+        sutOut.assignMetric(g.getNodes());
+        assertEquals(2, sutOut.getMetric(a));
+        assertEquals(0, sutOut.getMetric(b));
+        assertEquals(0, sutOut.getMetric(c));
     }
 
     @Test
@@ -36,21 +38,21 @@ public class FanTest {
         FanIn sutIn = new FanIn();
         FanOut sutOut = new FanOut();
         NodeGenerator ng = new NodeGenerator();
-        Graph g = ng.generateGraph(dmDependency.Type.Extends, new String [] {"AB", "AC"});
+        CGraph g = ng.generateGraph(dmDependency.Type.Extends, new String [] {"AB", "AC"});
         ng.addToGraph(g, dmDependency.Type.MethodCall, new String [] {"AB", "AC"});
-        Node a = g.getNode("A");
-        Node b = g.getNode("B");
-        Node c = g.getNode("C");
+        CNode a = g.getNode("A");
+        CNode b = g.getNode("B");
+        CNode c = g.getNode("C");
 
-        sutIn.assignMetric(g.getNodeSet());
+        sutIn.assignMetric(g.getNodes());
         assertEquals(0, sutIn.getMetric(a));
         assertEquals(2, sutIn.getMetric(b));
         assertEquals(2, sutIn.getMetric(c));
 
-        sutOut.assignMetric(g.getNodeSet());
-        assertEquals(4, sutIn.getMetric(a));
-        assertEquals(0, sutIn.getMetric(b));
-        assertEquals(0, sutIn.getMetric(c));
+        sutOut.assignMetric(g.getNodes());
+        assertEquals(4, sutOut.getMetric(a));
+        assertEquals(0, sutOut.getMetric(b));
+        assertEquals(0, sutOut.getMetric(c));
     }
 
     @Test
@@ -58,20 +60,20 @@ public class FanTest {
         FanIn sutIn = new FanIn();
         FanOut sutOut = new FanOut();
         NodeGenerator ng = new NodeGenerator();
-        Graph g = ng.generateGraph(dmDependency.Type.Extends, new String [] {"AB", "AC", "AA", "BB", "CC"});
-        Node a = g.getNode("A");
-        Node b = g.getNode("B");
-        Node c = g.getNode("C");
+        CGraph g = ng.generateGraph(dmDependency.Type.Extends, new String [] {"AB", "AC", "AA", "BB", "CC"});
+        CNode a = g.getNode("A");
+        CNode b = g.getNode("B");
+        CNode c = g.getNode("C");
 
-        sutIn.assignMetric(g.getNodeSet());
+        sutIn.assignMetric(g.getNodes());
         assertEquals(0, sutIn.getMetric(a));
         assertEquals(1, sutIn.getMetric(b));
         assertEquals(1, sutIn.getMetric(c));
 
-        sutOut.assignMetric(g.getNodeSet());
-        assertEquals(2, sutIn.getMetric(a));
-        assertEquals(0, sutIn.getMetric(b));
-        assertEquals(0, sutIn.getMetric(c));
+        sutOut.assignMetric(g.getNodes());
+        assertEquals(2, sutOut.getMetric(a));
+        assertEquals(0, sutOut.getMetric(b));
+        assertEquals(0, sutOut.getMetric(c));
     }
 
     @Test
@@ -79,13 +81,13 @@ public class FanTest {
         FanIn sutIn = new FanIn();
         FanOut sutOut = new FanOut();
         NodeGenerator ng = new NodeGenerator();
-        Graph g = ng.generateGraph(dmDependency.Type.Extends, new String [] {"AA"});
-        Node a = g.getNode("A");
+        CGraph g = ng.generateGraph(dmDependency.Type.Extends, new String [] {"AA"});
+        CNode a = g.getNode("A");
 
-        sutIn.assignMetric(g.getNodeSet());
+        sutIn.assignMetric(g.getNodes());
         assertEquals(0, sutIn.getMetric(a));
 
-        sutOut.assignMetric(g.getNodeSet());
-        assertEquals(0, sutIn.getMetric(a));
+        sutOut.assignMetric(g.getNodes());
+        assertEquals(0, sutOut.getMetric(a));
     }
 }

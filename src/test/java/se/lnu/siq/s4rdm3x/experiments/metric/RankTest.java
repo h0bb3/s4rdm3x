@@ -4,6 +4,8 @@ import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.junit.jupiter.api.Test;
 import se.lnu.siq.s4rdm3x.dmodel.NodeGenerator;
+import se.lnu.siq.s4rdm3x.model.CGraph;
+import se.lnu.siq.s4rdm3x.model.CNode;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -15,10 +17,10 @@ public class RankTest {
     void test1() {
         Rank sut = new Rank();
         NodeGenerator ng = new NodeGenerator();
-        Graph g = ng.getGraph1();
-        Node n1 = g.getNode("n1");
+        CGraph g = ng.getGraph1();
+        CNode n1 = g.getNode("n1");
 
-        sut.assignMetric(g.getNodeSet());
+        sut.assignMetric(g.getNodes());
         assertEquals(1.0, sut.getMetric(n1));
     }
 
@@ -26,9 +28,9 @@ public class RankTest {
     void test2() {
         Rank sut = new Rank();
         NodeGenerator ng = new NodeGenerator();
-        Graph g = ng.generateGraph(new String [] {"AB"});
+        CGraph g = ng.generateGraph(new String [] {"AB"});
 
-        sut.assignMetric(g.getNodeSet());
+        sut.assignMetric(g.getNodes());
         assertEquals(.3509, sut.getMetric(g.getNode("A")), m_delta);
         assertEquals(.6491, sut.getMetric(g.getNode("B")), m_delta);
     }
@@ -38,9 +40,9 @@ public class RankTest {
         // https://davidpynes.github.io/Tutorials/Graphs/Graph_04/
         Rank sut = new Rank();
         NodeGenerator ng = new NodeGenerator();
-        Graph g = ng.generateGraph(new String [] {"AB", "BC", "CA", "DC", "AC"});
+        CGraph g = ng.generateGraph(new String [] {"AB", "BC", "CA", "DC", "AC"});
 
-        sut.assignMetric(g.getNodeSet());
+        sut.assignMetric(g.getNodes());
         assertEquals(0.3725, sut.getMetric(g.getNode("A")), m_delta);
         assertEquals(0.1958, sut.getMetric(g.getNode("B")), m_delta);
         assertEquals(0.3941, sut.getMetric(g.getNode("C")), m_delta);
@@ -51,9 +53,9 @@ public class RankTest {
     void test4() {
         Rank sut = new Rank();
         NodeGenerator ng = new NodeGenerator();
-        Graph g = ng.generateGraph(new String [] {"AB", "AC"});
+        CGraph g = ng.generateGraph(new String [] {"AB", "AC"});
 
-        sut.assignMetric(g.getNodeSet());
+        sut.assignMetric(g.getNodes());
         assertEquals(.260, sut.getMetric(g.getNode("A")), m_delta);
         assertEquals(.370, sut.getMetric(g.getNode("B")), m_delta);
         assertEquals(.370, sut.getMetric(g.getNode("C")), m_delta);
@@ -63,9 +65,9 @@ public class RankTest {
     void test5() {
         Rank sut = new Rank();
         NodeGenerator ng = new NodeGenerator();
-        Graph g = ng.generateGraph(new String [] {"AB", "AB", "AC"});
+        CGraph g = ng.generateGraph(new String [] {"AB", "AB", "AC"});
 
-        sut.assignMetric(g.getNodeSet());
+        sut.assignMetric(g.getNodes());
         assertEquals(.260, sut.getMetric(g.getNode("A")), m_delta);
         assertEquals(.4069, sut.getMetric(g.getNode("B")), m_delta);
         assertEquals(.3333, sut.getMetric(g.getNode("C")), m_delta);
@@ -75,9 +77,9 @@ public class RankTest {
     void testWikipediaExample() {
         Rank sut = new Rank();
         NodeGenerator ng = new NodeGenerator();
-        Graph g = ng.generateGraph(new String [] {"BC", "CB", "DA", "DB", "ED", "EB", "EF", "FB", "FE", "GB", "GE", "HB", "HE", "IB", "IE", "JE", "KE"});
+        CGraph g = ng.generateGraph(new String [] {"BC", "CB", "DA", "DB", "ED", "EB", "EF", "FB", "FE", "GB", "GE", "HB", "HE", "IB", "IE", "JE", "KE"});
 
-        sut.assignMetric(g.getNodeSet());
+        sut.assignMetric(g.getNodes());
         assertEquals(3.3, 100 * sut.getMetric(g.getNode("A")), 1.0e-1);
         assertEquals(38.4, 100 * sut.getMetric(g.getNode("B")), 1.0e-1);
         assertEquals(34.3, 100 * sut.getMetric(g.getNode("C")), 1.0e-1);

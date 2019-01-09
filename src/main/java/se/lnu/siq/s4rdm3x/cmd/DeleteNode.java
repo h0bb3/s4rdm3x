@@ -1,6 +1,7 @@
 package se.lnu.siq.s4rdm3x.cmd;
 
 import org.graphstream.graph.Graph;
+import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.Selector;
 
 public class DeleteNode {
@@ -10,7 +11,7 @@ public class DeleteNode {
         m_selection = a_selection;
     }
 
-    public void run(Graph a_g) {
+    public void run(CGraph a_g) {
 
         /*LinkedList<Node> toBeRemoved = new LinkedList<>();
 

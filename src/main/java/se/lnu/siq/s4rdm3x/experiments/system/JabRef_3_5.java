@@ -8,7 +8,7 @@ import se.lnu.siq.s4rdm3x.cmd.LoadArch;
 import java.io.IOException;
 
 
-
+/*
 public class JabRef_3_5 extends System {
 
     @Override
@@ -35,4 +35,4 @@ public class JabRef_3_5 extends System {
         return true;
     }
 
-}
+}*/

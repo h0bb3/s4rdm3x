@@ -5,6 +5,7 @@ import se.lnu.siq.s4rdm3x.cmd.hugme.HuGMe;
 import se.lnu.siq.s4rdm3x.cmd.LoadJar;
 import se.lnu.siq.s4rdm3x.cmd.util.ArchCreator;
 import se.lnu.siq.s4rdm3x.cmd.util.SystemModelReader;
+import se.lnu.siq.s4rdm3x.model.CGraph;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -24,7 +25,7 @@ public class FileBased extends System {
         }
     }
 
-    public HuGMe.ArchDef createAndMapArch(Graph a_g) {
+    public HuGMe.ArchDef createAndMapArch(CGraph a_g) {
         ArchCreator ac = new ArchCreator();
         HuGMe.ArchDef ret = ac.createArch(m_smr);
 
@@ -41,7 +42,8 @@ public class FileBased extends System {
         return null;
     }
 
-    public boolean load(Graph a_g) {
+    @Override
+    public boolean load(CGraph a_g) {
 
         String [] roots = new String[m_smr.m_roots.size()];
         m_smr.m_roots.toArray(roots);

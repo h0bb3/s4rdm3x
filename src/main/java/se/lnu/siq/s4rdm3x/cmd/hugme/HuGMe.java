@@ -45,16 +45,16 @@ public class HuGMe {
             }
 
             public ClusteringType getClusteringType(CNode a_n) {
-                if (a_n.hasAnyTag(ClusteringType.Manual.toString())) {
+                if (a_n.hasTag(ClusteringType.Manual.toString())) {
                     return ClusteringType.Manual;
                 }
-                if (a_n.hasAnyTag(ClusteringType.Automatic.toString())) {
+                if (a_n.hasTag(ClusteringType.Automatic.toString())) {
                     return ClusteringType.Automatic;
                 }
-                if (a_n.hasAnyTag(ClusteringType.ManualFailed.toString())) {
+                if (a_n.hasTag(ClusteringType.ManualFailed.toString())) {
                     return ClusteringType.ManualFailed;
                 }
-                if (a_n.hasAnyTag(ClusteringType.Initial.toString())) {
+                if (a_n.hasTag(ClusteringType.Initial.toString())) {
                     return ClusteringType.Initial;
                 }
 
@@ -109,7 +109,7 @@ public class HuGMe {
             }
 
             public boolean isMappedTo(CNode a_n) {
-                return a_n.hasAnyTag(m_name);
+                return a_n.hasTag(m_name);
             }
 
             public void mapToNodes(Iterable<CNode> a_nodesToRemap) {
@@ -197,7 +197,7 @@ public class HuGMe {
 
         public Component getClusteredComponent(CNode a_n) {
             for(Component c : m_components) {
-                if (a_n.hasAnyTag(c.getClusterName())) {
+                if (a_n.hasTag(c.getClusterName())) {
                     return c;
                 }
             }
@@ -206,7 +206,7 @@ public class HuGMe {
 
         public Component getMappedComponent(CNode a_n) {
             for(Component c : m_components) {
-                if (a_n.hasAnyTag(c.getName())) {
+                if (a_n.hasTag(c.getName())) {
                     return c;
                 }
             }

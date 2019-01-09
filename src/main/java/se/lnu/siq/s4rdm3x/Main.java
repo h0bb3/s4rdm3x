@@ -5,6 +5,7 @@ import org.graphstream.graph.implementations.*;
 import org.graphstream.ui.view.Viewer;
 import org.graphstream.ui.view.ViewerPipe;
 import se.lnu.siq.s4rdm3x.cmd.hugme.HuGMe;
+import se.lnu.siq.s4rdm3x.model.CGraph;
 
 public class Main {
 
@@ -19,6 +20,7 @@ public class Main {
 
         HuGMe.ArchDef arch = null;  // this is set by loading the arch
 
+        //CGraph graph = new CGraph();
         Graph graph = new MultiGraph("main_graph");
         graph.addAttribute("ui.antialias");
         graph.addAttribute("ui.quality", 4);
@@ -74,7 +76,8 @@ public class Main {
                 if (guic.hasInput()) {
 
                     String in = guic.popInput();
-                    sch.execute(in, graph).forEach(str -> guic.println(str));
+                    //sch.execute(in, graph).forEach(str -> guic.println(str));
+                    System.out.println("This is deprecated and should be converted to a visualization only");
                 }
             } catch (Exception e) {
                 guic.println(e.toString());

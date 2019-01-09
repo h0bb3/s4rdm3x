@@ -5,6 +5,8 @@ import org.graphstream.graph.Node;
 import org.junit.jupiter.api.Test;
 import se.lnu.siq.s4rdm3x.dmodel.NodeGenerator;
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
+import se.lnu.siq.s4rdm3x.model.CGraph;
+import se.lnu.siq.s4rdm3x.model.CNode;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -14,10 +16,10 @@ public class NumberOfParentsTest {
     void test0() {
         NumberOfParents sut = new NumberOfParents();
         NodeGenerator ng = new NodeGenerator();
-        Graph g = ng.generateGraph(dmDependency.Type.Extends, new String [] {"BA", "CA"});
-        Node n1 = g.getNode("A");
+        CGraph g = ng.generateGraph(dmDependency.Type.Extends, new String [] {"BA", "CA"});
+        CNode n1 = g.getNode("A");
 
-        sut.assignMetric(g.getNodeSet());
+        sut.assignMetric(g.getNodes());
         assertEquals(0.0, sut.getMetric(n1));
     }
 
@@ -25,10 +27,10 @@ public class NumberOfParentsTest {
     void test1() {
         NumberOfParents sut = new NumberOfParents();
         NodeGenerator ng = new NodeGenerator();
-        Graph g = ng.generateGraph(dmDependency.Type.Extends, new String [] {"BA", "CA"});
-        Node n1 = g.getNode("C");
+        CGraph g = ng.generateGraph(dmDependency.Type.Extends, new String [] {"BA", "CA"});
+        CNode n1 = g.getNode("C");
 
-        sut.assignMetric(g.getNodeSet());
+        sut.assignMetric(g.getNodes());
         assertEquals(1.0, sut.getMetric(n1));
     }
 
@@ -36,10 +38,10 @@ public class NumberOfParentsTest {
     void test2() {
         NumberOfParents sut = new NumberOfParents();
         NodeGenerator ng = new NodeGenerator();
-        Graph g = ng.generateGraph(dmDependency.Type.Implements, new String [] {"BA", "CB"});
-        Node n1 = g.getNode("C");
+        CGraph g = ng.generateGraph(dmDependency.Type.Implements, new String [] {"BA", "CB"});
+        CNode n1 = g.getNode("C");
 
-        sut.assignMetric(g.getNodeSet());
+        sut.assignMetric(g.getNodes());
         assertEquals(2.0, sut.getMetric(n1));
     }
 
@@ -47,10 +49,10 @@ public class NumberOfParentsTest {
     void test3() {
         NumberOfParents sut = new NumberOfParents();
         NodeGenerator ng = new NodeGenerator();
-        Graph g = ng.generateGraph(dmDependency.Type.Implements, new String [] {"AB", "CB"});
-        Node n1 = g.getNode("C");
+        CGraph g = ng.generateGraph(dmDependency.Type.Implements, new String [] {"AB", "CB"});
+        CNode n1 = g.getNode("C");
 
-        sut.assignMetric(g.getNodeSet());
+        sut.assignMetric(g.getNodes());
         assertEquals(1.0, sut.getMetric(n1));
     }
 
@@ -58,10 +60,10 @@ public class NumberOfParentsTest {
     void testCircular() {
         NumberOfParents sut = new NumberOfParents();
         NodeGenerator ng = new NodeGenerator();
-        Graph g = ng.generateGraph(dmDependency.Type.Extends, new String [] {"BA", "CB", "AC"}); // circular inheritance is impossible
-        Node n1 = g.getNode("C");
+        CGraph g = ng.generateGraph(dmDependency.Type.Extends, new String [] {"BA", "CB", "AC"}); // circular inheritance is impossible
+        CNode n1 = g.getNode("C");
 
-        sut.assignMetric(g.getNodeSet());
+        sut.assignMetric(g.getNodes());
         assertEquals(2.0, sut.getMetric(n1));
         assertEquals(2.0, sut.getMetric(g.getNode("A")));
         assertEquals(2.0, sut.getMetric(g.getNode("B")));
@@ -71,11 +73,11 @@ public class NumberOfParentsTest {
     void testMixedRelations() {
         NumberOfParents sut = new NumberOfParents();
         NodeGenerator ng = new NodeGenerator();
-        Graph g = ng.generateGraph(dmDependency.Type.Implements, new String [] {"AA", "BA", "CB"});
+        CGraph g = ng.generateGraph(dmDependency.Type.Implements, new String [] {"AA", "BA", "CB"});
         ng.addToGraph(g, dmDependency.Type.MethodCall, new String [] {"BA", "CB", "CB", "AC", "AA"});
-        Node n1 = g.getNode("C");
+        CNode n1 = g.getNode("C");
 
-        sut.assignMetric(g.getNodeSet());
+        sut.assignMetric(g.getNodes());
         assertEquals(2.0, sut.getMetric(n1));
         assertEquals(0, sut.getMetric(g.getNode("A")));
     }
@@ -84,11 +86,11 @@ public class NumberOfParentsTest {
     void testMultipleClassesinSameNode() {
         NumberOfParents sut = new NumberOfParents();
         NodeGenerator ng = new NodeGenerator();
-        Graph g = ng.generateGraph(dmDependency.Type.Implements, new String [] {"AB", "BC"});
+        CGraph g = ng.generateGraph(dmDependency.Type.Implements, new String [] {"AB", "BC"});
         ng.addToGraph(g, dmDependency.Type.Extends, new String [] {"AB", "BC"});
-        Node a = g.getNode("A");
+        CNode a = g.getNode("A");
 
-        sut.assignMetric(g.getNodeSet());
+        sut.assignMetric(g.getNodes());
         assertEquals(2.0, sut.getMetric(a));
     }
 
@@ -97,10 +99,10 @@ public class NumberOfParentsTest {
     void testSameDistantParent() {
         NumberOfParents sut = new NumberOfParents();
         NodeGenerator ng = new NodeGenerator();
-        Graph g = ng.generateGraph(dmDependency.Type.Implements, new String [] {"AB", "BC", "AD", "DC"});
-        Node a = g.getNode("A");
+        CGraph g = ng.generateGraph(dmDependency.Type.Implements, new String [] {"AB", "BC", "AD", "DC"});
+        CNode a = g.getNode("A");
 
-        sut.assignMetric(g.getNodeSet());
+        sut.assignMetric(g.getNodes());
         assertEquals(3.0, sut.getMetric(a));
     }
 }

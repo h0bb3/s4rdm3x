@@ -14,7 +14,7 @@ public class ArchCreator {
             HuGMe.ArchDef.Component c = a_arch.getComponent(mapping.m_moduleName);
             Selector.Pat p = new Selector.Pat(mapping.m_regexp);
 
-            for (Node n : a_g.getEachNode()) {
+            for (CNode n : a_g.getNodes()) {
                 if (p.isSelected(n)) {
                     HuGMe.ArchDef.Component oldMapping = a_arch.getMappedComponent(n);
                     if (oldMapping != null) {
@@ -78,13 +78,12 @@ public class ArchCreator {
             }
 
 
-            for (Node n : a_nodesToMap) {
-                NodeUtil nu = new NodeUtil(null);
+            for (CNode n : a_nodesToMap) {
                 if (c.isMappedTo(n)) {
                     SystemModelReader.Mapping m = new SystemModelReader.Mapping();
 
                     m.m_moduleName = c.getName();
-                    m.m_regexp = nu.getName(n);
+                    m.m_regexp = n.getName();
 
                     ret.m_mappings.add(m);
                 }

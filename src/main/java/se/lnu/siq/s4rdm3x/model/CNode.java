@@ -12,25 +12,52 @@ import java.util.regex.Pattern;
 
 public class CNode {
 
-
+    private int m_index;
+    String m_name;
+    private ArrayList<String> m_tags = new ArrayList<>();
+    private ArrayList<dmClass> m_classes = new ArrayList<>();
 
     public static class MetricMap extends HashMap<String, Double> {}
 
     private MetricMap m_metrics = new MetricMap();
 
-    private Node m_n;
 
-    private static AttributeUtil g_au = new AttributeUtil();
+    public String getTags() {
+        return getTags(",");
+    }
+
+    public String getTags(String a_separator) {
+        String ret = "";
+
+        for (String tag : m_tags) {
+            ret += tag + a_separator;
+        }
+
+        if (m_tags.size() > 0) {
+            ret = ret.substring(0, ret.length() - a_separator.length());
+        }
+
+        return ret;
+    }
+
+    /*public String getId() {
+        return m_id;
+    }*/
+
+    public int getIndex() {
+        return m_index;
+    }
 
     double[] m_attractions = null;
 
 
-    CNode(Node a_node) {
-        m_n = a_node;
+    CNode(String a_name, int a_index) {
+        m_name = a_name;
+        m_index = a_index;
     }
 
     public boolean matchesAnyPackageName(String a_package) {
-        for (dmClass c : g_au.getClasses(m_n)) {
+        for (dmClass c : m_classes) {
             if (c.getFileName().contains(a_package)) {
                 return true;
             }
@@ -40,7 +67,7 @@ public class CNode {
     }
 
     public boolean matchesAnyClassName(Pattern a_pattern) {
-        for (dmClass c : g_au.getClasses(m_n)) {
+        for (dmClass c : m_classes) {
             if (a_pattern.matcher(c.getName()).find()) {
                 return true;
             }
@@ -49,11 +76,27 @@ public class CNode {
 
     }
 
-    public boolean hasAnyTag(String a_tag) {
-        return g_au.hasAnyTag(m_n, a_tag);
+    public boolean hasAnyTag(String [] a_tags) {
+        for (String nodeTag : m_tags) {
+            for (String tag : a_tags) {
+                if (tag.compareTo(nodeTag) == 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
-    public boolean hasEdgeTag(String a_tag) {
+    public boolean hasTag(String a_tag) {
+        for (String nodeTag : m_tags) {
+            if (a_tag.compareTo(nodeTag) == 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /*public boolean hasEdgeTag(String a_tag) {
         for(Edge e : m_n.getEachEdge()) {
             if (g_au.hasAnyTag(e, a_tag)) {
                 return true;
@@ -61,16 +104,21 @@ public class CNode {
         }
 
         return false;
-    }
+    }*/
 
     public void addTag(String a_tag) {
-        g_au.addTag(m_n, a_tag);
+        for (String t :  m_tags) {
+            if (t.contentEquals(a_tag)) {
+                return;
+            }
+        }
+        m_tags.add(a_tag);
     }
 
     public boolean hasDependency(CNode a_to) {
-        for (dmClass cFrom : g_au.getClasses(m_n)) {
+        for (dmClass cFrom : m_classes) {
             for(dmDependency dFrom : cFrom.getDependencies()) {
-                for (dmClass cTo : g_au.getClasses(a_to.m_n)) {
+                for (dmClass cTo : a_to.getClasses()) {
                     if (dFrom.getTarget() == cTo) {
                         return true;
                     }
@@ -83,9 +131,9 @@ public class CNode {
 
     public int getDependencyCount(CNode a_to) {
         int count = 0;
-        for (dmClass cFrom : g_au.getClasses(m_n)) {
+        for (dmClass cFrom : m_classes) {
             for(dmDependency dFrom : cFrom.getDependencies()) {
-                for (dmClass cTo : g_au.getClasses(a_to.m_n)) {
+                for (dmClass cTo : a_to.getClasses()) {
                     if (dFrom.getTarget() == cTo) {
                         count++;
                     }
@@ -98,9 +146,9 @@ public class CNode {
 
     public Iterable<dmDependency> getDependencies(CNode a_to) {
         ArrayList<dmDependency> ret = new ArrayList<>();
-        for (dmClass cFrom : g_au.getClasses(m_n)) {
+        for (dmClass cFrom : m_classes) {
             for(dmDependency dFrom : cFrom.getDependencies()) {
-                for (dmClass cTo : g_au.getClasses(a_to.m_n)) {
+                for (dmClass cTo : a_to.getClasses()) {
                     if (dFrom.getTarget() == cTo) {
                         ret.add(dFrom);
                     }
@@ -112,32 +160,28 @@ public class CNode {
     }
 
     public String getFileName() {
-        return g_au.getClasses(m_n).get(0).getFileName();
+        return m_classes.get(0).getFileName();
     }
+    public String getName() { return m_name; }
 
     public Iterable<dmClass> getClasses() {
-        return g_au.getClasses(m_n);
+        return m_classes;
     }
     public int getClassCount() {
-        return g_au.getClasses(m_n).size();
+        return m_classes.size();
+    }
+
+    public boolean containsClass(dmClass a_className) {
+        return m_classes.contains(a_className);
     }
 
     public void addClass(dmClass a_c) {
-        g_au.addClass(m_n, a_c);
+
+        m_classes.add(a_c);
     }
 
     public void removeTag(String a_tag) {
-        g_au.removeTag(m_n, a_tag);
-    }
-
-    public boolean hasAnyTag(String[] a_tags) {
-        for (String tag : a_tags) {
-            if (hasAnyTag(tag)) {
-                return true;
-            }
-        }
-
-        return false;
+        m_tags.removeIf(t->t.contentEquals(a_tag));
     }
 
     public void setAttractions(double[] a_attractions) {

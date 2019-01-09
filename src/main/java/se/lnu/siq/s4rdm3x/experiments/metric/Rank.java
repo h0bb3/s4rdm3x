@@ -31,8 +31,10 @@ public class Rank extends Metric {
             for (CNode m : a_nodes) {
                 if (n != m) {
                     for (dmDependency d : n.getDependencies(m)) {
-                        ranks.addEdge("" + edgeId, n.getFileName(), m.getFileName(), true);
-                        edgeId++;
+                        for (Integer l : d.lines()) {
+                            ranks.addEdge("" + edgeId, n.getFileName(), m.getFileName(), true);
+                            edgeId++;
+                        }
                     }
                 }
             }

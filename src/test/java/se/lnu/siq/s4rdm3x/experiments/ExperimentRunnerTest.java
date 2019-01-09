@@ -4,6 +4,8 @@ import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
 import org.junit.jupiter.api.Test;
+import se.lnu.siq.s4rdm3x.model.CGraph;
+import se.lnu.siq.s4rdm3x.model.CNode;
 import se.lnu.siq.s4rdm3x.model.NodeUtil;
 import se.lnu.siq.s4rdm3x.experiments.metric.Metric;
 
@@ -15,36 +17,35 @@ class ExperimentRunnerTest {
 
     private class MetricSetter extends Metric {
 
-        void setMetricValue(Node a_node, double a_metricValue) {
-            setMetric(a_node, a_metricValue);
+        void setMetricValue(CNode a_node, double a_metricValue) {
+            a_node.setMetric(getName(), a_metricValue);
         }
 
         public String getName() { return "MetricTestHelper"; };
-        public void assignMetric(Iterable<Node> a_nodes) {}
-        public void reassignMetric(Iterable<Node> a_nodes) {}
+        public void assignMetric(Iterable<CNode> a_nodes) {}
+        public void reassignMetric(Iterable<CNode> a_nodes) {}
 
     }
 
 
     @Test
     public void getWorkingSetTest() {
-        Graph g = new MultiGraph("Test");
+        CGraph g = new CGraph();
         MetricSetter ms = new MetricSetter();
         ExperimentRunner er = new ExperimentRunner(null, ms);
-        NodeUtil nu = new NodeUtil(g);
 
                            //1  1  2  4  6  6  6  7  7
                            //0  1  2  3  4  5  6  7  8
         double [] metrics = {1, 1, 2, 4, 6, 6, 7, 6, 7};
-        ArrayList<Node> nodes = new ArrayList<>();
+        ArrayList<CNode> nodes = new ArrayList<>();
 
         for(double m : metrics) {
-            Node n = nu.createNode("n" + nodes.size());
+            CNode n = g.createNode("n" + nodes.size());
             ms.setMetricValue(n, m);
             nodes.add(n);
         }
 
-        ArrayList<Node> ws = er.getWorkingSetTestHelper(nodes, 1);
+        ArrayList<CNode> ws = er.getWorkingSetTestHelper(nodes, 1);
         assertTrue(ws.get(0) == nodes.get(6) || ws.get(0) == nodes.get(8));
         assertEquals(ms.getMetric(ws.get(0)), 7);
 
@@ -80,23 +81,22 @@ class ExperimentRunnerTest {
 
     @Test
     public void getWorkingSetTest2() {
-        Graph g = new MultiGraph("Test");
+        CGraph g = new CGraph();
         MetricSetter ms = new MetricSetter();
         ExperimentRunner er = new ExperimentRunner(null, ms);
-        NodeUtil nu = new NodeUtil(g);
 
 
                            //0  1  2  3  4  5  6  7  8
         double [] metrics = {7, 4, 6, 6, 7, 7, 1};
-        ArrayList<Node> nodes = new ArrayList<>();
+        ArrayList<CNode> nodes = new ArrayList<>();
 
         for(double m : metrics) {
-            Node n = nu.createNode("n" + nodes.size());
+            CNode n = g.createNode("n" + nodes.size());
             ms.setMetricValue(n, m);
             nodes.add(n);
         }
 
-        ArrayList<Node> ws = er.getWorkingSetTestHelper(nodes, 1);
+        ArrayList<CNode> ws = er.getWorkingSetTestHelper(nodes, 1);
         assertTrue(ws.get(0) == nodes.get(0) || ws.get(0) == nodes.get(4) || ws.get(0) == nodes.get(5));
         assertEquals(ms.getMetric(ws.get(0)), 7);
 

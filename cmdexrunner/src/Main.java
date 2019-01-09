@@ -7,6 +7,7 @@ import se.lnu.siq.s4rdm3x.experiments.metric.*;
 import se.lnu.siq.s4rdm3x.experiments.metric.aggregated.*;
 import se.lnu.siq.s4rdm3x.experiments.system.System;
 import se.lnu.siq.s4rdm3x.experiments.system.*;
+import se.lnu.siq.s4rdm3x.model.CGraph;
 
 import java.io.File;
 import java.io.IOException;
@@ -130,12 +131,15 @@ public class Main {
     public static System getSystem(String a_systemName)  {
 
         if (a_systemName.compareToIgnoreCase("jabref") == 0) {
-            return new JabRef_3_7();
+            //return new JabRef_3_7();
+            return null;
 
         } else if (a_systemName.compareToIgnoreCase("teammates") == 0) {
-            return new TeamMates();
+            //return new TeamMates();
+            return null;
         } else if (a_systemName.compareToIgnoreCase("jabrefsaerocon18") == 0) {
-            return new JabRefSAEroCon18();
+            //return new JabRefSAEroCon18();
+            return null;
         } else {
             try {
                 return new FileBased(a_systemName);
@@ -163,7 +167,7 @@ public class Main {
 
         public void run() {
             java.lang.System.out.print("" + m_ix + ", ");
-            Graph graph = new MultiGraph("main" + m_ix);
+            CGraph graph = new CGraph();
             m_fs = new RunFileSaver(m_sua.getName(), m_metric.getName(), m_doSaveMappings);
             m_exr = new ExperimentRunner(m_sua, m_metric);
             m_exr.setRunListener(m_fs);

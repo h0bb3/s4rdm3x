@@ -4,28 +4,28 @@ import org.graphstream.graph.Node;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
 import se.lnu.siq.s4rdm3x.model.AttributeUtil;
+import se.lnu.siq.s4rdm3x.model.CNode;
 
 import java.util.HashMap;
 
 public class FanInCache {
 
-    HashMap<Node, HashMap<Node, Double>> m_nodeFanInMap = null;
+    HashMap<CNode, HashMap<CNode, Double>> m_nodeFanInMap = null;
 
-    public FanInCache(Iterable<Node> a_nodes) {
-        AttributeUtil au = new AttributeUtil();
+    public FanInCache(Iterable<CNode> a_nodes) {
         m_nodeFanInMap = new HashMap<>();
 
-        for (Node to : a_nodes) {
+        for (CNode to : a_nodes) {
 
-            HashMap<Node, Double> toMap = new HashMap<>();
+            HashMap<CNode, Double> toMap = new HashMap<>();
             m_nodeFanInMap.put(to, toMap);
 
-            for (Node from : a_nodes) {
+            for (CNode from : a_nodes) {
                 if (to != from) {
                     double fanIn = 0;
 
-                    for (dmClass cTo : au.getClasses(to)) {
-                        for (dmClass cFrom : au.getClasses(from)) {
+                    for (dmClass cTo : to.getClasses()) {
+                        for (dmClass cFrom : from.getClasses()) {
                             fanIn += countDependenciesTo(cFrom, cTo);
                         }
                     }
@@ -52,7 +52,7 @@ public class FanInCache {
         return count;
     }
 
-    public double getFanIn(Node a_to) {
+    public double getFanIn(CNode a_to) {
         /*HashMap<Node, Double> toMap = m_nodeFanInMap.get(a_to);
         double ret = 0;
         for(Double d : toMap.values()) {
@@ -60,10 +60,9 @@ public class FanInCache {
         }*/
 
         double ret = 0;
-        AttributeUtil au = new AttributeUtil();
-        for (dmClass c : au.getClasses(a_to)) {
+        for (dmClass c : a_to.getClasses()) {
             for (dmDependency d : c.getIncomingDependencies()) {
-                if (!au.hasClass(a_to, d.getSource())) {    // we do not count self references
+                if (!a_to.containsClass(d.getSource())) {    // we do not count self references
                     ret += d.getCount();
                 }
             }
@@ -72,7 +71,7 @@ public class FanInCache {
         return ret;
     }
 
-    public double getFanIn(Node a_to, Node a_from) {
+    public double getFanIn(CNode a_to, CNode a_from) {
         /*HashMap<Node, Double> toMap = m_nodeFanInMap.get(a_to);
 
         assert(a_to != null);
@@ -81,10 +80,9 @@ public class FanInCache {
         }*/
 
         double ret = 0;
-        AttributeUtil au = new AttributeUtil();
-        for (dmClass c : au.getClasses(a_to)) {
+        for (dmClass c : a_to.getClasses()) {
             for (dmDependency d : c.getIncomingDependencies()) {
-                if (au.hasClass(a_from, d.getSource())) {
+                if (a_from.containsClass(d.getSource())) {
                     ret += d.getCount();
                 }
             }

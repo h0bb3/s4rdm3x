@@ -8,6 +8,7 @@ import org.graphstream.graph.Node;
 import se.lnu.siq.s4rdm3x.cmd.hugme.HuGMe;
 import se.lnu.siq.s4rdm3x.model.AttributeUtil;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
+import se.lnu.siq.s4rdm3x.model.CNode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -164,7 +165,7 @@ public class GraphView {
     Particle[] m_componentParticles = new Particle[0];
 
 
-    void doGraphView(ImGui a_imgui, Iterable<Node> a_nodes, HuGMe.ArchDef a_arch, archviz.HNode.VisualsManager a_nvm, float a_dt) {
+    void doGraphView(ImGui a_imgui, Iterable<CNode> a_nodes, HuGMe.ArchDef a_arch, archviz.HNode.VisualsManager a_nvm, float a_dt) {
         ImGuiWrapper imgui = new ImGuiWrapper(a_imgui);
 
         AttributeUtil au = new AttributeUtil();
@@ -213,13 +214,13 @@ public class GraphView {
 
         }
 
-        for (Node n : a_nodes) {
+        for (CNode n : a_nodes) {
             FileParticle gn;
             if (m_fileParticles.length < n.getIndex() + 1) {
                 //m_arNodes.ensureCapacity(n.getIndex() + 1);
                 m_fileParticles = Arrays.copyOf(m_fileParticles, n.getIndex() + 1);
                 String name = "";
-                for (dmClass c : au.getClasses(n)) {
+                for (dmClass c : n.getClasses()) {
                     if (!c.isInner()) {
                         name = c.getClassName();
                     }
@@ -396,8 +397,8 @@ public class GraphView {
         imgui.endTooltip();
     }
 
-    private void setFileParticleAttractions(Iterable<Node> a_nodes, Particle a_source, HuGMe.ArchDef.Component a_c) {
-        for(Node n : a_nodes) {
+    private void setFileParticleAttractions(Iterable<CNode> a_nodes, Particle a_source, HuGMe.ArchDef.Component a_c) {
+        for(CNode n : a_nodes) {
             if (n.getIndex() < m_fileParticles.length) {
                 if (a_c.isMappedTo(n)) {
                     m_fileParticles[n.getIndex()].m_attractedTo = a_source;

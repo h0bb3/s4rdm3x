@@ -3,6 +3,7 @@ package se.lnu.siq.s4rdm3x.experiments.metric;
 import org.graphstream.graph.Node;
 import org.junit.jupiter.api.Test;
 import se.lnu.siq.s4rdm3x.dmodel.NodeGenerator;
+import se.lnu.siq.s4rdm3x.model.CNode;
 
 import java.util.Arrays;
 
@@ -17,7 +18,7 @@ public class LCOMHSTest {
     void test1() {
         LCOMHS sut = new LCOMHS();
         NodeGenerator ng = new NodeGenerator();
-        Node a = ng.loadNode("LCOMTest1");
+        CNode a = ng.loadNode("LCOMTest1");
 
         sut.assignMetric(Arrays.asList(a));
 
@@ -28,7 +29,7 @@ public class LCOMHSTest {
     void test2() {
         LCOMHS sut = new LCOMHS();
         NodeGenerator ng = new NodeGenerator();
-        Node a = ng.loadNode("ArrayTest");
+        CNode a = ng.loadNode("ArrayTest");
 
         sut.assignMetric(Arrays.asList(a));
 
@@ -41,7 +42,7 @@ public class LCOMHSTest {
         LCOMHS sut = new LCOMHS();
         NodeGenerator ng = new NodeGenerator();
 
-        Node a = ng.loadNode("InnerClassTest");
+        CNode a = ng.loadNode("InnerClassTest");
         sut.assignMetric(Arrays.asList(a));
 
         assertEquals(1.333, sut.getMetric(a), 0.001);
@@ -53,7 +54,7 @@ public class LCOMHSTest {
         LCOMHS sut = new LCOMHS();
         NodeGenerator ng = new NodeGenerator();
 
-        Node a = ng.loadNode("NCSS_Test72");
+        CNode a = ng.loadNode("NCSS_Test72");
         sut.assignMetric(Arrays.asList(a));
 
         assertEquals(0.733, sut.getMetric(a), 0.001);
@@ -66,7 +67,7 @@ public class LCOMHSTest {
         NodeGenerator ng = new NodeGenerator();
 
 
-        Node a = ng.loadNode("SelfCall");
+        CNode a = ng.loadNode("SelfCall");
         sut.assignMetric(Arrays.asList(a));
         assertEquals(0, sut.getMetric(a), 0.001);
     }

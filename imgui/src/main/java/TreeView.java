@@ -7,6 +7,8 @@ import org.graphstream.graph.Node;
 import se.lnu.siq.s4rdm3x.cmd.hugme.HuGMe;
 import se.lnu.siq.s4rdm3x.model.AttributeUtil;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
+import se.lnu.siq.s4rdm3x.model.CGraph;
+import se.lnu.siq.s4rdm3x.model.CNode;
 
 import java.util.ArrayList;
 
@@ -16,7 +18,7 @@ public class TreeView {
 
 
 
-    void doTreeView(ImGui a_imgui, HuGMe.ArchDef a_arch, Graph a_g, HNode.VisualsManager a_nvm) {
+    void doTreeView(ImGui a_imgui, HuGMe.ArchDef a_arch, CGraph a_g, HNode.VisualsManager a_nvm) {
 
         hiviz.Tree tree = new hiviz.Tree();
         ArrayList<String> items = new ArrayList<>();
@@ -38,12 +40,11 @@ public class TreeView {
                 }
             } break;
             case 1: {
-                AttributeUtil au = new AttributeUtil();
-                for (Node n : a_g.getEachNode()) {
+                for (CNode n : a_g.getNodes()) {
 
                     HuGMe.ArchDef.Component component = a_arch.getMappedComponent(n);
 
-                    for (dmClass c : au.getClasses(n)) {
+                    for (dmClass c : n.getClasses()) {
                         if (!c.isInner()) {
                             if (c.getName().startsWith(treeViewRoots[1])) {
 

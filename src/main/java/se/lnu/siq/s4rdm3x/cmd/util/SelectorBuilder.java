@@ -114,7 +114,9 @@ public class SelectorBuilder {
                     } else if (strs[0].compareTo("pkg") == 0) {
                         return new Selector.Pkg(strs[1]);
                     } else if (strs[0].compareTo("edgTo") == 0) {
-                        return new Selector.EdgTo(strs[1]);
+                        //return new Selector.EdgTo(strs[1]);
+                        System.out.println("Deprecated Selector Type: " + t.m_type + ":" + t.m_str);
+                        return null;
                     } else if (strs[0].compareTo("class") == 0) {
                         return new Selector.Pat(strs[1]);
                     }

@@ -13,6 +13,8 @@ import org.graphstream.graph.implementations.MultiGraph;
 import se.lnu.siq.s4rdm3x.GUIConsole;
 import se.lnu.siq.s4rdm3x.StringCommandHandler;
 import se.lnu.siq.s4rdm3x.cmd.hugme.HuGMe;
+import se.lnu.siq.s4rdm3x.model.CGraph;
+import se.lnu.siq.s4rdm3x.model.CNode;
 import uno.glfw.GlfwWindow;
 import uno.glfw.windowHint;
 
@@ -68,7 +70,7 @@ public class RectsAndArrows {
 
         GUIConsole guic = new GUIConsole();
         StringCommandHandler sch = new StringCommandHandler();
-        Graph graph = new MultiGraph("main_graph");
+        CGraph graph = new CGraph();
 
         // testing
         //sch.execute("load_arch data/systems/teammates/teammates-system_model.txt", graph).forEach(str -> guic.println(str));
@@ -184,7 +186,7 @@ public class RectsAndArrows {
         return a_c.getName().split("\\.");
     }
 
-    private void mainLoop(HuGMe.ArchDef a_arch, Graph a_g) {
+    private void mainLoop(HuGMe.ArchDef a_arch, CGraph a_g) {
         // Start the Dear ImGui frame
         lwjglGlfw.newFrame();
 
@@ -221,7 +223,7 @@ public class RectsAndArrows {
 
         if (showGraphView[0]) {
             if (imgui.begin("Graph View", showGraphView, 0)) {
-                m_graphView.doGraphView(imgui, a_g.getNodeSet(), a_arch, m_vizState.m_nvm, io.getDeltaTime());
+                m_graphView.doGraphView(imgui, a_g.getNodes(), a_arch, m_vizState.m_nvm, io.getDeltaTime());
                 imgui.end();
 
             }
@@ -241,7 +243,7 @@ public class RectsAndArrows {
     }
 
 
-    private void doArchStructure(HuGMe.ArchDef a_arch, String a_rootComponentFilter, Graph a_g) {
+    private void doArchStructure(HuGMe.ArchDef a_arch, String a_rootComponentFilter, CGraph a_g) {
         if (a_arch !=  null) {
 
             HRoot root = new HRoot();
@@ -328,8 +330,8 @@ public class RectsAndArrows {
                     if (c == null) {
                         System.out.println("Could not find component named: " + pair.m_oldName);
                     } else {
-                        ArrayList<Node> nodes = new ArrayList<>();
-                        for(Node n : a_g.getNodeSet()) {
+                        ArrayList<CNode> nodes = new ArrayList<>();
+                        for(CNode n : a_g.getNodes()) {
                             if (c.isMappedTo(n)) {
                                 nodes.add(n);
                             }
