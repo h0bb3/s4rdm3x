@@ -1,7 +1,5 @@
 package se.lnu.siq.s4rdm3x.experiments.metric;
 
-import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
 import se.lnu.siq.s4rdm3x.model.CNode;
 
 import java.util.ArrayList;

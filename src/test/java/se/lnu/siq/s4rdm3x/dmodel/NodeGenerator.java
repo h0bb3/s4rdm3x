@@ -1,13 +1,8 @@
 package se.lnu.siq.s4rdm3x.dmodel;
 
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.Node;
-import org.graphstream.graph.implementations.MultiGraph;
 import org.objectweb.asm.ClassReader;
-import se.lnu.siq.s4rdm3x.model.AttributeUtil;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
-import se.lnu.siq.s4rdm3x.model.NodeUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -61,7 +56,6 @@ public class NodeGenerator {
         setBranchStatementCount(m1, 6);
 
         CNode n1 = ret.createNode("n1");
-        AttributeUtil au = new AttributeUtil();
 
         n1.addClass(c1);
         n1.addClass(c2);
@@ -120,7 +114,6 @@ public class NodeGenerator {
         CGraph ret = a_g;
         String[] edgeIds = a_edgesAsNodePairs;
         HashMap<String, dmClass> classes = new HashMap<>();
-        AttributeUtil au = new AttributeUtil();
         for (String id : edgeIds) {
             String first = id.substring(0, 1), second = id.substring(1, 2);
             if (!classes.containsKey(first)) {

@@ -1,8 +1,8 @@
 package se.lnu.siq.s4rdm3x.cmd.saerocon18;
 
 import org.graphstream.graph.Graph;
-import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.model.AttributeUtil;
+import se.lnu.siq.s4rdm3x.model.CGraph;
+import se.lnu.siq.s4rdm3x.model.CNode;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,7 +23,7 @@ public class ClusterExperiment3 extends ClusterExperiment {
         m_handler = a_handler;
     }
 
-    public void run(Graph a_g) {
+    public void run(CGraph a_g) {
 
         SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//dd/MM/yyyy
         loadJabRef(a_g);
@@ -101,20 +101,19 @@ public class ClusterExperiment3 extends ClusterExperiment {
         }
     }
 
-    private void mapRandomNode(Graph a_g) {
-        java.util.ArrayList<Node> unmapped = new ArrayList<>();
-        AttributeUtil au = new AttributeUtil();
+    private void mapRandomNode(CGraph a_g) {
+        java.util.ArrayList<CNode> unmapped = new ArrayList<>();
 
-        for (Node n : a_g.getEachNode()) {
-            if (au.hasAnyTag(n, Cluster1.g_clusterTags) != true) {
+        for (CNode n : a_g.getNodes()) {
+            if (n.hasAnyTag(Cluster1.g_clusterTags) != true) {
                 unmapped.add(n);
             }
         }
 
-        Node selected = unmapped.get(Math.abs(m_rand.nextInt()) % unmapped.size());
+        CNode selected = unmapped.get(Math.abs(m_rand.nextInt()) % unmapped.size());
         for (int tIx = 0; tIx < Cluster1.g_originalMappingTags.length; tIx++) {
-            if (au.hasAnyTag(selected, Cluster1.g_originalMappingTags[tIx])) {
-                au.addTag(selected, Cluster1.g_clusterTags[tIx]);
+            if (selected.hasTag(Cluster1.g_originalMappingTags[tIx])) {
+                selected.addTag(Cluster1.g_clusterTags[tIx]);
                 break;
             }
         }

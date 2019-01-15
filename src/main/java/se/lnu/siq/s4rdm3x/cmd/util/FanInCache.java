@@ -1,9 +1,7 @@
 package se.lnu.siq.s4rdm3x.cmd.util;
 
-import org.graphstream.graph.Node;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
-import se.lnu.siq.s4rdm3x.model.AttributeUtil;
 import se.lnu.siq.s4rdm3x.model.CNode;
 
 import java.util.HashMap;
@@ -53,41 +51,41 @@ public class FanInCache {
     }
 
     public double getFanIn(CNode a_to) {
-        /*HashMap<Node, Double> toMap = m_nodeFanInMap.get(a_to);
+        HashMap<CNode, Double> toMap = m_nodeFanInMap.get(a_to);
         double ret = 0;
         for(Double d : toMap.values()) {
             ret += d;
-        }*/
+        }
 
-        double ret = 0;
+        /*double ret = 0;
         for (dmClass c : a_to.getClasses()) {
             for (dmDependency d : c.getIncomingDependencies()) {
                 if (!a_to.containsClass(d.getSource())) {    // we do not count self references
                     ret += d.getCount();
                 }
             }
-        }
+        }*/
 
         return ret;
     }
 
     public double getFanIn(CNode a_to, CNode a_from) {
-        /*HashMap<Node, Double> toMap = m_nodeFanInMap.get(a_to);
+        HashMap<CNode, Double> toMap = m_nodeFanInMap.get(a_to);
 
         assert(a_to != null);
         if (toMap.containsKey(a_from)) {
             return toMap.get(a_from);
-        }*/
+        }
 
-        double ret = 0;
+        /*double ret = 0;
         for (dmClass c : a_to.getClasses()) {
             for (dmDependency d : c.getIncomingDependencies()) {
                 if (a_from.containsClass(d.getSource())) {
                     ret += d.getCount();
                 }
             }
-        }
+        }*/
 
-        return ret;
+        return 0;
     }
 }

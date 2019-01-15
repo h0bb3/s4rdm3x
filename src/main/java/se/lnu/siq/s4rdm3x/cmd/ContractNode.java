@@ -1,9 +1,6 @@
 package se.lnu.siq.s4rdm3x.cmd;
 
-import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
-import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.model.NodeUtil;
 import se.lnu.siq.s4rdm3x.model.Selector;
 
 
@@ -29,7 +26,7 @@ public class ContractNode {
         }*/
     }
 
-    public void contract(Node a_n, NodeUtil a_nu) {
+    /*public void contract(Node a_n, NodeUtil a_nu) {
         final String g_originalLengthKey = "original.length";
         final String g_isContractedKey = "isContracted";
         if (a_nu.isPackage(a_n)) {
@@ -53,5 +50,5 @@ public class ContractNode {
                 }
             }
         }
-    }
+    }*/
 }

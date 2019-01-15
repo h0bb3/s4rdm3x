@@ -2,14 +2,10 @@ package se.lnu.siq.s4rdm3x.experiments.metric;
 
 import org.graphstream.algorithm.PageRank;
 import org.graphstream.graph.Graph;
-import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
-import se.lnu.siq.s4rdm3x.model.AttributeUtil;
-import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
 import se.lnu.siq.s4rdm3x.model.CNode;
 
-import java.util.ArrayList;
 
 public class Rank extends Metric {
 

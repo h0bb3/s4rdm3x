@@ -4,9 +4,7 @@ import imgui.ImGui;
 import imgui.WindowFlag;
 import imgui.internal.Rect;
 import imgui.internal.Window;
-import org.graphstream.graph.Node;
 import se.lnu.siq.s4rdm3x.cmd.hugme.HuGMe;
-import se.lnu.siq.s4rdm3x.model.AttributeUtil;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.model.CNode;
 
@@ -167,8 +165,6 @@ public class GraphView {
 
     void doGraphView(ImGui a_imgui, Iterable<CNode> a_nodes, HuGMe.ArchDef a_arch, archviz.HNode.VisualsManager a_nvm, float a_dt) {
         ImGuiWrapper imgui = new ImGuiWrapper(a_imgui);
-
-        AttributeUtil au = new AttributeUtil();
 
         for (int cIx = 0; cIx < a_arch.getComponentCount(); cIx++) {
             HuGMe.ArchDef.Component c = a_arch.getComponent(cIx);

@@ -1,6 +1,5 @@
 package se.lnu.siq.s4rdm3x.cmd;
 
-import se.lnu.siq.s4rdm3x.model.AttributeUtil;
 import se.lnu.siq.s4rdm3x.model.Selector;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
@@ -31,7 +30,6 @@ public class AddNodeTagRandom {
     }
 
     public void run(CGraph a_g) {
-        AttributeUtil au = new AttributeUtil();
         java.util.ArrayList<CNode> selected = new ArrayList<>();
 
         for (CNode n : a_g.getNodes(m_selection)) {

@@ -1,6 +1,5 @@
 package se.lnu.siq.s4rdm3x.cmd;
 
-import se.lnu.siq.s4rdm3x.model.AttributeUtil;
 import se.lnu.siq.s4rdm3x.model.Selector;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
@@ -22,7 +21,6 @@ public class Exporter {
     }
 
     public void run(CGraph a_g) {
-        AttributeUtil au = new AttributeUtil();
         BufferedWriter writer = null;
         try {
             File exportFile = new File(m_fileName);

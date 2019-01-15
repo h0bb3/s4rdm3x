@@ -2,7 +2,8 @@ package se.lnu.siq.s4rdm3x.cmd.saerocon18;
 
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.model.AttributeUtil;
+import se.lnu.siq.s4rdm3x.model.CGraph;
+import se.lnu.siq.s4rdm3x.model.CNode;
 import se.lnu.siq.s4rdm3x.stats;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
@@ -30,7 +31,7 @@ public class Cluster1 {
     public static final String[] g_clusterTags = {"gui_c", "model_c", "logic_c", "pref_c", "global_c", "cli_c"};
     public static final String[] g_originalMappingTags = {"gui", "model", "logic", "pref", "global", "cli"};
 
-    public ArrayList<Node> m_clusteredElements;
+    public ArrayList<CNode> m_clusteredElements;
 
     private boolean m_doManualMapping;
 
@@ -40,29 +41,28 @@ public class Cluster1 {
         m_doManualMapping = a_doManualMapping;
     }
 
-    private static HashMap<Node, HashMap<Node, Double>> g_nodeFanInMap = null;
+    private static HashMap<CNode, HashMap<CNode, Double>> g_nodeFanInMap = null;
 
     public static void resetTheCache() {
         g_nodeFanInMap = null;
     }
 
-    public static void fillTheCache(Graph a_g) {
+    public static void fillTheCache(CGraph a_g) {
         if (g_nodeFanInMap == null) {
-            AttributeUtil au = new AttributeUtil();
             g_nodeFanInMap = new HashMap<>();
 
-            for (Node to : a_g.getEachNode()) {
-                if (au.hasAnyTag(to, g_originalMappingTags)) {
+            for (CNode to : a_g.getNodes()) {
+                if (to.hasAnyTag(g_originalMappingTags)) {
 
-                    HashMap<Node, Double> toMap = new HashMap<>();
+                    HashMap<CNode, Double> toMap = new HashMap<>();
                     g_nodeFanInMap.put(to, toMap);
 
-                    for (Node from : a_g.getEachNode()) {
-                        if (to != from && au.hasAnyTag(from, g_originalMappingTags)) {
+                    for (CNode from : a_g.getNodes()) {
+                        if (to != from && from.hasAnyTag(g_originalMappingTags)) {
                             double fanIn = 0;
 
-                            for (dmClass cTo : au.getClasses(to)) {
-                                for (dmClass cFrom : au.getClasses(from)) {
+                            for (dmClass cTo : to.getClasses()) {
+                                for (dmClass cFrom : from.getClasses()) {
                                     fanIn += CountDependenciesTo(cFrom, cTo);
                                 }
                             }
@@ -76,8 +76,8 @@ public class Cluster1 {
         }
     }
 
-    public static double getFanIn(Node a_to, Node a_from) {
-        HashMap<Node, Double> toMap = g_nodeFanInMap.get(a_to);
+    public static double getFanIn(CNode a_to, CNode a_from) {
+        HashMap<CNode, Double> toMap = g_nodeFanInMap.get(a_to);
 
         assert(a_to != null);
         if (toMap.containsKey(a_from)) {
@@ -87,8 +87,7 @@ public class Cluster1 {
         return 0;
     };
 
-    public void run(Graph a_g) {
-        AttributeUtil au = new AttributeUtil();
+    public void run(CGraph a_g) {
 
         fillTheCache(a_g);
 
@@ -122,9 +121,9 @@ public class Cluster1 {
 
 
         // all all considered nodes to unmapped
-        java.util.ArrayList<Node> unmapped = new ArrayList<>();
-        for (Node n : a_g.getEachNode()) {
-            if (au.hasAnyTag(n, g_originalMappingTags)) {
+        java.util.ArrayList<CNode> unmapped = new ArrayList<>();
+        for (CNode n : a_g.getNodes()) {
+            if (n.hasAnyTag(g_originalMappingTags)) {
                 unmapped.add(n);
             }
         }
@@ -141,13 +140,13 @@ public class Cluster1 {
 
 
         // create the current clusters and remove all clustered nodes from the unmapped
-        java.util.ArrayList<java.util.ArrayList<Node>> clusters = new ArrayList<>();
+        java.util.ArrayList<java.util.ArrayList<CNode>> clusters = new ArrayList<>();
         for(int i = 0; i < NC; i++) {
-            ArrayList<Node> c = new ArrayList<>();
+            ArrayList<CNode> c = new ArrayList<>();
             clusters.add(c);
 
-            for(Node n : a_g.getNodeSet()) {
-                if (au.hasAnyTag(n, g_clusterTags[i])) {
+            for(CNode n : a_g.getNodes()) {
+                if (n.hasTag(g_clusterTags[i])) {
                     c.add(n);
                     unmapped.remove(n);
                 }
@@ -160,8 +159,8 @@ public class Cluster1 {
         // 2. we iterate the unmapped files and compute the filter function, we remove if below threshold
         // basically this involves computing [Number of dependenices to mapped files]/[Number of dependencies to all files]
 
-        java.util.ArrayList<Node> candidates = new ArrayList<>(unmapped);
-        for (Node n : unmapped) {
+        java.util.ArrayList<CNode> candidates = new ArrayList<>(unmapped);
+        for (CNode n : unmapped) {
             int toMappedCount = 0, totalCount = 0;
 
             /*for(dmClass c : au.getClasses(n)) {
@@ -194,13 +193,13 @@ public class Cluster1 {
 
             // count all dependencies to this class from all unmapped classes
             int toMappedCountC = 0, totalCountC = 0;
-            for (Node otherNode : unmapped) {
+            for (CNode otherNode : unmapped) {
                 totalCountC += getFanIn(n, otherNode);
                 totalCountC += getFanIn(otherNode, n);
             }
 
-            for (ArrayList<Node> cluster : clusters) {
-                for (Node nMapped : cluster) {
+            for (ArrayList<CNode> cluster : clusters) {
+                for (CNode nMapped : cluster) {
 
                         double fromClustered = getFanIn(nMapped, n);
                         toMappedCountC += getFanIn(n, nMapped);
@@ -221,7 +220,7 @@ public class Cluster1 {
             }
             //Sys.out.println("Dependency Ratio: " + ratio);
             if (ratio >= m_filterThreshold) {
-                n.setAttribute("ui.style", "fill-color:rgb(0,0,255);");
+                //n.setAttribute("ui.style", "fill-color:rgb(0,0,255);");
             } else {
                 candidates.remove(n);
             }
@@ -230,14 +229,14 @@ public class Cluster1 {
         m_consideredNodes = candidates.size();
 
         // 3 Count the attraction to the clusters, there will be one sum for each cluster
-        for (Node n : candidates) {
+        for (CNode n : candidates) {
             double attractions[] = new double[NC];
             for (int i = 0; i < NC; i++) {
                 // TODO: Implement weights for different types of relations
                 //attractions[i] = CountAttract(n, clusters.get(i));
                 attractions[i] = CountAttractP(n, i, clusters, allowedDependencies);
             }
-            n.setAttribute("attractions", attractions);
+            n.setAttractions(attractions);
         }
 
         // dump to file
@@ -284,8 +283,8 @@ public class Cluster1 {
         //      First set is based on >= mean of all attractions
         //      Second set is based on > standard deviation of all attractions
 
-        for (Node n : candidates) {
-            double attractions[] = n.getAttribute("attractions");
+        for (CNode n : candidates) {
+            double attractions[] = n.getAttractions();
             double mean = stats.mean(attractions);
             double sd = stats.stdDev(attractions, mean);
 
@@ -302,20 +301,20 @@ public class Cluster1 {
             }
 
             if (c1.size() == 1) {
-                au.addTag(n, g_clusterTags[c1.get(0)]);
+                n.addTag(g_clusterTags[c1.get(0)]);
                 //Sys.out.println("Clustered to: " + g_clusterTags[c1.get(0)]);
-                au.addTag(n, "automatic");
+                n.addTag( "automatic");
                 m_clusteredElements.add(n);
-                if (!au.hasAnyTag(n, g_originalMappingTags[c1.get(0)])) {
+                if (!n.hasTag(g_originalMappingTags[c1.get(0)])) {
                     m_autoWrong++;
                 }
                 m_automaticallyMappedNodes++;
             } else if (c2.size() == 1) {
-                au.addTag(n, g_clusterTags[c2.get(0)]);
+                n.addTag(g_clusterTags[c2.get(0)]);
                 //Sys.out.println("Clustered to: " + g_clusterTags[c2.get(0)]);
-                au.addTag(n, "automatic");
+                n.addTag("automatic");
                 m_clusteredElements.add(n);
-                if (!au.hasAnyTag(n, g_originalMappingTags[c2.get(0)])) {
+                if (!n.hasTag(g_originalMappingTags[c2.get(0)])) {
                     m_autoWrong++;
                 }
                 m_automaticallyMappedNodes++;
@@ -326,9 +325,9 @@ public class Cluster1 {
                 boolean clustered = false;
                 if (c1.size() > 0) {
                     for(Integer i : c1) {
-                        if (au.hasAnyTag(n, g_originalMappingTags[i])) {
-                            au.addTag(n, g_clusterTags[i]);
-                            au.addTag(n, "manual");
+                        if (n.hasTag(g_originalMappingTags[i])) {
+                            n.addTag(g_clusterTags[i]);
+                            n.addTag("manual");
                             clustered = true;
                             //Sys.out.println("Clustered by Oracle to: " + g_clusterTags[i]);
                             m_manuallyMappedNodes++;
@@ -338,9 +337,9 @@ public class Cluster1 {
                 }
                 if (!clustered && c2.size() > 0) {
                     for (Integer i : c2) {
-                        if (au.hasAnyTag(n, g_originalMappingTags[i])) {
-                            au.addTag(n, g_clusterTags[i]);
-                            au.addTag(n, "manual");
+                        if (n.hasTag(g_originalMappingTags[i])) {
+                            n.addTag(g_clusterTags[i]);
+                            n.addTag("manual");
                             //Sys.out.println("Clustered by Oracle to: " + g_clusterTags[i]);
                             m_manuallyMappedNodes++;
                             clustered = true;
@@ -365,7 +364,7 @@ public class Cluster1 {
     }
 
 
-    private double CountAttractP(dmClass a_class, int a_cluster, ArrayList<ArrayList<Node>> a_clusters, int[][] a_allowedDependencies) {
+    private double CountAttractP(dmClass a_class, int a_cluster, ArrayList<ArrayList<CNode>> a_clusters, int[][] a_allowedDependencies) {
         double overall = 0;
         double toOthers = 0;
 
@@ -401,7 +400,7 @@ public class Cluster1 {
         return overall - toOthers;
     }
 
-    private double CountAttractP(Node a_node, int a_cluster, ArrayList<ArrayList<Node>> a_clusters, int[][] a_allowedDependencies) {
+    private double CountAttractP(CNode a_node, int a_cluster, ArrayList<ArrayList<CNode>> a_clusters, int[][] a_allowedDependencies) {
         double overall = 0;
         double toOthers = 0;
 
@@ -438,12 +437,11 @@ public class Cluster1 {
         return overall - toOthers;
     }
 
-    private double CountAttract(dmClass a_class, Iterable<Node> a_cluster, double a_weightFromClass, double a_weightFromCluster) {
-        AttributeUtil au = new AttributeUtil();
+    private double CountAttract(dmClass a_class, Iterable<CNode> a_cluster, double a_weightFromClass, double a_weightFromCluster) {
         double count = 0;
 
-        for (Node nTo:a_cluster) {
-            for (dmClass cTo : au.getClasses(nTo)) {
+        for (CNode nTo : a_cluster) {
+            for (dmClass cTo : nTo.getClasses()) {
                 // these are specifically denoted by {ci, cj} in the paper which correspond to the undirectional relations
                 count += CountDependenciesTo(a_class, cTo) * a_weightFromClass;
                 count += CountDependenciesTo(cTo, a_class) * a_weightFromCluster;
@@ -454,12 +452,11 @@ public class Cluster1 {
         return count;
     }
 
-    private double CountAttract(Node a_node, Iterable<Node> a_cluster, double a_weightFromNode, double a_weightFromCluster) {
-        AttributeUtil au = new AttributeUtil();
+    private double CountAttract(CNode a_node, Iterable<CNode> a_cluster, double a_weightFromNode, double a_weightFromCluster) {
         double count = 0;
 
         double cCount = 0;
-        for (Node nTo:a_cluster) {
+        for (CNode nTo:a_cluster) {
             cCount += getFanIn(nTo, a_node) * a_weightFromNode;
             cCount += getFanIn(a_node, nTo) * a_weightFromCluster;
         }

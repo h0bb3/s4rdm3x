@@ -3,13 +3,7 @@ package se.lnu.siq.s4rdm3x.cmd;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.model.AttributeUtil;
-import se.lnu.siq.s4rdm3x.model.NodeUtil;
 import se.lnu.siq.s4rdm3x.model.Selector;
-import se.lnu.siq.s4rdm3x.dmodel.dmClass;
-import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
-
-import java.util.LinkedList;
 
 /**
  * Created by tohto on 2017-08-25.
@@ -61,9 +55,7 @@ public class AddRelationEdges {
         return ret;
     }
 
-    private void addEdges(LinkedList<Node> a_from, LinkedList<Node> a_to, Graph a_graph, String a_edgeTag, float a_edgeLength) {
-        AttributeUtil au = new AttributeUtil();
-        NodeUtil nu = new NodeUtil(a_graph);
+    /*private void addEdges(LinkedList<CNode> a_from, LinkedList<CNode> a_to, Graph a_graph, String a_edgeTag, float a_edgeLength) {
 
         for(Node from : a_from) {
             for(dmClass cFrom : au.getClasses(from)) {
@@ -87,5 +79,5 @@ public class AddRelationEdges {
                 }
             }
         }
-    }
+    }*/
 }

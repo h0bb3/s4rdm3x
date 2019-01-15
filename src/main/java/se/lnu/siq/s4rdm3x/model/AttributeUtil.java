@@ -9,7 +9,7 @@ import java.util.ArrayList;
 /**
  * Created by tohto on 2017-08-22.
  */
-public class AttributeUtil {
+class AttributeUtil {
 
     static final String g_nameKey = "name";
     static final String g_classKey = "dmClasses";

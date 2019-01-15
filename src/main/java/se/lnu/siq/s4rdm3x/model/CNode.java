@@ -1,8 +1,5 @@
 package se.lnu.siq.s4rdm3x.model;
 
-import org.graphstream.graph.Edge;
-import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.cmd.metrics.ComputeMetrics;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
 
@@ -16,6 +13,15 @@ public class CNode {
     String m_name;
     private ArrayList<String> m_tags = new ArrayList<>();
     private ArrayList<dmClass> m_classes = new ArrayList<>();
+    double[] m_attractions = null;
+
+    public void clearAttributes() {
+        m_tags = new ArrayList<>();
+        m_metrics = new MetricMap();
+        m_attractions = null;
+    }
+
+
 
     public static class MetricMap extends HashMap<String, Double> {}
 
@@ -48,7 +54,7 @@ public class CNode {
         return m_index;
     }
 
-    double[] m_attractions = null;
+
 
 
     CNode(String a_name, int a_index) {
@@ -77,11 +83,9 @@ public class CNode {
     }
 
     public boolean hasAnyTag(String [] a_tags) {
-        for (String nodeTag : m_tags) {
-            for (String tag : a_tags) {
-                if (tag.compareTo(nodeTag) == 0) {
-                    return true;
-                }
+        for (String tag : a_tags) {
+            if (hasTag(tag)) {
+                return true;
             }
         }
         return false;
@@ -135,7 +139,7 @@ public class CNode {
             for(dmDependency dFrom : cFrom.getDependencies()) {
                 for (dmClass cTo : a_to.getClasses()) {
                     if (dFrom.getTarget() == cTo) {
-                        count++;
+                        count += dFrom.getCount();
                     }
                 }
             }

@@ -1,8 +1,7 @@
 package se.lnu.siq.s4rdm3x.cmd.saerocon18;
 
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.model.AttributeUtil;
+import se.lnu.siq.s4rdm3x.model.CGraph;
+import se.lnu.siq.s4rdm3x.model.CNode;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,7 +26,7 @@ public class ClusterExperiment11 extends ClusterExperiment  {
 
 
     public static class NodeIntPair{
-        Node m_node;
+        CNode m_node;
         int m_fanIn;
         int m_fanOut;
         int m_totalFan;
@@ -36,7 +35,7 @@ public class ClusterExperiment11 extends ClusterExperiment  {
 
 
 
-    public void run(Graph a_g) {
+    public void run(CGraph a_g) {
 
         test_getWorkingSet();
         test_getFirstBatchSize();
@@ -150,10 +149,9 @@ public class ClusterExperiment11 extends ClusterExperiment  {
         }
     }
 
-    void populateCaches(Graph a_g) {
-        AttributeUtil au = new AttributeUtil();
-        for (Node target : a_g.getEachNode()) {
-            if (au.hasAnyTag(target, Cluster1.g_originalMappingTags) && !au.hasAnyTag(target, Cluster1.g_clusterTags)) {
+    void populateCaches(CGraph a_g) {
+        for (CNode target : a_g.getNodes()) {
+            if (target.hasAnyTag(Cluster1.g_originalMappingTags) && !target.hasAnyTag(Cluster1.g_clusterTags)) {
                 int fanIn = 0;
                 int fanOut = 0;
 
@@ -170,8 +168,8 @@ public class ClusterExperiment11 extends ClusterExperiment  {
 
                 /*int fanIn = 0;
                 int fanOut = 0;*/
-                for (Node n : a_g.getEachNode()) {
-                    if (n != target && au.hasAnyTag(n, Cluster1.g_originalMappingTags) && !au.hasAnyTag(n, Cluster1.g_clusterTags)) {
+                for (CNode n : a_g.getNodes()) {
+                    if (n != target && n.hasAnyTag(Cluster1.g_originalMappingTags) && !n.hasAnyTag(Cluster1.g_clusterTags)) {
                         fanIn += Cluster1.getFanIn(target, n);
                         fanOut += Cluster1.getFanIn(n, target);
                     }
@@ -183,7 +181,7 @@ public class ClusterExperiment11 extends ClusterExperiment  {
                 nip.m_fanOut = fanOut;
                 nip.m_totalFan = nip.m_fanIn + nip.m_fanOut;
 
-                int clusterIndex = getNodeCluster(target, au);
+                int clusterIndex = getNodeCluster(target);
                 m_fanInCaches.get(clusterIndex).add(nip);
             }
         }
@@ -193,10 +191,10 @@ public class ClusterExperiment11 extends ClusterExperiment  {
         }
     }
 
-    int getNodeCluster(Node a_n, AttributeUtil a_au) {
+    int getNodeCluster(CNode a_n) {
         int ix = 0;
         for (String cluster : Cluster1.g_originalMappingTags) {
-            if (a_au.hasAnyTag(a_n, cluster)) {
+            if (a_n.hasTag(cluster)) {
                 return ix;
             }
             ix++;
@@ -206,7 +204,6 @@ public class ClusterExperiment11 extends ClusterExperiment  {
     }
 
     void prepareFanInMapping(double a_percentToMap) {
-        AttributeUtil au = new AttributeUtil();
         int casheIx = 0;
         for (String cluster : Cluster1.g_clusterTags) {
             ArrayList<NodeIntPair> cache = m_fanInCaches.get(casheIx);
@@ -226,7 +223,7 @@ public class ClusterExperiment11 extends ClusterExperiment  {
             }
 
             for(NodeIntPair nip : workingSet) {
-                au.addTag(nip.m_node, cluster);
+                nip.m_node.addTag(cluster);
             }
             casheIx++;
         }

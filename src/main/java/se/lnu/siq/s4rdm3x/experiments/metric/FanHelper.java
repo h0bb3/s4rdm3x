@@ -1,7 +1,5 @@
 package se.lnu.siq.s4rdm3x.experiments.metric;
 
-import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.model.AttributeUtil;
 import se.lnu.siq.s4rdm3x.cmd.util.FanInCache;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
@@ -11,10 +9,8 @@ import java.util.ArrayList;
 
 public class FanHelper {
     FanInCache m_fic;
-    AttributeUtil m_au;
     public FanHelper(Iterable<CNode> a_nodes) {
         m_fic = new FanInCache(a_nodes);
-        m_au = new AttributeUtil();
     }
 
     public double getFanIn(CNode a_n) {

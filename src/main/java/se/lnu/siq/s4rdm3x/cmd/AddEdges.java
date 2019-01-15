@@ -3,7 +3,6 @@ package se.lnu.siq.s4rdm3x.cmd;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.model.NodeUtil;
 import se.lnu.siq.s4rdm3x.model.Selector;
 
 /**
@@ -81,7 +80,7 @@ public class AddEdges {
        // assignPackageEdges(packageNodes, a_g, m_edgeTag, m_edgeLength);
     }
 
-    private double getRadiiForPackageNode(Node a_n, NodeUtil a_nu) {
+    /*private double getRadiiForPackageNode(Node a_n, NodeUtil a_nu) {
         //AttributeUtil au = new AttributeUtil();
         double maxRadii = 0;
         for(Edge e: a_n.getEachLeavingEdge()) {
@@ -92,7 +91,7 @@ public class AddEdges {
         }
 
         return maxRadii;
-    }
+    }*/
 
     /*
     private void assignPackageEdges(LinkedList<Node> a_nodes, Graph a_graph, String a_edgeTag, float a_edgeLength) {

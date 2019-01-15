@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 /**
  * Created by tohto on 2017-09-22.
  */
-public class NodeUtil {
+class NodeUtil {
 
 
     private static final String g_isPackageKey = "isPackage";

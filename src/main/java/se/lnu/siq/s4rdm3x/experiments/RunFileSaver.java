@@ -1,9 +1,6 @@
 package se.lnu.siq.s4rdm3x.experiments;
 
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.Node;
 import se.lnu.siq.s4rdm3x.cmd.hugme.HuGMe;
-import se.lnu.siq.s4rdm3x.model.AttributeUtil;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
 
@@ -128,7 +125,6 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
         writeRow(m_filePath, row);
 
         if (m_mappingsFilePath != null) {
-            AttributeUtil au = new AttributeUtil();
             for(CNode n: a_g.getNodes()) {
                 HuGMe.ArchDef.Component mapped;
 

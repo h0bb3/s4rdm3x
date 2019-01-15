@@ -1,20 +1,18 @@
 import glm_.vec2.Vec2;
 import gui.ImGuiWrapper;
-import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.model.AttributeUtil;
+import se.lnu.siq.s4rdm3x.model.CNode;
 
 import static imgui.ImguiKt.COL32;
 
 public class DependencyView {
 
-    void doDependencyView(ImGuiWrapper a_imgui, Node a_center) {
+    void doDependencyView(ImGuiWrapper a_imgui, CNode a_center) {
         final int color = COL32(175, 175, 175, 255);
-        AttributeUtil au = new AttributeUtil();
 
         Vec2 size = a_imgui.imgui().getWindowSize();
         Vec2 offset = a_imgui.imgui().getWindowPos();
 
-        String name = au.getName(a_center);
+        String name = a_center.getName();
         Vec2 stringSize = a_imgui.calcTextSize(name, false);
 
         Vec2 pos = offset.plus(size.minus(stringSize).div(2));

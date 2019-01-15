@@ -1,7 +1,5 @@
 package se.lnu.siq.s4rdm3x;
 
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.Node;
 import se.lnu.siq.s4rdm3x.cmd.*;
 import se.lnu.siq.s4rdm3x.cmd.hugme.GetComponentFan;
 import se.lnu.siq.s4rdm3x.cmd.hugme.GetNodeComponentCoupling;
@@ -10,7 +8,6 @@ import se.lnu.siq.s4rdm3x.cmd.metrics.ComputeMetrics;
 import se.lnu.siq.s4rdm3x.cmd.metrics.GetMetric;
 import se.lnu.siq.s4rdm3x.cmd.metrics.GetMetrics;
 import se.lnu.siq.s4rdm3x.cmd.saerocon18.Cluster1;
-import se.lnu.siq.s4rdm3x.model.AttributeUtil;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
 import se.lnu.siq.s4rdm3x.model.Selector;
@@ -18,7 +15,6 @@ import se.lnu.siq.s4rdm3x.cmd.util.SelectorBuilder;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class StringCommandHandler {
 
@@ -249,7 +245,6 @@ public class StringCommandHandler {
 
                 GetNodes c = new GetNodes(s);
                 c.run(graph);
-                AttributeUtil au = new AttributeUtil();
                 for (CNode n : c.m_nodes) {
                     ret.add(n.getName());
                     ret.add("\ttags: " + n.getTags());
@@ -269,7 +264,6 @@ public class StringCommandHandler {
 
                 int classes = 0;
                 int nodes = 0;
-                AttributeUtil au = new AttributeUtil();
                 for (CNode n : graph.getNodes()) {
                     classes += n.getClassCount();
                     nodes++;
@@ -299,7 +293,6 @@ public class StringCommandHandler {
 
                 GetMetrics c = new GetMetrics(s);
                 c.run(graph);
-                AttributeUtil au = new AttributeUtil();
 
                 String header = "file";
                 for (String metric : c.m_result.getMetrics()) {
@@ -336,7 +329,6 @@ public class StringCommandHandler {
 
                 GetNodeComponentCoupling c = new GetNodeComponentCoupling(m_arch);
                 c.run(graph);
-                AttributeUtil au = new AttributeUtil();
 
                 String header = "file";
                 for (String metric : c.m_result.getMetrics()) {
@@ -360,7 +352,6 @@ public class StringCommandHandler {
 
                 GetComponentFan c = new GetComponentFan(m_arch);
                 c.run(graph);
-                AttributeUtil au = new AttributeUtil();
 
                 ret.add("Architectural Components Fan Out");
                 String header = "from/to";

@@ -3,7 +3,8 @@ package se.lnu.siq.s4rdm3x.cmd.saerocon18;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import se.lnu.siq.s4rdm3x.cmd.*;
-import se.lnu.siq.s4rdm3x.model.AttributeUtil;
+import se.lnu.siq.s4rdm3x.model.CGraph;
+import se.lnu.siq.s4rdm3x.model.CNode;
 import se.lnu.siq.s4rdm3x.model.Selector;
 
 import java.io.IOException;
@@ -20,10 +21,11 @@ public class ClusterExperiment {
     };
 
 
-    protected void cleanse(Graph a_g) {
-        AttributeUtil au = new AttributeUtil();
-        for(Node n : a_g.getEachNode()) {
-            au.clearAttributes(n);
+    protected void cleanse(CGraph a_g) {
+        for(CNode n : a_g.getNodes()) {
+
+            n.clearAttributes();
+            //au.clearAttributes(n);
         }
     }
 
@@ -43,7 +45,7 @@ public class ClusterExperiment {
         return true;
     }
 
-    protected boolean prepare(Graph a_g, double a_mappingPercent) {
+    protected boolean prepare(CGraph a_g, double a_mappingPercent) {
 
         cleanse(a_g);
 
@@ -67,22 +69,20 @@ public class ClusterExperiment {
         return true;
     }
 
-    protected int getMappedNodeCount(Graph a_g) {
-        AttributeUtil au = new AttributeUtil();
+    protected int getMappedNodeCount(CGraph a_g) {
         int count = 0;
-        for(Node n : a_g.getEachNode()) {
-            if (au.hasAnyTag(n, Cluster1.g_clusterTags)) {
+        for(CNode n : a_g.getNodes()) {
+            if (n.hasAnyTag(Cluster1.g_clusterTags)) {
                 count++;
             }
         }
 
         return count;
     }
-    protected int getTotalNodeCount(Graph a_g) {
-        AttributeUtil au = new AttributeUtil();
+    protected int getTotalNodeCount(CGraph a_g) {
         int count = 0;
-        for(Node n : a_g.getEachNode()) {
-            if (au.hasAnyTag(n, Cluster1.g_originalMappingTags)) {
+        for(CNode n : a_g.getNodes()) {
+            if (n.hasAnyTag(Cluster1.g_originalMappingTags)) {
                 count++;
             }
         }
@@ -90,24 +90,24 @@ public class ClusterExperiment {
         return count;
     }
 
-    protected void mapPackages(Graph a_g, String[] a_packages, String a_clusterTag, String a_fillColor) {
+    protected void mapPackages(CGraph a_g, String[] a_packages, String a_clusterTag, String a_fillColor) {
         for(String pkg : a_packages) {
             AddNodeTag c = new AddNodeTag(a_clusterTag, new Selector.Pkg(pkg));
-           // c.run(a_g);
+            c.run(a_g);
         }
         //SetAttr c = new SetAttr("ui.style", "fill-color:" + a_fillColor, new Selector.Tag(a_clusterTag));
         //c.run(a_g);
     }
 
-    protected boolean loadJabRef(Graph a_g) {
+    protected boolean loadJabRef(CGraph a_g) {
         {
             LoadJar c = new LoadJar("data/jabref-3.7.jar", "net/sf/jabref/");
-            /*try {
+            try {
                 c.run(a_g);
             } catch (IOException e) {
                 System.out.println(e);
                 return false;
-            }*/
+            }
         }
 
         //hide NOT pkg:/jabref/

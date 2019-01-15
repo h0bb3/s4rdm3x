@@ -1,7 +1,5 @@
 package se.lnu.siq.s4rdm3x.experiments.metric;
 
-import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.model.AttributeUtil;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.model.CNode;
 

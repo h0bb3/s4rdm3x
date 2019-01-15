@@ -1,7 +1,6 @@
 package se.lnu.siq.s4rdm3x.cmd;
 
 import se.lnu.siq.s4rdm3x.cmd.hugme.HuGMe;
-import se.lnu.siq.s4rdm3x.model.AttributeUtil;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
 import se.lnu.siq.s4rdm3x.model.CGraph;
@@ -46,7 +45,6 @@ public class CheckViolations {
     }
 
     private void addDivergencies(HuGMe.ArchDef.Component a_cFrom, Iterable<CNode> a_from, HuGMe.ArchDef.Component a_cTo, Iterable<CNode> a_to) {
-        AttributeUtil au = new AttributeUtil();
         for(CNode from : a_from) {
             for (CNode to : a_to) {
                 for (dmDependency d : from.getDependencies(to)) {

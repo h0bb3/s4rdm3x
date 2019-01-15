@@ -1,10 +1,9 @@
 package se.lnu.siq.s4rdm3x.cmd.saerocon18;
 
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.model.AttributeUtil;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
+import se.lnu.siq.s4rdm3x.model.CGraph;
+import se.lnu.siq.s4rdm3x.model.CNode;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,7 +33,7 @@ public class ClusterExperiment7 extends ClusterExperiment {
 
     //private HashMap<Node, Integer> m_fanInMap = new HashMap<>();
     public static class NodeIntPair{
-        Node m_node;
+        CNode m_node;
         int m_fanIn;
         int m_fanOut;
         int m_totalFan;
@@ -42,7 +41,7 @@ public class ClusterExperiment7 extends ClusterExperiment {
     private ArrayList<NodeIntPair> m_fanInCache;
     private ArrayList<NodeIntPair> m_workingCache;
 
-    public void run(Graph a_g) {
+    public void run(CGraph a_g) {
 
         m_fanInCache = new ArrayList<>();
         m_workingCache = new ArrayList<>();
@@ -80,7 +79,7 @@ public class ClusterExperiment7 extends ClusterExperiment {
 
         prepare(a_g, -1);
         computeFanInCache(a_g);
-        ArrayList<Node> clusteredNodes = new ArrayList<>();
+        ArrayList<CNode> clusteredNodes = new ArrayList<>();
 
         int i = 0;
         while(true) {
@@ -162,15 +161,14 @@ public class ClusterExperiment7 extends ClusterExperiment {
         m_workingCache.addAll(m_fanInCache);
     }
 
-    private void updateWorkingFanInCache(ArrayList<Node> a_clusteredNodes, Graph a_g) {
-        AttributeUtil au = new AttributeUtil();
+    private void updateWorkingFanInCache(ArrayList<CNode> a_clusteredNodes, CGraph a_g) {
         // remove anything mapped
-        m_workingCache.removeIf((nip)->{return au.hasAnyTag(nip.m_node, Cluster1.g_clusterTags);});
+        m_workingCache.removeIf((nip)->{return nip.m_node.hasAnyTag(Cluster1.g_clusterTags);});
 
-        // update the cantrality
+        // update the centrality
         for(NodeIntPair nip : m_workingCache) {
 
-            for (Node target : a_clusteredNodes) {
+            for (CNode target : a_clusteredNodes) {
                 nip.m_fanIn -= Cluster1.getFanIn(nip.m_node, target);
                 nip.m_fanOut -= Cluster1.getFanIn(target, nip.m_node);
             }
@@ -202,17 +200,16 @@ public class ClusterExperiment7 extends ClusterExperiment {
         }
     }
 
-    private void computeFanInCache(Graph a_g) {
-        AttributeUtil au = new AttributeUtil();
-        for (Node target : a_g.getEachNode()) {
-            if (au.hasAnyTag(target, Cluster1.g_originalMappingTags) && !au.hasAnyTag(target, Cluster1.g_clusterTags)) {
+    private void computeFanInCache(CGraph a_g) {
+        for (CNode target : a_g.getNodes()) {
+            if (target.hasAnyTag(Cluster1.g_originalMappingTags) && !target.hasAnyTag(Cluster1.g_clusterTags)) {
                 int fanIn = 0;
                 int fanOut = 0;
 
-                for (dmClass cTarget : au.getClasses(target)) {
-                    for (Node n : a_g.getEachNode()) {
-                        if (n != target && au.hasAnyTag(n, Cluster1.g_originalMappingTags) && !au.hasAnyTag(n, Cluster1.g_clusterTags)) {
-                            for (dmClass cN : au.getClasses(n)) {
+                for (dmClass cTarget : target.getClasses()) {
+                    for (CNode n : a_g.getNodes()) {
+                        if (n != target && n.hasAnyTag(Cluster1.g_originalMappingTags) && !n.hasAnyTag(Cluster1.g_clusterTags)) {
+                            for (dmClass cN : n.getClasses()) {
                                 fanIn += countDependenciesTo(cN, cTarget);
                                 fanOut += countDependenciesTo(cTarget, cN);
                             }
@@ -241,11 +238,9 @@ public class ClusterExperiment7 extends ClusterExperiment {
        sortCache(m_fanInCache);
     }
 
-    private void mapHighestFanInNode(Graph a_g) {
-        AttributeUtil au = new AttributeUtil();
-
+    private void mapHighestFanInNode(CGraph a_g) {
         // purge any mapped nodes
-        m_workingCache.removeIf((nip)->{return au.hasAnyTag(nip.m_node, Cluster1.g_clusterTags);});
+        m_workingCache.removeIf((nip)->{return nip.m_node.hasAnyTag(Cluster1.g_clusterTags);});
 
         int selection = (int)((double)m_workingCache.size() * 0.01);
         if (selection == 0){
@@ -260,30 +255,29 @@ public class ClusterExperiment7 extends ClusterExperiment {
         NodeIntPair nip = m_workingCache.get(ix);
 
         for (int tIx = 0; tIx < Cluster1.g_originalMappingTags.length; tIx++) {
-            if (au.hasAnyTag(nip.m_node, Cluster1.g_originalMappingTags[tIx])) {
+            if (nip.m_node.hasTag(Cluster1.g_originalMappingTags[tIx])) {
                 //Sys.out.println("FanIn" + nip.m_fanIn);
-                au.addTag(nip.m_node, "manual");
-                au.addTag(nip.m_node, Cluster1.g_clusterTags[tIx]);
+                nip.m_node.addTag("manual");
+                nip.m_node.addTag(Cluster1.g_clusterTags[tIx]);
                 break;
             }
         }
 
     }
 
-    private void mapRandomNode(Graph a_g) {
-        java.util.ArrayList<Node> unmapped = new ArrayList<>();
-        AttributeUtil au = new AttributeUtil();
+    private void mapRandomNode(CGraph a_g) {
+        java.util.ArrayList<CNode> unmapped = new ArrayList<>();
 
-        for (Node n : a_g.getEachNode()) {
-            if (au.hasAnyTag(n, Cluster1.g_clusterTags) != true) {
+        for (CNode n : a_g.getNodes()) {
+            if (n.hasAnyTag(Cluster1.g_clusterTags) != true) {
                 unmapped.add(n);
             }
         }
 
-        Node selected = unmapped.get(Math.abs(m_rand.nextInt()) % unmapped.size());
+        CNode selected = unmapped.get(Math.abs(m_rand.nextInt()) % unmapped.size());
         for (int tIx = 0; tIx < Cluster1.g_originalMappingTags.length; tIx++) {
-            if (au.hasAnyTag(selected, Cluster1.g_originalMappingTags[tIx])) {
-                au.addTag(selected, Cluster1.g_clusterTags[tIx]);
+            if (selected.hasTag(Cluster1.g_originalMappingTags[tIx])) {
+                selected.addTag(Cluster1.g_clusterTags[tIx]);
                 break;
             }
         }

@@ -1,12 +1,8 @@
 package se.lnu.siq.s4rdm3x.experiments;
 
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.Node;
-import org.graphstream.graph.implementations.MultiGraph;
 import org.junit.jupiter.api.Test;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
-import se.lnu.siq.s4rdm3x.model.NodeUtil;
 import se.lnu.siq.s4rdm3x.experiments.metric.Metric;
 
 import java.util.ArrayList;

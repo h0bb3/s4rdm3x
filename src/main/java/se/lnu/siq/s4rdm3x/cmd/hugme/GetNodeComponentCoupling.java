@@ -1,8 +1,5 @@
 package se.lnu.siq.s4rdm3x.cmd.hugme;
 
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.model.AttributeUtil;
 import se.lnu.siq.s4rdm3x.experiments.metric.FanHelper;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;

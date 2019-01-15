@@ -1,6 +1,6 @@
 package se.lnu.siq.s4rdm3x.cmd.saerocon18;
 
-import org.graphstream.graph.Graph;
+import se.lnu.siq.s4rdm3x.model.CGraph;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,7 +19,7 @@ public class ClusterExperiment2 extends ClusterExperiment {
 
     public final String[] m_head = {"filter", "considered", "manual", "automatic", "incorrect"};
     public ArrayList<ArrayList<String>> m_rows = new ArrayList<>();
-    public void run(Graph a_g) {
+    public void run(CGraph a_g) {
 
         SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//dd/MM/yyyy
         loadJabRef(a_g);

@@ -1,6 +1,5 @@
 package se.lnu.siq.s4rdm3x.cmd.hugme;
 
-import se.lnu.siq.s4rdm3x.model.AttributeUtil;
 import se.lnu.siq.s4rdm3x.cmd.util.FanInCache;
 import se.lnu.siq.s4rdm3x.model.Selector;
 import se.lnu.siq.s4rdm3x.model.CGraph;
@@ -119,7 +118,6 @@ public class HuGMe {
             }
 
             public void mapToNodes(CGraph a_g, Selector.ISelector a_selector) {
-                AttributeUtil au = new AttributeUtil();
                 for (CNode n : a_g.getNodes(a_selector)) {
                     n.addTag(m_name);
                 }
@@ -269,8 +267,6 @@ public class HuGMe {
 
 
     public void run(CGraph a_g) {
-        AttributeUtil au = new AttributeUtil();
-
         final String [] originalMappingTags = m_arch.getComponentNames();
 
         m_clusteredElements = new ArrayList<>();
@@ -504,7 +500,6 @@ public class HuGMe {
     }
 
     private double CountAttract(CNode a_node, Iterable<CNode> a_cluster, double a_weightFromNode, double a_weightFromCluster) {
-        AttributeUtil au = new AttributeUtil();
         double count = 0;
 
         double cCount = 0;

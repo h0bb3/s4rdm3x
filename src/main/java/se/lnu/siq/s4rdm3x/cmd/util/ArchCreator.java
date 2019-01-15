@@ -1,10 +1,8 @@
 package se.lnu.siq.s4rdm3x.cmd.util;
 
-import org.graphstream.graph.Node;
 import se.lnu.siq.s4rdm3x.cmd.hugme.HuGMe;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
-import se.lnu.siq.s4rdm3x.model.NodeUtil;
 import se.lnu.siq.s4rdm3x.model.Selector;
 
 public class ArchCreator {
