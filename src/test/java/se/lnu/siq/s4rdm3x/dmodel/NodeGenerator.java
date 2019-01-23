@@ -77,7 +77,7 @@ public class NodeGenerator {
 
         dmClass c = new dmClass(a_javaClassName);
 
-        CNode a = g.searchNode(".*/" + c.getFileName().replace(".", "\\.")).get(0);
+        CNode a = g.searchNode(".*/" + c.getFileName().replace("/", ".").replace(".", "\\.")).get(0);
 
         return a;
     }

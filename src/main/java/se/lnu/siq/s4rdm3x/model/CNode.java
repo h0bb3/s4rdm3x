@@ -14,6 +14,7 @@ public class CNode {
     private ArrayList<String> m_tags = new ArrayList<>();
     private ArrayList<dmClass> m_classes = new ArrayList<>();
     double[] m_attractions = null;
+    private String m_mappedToComponent = "";
 
     public void clearAttributes() {
         m_tags = new ArrayList<>();
@@ -89,6 +90,14 @@ public class CNode {
             }
         }
         return false;
+    }
+
+    public void setMapping(String a_componentName) {
+        m_mappedToComponent = a_componentName;
+    }
+
+    public String getMapping() {
+        return m_mappedToComponent;
     }
 
     public boolean hasTag(String a_tag) {

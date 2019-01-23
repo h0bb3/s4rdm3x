@@ -7,12 +7,10 @@ import imgui.impl.ImplGL3;
 import imgui.impl.LwjglGlfw;
 import imgui.internal.Rect;
 import kotlin.Unit;
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.Node;
-import org.graphstream.graph.implementations.MultiGraph;
 import se.lnu.siq.s4rdm3x.GUIConsole;
 import se.lnu.siq.s4rdm3x.StringCommandHandler;
-import se.lnu.siq.s4rdm3x.cmd.hugme.HuGMe;
+import se.lnu.siq.s4rdm3x.model.Selector;
+import se.lnu.siq.s4rdm3x.model.cmd.hugme.HuGMe;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
 import uno.glfw.GlfwWindow;
@@ -84,6 +82,9 @@ public class RectsAndArrows {
         theArch.addComponent("server.part3");
         theArch.addComponent("server.part4");
 
+
+
+
         //theArch.addComponent("client");
 
 
@@ -128,6 +129,11 @@ public class RectsAndArrows {
 
        archviz.Command c = new archviz.Command(m_vizState);
        sch.addCommand(c);
+
+
+        sch.execute("load_arch_visuals data/slask/jabref_visuals.xml", graph).forEach(str -> guic.println(str));
+        sch.execute("load_jar data/systems/JabRef/3.7/JabRef-3.7.jar net.sf.jabref.", graph).forEach(str -> guic.println(str));
+        sch.execute("load_arch data/slask/jabref.txt", graph).forEach(str -> guic.println(str));
 
 
         window.loop(() -> {
@@ -216,7 +222,24 @@ public class RectsAndArrows {
 
         if (showTreeView[0]) {
             if (imgui.begin("Tree Views", showTreeView, 0)) {
-                m_treeView.doTreeView(imgui, a_arch, a_g, m_vizState.m_nvm);
+                TreeView.Action a = m_treeView.doTreeView(imgui, a_arch, a_g, m_vizState.m_nvm);
+                if (a != null && a.m_doMapAction != null) {
+                    HuGMe.ArchDef.Component target = a_arch.getComponent(a.m_doMapAction.a_toComponentName);
+                    if (target == null) {
+                        System.out.println("Unable to find component: " + a.m_doMapAction.a_toComponentName);
+                    } else {
+                        for (CNode n : a_g.getNodes()) {
+                            if (n.getName().startsWith(a.m_doMapAction.a_whatNodeName)) {
+                                System.out.println("Mapping: " + n.getName());
+                                if (!target.isMappedTo(n)) {
+                                    target.mapToNode(n);
+                                } else {
+                                    n.setMapping("");
+                                }
+                            }
+                        }
+                    }
+                }
                 imgui.end();
             }
         }

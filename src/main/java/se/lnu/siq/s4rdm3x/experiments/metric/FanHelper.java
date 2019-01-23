@@ -1,6 +1,6 @@
 package se.lnu.siq.s4rdm3x.experiments.metric;
 
-import se.lnu.siq.s4rdm3x.cmd.util.FanInCache;
+import se.lnu.siq.s4rdm3x.model.cmd.util.FanInCache;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
 import se.lnu.siq.s4rdm3x.model.CNode;

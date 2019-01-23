@@ -1,13 +1,12 @@
 package archviz;
 
 import glm_.vec4.Vec4;
-import org.graphstream.graph.Graph;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import se.lnu.siq.s4rdm3x.StringCommandHandler;
-import se.lnu.siq.s4rdm3x.cmd.hugme.HuGMe;
+import se.lnu.siq.s4rdm3x.model.cmd.hugme.HuGMe;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 
 import java.io.*;

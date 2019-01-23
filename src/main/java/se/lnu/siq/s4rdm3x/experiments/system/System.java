@@ -1,7 +1,6 @@
 package se.lnu.siq.s4rdm3x.experiments.system;
 
-import org.graphstream.graph.Graph;
-import se.lnu.siq.s4rdm3x.cmd.hugme.HuGMe;
+import se.lnu.siq.s4rdm3x.model.cmd.hugme.HuGMe;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.Selector;
 

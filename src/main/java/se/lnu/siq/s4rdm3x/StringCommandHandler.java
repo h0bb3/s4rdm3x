@@ -1,17 +1,17 @@
 package se.lnu.siq.s4rdm3x;
 
-import se.lnu.siq.s4rdm3x.cmd.*;
-import se.lnu.siq.s4rdm3x.cmd.hugme.GetComponentFan;
-import se.lnu.siq.s4rdm3x.cmd.hugme.GetNodeComponentCoupling;
-import se.lnu.siq.s4rdm3x.cmd.hugme.HuGMe;
-import se.lnu.siq.s4rdm3x.cmd.metrics.ComputeMetrics;
-import se.lnu.siq.s4rdm3x.cmd.metrics.GetMetric;
-import se.lnu.siq.s4rdm3x.cmd.metrics.GetMetrics;
-import se.lnu.siq.s4rdm3x.cmd.saerocon18.Cluster1;
+import se.lnu.siq.s4rdm3x.model.cmd.*;
+import se.lnu.siq.s4rdm3x.model.cmd.hugme.GetComponentFan;
+import se.lnu.siq.s4rdm3x.model.cmd.hugme.GetNodeComponentCoupling;
+import se.lnu.siq.s4rdm3x.model.cmd.hugme.HuGMe;
+import se.lnu.siq.s4rdm3x.model.cmd.metrics.ComputeMetrics;
+import se.lnu.siq.s4rdm3x.model.cmd.metrics.GetMetric;
+import se.lnu.siq.s4rdm3x.model.cmd.metrics.GetMetrics;
+import se.lnu.siq.s4rdm3x.model.cmd.saerocon18.Cluster1;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
 import se.lnu.siq.s4rdm3x.model.Selector;
-import se.lnu.siq.s4rdm3x.cmd.util.SelectorBuilder;
+import se.lnu.siq.s4rdm3x.model.cmd.util.SelectorBuilder;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 
 import java.util.ArrayList;

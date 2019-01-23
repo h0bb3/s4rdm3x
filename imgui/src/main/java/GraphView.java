@@ -4,7 +4,7 @@ import imgui.ImGui;
 import imgui.WindowFlag;
 import imgui.internal.Rect;
 import imgui.internal.Window;
-import se.lnu.siq.s4rdm3x.cmd.hugme.HuGMe;
+import se.lnu.siq.s4rdm3x.model.cmd.hugme.HuGMe;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.model.CNode;
 
