@@ -243,7 +243,7 @@ public class HuGMe {
 
     private boolean m_doManualMapping;
 
-    private ArchDef m_arch;
+    protected ArchDef m_arch;
 
     public ArrayList<CNode> m_clusteredElements;
 
@@ -264,6 +264,18 @@ public class HuGMe {
     }
 
 
+    // in this version all a considered node has a mapping but not a clustering as we are using this in experiments (also needed for "automatic" manual mapping)
+    protected java.util.ArrayList<CNode> getOrphanNodes(CGraph a_g) {
+
+        java.util.ArrayList<CNode> ret = new ArrayList<>();
+        for (CNode n : a_g.getNodes()) {
+            if (m_arch.getMappedComponent(n) != null && m_arch.getClusteredComponent(n) == null) {
+                ret.add(n);
+            }
+        }
+
+        return ret;
+    }
 
 
     public void run(CGraph a_g) {
@@ -271,13 +283,7 @@ public class HuGMe {
 
         m_clusteredElements = new ArrayList<>();
 
-        // all considered nodes to unmapped
-        java.util.ArrayList<CNode> unmapped = new ArrayList<>();
-        for (CNode n : a_g.getNodes()) {
-            if (m_arch.getMappedComponent(n) != null && m_arch.getClusteredComponent(n) == null) {
-                unmapped.add(n);
-            }
-        }
+        java.util.ArrayList<CNode> unmapped = getOrphanNodes(a_g);
 
         // create the current clusters
         java.util.ArrayList<java.util.ArrayList<CNode>> clusters = new ArrayList<>();

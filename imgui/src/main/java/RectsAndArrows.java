@@ -160,11 +160,13 @@ public class RectsAndArrows {
     private Vec4 clearColor = new Vec4(0.45f, 0.55f, 0.6f, 1f);
     private boolean[] showArchitecture = {true};
     private boolean[] showTreeView = {true};
-    private boolean[] showGraphView = {true};
+    private boolean[] showGraphView = {false};
+    private boolean[] showHuGMeView = {true};
     private int[] counter = {0};
 
     private TreeView m_treeView = new TreeView();
     private GraphView m_graphView = new GraphView();
+    private HuGMeView m_hugMeView = new HuGMeView();
 
 
 
@@ -204,6 +206,7 @@ public class RectsAndArrows {
         imgui.checkbox("Architectural Structure", showArchitecture);
         imgui.checkbox("Tree View", showTreeView);
         imgui.checkbox("Graph View", showGraphView);
+        imgui.checkbox("HuGMe View", showHuGMeView);
 
         if (imgui.button("Button", new Vec2()))                               // Buttons return true when clicked (NB: most widgets return true when edited/activated)
             counter[0]++;
@@ -252,6 +255,14 @@ public class RectsAndArrows {
             }
         }
 
+        if (showHuGMeView[0]) {
+            if (imgui.begin("HuGMe View", showHuGMeView, 0)) {
+
+                m_hugMeView.doHugMeView(imgui, a_arch, a_g, m_vizState.m_nvm);
+
+                imgui.end();
+            }
+        }
 
         // Rendering
         gln.GlnKt.glViewport(window.getFramebufferSize());

@@ -22,6 +22,15 @@ public class CNode {
         m_attractions = null;
     }
 
+    public String getLogicName() {
+        for (dmClass c : getClasses()) {
+            if (!c.isInner()) {
+                return c.getName();
+            }
+        }
+
+        return getFileName();
+    }
 
 
     public static class MetricMap extends HashMap<String, Double> {}

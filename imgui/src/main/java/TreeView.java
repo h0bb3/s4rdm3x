@@ -2,6 +2,7 @@ import archviz.HNode;
 import gui.ImGuiWrapper;
 import hiviz.Tree;
 import imgui.ImGui;
+import org.graphstream.graph.Graph;
 import se.lnu.siq.s4rdm3x.model.cmd.hugme.HuGMe;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.model.CGraph;
@@ -10,9 +11,10 @@ import se.lnu.siq.s4rdm3x.model.CNode;
 import java.util.ArrayList;
 
 public class TreeView {
-    private int[] treeViewSelection = {0};
+    private int[] m_treeViewSelection = {0};
     private String[] treeViewRoots = {"", "", ""};
     Tree.TNode m_selectedNode;
+    CNode m_selectedClass;
 
     private final int g_archId = 0;
     private final int g_classesId = 1;
@@ -37,13 +39,15 @@ public class TreeView {
         items.add("Classes");
         items.add("Files");
 
-        if (a_imgui.combo("", treeViewSelection, items, items.size())) {
+        if (a_imgui.combo("", m_treeViewSelection, items, items.size())) {
         }
 
-        ImGuiWrapper iw = new ImGuiWrapper(a_imgui);
-        treeViewRoots[treeViewSelection[0]] = iw.inputTextSingleLine("Root", treeViewRoots[treeViewSelection[0]]);
+        a_imgui.beginColumns("TreeViewColumns", 2, 0);
 
-        switch (treeViewSelection[0]) {
+        ImGuiWrapper iw = new ImGuiWrapper(a_imgui);
+        treeViewRoots[m_treeViewSelection[0]] = iw.inputTextSingleLine("Root", treeViewRoots[m_treeViewSelection[0]]);
+
+        switch (m_treeViewSelection[0]) {
             case g_archId: {
                 tree = buildArchitectureTree(a_arch.getComponents(), getArchRootFilter());
             } break;
@@ -81,8 +85,16 @@ public class TreeView {
             m_selectedNode = selected;
         }
 
+        if (selected != null && selected.getObject() != null && iw.isMouseClicked(0, false) && m_treeViewSelection[0] == g_classesId) {
+            m_selectedClass = (CNode) selected.getObject();
+        }
+
+        if (selected != null) {
+            iw.text(selected.getName());
+        }
+
         if (m_selectedNode != null) {
-            switch (treeViewSelection[0]) {
+            switch (m_treeViewSelection[0]) {
                 case g_archId:
                     if (a_imgui.beginPopupContextWindow("TreeViewContextMenuArch", 1, true)) {
 
@@ -95,31 +107,41 @@ public class TreeView {
                     break;
 
                 case g_classesId:
-                if (a_imgui.beginPopupContextWindow("TreeViewContextMenuClasses", 1, true)) {
+                    if (a_imgui.beginPopupContextWindow("TreeViewContextMenuClasses", 1, true)) {
 
-                    Tree at = buildArchitectureTree(a_arch.getComponents(), "");
-                    Object mappedObject = m_selectedNode.getMappedObject();
-                    Tree.TNode selectedNode = at.doMenu(a_imgui, mappedObject);
+                        Tree at = buildArchitectureTree(a_arch.getComponents(), "");
+                        Object mappedObject = m_selectedNode.getMappedObject();
+                        Tree.TNode selectedNode = at.doMenu(a_imgui, mappedObject);
 
-                    if (selectedNode != null) {
-                        if (selectedNode != mappedObject) {
-                            ret = new Action();
-                            ret.m_doMapAction = new Action.DoMap();
-                            ret.m_doMapAction.a_whatNodeName = m_selectedNode.getFullName().replace(".", "/");
-                            ret.m_doMapAction.a_toComponentName = selectedNode.getFullName();
+                        if (selectedNode != null) {
+                            if (selectedNode != mappedObject) {
+                                ret = new Action();
+                                ret.m_doMapAction = new Action.DoMap();
+                                ret.m_doMapAction.a_whatNodeName = m_selectedNode.getFullName().replace(".", "/");
+                                ret.m_doMapAction.a_toComponentName = selectedNode.getFullName();
 
-                            System.out.println("what: " + ret.m_doMapAction.a_whatNodeName);
-                            System.out.println("to: " + ret.m_doMapAction.a_toComponentName);
+                                System.out.println("what: " + ret.m_doMapAction.a_whatNodeName);
+                                System.out.println("to: " + ret.m_doMapAction.a_toComponentName);
+                            }
                         }
+
+                        a_imgui.endPopup();
+                    } else {
+                        m_selectedNode = null;
                     }
 
-                    a_imgui.endPopup();
-                } else {
-                    m_selectedNode = null;
-                }
+
                 break;
             }
         }
+
+
+        a_imgui.nextColumn();
+            if (m_treeViewSelection[0] == g_classesId && m_selectedClass != null) {
+                doClassView(iw, a_g, m_selectedClass);
+            }
+
+        a_imgui.endColumns();
 
         return ret;
     }
@@ -133,6 +155,24 @@ public class TreeView {
         }
 
         return tree;
+    }
+
+    private void doClassView(ImGuiWrapper a_imgui, CGraph a_g, CNode a_selectedNode) {
+        a_imgui.text(a_selectedNode.getLogicName());
+
+        a_imgui.text("Fan in: ");
+        for (CNode n : a_g.getNodes()) {
+            if (n.hasDependency(a_selectedNode)) {
+                a_imgui.text(n.getLogicName());
+            }
+        }
+
+        a_imgui.text("Fan out: ");
+        for (CNode n : a_g.getNodes()) {
+            if (a_selectedNode.hasDependency(n)) {
+                a_imgui.text(n.getLogicName());
+            }
+        }
     }
 
     public String getArchRootFilter() {

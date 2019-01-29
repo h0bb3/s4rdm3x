@@ -3,7 +3,6 @@ package hiviz;
 import glm_.vec2.Vec2;
 import glm_.vec4.Vec4;
 import gui.ImGuiWrapper;
-import imgui.Col;
 import imgui.ImGui;
 import imgui.internal.Rect;
 
@@ -18,6 +17,10 @@ public class Tree {
         boolean doContextMenu(ImGui a_imgui);
     }
 
+    public interface TNodeVisitor {
+        void visit(TNode a_node);
+    }
+
     public static class TNode {
         private String m_name;
         private ArrayList<TNode> m_children;
@@ -27,6 +30,13 @@ public class Tree {
         private Mapping m_mapping;
         private Object m_nodeObject;
 
+        public void accept(TNodeVisitor a_visitor) {
+            for (TNode c : m_children) {
+                c.accept(a_visitor);
+            }
+
+            a_visitor.visit(this);
+        }
 
         public TNode doMenu(ImGui a_imgui, Object a_selectedObject) {
             TNode ret = null;
@@ -61,6 +71,14 @@ public class Tree {
             return ret;
         }
 
+        public Object getObject() {
+            if (m_isLeaf) {
+                return m_nodeObject;
+            } else {
+                return null;
+            }
+        }
+
         private static class Mapping {
             Vec4 m_color;
             String m_mappedToName;
@@ -82,13 +100,13 @@ public class Tree {
             return null;
         }
 
-        TNode(String a_name, TNode a_parent, Object a_nodeOject) {
+        TNode(String a_name, TNode a_parent, Object a_nodeObject) {
             m_name = a_name;
             m_parent = a_parent;
             m_parentNodeRepresentation = false;
             m_children = new ArrayList<>();
             m_isLeaf = false;
-            m_nodeObject = a_nodeOject;
+            m_nodeObject = a_nodeObject;
 
         }
 
@@ -120,7 +138,7 @@ public class Tree {
             //return m_leafNodeIx > -1 || m_forcedConcreteNode;
         }
 
-        TNode doTree(ImGuiWrapper a_imgui, TContextMenuHandler a_contextMenuHandler) {
+        TNode doTree(ImGuiWrapper a_imgui, String a_treeId) {
             TNode ret = null;
             if (m_name != null) {
                 if (m_children.size() == 0) {
@@ -178,9 +196,9 @@ public class Tree {
                     }
 
 
-                    if (a_imgui.imgui().treeNode(m_name)) {
+                    if (a_imgui.imgui().treeNode(a_treeId + m_name, "%s", m_name)) {
                         for (TNode c : m_children) {
-                            TNode r = c.doTree(a_imgui, a_contextMenuHandler);
+                            TNode r = c.doTree(a_imgui, a_treeId);
                             if (ret == null && r != null) {
                                 ret = r;
                             }
@@ -195,7 +213,7 @@ public class Tree {
                 }
             } else {
                 for (TNode c : m_children) {
-                    TNode r = c.doTree(a_imgui, a_contextMenuHandler);
+                    TNode r = c.doTree(a_imgui, a_treeId);
                     if (ret == null && r != null) {
                         ret = r;
                     }
@@ -290,10 +308,10 @@ public class Tree {
         return addNode(a_name.split("\\."), m_root, a_nodeObject);
     }
 
-    public TNode doTree(ImGui a_imgui, TContextMenuHandler a_contextMenuHandler) {
+    public TNode doTree(ImGui a_imgui, String a_treeId) {
         ImGuiWrapper imgui = new ImGuiWrapper(a_imgui);
 
-        return m_root.doTree(imgui, a_contextMenuHandler);
+        return m_root.doTree(imgui, a_treeId);
     }
 
     public TNode doMenu(ImGui a_imgui, Object a_selectedObject) {
