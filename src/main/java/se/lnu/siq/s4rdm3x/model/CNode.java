@@ -32,6 +32,16 @@ public class CNode {
         return getFileName();
     }
 
+    public String getLogicNameSimple() {
+        String logicName = getLogicName();
+
+        if (logicName.contains(".")) {
+            return logicName.substring(logicName.lastIndexOf(".") + 1);
+        } else {
+            return logicName;
+        }
+    }
+
 
     public static class MetricMap extends HashMap<String, Double> {}
 

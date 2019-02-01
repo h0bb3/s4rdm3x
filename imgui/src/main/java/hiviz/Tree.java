@@ -6,6 +6,7 @@ import gui.ImGuiWrapper;
 import imgui.ImGui;
 import imgui.internal.Rect;
 
+import javax.swing.tree.TreeNode;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -30,11 +31,12 @@ public class Tree {
         private Mapping m_mapping;
         private Object m_nodeObject;
 
-        public void accept(TNodeVisitor a_visitor) {
-            for (TNode c : m_children) {
-                c.accept(a_visitor);
-            }
 
+        public Iterable<TNode> children() {
+            return m_children;
+        }
+
+        public void accept(TNodeVisitor a_visitor) {
             a_visitor.visit(this);
         }
 
@@ -77,6 +79,10 @@ public class Tree {
             } else {
                 return null;
             }
+        }
+
+        public int childCount() {
+            return m_children.size();
         }
 
         private static class Mapping {
@@ -317,5 +323,9 @@ public class Tree {
     public TNode doMenu(ImGui a_imgui, Object a_selectedObject) {
         return m_root.doMenu(a_imgui, a_selectedObject);
 
+    }
+
+    public void doVisit(TNodeVisitor a_visitor) {
+        m_root.accept(a_visitor);
     }
 }

@@ -97,10 +97,18 @@ public class HuGMeView {
 
         Tree.TNode hovered = tree.doTree(a_imgui.imgui(), "notSelectedMappedEntitiesTree");
         if (hovered != null && a_imgui.isMouseDoubleClicked(0)) {
-           hovered.accept(a_node -> {
-               Object o = a_node.getObject();
-               if (o != null) {
-                   m_selectedMappedNodes.add((CNode)o);
+           hovered.accept(new Tree.TNodeVisitor() {
+               @Override
+               public void visit(Tree.TNode a_node) {
+
+                   for (Tree.TNode c : a_node.children()) {
+                       c.accept(this);
+                   }
+
+                   Object o = a_node.getObject();
+                   if (o != null) {
+                       m_selectedMappedNodes.add((CNode) o);
+                   }
                }
            });
         }

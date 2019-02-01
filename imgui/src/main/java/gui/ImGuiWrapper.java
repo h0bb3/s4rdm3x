@@ -7,6 +7,8 @@ import imgui.internal.Rect;
 import imgui.internal.Window;
 import org.w3c.dom.Text;
 
+import javax.swing.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import static imgui.ImguiKt.COL32;
@@ -31,6 +33,71 @@ public class ImGuiWrapper {
     public void endPopup() {
         m_imGui.endPopup();
     }
+
+    public void addCurve(Vec2 a_start, Vec2 a_control, Vec2 a_end, int a_color, int a_thickness) {
+
+        Vec2 l1 = a_control.minus(a_start);
+        Vec2 l2 = a_end.minus(a_control);
+
+        ArrayList<Vec2> points = new ArrayList<>();
+
+        final int segments = 32;
+        for (int i = 0; i <= segments; i++) {
+            float t = (float)i / (float)segments;
+
+            Vec2 p1 = a_start.plus(l1.times(t));
+            Vec2 p2 = a_control.plus(l2.times(t));
+
+            Vec2 p = p1.plus(p2.minus(p1).times(t));
+
+            points.add(p);
+
+        }
+
+        m_imGui.getWindowDrawList().addPolyline(points, a_color, false, a_thickness);
+
+    }
+
+
+    public void addCurve(Vec2 a_start, Vec2 a_startControl, Vec2 a_end, Vec2 a_endControl, int a_color, int a_thickness) {
+
+        Vec2 l1 = a_startControl.minus(a_start);
+        Vec2 l2 = a_endControl.minus(a_startControl);
+        Vec2 l3 = a_end.minus(a_endControl);
+
+        ArrayList<Vec2> points = new ArrayList<>();
+
+        final int segments = 32;
+        for (int i = 0; i <= segments; i++) {
+            float t = (float)i / (float)segments;
+
+            Vec2 p1 = a_start.plus(l1.times(t));
+            Vec2 p2 = a_startControl.plus(l2.times(t));
+            Vec2 p3 = a_endControl.plus(l3.times(t));
+
+            Vec2 p4 = p1.plus(p2.minus(p1).times(t));
+            Vec2 p5 = p2.plus(p3.minus(p2).times(t));
+
+            Vec2 p = p4.plus(p5.minus(p4).times(t));
+
+            points.add(p);
+
+        }
+
+        m_imGui.getWindowDrawList().addPolyline(points, a_color, false, a_thickness);
+
+    }
+
+    public void addArrow(Vec2 m_start, Vec2 a_dir, int a_color) {
+        Vec2 p1 = a_dir.plus(m_start.plus(a_dir.rotate((float)(Math.PI * 0.25))));
+        Vec2 p2 = a_dir.plus(m_start.plus(a_dir.rotate((float)(Math.PI * -0.25))));
+
+        m_imGui.getWindowDrawList().addTriangle(m_start, p2, p1, a_color, 1);
+        /*addLine(m_start, p1, a_color, 1);
+        addLine(m_start, p2, a_color, 1);*/
+
+    }
+
 
     protected static class DashContext {
         float m_remainingDrawLength;
@@ -63,6 +130,136 @@ public class ImGuiWrapper {
         //m_imGui.getWindowDrawList().addCircle(a_center, a_radius, a_color, a_segments, a_thickness);
     }
 
+    public Vec2 text(String a_text, Vec2 a_position, int a_color, float a_angle) {
+        final int tId = m_imGui.getDefaultFont().containerAtlas.getTexId();
+
+        float x = 0;
+        float scale = m_imGui.getFont().getScale();
+        float cosa = (float)Math.cos(a_angle);
+
+        if (cosa < 0) {
+            a_angle -= Math.PI;
+
+            for (int cIx = 0; cIx < a_text.length(); cIx++) {
+                FontGlyph fg = m_imGui.getFont().findGlyph(a_text.charAt(cIx));
+
+                x -= fg.getAdvanceX() * scale;
+            }
+
+        }
+
+        Vec2 ret;
+
+        Vec2 firstPos = new Vec2(), lastPos = new Vec2();
+
+
+        {
+            FontGlyph fg = m_imGui.getFont().findGlyph(a_text.charAt(0));
+            Vec2 p0, p1, p2, p3;
+
+            p0 = new Vec2((x + fg.getX0() * scale), (fg.getY0() * scale)).rotate(a_angle);
+            p1 = new Vec2((x + fg.getX0() * scale), (fg.getY1() * scale)).rotate(a_angle);
+            p2 = new Vec2((x + fg.getX1() * scale), (fg.getY1() * scale)).rotate(a_angle);
+            p3 = new Vec2((x + fg.getX1() * scale), (fg.getY0() * scale)).rotate(a_angle);
+
+            x = x + fg.getAdvanceX() * scale;
+
+            firstPos.setX(p2.getX() * 0.5f + p3.getX() * 0.5f);
+            firstPos.setY(p2.getY() * 0.5f + p3.getY() * 0.5f);
+
+            m_imGui.getWindowDrawList().addImageQuad(tId, a_position.plus(p0), a_position.plus(p1), a_position.plus(p2), a_position.plus(p3),
+                    new Vec2(fg.getU0(), fg.getV0()), new Vec2(fg.getU0(), fg.getV1()), new Vec2(fg.getU1(), fg.getV1()), new Vec2(fg.getU1(), fg.getV0()), a_color);
+        }
+
+
+
+        for (int cIx = 1; cIx < a_text.length() - 1; cIx++) {
+            FontGlyph fg = m_imGui.getFont().findGlyph(a_text.charAt(cIx));
+            Vec2 p0, p1, p2, p3;
+
+            p0 = new Vec2((x + fg.getX0() * scale), (fg.getY0() * scale)).rotate(a_angle);
+            p1 = new Vec2((x + fg.getX0() * scale), (fg.getY1() * scale)).rotate(a_angle);
+            p2 = new Vec2((x + fg.getX1() * scale), (fg.getY1() * scale)).rotate(a_angle);
+            p3 = new Vec2((x + fg.getX1() * scale), (fg.getY0() * scale)).rotate(a_angle);
+
+            x = x + fg.getAdvanceX() * scale;
+
+            m_imGui.getWindowDrawList().addImageQuad(tId, a_position.plus(p0), a_position.plus(p1), a_position.plus(p2), a_position.plus(p3),
+                                                          new Vec2(fg.getU0(), fg.getV0()), new Vec2(fg.getU0(), fg.getV1()), new Vec2(fg.getU1(), fg.getV1()), new Vec2(fg.getU1(), fg.getV0()), a_color);
+        }
+
+
+        {
+            FontGlyph fg = m_imGui.getFont().findGlyph(a_text.charAt(0));
+            Vec2 p0, p1, p2, p3;
+
+            p0 = new Vec2((x + fg.getX0() * scale), (fg.getY0() * scale)).rotate(a_angle);
+            p1 = new Vec2((x + fg.getX0() * scale), (fg.getY1() * scale)).rotate(a_angle);
+            p2 = new Vec2((x + fg.getX1() * scale), (fg.getY1() * scale)).rotate(a_angle);
+            p3 = new Vec2((x + fg.getX1() * scale), (fg.getY0() * scale)).rotate(a_angle);
+
+            x = x + fg.getAdvanceX() * scale;
+
+            lastPos.setX(p2.getX() * 0.5f + p3.getX() * 0.5f);
+            lastPos.setY(p2.getY() * 0.5f + p3.getY() * 0.5f);
+
+            m_imGui.getWindowDrawList().addImageQuad(tId, a_position.plus(p0), a_position.plus(p1), a_position.plus(p2), a_position.plus(p3),
+                    new Vec2(fg.getU0(), fg.getV0()), new Vec2(fg.getU0(), fg.getV1()), new Vec2(fg.getU1(), fg.getV1()), new Vec2(fg.getU1(), fg.getV0()), a_color);
+        }
+
+        if (cosa < 0) {
+            ret = lastPos;
+        } else {
+            ret = firstPos;
+        }
+
+        return a_position.plus(ret);
+    }
+
+    public void addFilledCircleSegment(Vec2 a_center, float a_radius, int a_color, int a_segments, float a_startAngle, float a_endAngle) {
+        double segmentStep = (a_endAngle - a_startAngle) / a_segments;
+        double angle = a_startAngle;
+        final double delta = 0.001;    // needed to avoid pixel leaks in borders between triangle segments
+
+
+        // TODO: if this becomes a performance problem we could draw each half-circle as a convex polygon.
+        for (int segment = 0; segment < a_segments; segment++) {
+            float x1 = (float)Math.cos(angle) * a_radius;
+            float y1 = (float)Math.sin(angle) * a_radius;
+            angle += segmentStep;
+
+            float x2 = (float)Math.cos(angle + delta) * a_radius;
+            float y2 = (float)Math.sin(angle + delta) * a_radius;
+
+            ArrayList<Vec2> points = new ArrayList<>();
+            Vec2 p1 = new Vec2(x1, y1).plus(a_center);
+            Vec2 p2 = new Vec2(x2, y2).plus(a_center);
+            points.add(p1);
+            points.add(p2);
+            points.add(a_center);
+            m_imGui.getWindowDrawList().addConvexPolyFilled(points, a_color);
+        }
+    }
+
+    public void addCircleSegment(Vec2 a_center, float a_radius, int a_color, int a_segments, float a_startAngle, float a_endAngle, float a_thickness) {
+        double segmentStep = (a_endAngle - a_startAngle) / a_segments;
+        double angle = a_startAngle;
+
+        for (int segment = 0; segment < a_segments; segment++) {
+            float x1 = (float)Math.cos(angle) * a_radius;
+            float y1 = (float)Math.sin(angle) * a_radius;
+            angle += segmentStep;
+
+            float x2 = (float)Math.cos(angle) * a_radius;
+            float y2 = (float)Math.sin(angle) * a_radius;
+
+            Vec2 p1 = new Vec2(x1, y1).plus(a_center);
+            Vec2 p2 = new Vec2(x2, y2).plus(a_center);
+
+            addLine(p1, p2, a_color, a_thickness);
+        }
+    }
+
     public void addDashedCircleSegment(Vec2 a_center, float a_radius, int a_color, int a_segments, float a_startAngle, float a_endAngle, float a_thickness, float a_holeLength, float a_dashlength) {
         addDashedCircleSegment(a_center, a_radius, a_color, a_segments, a_startAngle, a_endAngle, a_thickness, a_holeLength, a_dashlength, new DashContext());
     }
@@ -70,6 +267,7 @@ public class ImGuiWrapper {
     public void addDashedCircleSegment(Vec2 a_center, float a_radius, int a_color, int a_segments, float a_startAngle, float a_endAngle, float a_thickness, float a_holeLength, float a_dashlength, DashContext a_dc) {
         double segmentStep = (a_endAngle - a_startAngle) / a_segments;
         double angle = a_startAngle;
+
 
         for (int segment = 0; segment < a_segments; segment++) {
             float x1 = (float)Math.cos(angle) * a_radius;
@@ -330,7 +528,7 @@ public class ImGuiWrapper {
     }
 
     public boolean isInside(Vec2 a_center, float a_radius, Vec2 a_pos) {
-        if (m_imGui.getCurrentWindow().isActiveAndVisible() && m_imGui.isWindowHovered(HoveredFlag.RootWindow)) {
+        if (m_imGui.getCurrentWindow().isActiveAndVisible() && m_imGui.isWindowHovered(HoveredFlag.RootAndChildWindows)) {
             return a_center.minus(a_pos).length2() <= a_radius * a_radius;
         }
         return false;

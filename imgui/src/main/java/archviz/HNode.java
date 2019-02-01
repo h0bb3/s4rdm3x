@@ -125,6 +125,11 @@ public class HNode {
             return ret;
         }
 
+        public boolean hasBGColor(String a_node) {
+            Visuals v = m_nodeState.get(a_node);
+             return v != null;
+        }
+
         public Vec4 getBGColor(String a_node) {
             Visuals v = m_nodeState.get(a_node);
             if (v != null) {
