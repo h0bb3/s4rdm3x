@@ -175,18 +175,28 @@ public class TreeView {
         final int white = a_imgui.toColor(new Vec4(1., 1., 1., 1));
         final int black = a_imgui.toColor(new Vec4(0., 0., 0., 1));
 
+        int maxFanIn = 0, maxFanOut = 0;
         ArrayList<CNode> fanin = new ArrayList<>();
         for (CNode n : a_g.getNodes()) {
-            if (n.hasDependency(a_selectedNode)) {
+            if (n != a_selectedNode && n.hasDependency(a_selectedNode)) {
+
                 fanin.add(n);
+                int count = n.getDependencyCount(a_selectedNode);
+                if (count > maxFanIn) {
+                    maxFanIn = count;
+                }
             }
         }
 
         ArrayList<CNode> fanout = new ArrayList<>();
         for (CNode n : a_g.getNodes()) {
-            if (a_selectedNode.hasDependency(n)) {
+            if (n != a_selectedNode && a_selectedNode.hasDependency(n)) {
                 a_imgui.text(n.getLogicName());
                 fanout.add(n);
+                int count = a_selectedNode.getDependencyCount(n);
+                if (count > maxFanOut) {
+                    maxFanOut = count;
+                }
             }
         }
 
@@ -221,10 +231,7 @@ public class TreeView {
         Vec2 toMousePos = mousePos.minus(center);
         float cosa = toMousePos.getX() / (toMousePos.length());
         final float centerMousePosAngle = toMousePos.getY() > 0 ? (float)Math.atan2(toMousePos.getY(), toMousePos.getX()) : (float)(Math.PI * 2 + Math.atan2(toMousePos.getY(), toMousePos.getX()));
-
-        a_imgui.text("length: " + toMousePos.length());
-        a_imgui.text("cosa: " + cosa);
-        a_imgui.text("angle: " + centerMousePosAngle);
+        CNode [] mouseHoverNode = {null};
 
 
         class CurvePoints {
@@ -232,6 +239,7 @@ public class TreeView {
             Vec2 m_startControl;
             Vec2 m_end;
             Vec2 m_endControl;
+            CNode m_node;
         }
 
         ArrayList<CurvePoints> g_curvePoints = new ArrayList<>();
@@ -269,10 +277,11 @@ public class TreeView {
                 childCounter.visit(a_node);
                 double angleDelta = (angleSpan - 2 * angleBorder) / childCounter.m_childCount;
 
+
                 if (!isRoot) {
 
                     int segments = Math.max(8, childCounter.m_childCount * 8);
-
+                    CNode n = null;
 
                     if (a_nvm.hasBGColor(a_node.getFullName())) {
                         Vec4 bgColor = a_nvm.getBGColor(a_node.getFullName());
@@ -289,14 +298,33 @@ public class TreeView {
                         a_imgui.addLine(p2, p4, white, 2);
                     } else {
                         // we now have a code node... or the unmapped category...
-                        CNode n = (CNode)(a_node.getObject());
+                        n = (CNode)(a_node.getObject());
                         if (n != null) {
-                            Vec2 textSize = a_imgui.calcTextSize(n.getLogicName(), false);
+
+                            String [] nameParts = n.getLogicName().split("\\.");
+                            int nameIx = nameParts.length - 1;
+                            String name = nameParts[nameIx];
+                            nameIx --;
+                            Vec2 textSize = a_imgui.calcTextSize(name, false);
+
+                            while (nameIx >= 0) {
+
+                                String newName = nameParts[nameIx] + "." + name;
+                                Vec2 newTextSize = a_imgui.calcTextSize(newName, false);
+                                if (newTextSize.getX() > m_radius - innerRadius - 10) {
+                                    break;
+                                } else {
+                                    name = newName;
+                                    textSize = newTextSize;
+                                }
+
+                                nameIx--;
+                            }
 
                             float midAngle = (float)(m_fromAngle + (m_toAngle - m_fromAngle) / 2);
 
                             Vec2 p1 = new Vec2(Math.cos(midAngle) * (m_radius - textSize.getX()), sin(midAngle) * (m_radius - textSize.getX())).plus(center);
-                            Vec2 textEndPos = a_imgui.text(n.getLogicName(), p1, white, (float) midAngle);
+                            Vec2 textEndPos = a_imgui.text(name, p1, white, (float) midAngle);
 
 
                             Vec2 endControl = new Vec2(Math.cos(midAngle) * innerRadius, Math.sin(midAngle) * innerRadius).plus(center);
@@ -316,6 +344,7 @@ public class TreeView {
                             cp.m_end = textEndPos;
                             cp.m_startControl = centerControl;
                             cp.m_endControl = endControl;
+                            cp.m_node = n;
                             g_curvePoints.add(cp);
 
                         }
@@ -323,6 +352,7 @@ public class TreeView {
 
                     if (centerMousePosAngle > m_fromAngle && centerMousePosAngle < m_toAngle) {
                         if (a_imgui.isInside(center, (float)m_radius, mousePos) && !a_imgui.isInside(center, (float)innerRadius, mousePos)) {
+                            mouseHoverNode[0] = n;
                             a_imgui.beginTooltip();
                                 a_imgui.text(a_node.getFullName());
                             a_imgui.endTooltip();
@@ -354,20 +384,78 @@ public class TreeView {
 
         archTree.doVisit(new PieDrawer(0, 2 * Math.PI, outerRadius));
 
-        a_imgui.addCircleFilled(center, (float)innerRadius - 1, black, 32);
+        HuGMe.ArchDef.Component selectedComponent = a_arch.getMappedComponent(a_selectedNode);
+        if (selectedComponent != null) {
+            a_imgui.addCircleFilled(center, (float)innerRadius - 1, a_imgui.toColor(a_nvm.getBGColor(selectedComponent.getName())), 32);
+        } else {
+            a_imgui.addCircleFilled(center, (float)innerRadius - 1, black, 32);
+        }
+
+        for (CurvePoints from : g_curvePoints) {
+            if (from.m_node == mouseHoverNode[0]) {
+                for (CurvePoints to : g_curvePoints) {
+                    if (from != to) {
+                        if (from.m_node.hasDependency(to.m_node) || to.m_node.hasDependency(from.m_node)) {
+
+                            Vec2 fromDir = from.m_end.minus(center).normalize();
+                            Vec2 toDir = to.m_end.minus(center).normalize();
+
+
+                            a_imgui.addCurve(center.plus(fromDir.times(innerRadius)), center.plus(fromDir.times(innerRadius)).plus(fromDir.times(-25)),
+                                    center.plus(toDir.times(innerRadius)), center.plus(toDir.times(innerRadius)).plus(toDir.times(-25)),
+                                    white, 1);
+                        }
+                    }
+                }
+            }
+        }
+
 
         for (CurvePoints cp : g_curvePoints) {
             //a_imgui.addCurve(cp.m_start, cp.m_startControl, cp.m_end, cp.m_endControl, white, 1);
-            Vec2 dir = center.minus(cp.m_end).normalize().times(7);
-            a_imgui.addArrow(cp.m_end, dir, white);
+            final int red = a_imgui.toColor(new Vec4(1, 0.25, 0.25, 1));
+            Vec2 dir = center.minus(cp.m_end).normalize();
+            float offsetDistance = 10;
+            float arrowSize = 7;
+            if (fanin.contains(cp.m_node)) {
+                int color = white;
+
+                if (selectedComponent != null) {
+                    HuGMe.ArchDef.Component from = a_arch.getMappedComponent(cp.m_node);
+                    if (from != null && !from.allowedDependency(selectedComponent)) {
+                        color = red;
+                    }
+                }
+
+                offsetDistance += arrowSize;
+                a_imgui.addArrow(cp.m_end.plus(dir.times(offsetDistance)), dir.times(-(arrowSize + 10 * a_selectedNode.getDependencyCount(cp.m_node) / maxFanIn)), color);
+                offsetDistance += 3;
+            }
+
+            if (fanout.contains(cp.m_node)) {
+
+                int color = white;
+
+                if (selectedComponent != null) {
+                    HuGMe.ArchDef.Component to = a_arch.getMappedComponent(cp.m_node);
+                    if (to != null && !selectedComponent.allowedDependency(to)) {
+                        color = red;
+                    }
+                }
+
+                a_imgui.addArrow(cp.m_end.plus(dir.times(offsetDistance)), dir.times(arrowSize + 10 * cp.m_node.getDependencyCount(a_selectedNode) / maxFanOut), color);
+            }
         }
 
-        a_imgui.addCircleFilled(center, (float)50, black, 32);
+        //a_imgui.addCircleFilled(center, (float)50, black, 32);
 
         a_imgui.text(a_selectedNode.getLogicName());
 
         m_totalTime += a_imgui.imgui().getIo().getDeltaTime();
         a_imgui.addText(center.minus(a_imgui.imgui().calcTextSize(a_selectedNode.getLogicName(), false).times(0.5)), white, a_selectedNode.getLogicName());
+        if (selectedComponent != null) {
+            a_imgui.addText(center.minus(a_imgui.imgui().calcTextSize(selectedComponent.getName(), false).times(0.5)).plus(new Vec2(0, 15)), white, selectedComponent.getName());
+        }
 
         a_imgui.text("Fan in: ");
         for (CNode n : a_g.getNodes()) {
@@ -381,6 +469,10 @@ public class TreeView {
             if (a_selectedNode.hasDependency(n)) {
                 a_imgui.text(n.getLogicName());
             }
+        }
+
+        if (a_imgui.isMouseClicked(0, false) && mouseHoverNode[0] != null) {
+            m_selectedClass = mouseHoverNode[0];
         }
 
         a_imgui.imgui().endChild();

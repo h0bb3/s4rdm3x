@@ -76,7 +76,7 @@ public class HuGMe {
             }
 
             public boolean allowedDependency(Component a_component) {
-                return m_allowedDependenciesTo.indexOf(a_component) >= 0;
+                return a_component == this  || m_allowedDependenciesTo.contains(a_component);
             }
 
             public String getClusterName() {

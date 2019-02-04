@@ -155,25 +155,20 @@ public class ImGuiWrapper {
 
         {
             FontGlyph fg = m_imGui.getFont().findGlyph(a_text.charAt(0));
-            Vec2 p0, p1, p2, p3;
+            Vec2 p2, p3;
 
-            p0 = new Vec2((x + fg.getX0() * scale), (fg.getY0() * scale)).rotate(a_angle);
-            p1 = new Vec2((x + fg.getX0() * scale), (fg.getY1() * scale)).rotate(a_angle);
-            p2 = new Vec2((x + fg.getX1() * scale), (fg.getY1() * scale)).rotate(a_angle);
-            p3 = new Vec2((x + fg.getX1() * scale), (fg.getY0() * scale)).rotate(a_angle);
+            // -3 to get some offset before the first character
+            p2 = new Vec2((fg.getX1() - 5) * scale, (fg.getY1() * scale)).rotate(a_angle);
+            p3 = new Vec2((fg.getX1() - 5) * scale, (fg.getY0() * scale)).rotate(a_angle);
 
-            x = x + fg.getAdvanceX() * scale;
 
             firstPos.setX(p2.getX() * 0.5f + p3.getX() * 0.5f);
             firstPos.setY(p2.getY() * 0.5f + p3.getY() * 0.5f);
-
-            m_imGui.getWindowDrawList().addImageQuad(tId, a_position.plus(p0), a_position.plus(p1), a_position.plus(p2), a_position.plus(p3),
-                    new Vec2(fg.getU0(), fg.getV0()), new Vec2(fg.getU0(), fg.getV1()), new Vec2(fg.getU1(), fg.getV1()), new Vec2(fg.getU1(), fg.getV0()), a_color);
         }
 
 
 
-        for (int cIx = 1; cIx < a_text.length() - 1; cIx++) {
+        for (int cIx = 0; cIx < a_text.length() - 1; cIx++) {
             FontGlyph fg = m_imGui.getFont().findGlyph(a_text.charAt(cIx));
             Vec2 p0, p1, p2, p3;
 
@@ -190,7 +185,7 @@ public class ImGuiWrapper {
 
 
         {
-            FontGlyph fg = m_imGui.getFont().findGlyph(a_text.charAt(0));
+            FontGlyph fg = m_imGui.getFont().findGlyph(a_text.charAt(a_text.length() - 1));
             Vec2 p0, p1, p2, p3;
 
             p0 = new Vec2((x + fg.getX0() * scale), (fg.getY0() * scale)).rotate(a_angle);
