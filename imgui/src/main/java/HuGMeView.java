@@ -1,15 +1,22 @@
 import archviz.HNode;
+import glm_.vec2.Vec2;
 import gui.ImGuiWrapper;
 import hiviz.Tree;
+import imgui.ComboFlag;
 import imgui.ImGui;
+import imgui.SelectableFlag;
+import imgui.WindowFlag;
+import imgui.internal.ColumnsFlag;
 import se.lnu.siq.s4rdm3x.model.cmd.hugme.HuGMe;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
 import se.lnu.siq.s4rdm3x.model.cmd.hugme.HuGMeManual;
+import se.lnu.siq.s4rdm3x.stats;
 
 import javax.swing.tree.TreeNode;
 import java.util.ArrayList;
+import java.util.Collection;
 
 public class HuGMeView {
     private int[] m_viewSelection = {0};
@@ -29,6 +36,48 @@ public class HuGMeView {
     private float[] m_phi = {0.5f};
 
     HuGMeManual m_hugme;
+
+    private abstract static class TNodeCollectionWorker implements Tree.TNodeVisitor {
+
+        private Collection<CNode> m_collection;
+
+        protected TNodeCollectionWorker(Collection a_collection) {
+            m_collection = a_collection;
+        }
+
+
+        static public Tree.TNodeVisitor doAdd(Collection<CNode> a_collection) {
+            return new TNodeCollectionWorker(a_collection) {
+                @Override
+                protected void doWork(CNode a_node, Collection a_collection) {
+                    a_collection.add(a_node);
+                }
+            };
+        }
+
+        static public Tree.TNodeVisitor doRemove(Collection<CNode> a_collection) {
+            return new TNodeCollectionWorker(a_collection) {
+                @Override
+                protected void doWork(CNode a_node, Collection a_collection) {
+                    a_collection.remove(a_node);
+                }
+            };
+        }
+
+        public void visit(Tree.TNode a_node) {
+            for (Tree.TNode c : a_node.children()) {
+                c.accept(this);
+            }
+
+            Object o = a_node.getObject();
+            if (o != null) {
+                doWork((CNode) o, m_collection);
+            }
+        }
+
+        protected abstract void doWork(CNode a_node, Collection a_collection);
+
+    }
 
     public static class Action {
         public static class DoMap {
@@ -51,8 +100,7 @@ public class HuGMeView {
         items.add("Auto Clustered Entities");
         items.add("Human Clustered Entities");
 
-        if (a_imgui.combo("", m_viewSelection, items, items.size())) {
-        }
+        a_imgui.combo("", m_viewSelection, items, items.size());
 
         ImGuiWrapper iw = new ImGuiWrapper(a_imgui);
 
@@ -69,6 +117,38 @@ public class HuGMeView {
                 break;
             case g_autoClusteredEntitiesId:
                 doAcceptAutoClusteredEntities(iw, a_g, a_arch, a_nvm);
+        }
+
+        if (iw.button("Test Mapping 1", 150)) {
+            String [] mappedNodes = {   "net/sf/jabref/collab/FileUpdatePanel.java",
+                                        "net/sf/jabref/collab/InfoPane.java",
+                                        "net/sf/jabref/collab/EntryDeleteChange.java",
+                                        "net/sf/jabref/collab/GroupChange.java",
+                                        "net/sf/jabref/collab/Change.java",
+                                        "net/sf/jabref/collab/ChangeScanner.java",
+                                        "net/sf/jabref/collab/StringRemoveChange.java",
+                                        "net/sf/jabref/collab/PreambleChange.java",
+                                        "net/sf/jabref/collab/ChangeDisplayDialog.java"};
+            String [] orphanNodes = {"net/sf/jabref/collab/FileUpdateMonitor.java",
+                                        "net/sf/jabref/collab/StringChange.java",
+                                        "net/sf/jabref/collab/EntryChange.java",
+                                        "net/sf/jabref/collab/MetaDataChange.java",
+                                        "net/sf/jabref/collab/StringAddChange.java",
+                                        "net/sf/jabref/collab/EntryAddChange.java",
+                                        "net/sf/jabref/collab/FileUpdateListener.java",
+                                        "net/sf/jabref/collab/StringNameChange.java"};
+
+            m_selectedOrphanNodes.clear();
+            for (String n : mappedNodes) {
+                m_selectedMappedNodes.add(a_g.getNode(n));
+            }
+            m_selectedOrphanNodes.clear();
+            for (String n : orphanNodes) {
+                m_selectedOrphanNodes.add(a_g.getNode(n));
+            }
+        }
+
+        if (iw.button("Random 20%", 150)) {
         }
 
         return ret;
@@ -97,20 +177,7 @@ public class HuGMeView {
 
         Tree.TNode hovered = tree.doTree(a_imgui.imgui(), "notSelectedMappedEntitiesTree");
         if (hovered != null && a_imgui.isMouseDoubleClicked(0)) {
-           hovered.accept(new Tree.TNodeVisitor() {
-               @Override
-               public void visit(Tree.TNode a_node) {
-
-                   for (Tree.TNode c : a_node.children()) {
-                       c.accept(this);
-                   }
-
-                   Object o = a_node.getObject();
-                   if (o != null) {
-                       m_selectedMappedNodes.add((CNode) o);
-                   }
-               }
-           });
+            hovered.accept(TNodeCollectionWorker.doAdd(m_selectedMappedNodes));
         }
 
         a_imgui.imgui().nextColumn();
@@ -135,12 +202,7 @@ public class HuGMeView {
 
         hovered = tree.doTree(a_imgui.imgui(), "selectedMappedEntitiesTree");
         if (hovered != null && a_imgui.isMouseDoubleClicked(0)){
-            hovered.accept(a_node -> {
-                Object o = a_node.getObject();
-                if (o != null) {
-                    m_selectedMappedNodes.remove(o);
-                }
-            });
+            hovered.accept(TNodeCollectionWorker.doRemove(m_selectedMappedNodes));
         }
 
         a_imgui.imgui().endColumns();
@@ -165,12 +227,7 @@ public class HuGMeView {
 
         Tree.TNode hovered = tree.doTree(a_imgui.imgui(), "notSelectedOrphanEntitiesTree");
         if (hovered != null && a_imgui.isMouseDoubleClicked(0)) {
-            hovered.accept(a_node -> {
-                Object o = a_node.getObject();
-                if (o != null) {
-                    m_selectedOrphanNodes.add((CNode)o);
-                }
-            });
+            hovered.accept(TNodeCollectionWorker.doAdd(m_selectedOrphanNodes));
         }
 
         a_imgui.imgui().nextColumn();
@@ -190,12 +247,7 @@ public class HuGMeView {
 
         hovered = tree.doTree(a_imgui.imgui(), "selectedOrphanEntitiesTree");
         if (hovered != null && a_imgui.isMouseDoubleClicked(0)){
-            hovered.accept(a_node -> {
-                Object o = a_node.getObject();
-                if (o != null) {
-                    m_selectedOrphanNodes.remove(o);
-                }
-            });
+            hovered.accept(TNodeCollectionWorker.doRemove(m_selectedOrphanNodes));
         }
 
         a_imgui.imgui().endColumns();
@@ -223,6 +275,8 @@ public class HuGMeView {
         }
 
         tree.doTree(a_imgui.imgui(), "doHugMeParamsViewMappedEntities");
+
+
 
         if (a_imgui.button("HuGMe Plz", 150)) {
             m_hugme = new HuGMeManual((double)m_omega[0], (double)m_phi[0], a_arch);
@@ -267,11 +321,17 @@ public class HuGMeView {
         a_imgui.text("Auto Clustered Entities:");
         hiviz.Tree tree = new hiviz.Tree();
         for (CNode n : m_autoClusteredOrphans) {
-            HuGMe.ArchDef.Component component = a_arch.getClusteredComponent(n);
+
+            Tree.TNode tn = tree.addNode(n.getLogicName(), n);
+
+            HuGMe.ArchDef.Component component = a_arch.getMappedComponent(a_g.getNode(n.getName()));    // the orphan nodes are copies stripped from mapping information and the original node in the graph may contain the original mapping
             if (component != null) {
-                Tree.TNode tn = tree.addNode(n.getLogicName().replace("/", ".").replace(".java", ""), n);
-                tn.setName(tn.getName());
-                tn.setMapping(component.getName(), a_nvm.getBGColor(component.getName()), component);
+                tn.setMapping("Mapped to: " + component.getName(), a_nvm.getBGColor(component.getName()), component);
+            }
+
+            component = a_arch.getClusteredComponent(n);
+            if (component != null) {
+                tn.setMapping("Clustered to: " + component.getName(), a_nvm.getBGColor(component.getName()), component);
             }
         }
 
@@ -286,7 +346,132 @@ public class HuGMeView {
 
         a_imgui.imgui().nextColumn();
 
-        a_imgui.button("Accept Auto Clustered Nodes", 150);
+        // table of attraction values
+        final int columnCount = a_arch.getComponentCount() + 5;
+        Vec2 columnSize = new Vec2(a_imgui.imgui().getColumnWidth(1) - 10, (m_autoClusteredOrphans.size() + 2) * a_imgui.imgui().getFrameHeightWithSpacing());
+        if (a_imgui.imgui().beginChild("doAcceptAutoClusteredEntitiesAttractionTable", columnSize, false, 0)) {
+
+            // header
+            a_imgui.imgui().beginColumns("doAcceptAutoClusteredEntitiesAttractionTableColumns", columnCount, ColumnsFlag.NoPreserveWidths.getI());
+            a_imgui.text("Entity");
+            a_imgui.imgui().nextColumn();
+
+            a_imgui.text("Mapping");
+            a_imgui.imgui().nextColumn();
+
+            a_imgui.text("Clustering");
+            a_imgui.imgui().nextColumn();
+
+            int cIx  = 0;
+            for (; cIx < a_arch.getComponentCount(); cIx++) {
+                a_imgui.text(a_imgui.getLongestSubString(a_arch.getComponent(cIx).getName(), a_imgui.imgui().getColumnWidth(a_imgui.imgui().getColumnIndex()), "\\."));
+                a_imgui.imgui().nextColumn();
+            }
+
+            a_imgui.text("Average");
+            a_imgui.imgui().nextColumn();
+            a_imgui.text("StdDev");
+
+
+            float [] columnWidths = new float[columnCount];
+            for (cIx = 0; cIx < columnCount; cIx++) {
+                columnWidths[cIx] = a_imgui.imgui().getColumnWidth(cIx);
+            }
+
+
+            a_imgui.imgui().endColumns();
+            a_imgui.imgui().separator();
+            a_imgui.imgui().separator();
+
+            // rows
+            for (CNode n : m_autoClusteredOrphans) {
+                a_imgui.imgui().beginColumns("doAcceptAutoClusteredEntitiesAttractionTableColumns", columnCount, ColumnsFlag.NoResize.getI());
+
+                for (cIx = 0; cIx < columnCount; cIx++) {
+                    a_imgui.imgui().setColumnWidth(cIx, columnWidths[cIx]);
+                }
+
+                double [] attractions = n.getAttractions();
+
+
+                a_imgui.text(a_imgui.getLongestSubString(n.getLogicName(), columnWidths[a_imgui.imgui().getColumnIndex()], "\\."));
+                a_imgui.imgui().nextColumn();
+
+
+                HuGMe.ArchDef.Component mappedComponent = a_arch.getMappedComponent(a_g.getNode(n.getName()));
+                if (mappedComponent != null) {
+                    a_imgui.text(a_imgui.getLongestSubString(mappedComponent.getName(), columnWidths[a_imgui.imgui().getColumnIndex()] - (a_imgui.imgui().getCursorPos().getX() - a_imgui.imgui().getColumnOffset(a_imgui.imgui().getColumnIndex())), "\\."));
+                } else {
+                    a_imgui.text("");
+                }
+                a_imgui.imgui().nextColumn();
+
+
+                {   // comboboxes for the clustering
+                    int [] selectedComponent = {0};
+
+                    HuGMe.ArchDef.Component clusteredTo = a_arch.getClusteredComponent(n);
+
+
+                    Vec2 zeroSize = new Vec2(0, 0);
+                    a_imgui.imgui().pushItemWidth(-1);
+                    if (a_imgui.imgui().beginCombo("##"+n.getLogicName(), a_imgui.getLongestSubString(clusteredTo.getName(), columnWidths[a_imgui.imgui().getColumnIndex()] - a_imgui.imgui().getFrameHeightWithSpacing() - (a_imgui.imgui().getCursorPos().getX() - a_imgui.imgui().getColumnOffset(a_imgui.imgui().getColumnIndex())), "\\."), ComboFlag.None.getI())) {
+
+                        for (int i = 0; i < a_arch.getComponentCount(); i++) {
+                            HuGMe.ArchDef.Component c = a_arch.getComponent(i);
+                            if (a_imgui.imgui().selectable(c.getName(), c == clusteredTo, SelectableFlag.None.getI(), zeroSize)) {
+                                selectedComponent[0] = i;
+                                c.clusterToNode(n, HuGMe.ArchDef.Component.ClusteringType.Manual);
+                            }
+                        }
+
+                        a_imgui.imgui().endCombo();
+                    }
+                    a_imgui.imgui().popItemWidth();
+
+                }
+                a_imgui.imgui().nextColumn();
+
+                double mean = stats.mean(attractions);
+                double stddev = stats.stdDev(attractions, mean);
+
+                cIx = 0;
+                for (; cIx < a_arch.getComponentCount(); cIx++) {
+                    String text = "" + attractions[cIx];
+                    if (attractions[cIx] >= mean) {
+                        text += " (>=m)";
+                    }
+                    if (attractions[cIx] - mean >= stddev) {
+                        text += " (>=sd)";
+                    }
+                    a_imgui.text(text);
+                    a_imgui.imgui().nextColumn();
+                }
+
+
+                a_imgui.text("" + mean);
+                a_imgui.imgui().nextColumn();
+
+                a_imgui.text("" + stddev);
+                a_imgui.imgui().nextColumn();
+
+                a_imgui.imgui().endColumns();
+            }
+
+
+            a_imgui.imgui().endChild();
+        }
+
+        if (a_imgui.button("Accept Auto Clustered Nodes", 150)) {
+            for (CNode n : m_autoClusteredOrphans) {
+                CNode graphNode = a_g.getNode(n.getName());
+                a_arch.getClusteredComponent(n).mapToNode(graphNode);
+            }
+
+            m_autoClusteredOrphans.clear();
+            m_selectedMappedNodes.clear();
+            m_selectedOrphanNodes.clear();
+        }
 
         a_imgui.imgui().endColumns();
     }

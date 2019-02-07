@@ -117,7 +117,7 @@ public class TreeView {
                     if (a_imgui.beginPopupContextWindow("TreeViewContextMenuClasses", 1, true)) {
 
                         Tree at = buildArchitectureTree(a_arch.getComponents(), "");
-                        Object mappedObject = m_selectedNode.getMappedObject();
+                        Object mappedObject = m_selectedNode.getMappedObject(0);
                         Tree.TNode selectedNode = at.doMenu(a_imgui, mappedObject);
 
                         if (selectedNode != null) {
@@ -301,25 +301,8 @@ public class TreeView {
                         n = (CNode)(a_node.getObject());
                         if (n != null) {
 
-                            String [] nameParts = n.getLogicName().split("\\.");
-                            int nameIx = nameParts.length - 1;
-                            String name = nameParts[nameIx];
-                            nameIx --;
+                            String name = a_imgui.getLongestSubString(n.getLogicName(), (float)(m_radius - innerRadius - 10), "\\.");
                             Vec2 textSize = a_imgui.calcTextSize(name, false);
-
-                            while (nameIx >= 0) {
-
-                                String newName = nameParts[nameIx] + "." + name;
-                                Vec2 newTextSize = a_imgui.calcTextSize(newName, false);
-                                if (newTextSize.getX() > m_radius - innerRadius - 10) {
-                                    break;
-                                } else {
-                                    name = newName;
-                                    textSize = newTextSize;
-                                }
-
-                                nameIx--;
-                            }
 
                             float midAngle = (float)(m_fromAngle + (m_toAngle - m_fromAngle) / 2);
 

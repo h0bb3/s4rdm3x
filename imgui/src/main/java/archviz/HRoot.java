@@ -148,6 +148,10 @@ public class HRoot {
 
     private void addDependency(HNode a_source, HNode a_dest) {
 
+        if (a_source == a_dest) {
+            return;
+        }
+
         a_source.m_dependencies.add(a_dest);
 
         // if all children of source.parent has dest, parent could get dest dependency instead

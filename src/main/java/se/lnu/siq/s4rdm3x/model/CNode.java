@@ -14,7 +14,11 @@ public class CNode {
     private ArrayList<String> m_tags = new ArrayList<>();
     private ArrayList<dmClass> m_classes = new ArrayList<>();
     double[] m_attractions = null;
+
+    // TODO: This mapping and clusteringstuff is really bad...
     private String m_mappedToComponent = "";
+    private String m_clusteredToComponent = "";
+    private String m_clusteringType = "";
 
     public void clearAttributes() {
         m_tags = new ArrayList<>();
@@ -109,6 +113,19 @@ public class CNode {
             }
         }
         return false;
+    }
+
+    public void setClustering(String a_componentName, String a_clusteringType) {
+        m_clusteredToComponent = a_componentName;
+        m_clusteringType = a_clusteringType;
+    }
+
+    public String getClusteringComponentName() {
+        return m_clusteredToComponent;
+    }
+
+    public String getClusteringType() {
+        return m_clusteringType;
     }
 
     public void setMapping(String a_componentName) {

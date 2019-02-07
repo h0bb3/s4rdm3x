@@ -130,6 +130,28 @@ public class ImGuiWrapper {
         //m_imGui.getWindowDrawList().addCircle(a_center, a_radius, a_color, a_segments, a_thickness);
     }
 
+    public String getLongestSubString(String a_str, float a_maxLength, String a_regexSplitter) {
+        String [] nameParts = a_str.split(a_regexSplitter);
+        int nameIx = nameParts.length - 1;
+        String name = nameParts[nameIx];
+        nameIx --;
+
+        while (nameIx >= 0) {
+
+            String newName = nameParts[nameIx] + "." + name;
+            Vec2 newTextSize = calcTextSize(newName, false);
+            if (newTextSize.getX() > a_maxLength) {
+                break;
+            } else {
+                name = newName;
+            }
+
+            nameIx--;
+        }
+
+        return name;
+    }
+
     public Vec2 text(String a_text, Vec2 a_position, int a_color, float a_angle) {
         final int tId = m_imGui.getDefaultFont().containerAtlas.getTexId();
 

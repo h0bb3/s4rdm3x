@@ -44,16 +44,17 @@ public class HuGMe {
             }
 
             public ClusteringType getClusteringType(CNode a_n) {
-                if (a_n.hasTag(ClusteringType.Manual.toString())) {
+                String type = a_n.getClusteringType();
+                if (type.contentEquals(ClusteringType.Manual.toString())) {
                     return ClusteringType.Manual;
                 }
-                if (a_n.hasTag(ClusteringType.Automatic.toString())) {
+                if (type.contentEquals(ClusteringType.Automatic.toString())) {
                     return ClusteringType.Automatic;
                 }
-                if (a_n.hasTag(ClusteringType.ManualFailed.toString())) {
+                if (type.contentEquals(ClusteringType.ManualFailed.toString())) {
                     return ClusteringType.ManualFailed;
                 }
-                if (a_n.hasTag(ClusteringType.Initial.toString())) {
+                if (type.contentEquals(ClusteringType.Initial.toString())) {
                     return ClusteringType.Initial;
                 }
 
@@ -88,15 +89,11 @@ public class HuGMe {
             }
 
             public void removeClustering(CNode a_n) {
-                a_n.removeTag(getClusterName());
-                for (ClusteringType ct : ClusteringType.values()) {
-                    a_n.removeTag(ct.toString());
-                }
+                a_n.setClustering("", "");
             }
 
             public void clusterToNode(CNode a_n, ClusteringType a_ct) {
-                a_n.addTag(getClusterName());
-                a_n.addTag(a_ct.toString());
+                a_n.setClustering(getName(), a_ct.toString());
             }
 
             public void unmap(CNode a_n) {
@@ -109,6 +106,10 @@ public class HuGMe {
 
             public boolean isMappedTo(CNode a_n) {
                 return a_n.getMapping().contentEquals(m_name);
+            }
+
+            public boolean isClusteredTo(CNode a_n) {
+                return a_n.getClusteringComponentName().contentEquals(m_name);
             }
 
             public void mapToNodes(Iterable<CNode> a_nodesToRemap) {
@@ -176,7 +177,7 @@ public class HuGMe {
         public Iterable<CNode> getMappedNodes(Iterable<CNode> a_nodes) {
             ArrayList<CNode> ret = new ArrayList<>();
             for (CNode n : a_nodes) {
-                if (n.hasAnyTag(getComponentNames())) {
+                if (n.getMapping().length() > 0) {
                     ret.add(n);
                 }
             }
@@ -185,17 +186,13 @@ public class HuGMe {
 
         public void cleanNodeClusters(Iterable<CNode> a_nodes) {
             for (CNode n : a_nodes) {
-                Component c = getClusteredComponent(n);
-                while (c!= null) {
-                    c.removeClustering(n);
-                    c = getClusteredComponent(n);
-                }
+                n.setClustering("", "");
             }
         }
 
         public Component getClusteredComponent(CNode a_n) {
             for(Component c : m_components) {
-                if (a_n.hasTag(c.getClusterName())) {
+                if (c.isClusteredTo(a_n)) {
                     return c;
                 }
             }
@@ -225,7 +222,8 @@ public class HuGMe {
 
             int count = 0;
             for (CNode n : a_nodes) {
-                if (n.hasAnyTag(getClusterNames())) {
+                Component c = getClusteredComponent(n);
+                if (c != null) {
                     count++;
                 }
             }
