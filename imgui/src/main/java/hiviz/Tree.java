@@ -72,6 +72,10 @@ public class Tree {
             return ret;
         }
 
+        public TNode getParent() {
+            return m_parent;
+        }
+
         public Object getObject() {
             if (m_isLeaf) {
                 return m_nodeObject;
@@ -82,6 +86,18 @@ public class Tree {
 
         public int childCount() {
             return m_children.size();
+        }
+
+        public int concreteChildCount() {
+            int count = 0;
+
+            for (TNode n : m_children) {
+                if (n.isConcreteNode()) {
+                    count++;
+                }
+            }
+
+            return count;
         }
 
         private static class Mapping {

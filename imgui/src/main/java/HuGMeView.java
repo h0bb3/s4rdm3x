@@ -1,5 +1,6 @@
 import archviz.HNode;
 import glm_.vec2.Vec2;
+import glm_.vec4.Vec4;
 import gui.ImGuiWrapper;
 import hiviz.Tree;
 import imgui.ComboFlag;
@@ -7,6 +8,7 @@ import imgui.ImGui;
 import imgui.SelectableFlag;
 import imgui.WindowFlag;
 import imgui.internal.ColumnsFlag;
+import jogamp.opengl.glu.nurbs.Curve;
 import se.lnu.siq.s4rdm3x.model.cmd.hugme.HuGMe;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.model.CGraph;
@@ -18,9 +20,10 @@ import javax.swing.tree.TreeNode;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static java.lang.Math.sin;
+
 public class HuGMeView {
     private int[] m_viewSelection = {0};
-    Tree.TNode m_selectedMappedNode;
 
     private final int g_hugMeParamsId = 0;
     private final int g_mappedEntitiesId = 1;
@@ -36,6 +39,11 @@ public class HuGMeView {
     private float[] m_phi = {0.5f};
 
     HuGMeManual m_hugme;
+    private CNode m_selectedClusteredNode;
+
+    public CNode getSelectedClusteredNode() {
+        return m_selectedClusteredNode;
+    }
 
     private abstract static class TNodeCollectionWorker implements Tree.TNodeVisitor {
 
@@ -102,41 +110,30 @@ public class HuGMeView {
 
         a_imgui.combo("", m_viewSelection, items, items.size());
 
+
         ImGuiWrapper iw = new ImGuiWrapper(a_imgui);
 
-        switch (m_viewSelection[0]) {
-            case g_hugMeParamsId:
-                doHugMeParamsView(iw, a_arch);
-            break;
-            case g_mappedEntitiesId:
-                doSelectMappedEntities(iw, a_g, a_arch, a_nvm);
-            break;
+        m_selectedClusteredNode = null;
 
-            case g_orphanEntitiesId:
-                doSelectOrphanEntities(iw, a_g, a_arch, a_nvm);
-                break;
-            case g_autoClusteredEntitiesId:
-                doAcceptAutoClusteredEntities(iw, a_g, a_arch, a_nvm);
-        }
 
         if (iw.button("Test Mapping 1", 150)) {
             String [] mappedNodes = {   "net/sf/jabref/collab/FileUpdatePanel.java",
-                                        "net/sf/jabref/collab/InfoPane.java",
-                                        "net/sf/jabref/collab/EntryDeleteChange.java",
-                                        "net/sf/jabref/collab/GroupChange.java",
-                                        "net/sf/jabref/collab/Change.java",
-                                        "net/sf/jabref/collab/ChangeScanner.java",
-                                        "net/sf/jabref/collab/StringRemoveChange.java",
-                                        "net/sf/jabref/collab/PreambleChange.java",
-                                        "net/sf/jabref/collab/ChangeDisplayDialog.java"};
+                    "net/sf/jabref/collab/InfoPane.java",
+                    "net/sf/jabref/collab/EntryDeleteChange.java",
+                    "net/sf/jabref/collab/GroupChange.java",
+                    "net/sf/jabref/collab/Change.java",
+                    "net/sf/jabref/collab/ChangeScanner.java",
+                    "net/sf/jabref/collab/StringRemoveChange.java",
+                    "net/sf/jabref/collab/PreambleChange.java",
+                    "net/sf/jabref/collab/ChangeDisplayDialog.java"};
             String [] orphanNodes = {"net/sf/jabref/collab/FileUpdateMonitor.java",
-                                        "net/sf/jabref/collab/StringChange.java",
-                                        "net/sf/jabref/collab/EntryChange.java",
-                                        "net/sf/jabref/collab/MetaDataChange.java",
-                                        "net/sf/jabref/collab/StringAddChange.java",
-                                        "net/sf/jabref/collab/EntryAddChange.java",
-                                        "net/sf/jabref/collab/FileUpdateListener.java",
-                                        "net/sf/jabref/collab/StringNameChange.java"};
+                    "net/sf/jabref/collab/StringChange.java",
+                    "net/sf/jabref/collab/EntryChange.java",
+                    "net/sf/jabref/collab/MetaDataChange.java",
+                    "net/sf/jabref/collab/StringAddChange.java",
+                    "net/sf/jabref/collab/EntryAddChange.java",
+                    "net/sf/jabref/collab/FileUpdateListener.java",
+                    "net/sf/jabref/collab/StringNameChange.java"};
 
             m_selectedOrphanNodes.clear();
             for (String n : mappedNodes) {
@@ -150,6 +147,23 @@ public class HuGMeView {
 
         if (iw.button("Random 20%", 150)) {
         }
+
+        switch (m_viewSelection[0]) {
+            case g_hugMeParamsId:
+                doHugMeParamsView(iw, a_arch, a_nvm);
+            break;
+            case g_mappedEntitiesId:
+                doSelectMappedEntities(iw, a_g, a_arch, a_nvm);
+            break;
+
+            case g_orphanEntitiesId:
+                doSelectOrphanEntities(iw, a_g, a_arch, a_nvm);
+                break;
+            case g_autoClusteredEntitiesId:
+                doAcceptAutoClusteredEntities(iw, a_g, a_arch, a_nvm);
+        }
+
+
 
         return ret;
     }
@@ -253,7 +267,9 @@ public class HuGMeView {
         a_imgui.imgui().endColumns();
     }
 
-    private void doHugMeParamsView(ImGuiWrapper a_imgui, HuGMe.ArchDef a_arch) {
+    private void doHugMeParamsView(ImGuiWrapper a_imgui, HuGMe.ArchDef a_arch, HNode.VisualsManager a_nvm) {
+
+        a_imgui.imgui().beginColumns("doHugMeParamsViw", 2, 0);
 
         a_imgui.imgui().sliderFloat("Omega Threshold", m_omega, 0, 1, "%.2f", 1);
         a_imgui.imgui().sliderFloat("Phi Value", m_phi, 0, 1, "%.2f", 1);
@@ -314,6 +330,221 @@ public class HuGMeView {
             a_imgui.text("HuGMe mapped nodes from start: " + m_hugme.m_mappedNodesFromStart);
             a_imgui.text("HuGMe unmapped nodes from start: " + m_hugme.m_unmappedNodesFromStart);
         }
+
+        a_imgui.imgui().nextColumn();
+
+        {
+            final int white = a_imgui.toColor(new Vec4(1., 1., 1., 1));
+            final int black = a_imgui.toColor(new Vec4(0., 0., 0., 1));
+            Vec2 columnSize = new Vec2(a_imgui.imgui().getColumnWidth(1) - 10, (float) a_imgui.imgui().getContentRegionAvail().getY());
+            a_imgui.imgui().beginChild("mappingandorphanpies", columnSize, true, 0);
+            Vec2 offset = a_imgui.imgui().getCurrentWindow().getPos();
+            Vec2 center = offset.plus(columnSize.times(0.5));
+
+            Tree mappedTree = new Tree();
+            Tree orphanTree = new Tree();
+
+            for (CNode n : m_selectedMappedNodes) {
+                HuGMe.ArchDef.Component c = a_arch.getMappedComponent(n);
+                mappedTree.addNode(c.getName() + "." + n.getLogicName(), n);
+            }
+
+            for (CNode n : m_selectedOrphanNodes) {
+                orphanTree.addNode(n.getLogicName(), n);
+            }
+
+
+            double outerRadius = Math.min(columnSize.getX(), columnSize.getY()) / 2 - 10;
+            double innerRadius = outerRadius * 0.25;
+
+            //
+            Vec2 mousePos = a_imgui.getMousePos();
+            Vec2 toMousePos = mousePos.minus(center);
+            final float centerMousePosAngle = toMousePos.getY() > 0 ? (float) Math.atan2(toMousePos.getY(), toMousePos.getX()) : (float) (Math.PI * 2 + Math.atan2(toMousePos.getY(), toMousePos.getX()));
+            CNode[] mouseHoverNode = {null};
+
+
+            class CurvePoints {
+                Vec2 m_start;
+                Vec2 m_startControl;
+                Vec2 m_end;
+                Vec2 m_endControl;
+                CNode m_node;
+            }
+
+
+
+            class PieDrawer implements Tree.TNodeVisitor {
+
+                double m_fromAngle, m_toAngle;
+                double m_radius;
+
+
+                public ArrayList<CurvePoints> m_curvePoints = null;
+
+                PieDrawer(double a_fromAngle, double a_toAngle, double a_radius) {
+                    m_fromAngle = a_fromAngle;
+                    m_toAngle = a_toAngle;
+                    m_radius = a_radius;
+                    m_curvePoints = new ArrayList<>();
+                }
+
+
+                protected PieDrawer(double a_fromAngle, double a_toAngle, double a_radius, ArrayList<CurvePoints> a_points) {
+                    m_fromAngle = a_fromAngle;
+                    m_toAngle = a_toAngle;
+                    m_radius = a_radius;
+                    m_curvePoints = a_points;
+                }
+
+                @Override
+                public void visit(Tree.TNode a_node) {
+
+                    final boolean isRoot = a_node.getName() == null;
+                    double angleSpan = m_toAngle - m_fromAngle;
+
+                    class ChildCounterVisitor implements Tree.TNodeVisitor {
+
+                        public int m_childCount = -1; // -1 since the first parent node is counted in visit
+
+                        @Override
+                        public void visit(Tree.TNode a_node1) {
+                            m_childCount += 1;
+                            for (Tree.TNode c : a_node1.children()) {
+                                c.accept(this);
+                            }
+                        }
+                    }
+
+                    ChildCounterVisitor childCounter = new ChildCounterVisitor();
+
+                    final double angleBorder = isRoot ? 0.0 : 0.0;
+                    childCounter.visit(a_node);
+                    double angleDelta = (angleSpan - 2 * angleBorder) / childCounter.m_childCount;
+
+
+                    if (!isRoot) {
+
+                        int segments = Math.max(8, childCounter.m_childCount * 8);
+                        CNode n = null;
+
+                        if (a_nvm.hasBGColor(a_node.getFullName())) {
+                            Vec4 bgColor = a_nvm.getBGColor(a_node.getFullName());
+                            a_imgui.addFilledCircleSegment(center, (float) m_radius, a_imgui.toColor(bgColor), segments, (float) m_fromAngle, (float) m_toAngle);
+                            a_imgui.addCircleSegment(center, (float) m_radius, white, segments, (float) m_fromAngle, (float) m_toAngle, 2);
+                            a_imgui.addCircleSegment(center, (float) innerRadius, white, segments, (float) m_fromAngle, (float) m_toAngle, 2);
+
+                            Vec2 p1 = new Vec2(Math.cos(m_fromAngle) * m_radius, sin(m_fromAngle) * m_radius).plus(center);
+                            Vec2 p2 = new Vec2(Math.cos(m_toAngle) * m_radius, sin(m_toAngle) * m_radius).plus(center);
+                            Vec2 p3 = new Vec2(Math.cos(m_fromAngle) * innerRadius, sin(m_fromAngle) * innerRadius).plus(center);
+                            Vec2 p4 = new Vec2(Math.cos(m_toAngle) * innerRadius, sin(m_toAngle) * innerRadius).plus(center);
+
+                            a_imgui.addLine(p1, p3, white, 2);
+                            a_imgui.addLine(p2, p4, white, 2);
+                        } else {
+                            // we now have a code node... or the unmapped category...
+                            n = (CNode) (a_node.getObject());
+                            if (n != null) {
+
+                                String name = a_imgui.getLongestSubString(n.getLogicName(), (float) (m_radius - innerRadius - 10), "\\.");
+                                Vec2 textSize = a_imgui.calcTextSize(name, false);
+
+                                float midAngle = (float) (m_fromAngle + (m_toAngle - m_fromAngle) / 2);
+
+                                Vec2 p1 = new Vec2(Math.cos(midAngle) * (m_radius - textSize.getX()), sin(midAngle) * (m_radius - textSize.getX())).plus(center);
+                                Vec2 textEndPos = a_imgui.text(name, p1, white, (float) midAngle);
+
+
+                                Vec2 endControl = new Vec2(Math.cos(midAngle) * innerRadius, Math.sin(midAngle) * innerRadius).plus(center);
+
+                                Vec2 start = center;
+
+                                Vec2 centerControl = new Vec2(start);
+
+                                if (center.getY() > p1.getY()) {
+                                    centerControl.setY(start.getY() - 150);
+                                } else {
+                                    centerControl.setY(start.getY() + 150);
+                                }
+
+                                CurvePoints cp = new CurvePoints();
+                                cp.m_start = start;
+                                cp.m_end = textEndPos;
+                                cp.m_startControl = centerControl;
+                                cp.m_endControl = endControl;
+                                cp.m_node = n;
+                                m_curvePoints.add(cp);
+
+                            }
+                        }
+
+                        if (centerMousePosAngle > m_fromAngle && centerMousePosAngle < m_toAngle) {
+                            if (a_imgui.isInside(center, (float) m_radius, mousePos) && !a_imgui.isInside(center, (float) innerRadius, mousePos)) {
+                                mouseHoverNode[0] = n;
+                                a_imgui.beginTooltip();
+                                a_imgui.text(a_node.getFullName());
+                                a_imgui.endTooltip();
+                            }
+                        }
+
+
+                    }
+
+                    int cIx = 0;
+                    double childRadius = a_node.concreteChildCount() == 0 && a_node.childCount() == 1 ? m_radius : m_radius - 20;
+                    double fromAngle = m_fromAngle + angleBorder;
+                    for (Tree.TNode c : a_node.children()) {
+
+                        childCounter.m_childCount = -1;
+                        childCounter.visit(c);
+
+                        double angle = angleDelta * (childCounter.m_childCount + 1);
+                        double toAngle = fromAngle + angle;
+
+                        c.accept(new PieDrawer(fromAngle, toAngle, childRadius, m_curvePoints));
+
+                        fromAngle += angle;
+
+                        cIx++;
+                    }
+                }
+            }
+
+
+
+            int nodeCount = m_selectedMappedNodes.size() + m_selectedOrphanNodes.size();
+            double deltaAngle = (Math.PI * 2 ) / nodeCount;
+            double spacingAngle = deltaAngle;
+
+            PieDrawer mappedDrawer = new PieDrawer(spacingAngle, m_selectedMappedNodes.size() * deltaAngle - spacingAngle, outerRadius);
+            PieDrawer orphanDrawer = new PieDrawer(m_selectedMappedNodes.size() * deltaAngle + spacingAngle, 2 * Math.PI - deltaAngle, outerRadius);
+            mappedTree.doVisit(mappedDrawer);
+
+            orphanTree.doVisit(orphanDrawer);
+
+
+
+            for (CurvePoints mcp : mappedDrawer.m_curvePoints) {
+                for (CurvePoints ocp : orphanDrawer.m_curvePoints) {
+
+                    if (mcp.m_node.hasDependency(ocp.m_node) || ocp.m_node.hasDependency(mcp.m_node)) {
+                        Vec2 fromDir = ocp.m_end.minus(center).normalize();
+                        Vec2 toDir = mcp.m_end.minus(center).normalize();
+
+
+                        a_imgui.addCurve(ocp.m_end, center,
+                                mcp.m_end, center,
+                                white, 1);
+                    }
+                }
+            }
+
+
+        }
+        a_imgui.imgui().endChild();
+
+
+        a_imgui.imgui().endColumns();
     }
 
     private void doAcceptAutoClusteredEntities(ImGuiWrapper a_imgui, CGraph a_g, HuGMe.ArchDef a_arch, HNode.VisualsManager a_nvm) {
@@ -364,7 +595,10 @@ public class HuGMeView {
 
             int cIx  = 0;
             for (; cIx < a_arch.getComponentCount(); cIx++) {
-                a_imgui.text(a_imgui.getLongestSubString(a_arch.getComponent(cIx).getName(), a_imgui.imgui().getColumnWidth(a_imgui.imgui().getColumnIndex()), "\\."));
+
+                String text = a_imgui.getLongestSubString(a_arch.getComponent(cIx).getName(), a_imgui.imgui().getColumnWidth(a_imgui.imgui().getColumnIndex()), "\\.");
+
+                a_imgui.text(text);
                 a_imgui.imgui().nextColumn();
             }
 
@@ -393,8 +627,11 @@ public class HuGMeView {
 
                 double [] attractions = n.getAttractions();
 
-
-                a_imgui.text(a_imgui.getLongestSubString(n.getLogicName(), columnWidths[a_imgui.imgui().getColumnIndex()], "\\."));
+                String logicName = a_imgui.getLongestSubString(n.getLogicName(), columnWidths[a_imgui.imgui().getColumnIndex()], "\\.");
+                //a_imgui.text(logicName);
+                if (a_imgui.imgui().selectable(logicName, false, 0, new Vec2(a_imgui.imgui().getColumnWidth(a_imgui.imgui().getColumnIndex()), a_imgui.imgui().getFrameHeightWithSpacing()))) {
+                    m_selectedClusteredNode = a_g.getNode(n.getName());
+                }
                 a_imgui.imgui().nextColumn();
 
 

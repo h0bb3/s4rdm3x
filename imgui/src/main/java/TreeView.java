@@ -2,10 +2,13 @@ import archviz.HNode;
 import glm_.vec2.Vec2;
 import glm_.vec4.Vec4;
 import gui.ImGuiWrapper;
+import gui.ZoomWindow;
+import hiviz.Circle;
 import hiviz.Tree;
 import imgui.ImGui;
-import jogamp.opengl.glu.nurbs.Curve;
-import org.graphstream.graph.Graph;
+import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
+import se.lnu.siq.s4rdm3x.experiments.metric.ByteCodeInstructions;
+import se.lnu.siq.s4rdm3x.experiments.metric.LineCount;
 import se.lnu.siq.s4rdm3x.model.cmd.hugme.HuGMe;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.model.CGraph;
@@ -25,6 +28,8 @@ public class TreeView {
     private final int g_classesId = 1;
     private final int g_filesId = 2;
 
+    private hiviz.Circle m_selectedPackage;
+
     public static class Action {
         public static class DoMap {
             public String a_whatNodeName;
@@ -37,6 +42,7 @@ public class TreeView {
     float m_totalTime = 0;
 
 
+    ZoomWindow m_packageZW = new ZoomWindow();
 
     Action doTreeView(ImGui a_imgui, HuGMe.ArchDef a_arch, CGraph a_g, HNode.VisualsManager a_nvm) {
         Action ret = null;
@@ -92,8 +98,15 @@ public class TreeView {
             m_selectedNode = selected;
         }
 
-        if (selected != null && selected.getObject() != null && iw.isMouseClicked(0, false) && m_treeViewSelection[0] == g_classesId) {
-            m_selectedClass = (CNode) selected.getObject();
+        if (selected != null && iw.isMouseClicked(0, false) && m_treeViewSelection[0] == g_classesId) {
+            if (selected.getObject() != null) {
+                m_selectedClass = (CNode) selected.getObject();
+                m_selectedPackage = null;
+            } else {
+
+                m_selectedPackage = getPackageCircles(iw, selected);
+                m_selectedClass = null;
+            }
         }
 
         if (selected != null) {
@@ -144,8 +157,13 @@ public class TreeView {
 
 
         a_imgui.nextColumn();
-            if (m_treeViewSelection[0] == g_classesId && m_selectedClass != null) {
-                doClassView(iw, a_g, a_arch, a_nvm, m_selectedClass);
+            if (m_treeViewSelection[0] == g_classesId) {
+                if (m_selectedClass != null) {
+                    doClassView(iw, a_g, a_arch, a_nvm, m_selectedClass);
+                }
+                if (m_selectedPackage != null) {
+                    doPackageView(iw, a_g, a_arch, a_nvm, m_selectedPackage);
+                }
             }
 
         a_imgui.endColumns();
@@ -162,6 +180,68 @@ public class TreeView {
         }
 
         return tree;
+    }
+
+    private void doPackageView(ImGuiWrapper a_imgui, CGraph a_g, HuGMe.ArchDef a_arch, HNode.VisualsManager a_nvm, hiviz.Circle a_selectedNode) {
+
+        Vec2 columnSize = new Vec2(a_imgui.imgui().getColumnWidth(1) - 10, (float) a_imgui.imgui().getContentRegionAvail().getY());
+        m_packageZW.setScale(m_packageZW.getScale() + a_imgui.imgui().getIo().getMouseWheel() * 0.1f);
+        float packageScale = m_packageZW.getScale();
+
+
+
+        Vec2 area = new Vec2(a_selectedNode.getRadius() * 2 * packageScale);
+        m_packageZW.begin(a_imgui, columnSize.minus(10), area);
+        hiviz.Circle selected = a_selectedNode.draw(a_imgui, m_packageZW.getULOffset(), packageScale, a_imgui.getMousePos());
+        if (a_imgui.isMouseClicked(0, true)) {
+            if (selected != null) {
+                if (selected.getNode().childCount() > 0) {
+                    selected.computeLayout(new Vec2(0, 0), a_imgui.toColor(new Vec4(0.75, 0.5, 0.5, 1)), a_imgui.toColor(new Vec4(1.0, 0.25, 0.25, 1)));
+                    m_selectedPackage = selected;
+                } else {
+                    m_selectedClass = (CNode) selected.getNode().getObject();
+                    m_selectedPackage = null;
+                }
+            } else {
+                Tree.TNode parent = m_selectedPackage.getNode().getParent();
+                if (parent != null) {
+                    m_selectedPackage = getPackageCircles(a_imgui, parent);
+                }
+            }
+        }
+        final int white = a_imgui.toColor(new Vec4(1., 1., 1., 1));
+        //a_imgui.addCircle( m_packageZW.getULOffset(), 50, white, 32, 2);
+        //a_imgui.addRect(m_packageZW.getULOffset(), m_packageZW.getULOffset().plus(area), white, 0, 0, 2);
+        m_packageZW.end(a_imgui);
+
+
+        //a_imgui.imgui().endChild();
+    }
+
+    private Circle getPackageCircles(ImGuiWrapper a_imgui, Tree.TNode a_selected) {
+        class CircleHierarchyBuilder implements Tree.TNodeVisitor {
+            hiviz.Circle m_circle;
+
+            @Override
+            public void visit(Tree.TNode a_node) {
+                m_circle = new hiviz.Circle(a_node);
+
+                for(Tree.TNode c : a_node.children()) {
+                    CircleHierarchyBuilder builder = new CircleHierarchyBuilder();
+                    c.accept(builder);
+                    m_circle.addChild(builder.m_circle);
+
+                }
+            }
+        }
+
+
+
+        CircleHierarchyBuilder rootBuilder = new CircleHierarchyBuilder();
+        a_selected.accept(rootBuilder);
+        rootBuilder.m_circle.computeLayout(new Vec2(0, 0), a_imgui.toColor(new Vec4(0.75, 0.5, 0.5, 1)), a_imgui.toColor(new Vec4(1.0, 0.25, 0.25, 1)));
+
+        return rootBuilder.m_circle;
     }
 
     private void doClassView(ImGuiWrapper a_imgui, CGraph a_g, HuGMe.ArchDef a_arch, HNode.VisualsManager a_nvm, CNode a_selectedNode) {
@@ -229,7 +309,6 @@ public class TreeView {
         //
         Vec2 mousePos = a_imgui.getMousePos();
         Vec2 toMousePos = mousePos.minus(center);
-        float cosa = toMousePos.getX() / (toMousePos.length());
         final float centerMousePosAngle = toMousePos.getY() > 0 ? (float)Math.atan2(toMousePos.getY(), toMousePos.getX()) : (float)(Math.PI * 2 + Math.atan2(toMousePos.getY(), toMousePos.getX()));
         CNode [] mouseHoverNode = {null};
 
@@ -336,9 +415,6 @@ public class TreeView {
                     if (centerMousePosAngle > m_fromAngle && centerMousePosAngle < m_toAngle) {
                         if (a_imgui.isInside(center, (float)m_radius, mousePos) && !a_imgui.isInside(center, (float)innerRadius, mousePos)) {
                             mouseHoverNode[0] = n;
-                            a_imgui.beginTooltip();
-                                a_imgui.text(a_node.getFullName());
-                            a_imgui.endTooltip();
                         }
                     }
 
@@ -411,7 +487,7 @@ public class TreeView {
                 }
 
                 offsetDistance += arrowSize;
-                a_imgui.addArrow(cp.m_end.plus(dir.times(offsetDistance)), dir.times(-(arrowSize + 10 * a_selectedNode.getDependencyCount(cp.m_node) / maxFanIn)), color);
+                a_imgui.addArrow(cp.m_end.plus(dir.times(offsetDistance)), dir.times(-(arrowSize + 10.0f * cp.m_node.getDependencyCount(a_selectedNode) / (float) maxFanIn)), color);
                 offsetDistance += 3;
             }
 
@@ -426,7 +502,7 @@ public class TreeView {
                     }
                 }
 
-                a_imgui.addArrow(cp.m_end.plus(dir.times(offsetDistance)), dir.times(arrowSize + 10 * cp.m_node.getDependencyCount(a_selectedNode) / maxFanOut), color);
+                a_imgui.addArrow(cp.m_end.plus(dir.times(offsetDistance)), dir.times(arrowSize + 10.0f * a_selectedNode.getDependencyCount(cp.m_node) / (float)maxFanOut), color);
             }
         }
 
@@ -454,9 +530,34 @@ public class TreeView {
             }
         }
 
-        if (a_imgui.isMouseClicked(0, false) && mouseHoverNode[0] != null) {
-            m_selectedClass = mouseHoverNode[0];
+        if (mouseHoverNode[0] != null) {
+            a_imgui.beginTooltip();
+            a_imgui.text(mouseHoverNode[0].getLogicName());
+
+
+            a_imgui.text("Dependencies to " + m_selectedClass.getLogicNameSimple());
+            for (dmDependency d : mouseHoverNode[0].getDependencies(m_selectedClass)) {
+                a_imgui.text("\t" + d.getType().toString() + "(" + d.getCount() + ")");
+            }
+
+            a_imgui.text("Dependencies from " + m_selectedClass.getLogicNameSimple());
+            for (dmDependency d : m_selectedClass.getDependencies(mouseHoverNode[0])) {
+                a_imgui.text("\t" + d.getType().toString() + "(" + d.getCount() + ")");
+            }
+
+
+
+            a_imgui.endTooltip();
+
+
+            if (a_imgui.isMouseClicked(0, false)) {
+                m_selectedClass = mouseHoverNode[0];
+
+
+            }
         }
+
+
 
         a_imgui.imgui().endChild();
     }

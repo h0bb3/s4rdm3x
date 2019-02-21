@@ -261,6 +261,10 @@ public class RectsAndArrows {
                 m_hugMeView.doHugMeView(imgui, a_arch, a_g, m_vizState.m_nvm);
 
                 imgui.end();
+
+                if (m_hugMeView.getSelectedClusteredNode() != null) {
+                    m_treeView.m_selectedClass = m_hugMeView.getSelectedClusteredNode();
+                }
             }
         }
 

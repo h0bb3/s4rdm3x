@@ -159,6 +159,14 @@ public class ImGuiWrapper {
         float scale = m_imGui.getFont().getScale();
         float cosa = (float)Math.cos(a_angle);
 
+        float height;
+        {
+            FontGlyph fg = m_imGui.getFont().findGlyph('l');
+            height = (fg.getY0() - fg.getY1()) * scale;
+        }
+
+
+
         if (cosa < 0) {
             a_angle -= Math.PI;
 
@@ -178,10 +186,11 @@ public class ImGuiWrapper {
         {
             FontGlyph fg = m_imGui.getFont().findGlyph(a_text.charAt(0));
             Vec2 p2, p3;
+            //float height = (fg.getY0() - fg.getY1()) * scale;
 
             // -3 to get some offset before the first character
-            p2 = new Vec2((fg.getX1() - 5) * scale, (fg.getY1() * scale)).rotate(a_angle);
-            p3 = new Vec2((fg.getX1() - 5) * scale, (fg.getY0() * scale)).rotate(a_angle);
+            p2 = new Vec2((fg.getX1() - 5) * scale, (fg.getY1() * scale) + height*0.5).rotate(a_angle);
+            p3 = new Vec2((fg.getX1() - 5) * scale, (fg.getY0() * scale) + height*0.5).rotate(a_angle);
 
 
             firstPos.setX(p2.getX() * 0.5f + p3.getX() * 0.5f);
@@ -193,11 +202,12 @@ public class ImGuiWrapper {
         for (int cIx = 0; cIx < a_text.length() - 1; cIx++) {
             FontGlyph fg = m_imGui.getFont().findGlyph(a_text.charAt(cIx));
             Vec2 p0, p1, p2, p3;
+            //float height = (fg.getY0() - fg.getY1()) * scale;
 
-            p0 = new Vec2((x + fg.getX0() * scale), (fg.getY0() * scale)).rotate(a_angle);
-            p1 = new Vec2((x + fg.getX0() * scale), (fg.getY1() * scale)).rotate(a_angle);
-            p2 = new Vec2((x + fg.getX1() * scale), (fg.getY1() * scale)).rotate(a_angle);
-            p3 = new Vec2((x + fg.getX1() * scale), (fg.getY0() * scale)).rotate(a_angle);
+            p0 = new Vec2((x + fg.getX0() * scale), (fg.getY0() * scale) + height*0.5).rotate(a_angle);
+            p1 = new Vec2((x + fg.getX0() * scale), (fg.getY1() * scale) + height*0.5).rotate(a_angle);
+            p2 = new Vec2((x + fg.getX1() * scale), (fg.getY1() * scale) + height*0.5).rotate(a_angle);
+            p3 = new Vec2((x + fg.getX1() * scale), (fg.getY0() * scale) + height*0.5).rotate(a_angle);
 
             x = x + fg.getAdvanceX() * scale;
 
@@ -209,11 +219,12 @@ public class ImGuiWrapper {
         {
             FontGlyph fg = m_imGui.getFont().findGlyph(a_text.charAt(a_text.length() - 1));
             Vec2 p0, p1, p2, p3;
+            //float height = (fg.getY0() - fg.getY1()) * scale;
 
-            p0 = new Vec2((x + fg.getX0() * scale), (fg.getY0() * scale)).rotate(a_angle);
-            p1 = new Vec2((x + fg.getX0() * scale), (fg.getY1() * scale)).rotate(a_angle);
-            p2 = new Vec2((x + fg.getX1() * scale), (fg.getY1() * scale)).rotate(a_angle);
-            p3 = new Vec2((x + fg.getX1() * scale), (fg.getY0() * scale)).rotate(a_angle);
+            p0 = new Vec2((x + fg.getX0() * scale), (fg.getY0() * scale) + height*0.5).rotate(a_angle);
+            p1 = new Vec2((x + fg.getX0() * scale), (fg.getY1() * scale) + height*0.5).rotate(a_angle);
+            p2 = new Vec2((x + fg.getX1() * scale), (fg.getY1() * scale) + height*0.5).rotate(a_angle);
+            p3 = new Vec2((x + fg.getX1() * scale), (fg.getY0() * scale) + height*0.5).rotate(a_angle);
 
             x = x + fg.getAdvanceX() * scale;
 
