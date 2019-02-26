@@ -3,16 +3,22 @@ package hiviz;
 import glm_.vec2.Vec2;
 import glm_.vec4.Vec4;
 import gui.ImGuiWrapper;
+import imgui.impl.windowsIme.RECT;
+import imgui.internal.Rect;
 import se.lnu.siq.s4rdm3x.experiments.metric.ByteCodeInstructions;
 import se.lnu.siq.s4rdm3x.experiments.metric.LineCount;
+import se.lnu.siq.s4rdm3x.experiments.metric.Metric;
 import se.lnu.siq.s4rdm3x.model.CNode;
 import se.lnu.siq.s4rdm3x.stats;
 
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
 public class Circle {
     Vec2 m_pos = null;
+    Vec2 m_screenPos = null;
     private float m_radius = -1;
+    private float m_screenRadius  = -1;
     Tree.TNode m_node;
     int [] m_bgColor = null;
 
@@ -38,42 +44,57 @@ public class Circle {
         return false;
     }
 
-    public Circle draw(ImGuiWrapper a_imgui, Vec2 a_parentPos, float a_scale, final Vec2 a_selectionPos) {
+    public Circle draw(ImGuiWrapper a_imgui, Vec2 a_parentPos, float a_scale, final Vec2 a_selectionPos, final Rect a_screenArea) {
         Circle ret = null;
         final int white = a_imgui.toColor(new Vec4(1., 1., 1., 1));
         final int lightGrey  = a_imgui.toColor(new Vec4(0.75, 0.75, 0.75, 1));
         int color = lightGrey;
-        Vec2 pos = a_parentPos.plus(m_pos.times(a_scale));
+        Vec2 targetPos = a_parentPos.plus(m_pos.times(a_scale));
+        if (m_screenPos == null) {
+            m_screenPos = targetPos;
+            m_screenRadius = m_radius * a_scale;
+        } else {
+
+            m_screenPos = m_screenPos.plus(targetPos.minus(m_screenPos).times(0.1f));
+            m_screenRadius = m_screenRadius + (m_radius * a_scale - m_screenRadius) * 0.1f;
+        }
+
+
+        a_screenArea.expand(m_screenRadius);
+        final boolean isVisible = a_screenArea.contains(m_screenPos);
+        a_screenArea.expand(-m_screenRadius);
 
 
 
         for (Circle c : m_children) {
             Circle inside = null;
-            inside = c.draw(a_imgui, pos, a_scale, a_selectionPos);
+            inside = c.draw(a_imgui, targetPos, a_scale, a_selectionPos, a_screenArea);
             if (inside != null) {
                 ret = inside;
             }
         }
 
 
-        if (ret == null && a_imgui.isInside(pos, m_radius * a_scale, a_selectionPos)) {
+        if (ret == null && isVisible && a_screenArea.contains(a_selectionPos) && a_imgui.isInside(m_screenPos, m_screenRadius, a_selectionPos)) {
             ret = this;
             color = white;
         }
 
-        final int segments = 8 + (int)(m_radius * a_scale) / 5;
+        if (isVisible) {
+            final int segments = 8 + (int) (m_screenRadius) / 5;
 
-        if (m_bgColor != null) {
-            a_imgui.addCircleFilled(pos, m_radius * a_scale, m_bgColor[0], segments);
-        }
+            if (m_bgColor != null) {
+                a_imgui.addCircleFilled(m_screenPos, m_screenRadius, m_bgColor[0], segments);
+            }
 
-        a_imgui.addCircle(pos, m_radius * a_scale, color, segments, 2);
+            a_imgui.addCircle(m_screenPos, m_screenRadius, color, segments, 2);
 
-        if (m_node.childCount() == 0) {
-            final Vec2 textLength = a_imgui.calcTextSize(m_node.getName(), false);
-            if (textLength.getX() < m_radius * 2 * a_scale) {
-                Vec2 textPos = pos.minus(textLength.times(0.5));
-                a_imgui.addText(textPos, color, m_node.getName());
+            if (m_node.childCount() == 0) {
+                final Vec2 textLength = a_imgui.calcTextSize(m_node.getName(), false);
+                if (textLength.getX() < m_screenRadius * 2) {
+                    Vec2 textPos = m_screenPos.minus(textLength.times(0.5));
+                    a_imgui.addText(textPos, color, m_node.getName());
+                }
             }
         }
 
@@ -81,9 +102,10 @@ public class Circle {
         return ret;
     }
 
-    public void computeLayout(Vec2 a_center, int a_bgColor1, int a_bgColor2) {
+    public void computeLayout(Vec2 a_center, int a_bgColor1, int a_bgColor2, Metric a_metric) {
+        NullPosition();
         m_pos = a_center;
-        computeLayout();
+        computeLayout(a_metric);
 
         // get all the leafs and order them according to the metric value
         // color those that are above some threshold (one sd?)
@@ -113,6 +135,13 @@ public class Circle {
         }
     }
 
+    private void NullPosition() {
+        m_pos = null;
+        for (Circle c : m_children) {
+            c.NullPosition();
+        }
+    }
+
     private void getLeafs(ArrayList<Circle> a_leafs) {
         if (m_children.size() == 0) {
             a_leafs.add(this);
@@ -124,19 +153,20 @@ public class Circle {
         }
     }
 
-    private void computeLayout() {
+    private void computeLayout(Metric a_metric) {
         if (m_children.size() == 0) {
-            LineCount lc = new LineCount();
-            ByteCodeInstructions bc = new ByteCodeInstructions();
+            //LineCount lc = new LineCount();
+            //ByteCodeInstructions bc = new ByteCodeInstructions();
 
-            m_radius = 10.0f + (float)lc.compute((CNode)m_node.getObject(), bc) / 100.0f;
+            //m_radius = 10.0f + (float)lc.compute((CNode)m_node.getObject(), bc) / 100.0f;
+            m_radius = 10.0f + (float)a_metric.getMetric((CNode)m_node.getObject()) / 100.0f;
 
         } else {
             // radius can only be computed if children are laid out
             // but for this to work we need to position all children
             // and first their radii must first be computed
             for (Circle c : m_children) {
-                c.computeLayout();
+                c.computeLayout(a_metric);
             }
             m_children.sort( (a, b) -> (int)b.m_radius - (int)a.m_radius);
 
@@ -325,5 +355,51 @@ public class Circle {
 
     public Tree.TNode getNode() {
         return m_node;
+    }
+
+    public Vec2 getPos() {
+        return new Vec2(m_pos);
+    }
+
+    public void offsetPos(Vec2 a_offset) {
+        m_pos = m_pos.plus(a_offset);
+    }
+
+    public Circle getCircle(Tree.TNode a_node) {
+        if (m_node == a_node) {
+            return this;
+        }
+
+        for (Circle c : m_children) {
+            Circle ret = c.getCircle(a_node);
+            if (ret != null) {
+                return ret;
+            }
+        }
+
+        return null;
+    }
+
+    public Vec2 getChildPos(Circle a_selected) {
+        if (a_selected == this) {
+            return m_pos;
+        } else {
+            for (Circle c : m_children) {
+                Vec2 p = c.getChildPos(a_selected);
+                if (p != null) {
+                    return m_pos.plus(p);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public Vec2 getScreenPos() {
+        return m_screenPos;
+    }
+
+    public float getScreenRadius() {
+        return m_screenRadius;
     }
 }

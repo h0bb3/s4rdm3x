@@ -13,6 +13,9 @@ public class ZoomWindow {
     private float m_scale = 1.0f;
     private float m_oldScale = 1.0f;
 
+    private boolean m_mouseDown = false;
+    private boolean m_dragged = false;
+
 
     public void setScale(float a_scale) {
         m_oldScale = a_scale;
@@ -79,17 +82,31 @@ public class ZoomWindow {
         }
 
 
+        boolean ret = false;
+        if (a_imgui.isInside(new Rect(m_windowPos, m_windowPos.plus(a_clientSize)), a_imgui.getMousePos())) {
+            if (m_mouseDown) {
+                if (a_imgui.isMouseDragging(0, 0)) {
+                    a_imgui.stopWindowDrag();
+                    Vec2 scroll = a_imgui.imgui().getIo().getMouseDelta();
 
-        if (a_imgui.isInside(new Rect(m_windowPos, m_windowPos.plus(a_clientSize)), a_imgui.getMousePos())){
-            if (a_imgui.isMouseDragging(0, 0)) {
-                a_imgui.stopWindowDrag();
-                Vec2 scroll = a_imgui.imgui().getIo().getMouseDelta();
+                    //m_scroll.plus(scroll, m_scroll);
+                    m_scroll = m_scroll.plus(scroll.times(1.0f / m_scale));
+                    if (!m_dragged) {
+                        m_dragged = scroll.length2() > 2;
+                    }
+                }
 
-                //m_scroll.plus(scroll, m_scroll);
-                m_scroll = m_scroll.plus(scroll.times(1.0f / m_scale));
+                if (a_imgui.imgui().isMouseReleased(0)) {
+                    ret = !m_dragged;
+                    m_mouseDown = false;
+                    m_dragged = false;
+                }
+            } else if (!a_imgui.imgui().isMouseReleased(0)) {
+                m_mouseDown = true;
+                m_dragged = false;
             }
         }
-        return true;
+        return ret;
     }
 
     public void end(ImGuiWrapper a_imgui) {
@@ -99,5 +116,9 @@ public class ZoomWindow {
 
     public Vec2 getULOffset() {
         return m_windowPos.plus(m_ulOffset.plus(m_scroll.times(m_scale)));
+    }
+
+    public Vec2 getWindowPos() {
+        return m_windowPos;
     }
 }

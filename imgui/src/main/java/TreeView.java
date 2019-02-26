@@ -6,9 +6,12 @@ import gui.ZoomWindow;
 import hiviz.Circle;
 import hiviz.Tree;
 import imgui.ImGui;
+import imgui.internal.Rect;
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
 import se.lnu.siq.s4rdm3x.experiments.metric.ByteCodeInstructions;
 import se.lnu.siq.s4rdm3x.experiments.metric.LineCount;
+import se.lnu.siq.s4rdm3x.experiments.metric.Metric;
+import se.lnu.siq.s4rdm3x.experiments.metric.MetricFactory;
 import se.lnu.siq.s4rdm3x.model.cmd.hugme.HuGMe;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.model.CGraph;
@@ -20,8 +23,9 @@ import static java.lang.Math.sin;
 
 public class TreeView {
     private int[] m_treeViewSelection = {1};
+    private int[] m_metricSelection = {1};
     private String[] treeViewRoots = {"", "", ""};
-    Tree.TNode m_selectedNode;
+    ClassTreeNodeContextMenu m_selectedClassContextMenu = new ClassTreeNodeContextMenu("m_selectedClassContextMenu");
     CNode m_selectedClass;
 
     private final int g_archId = 0;
@@ -29,6 +33,61 @@ public class TreeView {
     private final int g_filesId = 2;
 
     private hiviz.Circle m_selectedPackage;
+    ClassTreeNodeContextMenu m_selectedPackageContextMenu = new ClassTreeNodeContextMenu("m_selectedPackageContextMenu");
+
+    private static class ClassTreeNodeContextMenu {
+        private Tree.TNode m_selectedNode = null;
+        private String m_idString;
+
+        public ClassTreeNodeContextMenu(String a_idString) {
+            m_idString = a_idString;
+        }
+
+        public Action doContextMenu(ImGui a_imgui, HuGMe.ArchDef a_arch, Tree.TNode a_selectedNode) {
+            Action ret = null;
+            if (m_selectedNode == null && a_selectedNode != null) {
+                m_selectedNode = a_selectedNode;
+            }
+            if (m_selectedNode != null) {
+                if (a_imgui.beginPopupContextWindow(m_idString, 1, true)) {
+                    a_imgui.getCurrentWindow().getId();
+
+                    Tree at = buildArchitectureTree(a_arch.getComponents(), "");
+                    Object mappedObject = m_selectedNode.getMappedObject(0);
+                    Tree.TNode selectedNode = at.doMenu(a_imgui, mappedObject);
+
+                    if (selectedNode != null) {
+                        if (selectedNode != mappedObject) {
+                            ret = new Action();
+                            ret.m_doMapAction = new Action.DoMap();
+                            ret.m_doMapAction.a_whatNodeName = m_selectedNode.getFullName().replace(".", "/");
+                            ret.m_doMapAction.a_toComponentName = selectedNode.getFullName();
+
+                            System.out.println("what: " + ret.m_doMapAction.a_whatNodeName);
+                            System.out.println("to: " + ret.m_doMapAction.a_toComponentName);
+                        }
+                    }
+
+                    a_imgui.endPopup();
+                } else {
+                    m_selectedNode = null;
+                }
+            }
+            return ret;
+        }
+
+        public Tree buildArchitectureTree(Iterable<HuGMe.ArchDef.Component> a_components, String a_filter) {
+            Tree tree = new Tree();
+            for(HuGMe.ArchDef.Component c : a_components) {
+                if (a_filter.length() == 0 || c.getName().startsWith(a_filter)) {
+                    tree.addNode(c.getName(), c);
+                }
+            }
+
+            return tree;
+        }
+
+    }
 
     public static class Action {
         public static class DoMap {
@@ -55,6 +114,9 @@ public class TreeView {
         if (a_imgui.combo("", m_treeViewSelection, items, items.size())) {
         }
 
+        MetricFactory mf = new MetricFactory();
+        Metric[] primitiveMetrics = mf.getPrimitiveMetrics();
+
         a_imgui.beginColumns("TreeViewColumns", 2, 0);
 
         ImGuiWrapper iw = new ImGuiWrapper(a_imgui);
@@ -62,7 +124,7 @@ public class TreeView {
 
         switch (m_treeViewSelection[0]) {
             case g_archId: {
-                tree = buildArchitectureTree(a_arch.getComponents(), getArchRootFilter());
+                tree = m_selectedClassContextMenu.buildArchitectureTree(a_arch.getComponents(), getArchRootFilter());
             } break;
             case g_classesId: {
                 for (CNode n : a_g.getNodes()) {
@@ -94,64 +156,34 @@ public class TreeView {
 
         Tree.TNode selected = tree.doTree(a_imgui, null);
 
-        if (m_selectedNode == null && selected != null) {
-            m_selectedNode = selected;
-        }
-
         if (selected != null && iw.isMouseClicked(0, false) && m_treeViewSelection[0] == g_classesId) {
             if (selected.getObject() != null) {
                 m_selectedClass = (CNode) selected.getObject();
-                m_selectedPackage = null;
+                //m_selectedPackage = null;
             } else {
 
-                m_selectedPackage = getPackageCircles(iw, selected);
+                m_selectedPackage = getPackageCircles(iw, selected, new Vec2(0, 0), primitiveMetrics[m_metricSelection[0]]);
                 m_selectedClass = null;
             }
         }
 
         if (selected != null) {
+
             iw.text(selected.getName());
         }
 
-        if (m_selectedNode != null) {
-            switch (m_treeViewSelection[0]) {
-                case g_archId:
-                    if (a_imgui.beginPopupContextWindow("TreeViewContextMenuArch", 1, true)) {
-
-                        a_imgui.menuItem("Some Arch Menu", "", false, true);
-
-                        a_imgui.endPopup();
-                    } else {
-                        m_selectedNode = null;
-                    }
-                    break;
-
-                case g_classesId:
-                    if (a_imgui.beginPopupContextWindow("TreeViewContextMenuClasses", 1, true)) {
-
-                        Tree at = buildArchitectureTree(a_arch.getComponents(), "");
-                        Object mappedObject = m_selectedNode.getMappedObject(0);
-                        Tree.TNode selectedNode = at.doMenu(a_imgui, mappedObject);
-
-                        if (selectedNode != null) {
-                            if (selectedNode != mappedObject) {
-                                ret = new Action();
-                                ret.m_doMapAction = new Action.DoMap();
-                                ret.m_doMapAction.a_whatNodeName = m_selectedNode.getFullName().replace(".", "/");
-                                ret.m_doMapAction.a_toComponentName = selectedNode.getFullName();
-
-                                System.out.println("what: " + ret.m_doMapAction.a_whatNodeName);
-                                System.out.println("to: " + ret.m_doMapAction.a_toComponentName);
-                            }
-                        }
-
-                        a_imgui.endPopup();
-                    } else {
-                        m_selectedNode = null;
-                    }
 
 
-                break;
+
+        if (m_treeViewSelection[0] == g_classesId) {
+            ArrayList<String> metrics = new ArrayList<>();
+
+            for (int i = 0; i < primitiveMetrics.length; i++) {
+                metrics.add(primitiveMetrics[i].getName());
+            }
+
+            if (a_imgui.combo("##metricscombo", m_metricSelection, metrics, metrics.size())) {
+                m_selectedPackage.computeLayout(m_selectedPackage.getPos(), iw.toColor(new Vec4(0.75, 0.5, 0.5, 1)), iw.toColor(new Vec4(1.0, 0.25, 0.25, 1)),  primitiveMetrics[m_metricSelection[0]]);
             }
         }
 
@@ -160,29 +192,35 @@ public class TreeView {
             if (m_treeViewSelection[0] == g_classesId) {
                 if (m_selectedClass != null) {
                     doClassView(iw, a_g, a_arch, a_nvm, m_selectedClass);
-                }
-                if (m_selectedPackage != null) {
-                    doPackageView(iw, a_g, a_arch, a_nvm, m_selectedPackage);
+                } else if (m_selectedPackage != null) {
+                    doPackageView(iw, a_g, a_arch, a_nvm, m_selectedPackage, primitiveMetrics[m_metricSelection[0]]);
                 }
             }
 
         a_imgui.endColumns();
 
+        switch (m_treeViewSelection[0]) {
+            case g_archId:
+                /*if (a_imgui.beginPopupContextWindow("TreeViewContextMenuArch", 1, true)) {
+
+                    a_imgui.menuItem("Some Arch Menu", "", false, true);
+
+                    a_imgui.endPopup();
+                } else {
+                    m_selectedNode = null;
+                }*/
+                break;
+
+            case g_classesId:
+                ret =  m_selectedClassContextMenu.doContextMenu(a_imgui, a_arch, selected);
+                break;
+        }
+
         return ret;
     }
 
-    private Tree buildArchitectureTree(Iterable<HuGMe.ArchDef.Component> a_components, String a_filter) {
-        Tree tree = new Tree();
-        for(HuGMe.ArchDef.Component c : a_components) {
-            if (a_filter.length() == 0 || c.getName().startsWith(a_filter)) {
-                tree.addNode(c.getName(), c);
-            }
-        }
 
-        return tree;
-    }
-
-    private void doPackageView(ImGuiWrapper a_imgui, CGraph a_g, HuGMe.ArchDef a_arch, HNode.VisualsManager a_nvm, hiviz.Circle a_selectedNode) {
+    private void doPackageView(ImGuiWrapper a_imgui, CGraph a_g, HuGMe.ArchDef a_arch, HNode.VisualsManager a_nvm, hiviz.Circle a_selectedNode, Metric a_metric) {
 
         Vec2 columnSize = new Vec2(a_imgui.imgui().getColumnWidth(1) - 10, (float) a_imgui.imgui().getContentRegionAvail().getY());
         m_packageZW.setScale(m_packageZW.getScale() + a_imgui.imgui().getIo().getMouseWheel() * 0.1f);
@@ -191,25 +229,50 @@ public class TreeView {
 
 
         Vec2 area = new Vec2(a_selectedNode.getRadius() * 2 * packageScale);
-        m_packageZW.begin(a_imgui, columnSize.minus(10), area);
-        hiviz.Circle selected = a_selectedNode.draw(a_imgui, m_packageZW.getULOffset(), packageScale, a_imgui.getMousePos());
-        if (a_imgui.isMouseClicked(0, true)) {
+        final boolean clicked = m_packageZW.begin(a_imgui, columnSize.minus(10), area);
+
+        hiviz.Circle selected = a_selectedNode.draw(a_imgui, m_packageZW.getULOffset(), packageScale, a_imgui.getMousePos(), new Rect(m_packageZW.getWindowPos(), m_packageZW.getWindowPos().plus(columnSize.minus(10))));
+
+        final int white = a_imgui.toColor(new Vec4(1., 1., 1., 1));
+        if (m_selectedPackage.getNode().getName() != null) {
+            Vec2 textSize = a_imgui.calcTextSize(m_selectedPackage.getNode().getName(), false);
+            a_imgui.addText(new Vec2(m_selectedPackage.getScreenPos().getX() - textSize.getX() * 0.5, m_selectedPackage.getScreenPos().getY() - m_selectedPackage.getScreenRadius() - textSize.getY()), white, m_selectedPackage.getNode().getName());
+        }
+
+        if (clicked) {
             if (selected != null) {
                 if (selected.getNode().childCount() > 0) {
-                    selected.computeLayout(new Vec2(0, 0), a_imgui.toColor(new Vec4(0.75, 0.5, 0.5, 1)), a_imgui.toColor(new Vec4(1.0, 0.25, 0.25, 1)));
+                    selected.computeLayout(m_selectedPackage.getChildPos(selected), a_imgui.toColor(new Vec4(0.75, 0.5, 0.5, 1)), a_imgui.toColor(new Vec4(1.0, 0.25, 0.25, 1)), a_metric);
                     m_selectedPackage = selected;
                 } else {
                     m_selectedClass = (CNode) selected.getNode().getObject();
-                    m_selectedPackage = null;
+                    //m_selectedPackage = null;
                 }
             } else {
                 Tree.TNode parent = m_selectedPackage.getNode().getParent();
                 if (parent != null) {
-                    m_selectedPackage = getPackageCircles(a_imgui, parent);
+                    Vec2 oldPos = m_selectedPackage.getPos();
+                    Circle newSelected = getPackageCircles(a_imgui, parent, new Vec2(0, 0), a_metric);
+
+                    Circle oldSelected = newSelected.getCircle(m_selectedPackage.getNode());
+
+                    newSelected.offsetPos((oldPos.minus(oldSelected.getPos())));
+
+                    m_selectedPackage = newSelected;
                 }
             }
+        } else if (selected != null) {
+            a_imgui.beginTooltip();
+            a_imgui.text(selected.getNode().getName());
+            a_imgui.endTooltip();
         }
-        final int white = a_imgui.toColor(new Vec4(1., 1., 1., 1));
+
+        if (selected != null) {
+            m_selectedPackageContextMenu.doContextMenu(a_imgui.imgui(), a_arch, selected.getNode());
+        } else {
+            m_selectedPackageContextMenu.doContextMenu(a_imgui.imgui(), a_arch, null);
+        }
+
         //a_imgui.addCircle( m_packageZW.getULOffset(), 50, white, 32, 2);
         //a_imgui.addRect(m_packageZW.getULOffset(), m_packageZW.getULOffset().plus(area), white, 0, 0, 2);
         m_packageZW.end(a_imgui);
@@ -218,7 +281,7 @@ public class TreeView {
         //a_imgui.imgui().endChild();
     }
 
-    private Circle getPackageCircles(ImGuiWrapper a_imgui, Tree.TNode a_selected) {
+    private Circle getPackageCircles(ImGuiWrapper a_imgui, Tree.TNode a_selected, Vec2 a_initialPos, Metric a_metric) {
         class CircleHierarchyBuilder implements Tree.TNodeVisitor {
             hiviz.Circle m_circle;
 
@@ -239,7 +302,7 @@ public class TreeView {
 
         CircleHierarchyBuilder rootBuilder = new CircleHierarchyBuilder();
         a_selected.accept(rootBuilder);
-        rootBuilder.m_circle.computeLayout(new Vec2(0, 0), a_imgui.toColor(new Vec4(0.75, 0.5, 0.5, 1)), a_imgui.toColor(new Vec4(1.0, 0.25, 0.25, 1)));
+        rootBuilder.m_circle.computeLayout(a_initialPos, a_imgui.toColor(new Vec4(0.75, 0.5, 0.5, 1)), a_imgui.toColor(new Vec4(1.0, 0.25, 0.25, 1)), a_metric);
 
         return rootBuilder.m_circle;
     }
@@ -555,6 +618,11 @@ public class TreeView {
 
 
             }
+        } else if (a_imgui.isMouseClicked(0, false)) {
+            // clicked outside
+            //Tree.TNode parent = m_selectedNode.getParent();
+            m_selectedClass = null;
+            //m_selectedPackage =
         }
 
 
