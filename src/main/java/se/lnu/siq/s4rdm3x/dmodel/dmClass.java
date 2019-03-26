@@ -80,6 +80,8 @@ public class dmClass {
     private List<dmDependency> m_incomingDeps;
     private ArrayList<Method> m_methods;
 
+    private ArrayList<String> m_texts;
+
     private int m_lineCount = 0;
 
     // we can not rely on dependencies to fields as these can be blacklisted
@@ -100,9 +102,18 @@ public class dmClass {
         return m_lineCount;
     }
 
+    void addText(String a_text) {
+        m_texts.add(a_text);
+    }
+
+    public Iterable<String> getTexts() {
+        return m_texts;
+    }
+
     Method addMethod(String a_name, boolean a_isAbstract, boolean a_isSynthetic) {
         Method ret = new Method(a_name, a_isAbstract, a_isSynthetic);
         m_methods.add(ret);
+        m_texts.add(a_name);
 
         return ret;
     }
@@ -134,6 +145,7 @@ public class dmClass {
         m_deps = new ArrayList<>();
         m_incomingDeps = new ArrayList<>();
         m_methods = new ArrayList<>();
+        m_texts = new ArrayList<>();
     }
 
     public Collection<dmDependency> getIncomingDependencies() {

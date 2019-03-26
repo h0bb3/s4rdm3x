@@ -18,8 +18,10 @@ public class ZoomWindow {
 
 
     public void setScale(float a_scale) {
-        m_oldScale = a_scale;
-        m_scale = a_scale;
+        if (a_scale > 0.0f) {
+            m_oldScale = a_scale;
+            m_scale = a_scale;
+        }
     }
 
     public float getScale() {

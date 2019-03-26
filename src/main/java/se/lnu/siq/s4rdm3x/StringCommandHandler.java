@@ -1,9 +1,9 @@
 package se.lnu.siq.s4rdm3x;
 
 import se.lnu.siq.s4rdm3x.model.cmd.*;
-import se.lnu.siq.s4rdm3x.model.cmd.hugme.GetComponentFan;
-import se.lnu.siq.s4rdm3x.model.cmd.hugme.GetNodeComponentCoupling;
-import se.lnu.siq.s4rdm3x.model.cmd.hugme.HuGMe;
+import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
+import se.lnu.siq.s4rdm3x.model.cmd.mapper.GetComponentFan;
+import se.lnu.siq.s4rdm3x.model.cmd.mapper.GetNodeComponentCoupling;
 import se.lnu.siq.s4rdm3x.model.cmd.metrics.ComputeMetrics;
 import se.lnu.siq.s4rdm3x.model.cmd.metrics.GetMetric;
 import se.lnu.siq.s4rdm3x.model.cmd.metrics.GetMetrics;
@@ -25,12 +25,12 @@ public class StringCommandHandler {
             public boolean m_handled = false;
             public ArrayList<String> m_output = new ArrayList<>();
         }
-        Result execute(String a_command, CGraph a_g, HuGMe.ArchDef a_arch);
+        Result execute(String a_command, CGraph a_g, ArchDef a_arch);
     }
 
 
     ArrayList<ICommand> m_commands = new ArrayList<>();
-    HuGMe.ArchDef m_arch = null;
+    ArchDef m_arch = null;
 
 
     public void addCommand(ICommand a_command) {
@@ -48,7 +48,7 @@ public class StringCommandHandler {
         return ret;
     }
 
-    public HuGMe.ArchDef getArchDef() {
+    public ArchDef getArchDef() {
         return m_arch;
     }
 
@@ -355,16 +355,16 @@ public class StringCommandHandler {
 
                 ret.add("Architectural Components Fan Out");
                 String header = "from/to";
-                for (HuGMe.ArchDef.Component component : c.m_fanOut.getColumnObjects()) {
+                for (ArchDef.Component component : c.m_fanOut.getColumnObjects()) {
                     header += "\t" + component.getName();
                 }
 
                 ret.add(header);
 
-                for (HuGMe.ArchDef.Component row : c.m_fanOut.getRowObjects()) {
+                for (ArchDef.Component row : c.m_fanOut.getRowObjects()) {
                     String rowStr = row.getName();
 
-                    for (HuGMe.ArchDef.Component col : c.m_fanOut.getColumnObjects()) {
+                    for (ArchDef.Component col : c.m_fanOut.getColumnObjects()) {
                         rowStr += "\t" + c.m_fanOut.get(row, col);
                     }
                     ret.add(rowStr);
@@ -373,16 +373,16 @@ public class StringCommandHandler {
 
                 ret.add("Architectural Components Fan In");
                 header = "from/to";
-                for (HuGMe.ArchDef.Component component : c.m_fanIn.getColumnObjects()) {
+                for (ArchDef.Component component : c.m_fanIn.getColumnObjects()) {
                     header += "\t" + component.getName();
                 }
 
                 ret.add(header);
 
-                for (HuGMe.ArchDef.Component row : c.m_fanIn.getRowObjects()) {
+                for (ArchDef.Component row : c.m_fanIn.getRowObjects()) {
                     String rowStr = row.getName();
 
-                    for (HuGMe.ArchDef.Component col : c.m_fanIn.getColumnObjects()) {
+                    for (ArchDef.Component col : c.m_fanIn.getColumnObjects()) {
                         rowStr += "\t" + c.m_fanIn.get(row, col);
                     }
                     ret.add(rowStr);

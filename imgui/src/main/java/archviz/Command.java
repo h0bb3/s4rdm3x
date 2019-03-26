@@ -6,7 +6,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import se.lnu.siq.s4rdm3x.StringCommandHandler;
-import se.lnu.siq.s4rdm3x.model.cmd.hugme.HuGMe;
+import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 
 import java.io.*;
@@ -50,7 +50,7 @@ public class Command implements StringCommandHandler.ICommand {
         return color;
     }
 
-    public StringCommandHandler.ICommand.Result execute(String a_command, CGraph a_g, HuGMe.ArchDef a_arch) {
+    public StringCommandHandler.ICommand.Result execute(String a_command, CGraph a_g, ArchDef a_arch) {
         Result ret = new Result();
 
         String[] cargs = a_command.split(" ");

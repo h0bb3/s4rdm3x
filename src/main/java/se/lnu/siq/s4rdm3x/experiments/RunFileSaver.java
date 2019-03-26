@@ -1,6 +1,6 @@
 package se.lnu.siq.s4rdm3x.experiments;
 
-import se.lnu.siq.s4rdm3x.model.cmd.hugme.HuGMe;
+import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
 
@@ -89,7 +89,7 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
     }
 
 
-    public ExperimentRunner.BasicRunData OnRunInit(ExperimentRunner.BasicRunData a_rd, CGraph a_g, HuGMe.ArchDef a_arch) {
+    public ExperimentRunner.BasicRunData OnRunInit(ExperimentRunner.BasicRunData a_rd, CGraph a_g, ArchDef a_arch) {
         m_rd = new RunData();
 
         m_rd.m_initialClustered = a_arch.getClusteredNodeCount(a_g.getNodes());
@@ -103,7 +103,7 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
         return a_rd;
     }
 
-    public void OnRunCompleted(ExperimentRunner.BasicRunData a_rd, CGraph a_g, HuGMe.ArchDef a_arch) {
+    public void OnRunCompleted(ExperimentRunner.BasicRunData a_rd, CGraph a_g, ArchDef a_arch) {
         ArrayList<String> row = new ArrayList<>();
         row.add(m_rd.m_date);
         row.add("" + a_rd.m_time);
@@ -126,12 +126,12 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
 
         if (m_mappingsFilePath != null) {
             for(CNode n: a_g.getNodes()) {
-                HuGMe.ArchDef.Component mapped;
+                ArchDef.Component mapped;
 
                 mapped = a_arch.getMappedComponent(n);
 
                 if (mapped != null)  {
-                    HuGMe.ArchDef.Component clustered;
+                    ArchDef.Component clustered;
                     clustered = a_arch.getClusteredComponent(n);
 
                     row = new ArrayList<>();
@@ -251,10 +251,10 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
         return fp;
     }
 
-    private String getInitialClusterDistributionString(CGraph a_g, HuGMe.ArchDef a_arch) {
+    private String getInitialClusterDistributionString(CGraph a_g, ArchDef a_arch) {
         String ret="";
 
-        for (HuGMe.ArchDef.Component c : a_arch.getComponents()) {
+        for (ArchDef.Component c : a_arch.getComponents()) {
             int count = 0;
             for (CNode a_n : a_g.getNodes()) {
                 if (c == a_arch.getClusteredComponent(a_n)) {

@@ -1,13 +1,13 @@
 package se.lnu.siq.s4rdm3x.model.cmd;
 
-import se.lnu.siq.s4rdm3x.model.cmd.hugme.HuGMe;
+import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 import se.lnu.siq.s4rdm3x.model.cmd.util.ArchCreator;
 import se.lnu.siq.s4rdm3x.model.cmd.util.SystemModelReader;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 
 public class LoadArch {
     String m_file;
-    public HuGMe.ArchDef m_arch;
+    public ArchDef m_arch;
 
     public LoadArch(String a_file) {
         m_file = a_file;

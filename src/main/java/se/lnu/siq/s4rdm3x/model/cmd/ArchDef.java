@@ -1,19 +1,17 @@
 package se.lnu.siq.s4rdm3x.model.cmd;
 
-import se.lnu.siq.s4rdm3x.model.cmd.hugme.HuGMe;
-
 import java.util.Map;
 
 public class ArchDef {
 
 
-    private Map<String, HuGMe.ArchDef> g_archs;
+    private Map<String, se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef> g_archs;
 
-    public HuGMe.ArchDef getArchDef(String a_name) {
+    public se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef getArchDef(String a_name) {
         return g_archs.get(a_name);
     }
 
-    public void setArchDef(String a_name, HuGMe.ArchDef a_ad) {
+    public void setArchDef(String a_name, se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef a_ad) {
         g_archs.put(a_name, a_ad);
     }
 
@@ -25,7 +23,7 @@ public class ArchDef {
         }
 
         public void run(ArchDef a_ad) {
-            a_ad.setArchDef(m_name, new HuGMe.ArchDef());
+            a_ad.setArchDef(m_name, new se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef());
         }
     }
 
@@ -39,7 +37,7 @@ public class ArchDef {
         }
 
         public void run(ArchDef a_ad) {
-            HuGMe.ArchDef ad = a_ad.getArchDef(m_adName);
+            se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef ad = a_ad.getArchDef(m_adName);
             if (ad != null) {
                 ad.addComponent(m_cName);
             }
@@ -52,10 +50,10 @@ public class ArchDef {
         String m_toName;
 
         public void run(ArchDef a_ad) {
-            HuGMe.ArchDef ad = a_ad.getArchDef(m_adName);
+            se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef ad = a_ad.getArchDef(m_adName);
             if (ad != null) {
-                HuGMe.ArchDef.Component from = ad.getComponent(m_fromName);
-                HuGMe.ArchDef.Component to = ad.getComponent(m_toName);
+                se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef.Component from = ad.getComponent(m_fromName);
+                se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef.Component to = ad.getComponent(m_toName);
                 if (from != null && to != null) {
                     from.addDependencyTo(to);
                 }

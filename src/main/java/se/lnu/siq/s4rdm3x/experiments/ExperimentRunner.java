@@ -1,6 +1,7 @@
 package se.lnu.siq.s4rdm3x.experiments;
 
-import se.lnu.siq.s4rdm3x.model.cmd.hugme.HuGMe;
+import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
+import se.lnu.siq.s4rdm3x.model.cmd.mapper.HuGMe;
 import se.lnu.siq.s4rdm3x.model.cmd.util.FanInCache;
 import se.lnu.siq.s4rdm3x.experiments.metric.Metric;
 import se.lnu.siq.s4rdm3x.experiments.system.System;
@@ -41,8 +42,8 @@ public class ExperimentRunner {
     }
 
     public interface RunListener {
-        BasicRunData OnRunInit(BasicRunData a_rd, CGraph a_g, HuGMe.ArchDef a_arch);
-        void OnRunCompleted(BasicRunData a_rd, CGraph a_g, HuGMe.ArchDef a_arch);
+        BasicRunData OnRunInit(BasicRunData a_rd, CGraph a_g, ArchDef a_arch);
+        void OnRunCompleted(BasicRunData a_rd, CGraph a_g, ArchDef a_arch);
     }
 
     public static class BasicRunData {
@@ -73,7 +74,7 @@ public class ExperimentRunner {
         if (!m_sua.load(a_g)) {
             return;
         }
-        HuGMe.ArchDef arch = m_sua.createAndMapArch(a_g);
+        ArchDef arch = m_sua.createAndMapArch(a_g);
 
 
         m_metric.assignMetric(arch.getMappedNodes(a_g.getNodes()));
@@ -108,21 +109,7 @@ public class ExperimentRunner {
                 rd = m_listener.OnRunInit(rd, a_g, arch);
             }
             while(m_state == State.Running) {
-                HuGMe c = new HuGMe(rd.m_omega, rd.m_phi, true, arch, fic);
-                long start = java.lang.System.nanoTime();
-                c.run(a_g);
-                rd.m_time = java.lang.System.nanoTime() - start;
-
-                rd.m_totalManuallyClustered += c.m_manuallyMappedNodes;
-                rd.m_totalAutoClustered += c.m_automaticallyMappedNodes;
-                rd.m_totalAutoWrong  += c.m_autoWrong;
-                rd.m_totalFailedClusterings  += c.m_failedMappings;
-
-                if (c.m_automaticallyMappedNodes + c.m_manuallyMappedNodes == 0) {
-                    break;
-                }
-
-                rd.m_iterations++;
+                if (runClustering(a_g, fic, arch, rd)) break;
             }
 
             if (m_listener != null) {
@@ -136,8 +123,27 @@ public class ExperimentRunner {
         m_state = State.Idle;
     }
 
+    protected boolean runClustering(CGraph a_g, FanInCache fic, ArchDef arch, BasicRunData rd) {
+        HuGMe c = new HuGMe(rd.m_omega, rd.m_phi, true, arch, fic);
+        long start = java.lang.System.nanoTime();
+        c.run(a_g);
+        rd.m_time = java.lang.System.nanoTime() - start;
 
-    private void assignInitialClusters(CGraph a_g, HuGMe.ArchDef a_arch, double a_percentage) {
+        rd.m_totalManuallyClustered += c.m_manuallyMappedNodes;
+        rd.m_totalAutoClustered += c.m_automaticallyMappedNodes;
+        rd.m_totalAutoWrong  += c.m_autoWrong;
+        rd.m_totalFailedClusterings  += c.m_failedMappings;
+
+        if (c.m_automaticallyMappedNodes + c.m_manuallyMappedNodes == 0) {
+            return true;
+        }
+
+        rd.m_iterations++;
+        return false;
+    }
+
+
+    private void assignInitialClusters(CGraph a_g, ArchDef a_arch, double a_percentage) {
         ArrayList<CNode> nodes = new ArrayList<>();
         a_arch.getMappedNodes(a_g.getNodes()).forEach(a_n -> nodes.add(a_n));
 
@@ -154,14 +160,14 @@ public class ExperimentRunner {
         }
 
         for (CNode n : workingSet) {
-            HuGMe.ArchDef.Component component = a_arch.getMappedComponent(n);
-            component.clusterToNode(n, HuGMe.ArchDef.Component.ClusteringType.Initial);
+            ArchDef.Component component = a_arch.getMappedComponent(n);
+            component.clusterToNode(n, ArchDef.Component.ClusteringType.Initial);
         }
     }
 
-    private void assignInitialClustersPerComponent(CGraph a_g, HuGMe.ArchDef a_arch, double a_percentage) {
+    private void assignInitialClustersPerComponent(CGraph a_g, ArchDef a_arch, double a_percentage) {
         // OBS this assigns a number of classes per component, this is not actually that realistic
-        for (HuGMe.ArchDef.Component component : a_arch.getComponents()) {
+        for (ArchDef.Component component : a_arch.getComponents()) {
 
             ArrayList<CNode> nodes = new ArrayList<>();
             for (CNode n : a_g.getNodes()) {
@@ -178,7 +184,7 @@ public class ExperimentRunner {
             ArrayList<CNode> workingSet = getWorkingSet(nodes, nodeCount);
 
             for (CNode n : workingSet) {
-                component.clusterToNode(n, HuGMe.ArchDef.Component.ClusteringType.Initial);
+                component.clusterToNode(n, ArchDef.Component.ClusteringType.Initial);
             }
         }
     }

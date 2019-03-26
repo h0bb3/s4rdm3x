@@ -1,6 +1,6 @@
 package se.lnu.siq.s4rdm3x.model.cmd;
 
-import se.lnu.siq.s4rdm3x.model.cmd.hugme.HuGMe;
+import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 import se.lnu.siq.s4rdm3x.model.cmd.util.ArchCreator;
 import se.lnu.siq.s4rdm3x.model.cmd.util.SystemModelReader;
 import se.lnu.siq.s4rdm3x.model.CGraph;
@@ -9,10 +9,10 @@ import java.io.IOException;
 
 public class SaveArch {
     private String m_file;
-    private HuGMe.ArchDef m_arch;
+    private ArchDef m_arch;
 
 
-    public SaveArch(HuGMe.ArchDef a_arch, String a_file) {
+    public SaveArch(ArchDef a_arch, String a_file) {
         m_file = a_file;
         m_arch = a_arch;
     }

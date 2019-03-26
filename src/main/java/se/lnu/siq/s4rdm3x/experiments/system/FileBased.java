@@ -1,6 +1,6 @@
 package se.lnu.siq.s4rdm3x.experiments.system;
 
-import se.lnu.siq.s4rdm3x.model.cmd.hugme.HuGMe;
+import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 import se.lnu.siq.s4rdm3x.model.cmd.LoadJar;
 import se.lnu.siq.s4rdm3x.model.cmd.util.ArchCreator;
 import se.lnu.siq.s4rdm3x.model.cmd.util.SystemModelReader;
@@ -24,9 +24,9 @@ public class FileBased extends System {
         }
     }
 
-    public HuGMe.ArchDef createAndMapArch(CGraph a_g) {
+    public ArchDef createAndMapArch(CGraph a_g) {
         ArchCreator ac = new ArchCreator();
-        HuGMe.ArchDef ret = ac.createArch(m_smr);
+        ArchDef ret = ac.createArch(m_smr);
 
         ac.mapArch(ret, m_smr, a_g);
         return ret;

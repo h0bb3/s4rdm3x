@@ -43,7 +43,7 @@ class ASMdmProjectBuilderTest {
         return ret;
     }
 
-    private int compare(dmClass a_expected, dmClass a_actual) {
+    protected int compare(dmClass a_expected, dmClass a_actual) {
 
         if (a_expected.getName().compareTo(a_actual.getName()) != 0) {
             System.out.println("Class names do not match");
@@ -833,7 +833,7 @@ class ASMdmProjectBuilderTest {
         }
     }
 
-    private ASMdmProjectBuilder getAsMdmProjectBuilder(String name) throws IOException {
+    protected ASMdmProjectBuilder getAsMdmProjectBuilder(String name) throws IOException {
         InputStream in = ASMdmProjectBuilder.class.getResourceAsStream(name);
         ASMdmProjectBuilder pb = new ASMdmProjectBuilder();
         pb.getProject().doTrackConstantDeps(true);

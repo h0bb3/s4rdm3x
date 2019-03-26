@@ -8,11 +8,9 @@ import hiviz.Tree;
 import imgui.ImGui;
 import imgui.internal.Rect;
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
-import se.lnu.siq.s4rdm3x.experiments.metric.ByteCodeInstructions;
-import se.lnu.siq.s4rdm3x.experiments.metric.LineCount;
 import se.lnu.siq.s4rdm3x.experiments.metric.Metric;
 import se.lnu.siq.s4rdm3x.experiments.metric.MetricFactory;
-import se.lnu.siq.s4rdm3x.model.cmd.hugme.HuGMe;
+import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
@@ -21,7 +19,7 @@ import java.util.ArrayList;
 
 import static java.lang.Math.sin;
 
-public class TreeView {
+public class TreeView  {
     private int[] m_treeViewSelection = {1};
     private int[] m_metricSelection = {1};
     private String[] treeViewRoots = {"", "", ""};
@@ -32,8 +30,11 @@ public class TreeView {
     private final int g_classesId = 1;
     private final int g_filesId = 2;
 
+    private int m_statColor1, m_statColor2;
+
     private hiviz.Circle m_selectedPackage;
     ClassTreeNodeContextMenu m_selectedPackageContextMenu = new ClassTreeNodeContextMenu("m_selectedPackageContextMenu");
+    private int[] m_colorSelection = {0};
 
     private static class ClassTreeNodeContextMenu {
         private Tree.TNode m_selectedNode = null;
@@ -43,7 +44,7 @@ public class TreeView {
             m_idString = a_idString;
         }
 
-        public Action doContextMenu(ImGui a_imgui, HuGMe.ArchDef a_arch, Tree.TNode a_selectedNode) {
+        public Action doContextMenu(ImGui a_imgui, ArchDef a_arch, Tree.TNode a_selectedNode) {
             Action ret = null;
             if (m_selectedNode == null && a_selectedNode != null) {
                 m_selectedNode = a_selectedNode;
@@ -60,12 +61,20 @@ public class TreeView {
                         if (selectedNode != mappedObject) {
                             ret = new Action();
                             ret.m_doMapAction = new Action.DoMap();
-                            ret.m_doMapAction.a_whatNodeName = m_selectedNode.getFullName().replace(".", "/");
+                            ret.m_doMapAction.a_whatNodeName = m_selectedNode.getFullName();
                             ret.m_doMapAction.a_toComponentName = selectedNode.getFullName();
 
                             System.out.println("what: " + ret.m_doMapAction.a_whatNodeName);
                             System.out.println("to: " + ret.m_doMapAction.a_toComponentName);
                         }
+                    }
+
+                    a_imgui.separator();
+                    if (a_imgui.menuItem("Unmap##unmap", "", false, true)) {
+                        ret = new Action();
+                        ret.m_doMapAction = new Action.DoMap();
+                        ret.m_doMapAction.a_whatNodeName = m_selectedNode.getFullName();
+                        ret.m_doMapAction.a_toComponentName = null;
                     }
 
                     a_imgui.endPopup();
@@ -76,9 +85,9 @@ public class TreeView {
             return ret;
         }
 
-        public Tree buildArchitectureTree(Iterable<HuGMe.ArchDef.Component> a_components, String a_filter) {
+        public Tree buildArchitectureTree(Iterable<ArchDef.Component> a_components, String a_filter) {
             Tree tree = new Tree();
-            for(HuGMe.ArchDef.Component c : a_components) {
+            for(ArchDef.Component c : a_components) {
                 if (a_filter.length() == 0 || c.getName().startsWith(a_filter)) {
                     tree.addNode(c.getName(), c);
                 }
@@ -103,13 +112,19 @@ public class TreeView {
 
     ZoomWindow m_packageZW = new ZoomWindow();
 
-    Action doTreeView(ImGui a_imgui, HuGMe.ArchDef a_arch, CGraph a_g, HNode.VisualsManager a_nvm) {
+
+    Action doTreeView(ImGui a_imgui, ArchDef a_arch, CGraph a_g, HNode.VisualsManager a_nvm) {
         Action ret = null;
         hiviz.Tree tree = new hiviz.Tree();
         ArrayList<String> items = new ArrayList<>();
         items.add("Architecture");
         items.add("Classes");
         items.add("Files");
+
+        ImGuiWrapper iw = new ImGuiWrapper(a_imgui);
+
+        m_statColor1 = iw.toColor(new Vec4(0.75, 0.5, 0.5, 1));
+        m_statColor2 = iw.toColor(new Vec4(1.0, 0.25, 0.25, 1));
 
         if (a_imgui.combo("", m_treeViewSelection, items, items.size())) {
         }
@@ -119,7 +134,12 @@ public class TreeView {
 
         a_imgui.beginColumns("TreeViewColumns", 2, 0);
 
-        ImGuiWrapper iw = new ImGuiWrapper(a_imgui);
+
+        // colors and mappings may have changed so we need to update them
+        if (m_colorSelection[0] == 1) {
+            colorizeCircles(m_selectedPackage, iw, a_arch, a_nvm);
+        }
+
         treeViewRoots[m_treeViewSelection[0]] = iw.inputTextSingleLine("Root", treeViewRoots[m_treeViewSelection[0]]);
 
         switch (m_treeViewSelection[0]) {
@@ -129,7 +149,7 @@ public class TreeView {
             case g_classesId: {
                 for (CNode n : a_g.getNodes()) {
 
-                    HuGMe.ArchDef.Component component = a_arch.getMappedComponent(n);
+                    ArchDef.Component component = a_arch.getMappedComponent(n);
 
                     for (dmClass c : n.getClasses()) {
                         if (!c.isInner()) {
@@ -163,6 +183,7 @@ public class TreeView {
             } else {
 
                 m_selectedPackage = getPackageCircles(iw, selected, new Vec2(0, 0), primitiveMetrics[m_metricSelection[0]]);
+                colorizeCircles(m_selectedPackage, iw, a_arch, a_nvm);
                 m_selectedClass = null;
             }
         }
@@ -182,9 +203,22 @@ public class TreeView {
                 metrics.add(primitiveMetrics[i].getName());
             }
 
-            if (a_imgui.combo("##metricscombo", m_metricSelection, metrics, metrics.size())) {
-                m_selectedPackage.computeLayout(m_selectedPackage.getPos(), iw.toColor(new Vec4(0.75, 0.5, 0.5, 1)), iw.toColor(new Vec4(1.0, 0.25, 0.25, 1)),  primitiveMetrics[m_metricSelection[0]]);
+            if (a_imgui.combo("Metric##metricscombo", m_metricSelection, metrics, metrics.size())) {
+                if (m_selectedPackage != null) {
+                    m_selectedPackage.computeLayout(m_selectedPackage.getPos(), primitiveMetrics[m_metricSelection[0]]);
+                    colorizeCircles(m_selectedPackage, iw, a_arch, a_nvm);
+
+                }
             }
+
+            ArrayList<String> colors = new ArrayList<>();
+            colors.add("by Metric (mean, std dev)");
+            colors.add("by Mapping");
+            if (a_imgui.combo("Color##colorcombo", m_colorSelection, colors, colors.size())) {
+                m_selectedPackage.computeLayout(m_selectedPackage.getPos(), primitiveMetrics[m_metricSelection[0]]);
+                colorizeCircles(m_selectedPackage, iw, a_arch, a_nvm);
+            }
+
         }
 
 
@@ -193,7 +227,10 @@ public class TreeView {
                 if (m_selectedClass != null) {
                     doClassView(iw, a_g, a_arch, a_nvm, m_selectedClass);
                 } else if (m_selectedPackage != null) {
-                    doPackageView(iw, a_g, a_arch, a_nvm, m_selectedPackage, primitiveMetrics[m_metricSelection[0]]);
+                    Action a = doPackageView(iw, a_g, a_arch, a_nvm, m_selectedPackage, primitiveMetrics[m_metricSelection[0]]);
+                    if (ret == null && a != null) {
+                        ret = a;
+                    }
                 }
             }
 
@@ -212,7 +249,10 @@ public class TreeView {
                 break;
 
             case g_classesId:
-                ret =  m_selectedClassContextMenu.doContextMenu(a_imgui, a_arch, selected);
+                Action a = m_selectedClassContextMenu.doContextMenu(a_imgui, a_arch, selected);
+                if (ret == null && a != null) {
+                    ret = a;
+                }
                 break;
         }
 
@@ -220,8 +260,9 @@ public class TreeView {
     }
 
 
-    private void doPackageView(ImGuiWrapper a_imgui, CGraph a_g, HuGMe.ArchDef a_arch, HNode.VisualsManager a_nvm, hiviz.Circle a_selectedNode, Metric a_metric) {
+    private Action doPackageView(ImGuiWrapper a_imgui, CGraph a_g, ArchDef a_arch, HNode.VisualsManager a_nvm, hiviz.Circle a_selectedNode, Metric a_metric) {
 
+        Action ret = null;
         Vec2 columnSize = new Vec2(a_imgui.imgui().getColumnWidth(1) - 10, (float) a_imgui.imgui().getContentRegionAvail().getY());
         m_packageZW.setScale(m_packageZW.getScale() + a_imgui.imgui().getIo().getMouseWheel() * 0.1f);
         float packageScale = m_packageZW.getScale();
@@ -242,7 +283,8 @@ public class TreeView {
         if (clicked) {
             if (selected != null) {
                 if (selected.getNode().childCount() > 0) {
-                    selected.computeLayout(m_selectedPackage.getChildPos(selected), a_imgui.toColor(new Vec4(0.75, 0.5, 0.5, 1)), a_imgui.toColor(new Vec4(1.0, 0.25, 0.25, 1)), a_metric);
+                    selected.computeLayout(m_selectedPackage.getChildPos(selected), a_metric);
+                    colorizeCircles(m_selectedPackage, a_imgui, a_arch, a_nvm);
                     m_selectedPackage = selected;
                 } else {
                     m_selectedClass = (CNode) selected.getNode().getObject();
@@ -253,6 +295,7 @@ public class TreeView {
                 if (parent != null) {
                     Vec2 oldPos = m_selectedPackage.getPos();
                     Circle newSelected = getPackageCircles(a_imgui, parent, new Vec2(0, 0), a_metric);
+                    colorizeCircles(newSelected, a_imgui, a_arch, a_nvm);
 
                     Circle oldSelected = newSelected.getCircle(m_selectedPackage.getNode());
 
@@ -261,16 +304,16 @@ public class TreeView {
                     m_selectedPackage = newSelected;
                 }
             }
-        } else if (selected != null) {
+        } else if (selected != null && selected.getNode() != null && selected.getNode().getName() != null) {
             a_imgui.beginTooltip();
             a_imgui.text(selected.getNode().getName());
             a_imgui.endTooltip();
         }
 
         if (selected != null) {
-            m_selectedPackageContextMenu.doContextMenu(a_imgui.imgui(), a_arch, selected.getNode());
+            ret = m_selectedPackageContextMenu.doContextMenu(a_imgui.imgui(), a_arch, selected.getNode());
         } else {
-            m_selectedPackageContextMenu.doContextMenu(a_imgui.imgui(), a_arch, null);
+            ret = m_selectedPackageContextMenu.doContextMenu(a_imgui.imgui(), a_arch, null);
         }
 
         //a_imgui.addCircle( m_packageZW.getULOffset(), 50, white, 32, 2);
@@ -279,6 +322,8 @@ public class TreeView {
 
 
         //a_imgui.imgui().endChild();
+
+        return ret;
     }
 
     private Circle getPackageCircles(ImGuiWrapper a_imgui, Tree.TNode a_selected, Vec2 a_initialPos, Metric a_metric) {
@@ -302,12 +347,12 @@ public class TreeView {
 
         CircleHierarchyBuilder rootBuilder = new CircleHierarchyBuilder();
         a_selected.accept(rootBuilder);
-        rootBuilder.m_circle.computeLayout(a_initialPos, a_imgui.toColor(new Vec4(0.75, 0.5, 0.5, 1)), a_imgui.toColor(new Vec4(1.0, 0.25, 0.25, 1)), a_metric);
+        rootBuilder.m_circle.computeLayout(a_initialPos, a_metric);
 
         return rootBuilder.m_circle;
     }
 
-    private void doClassView(ImGuiWrapper a_imgui, CGraph a_g, HuGMe.ArchDef a_arch, HNode.VisualsManager a_nvm, CNode a_selectedNode) {
+    private void doClassView(ImGuiWrapper a_imgui, CGraph a_g, ArchDef a_arch, HNode.VisualsManager a_nvm, CNode a_selectedNode) {
 
         Vec2 columnSize = new Vec2(a_imgui.imgui().getColumnWidth(1) - 10, (float) a_imgui.imgui().getContentRegionAvail().getY());
         a_imgui.imgui().beginChild("classcenterview", columnSize, true, 0);
@@ -348,7 +393,7 @@ public class TreeView {
         Tree archTree = new Tree();
 
         for (CNode n : fanin) {
-            HuGMe.ArchDef.Component mapped = a_arch.getMappedComponent(n);
+            ArchDef.Component mapped = a_arch.getMappedComponent(n);
             if (mapped == null) {
                 archTree.addNode("unmapped." + n.getLogicNameSimple(), n);
             } else {
@@ -357,7 +402,7 @@ public class TreeView {
         }
 
         for (CNode n : fanout) {
-            HuGMe.ArchDef.Component mapped = a_arch.getMappedComponent(n);
+            ArchDef.Component mapped = a_arch.getMappedComponent(n);
             if (mapped == null) {
                 archTree.addNode("unmapped." + n.getLogicNameSimple(), n);
             } else {
@@ -506,7 +551,7 @@ public class TreeView {
 
         archTree.doVisit(new PieDrawer(0, 2 * Math.PI, outerRadius));
 
-        HuGMe.ArchDef.Component selectedComponent = a_arch.getMappedComponent(a_selectedNode);
+        ArchDef.Component selectedComponent = a_arch.getMappedComponent(a_selectedNode);
         if (selectedComponent != null) {
             a_imgui.addCircleFilled(center, (float)innerRadius - 1, a_imgui.toColor(a_nvm.getBGColor(selectedComponent.getName())), 32);
         } else {
@@ -543,7 +588,7 @@ public class TreeView {
                 int color = white;
 
                 if (selectedComponent != null) {
-                    HuGMe.ArchDef.Component from = a_arch.getMappedComponent(cp.m_node);
+                    ArchDef.Component from = a_arch.getMappedComponent(cp.m_node);
                     if (from != null && !from.allowedDependency(selectedComponent)) {
                         color = red;
                     }
@@ -559,7 +604,7 @@ public class TreeView {
                 int color = white;
 
                 if (selectedComponent != null) {
-                    HuGMe.ArchDef.Component to = a_arch.getMappedComponent(cp.m_node);
+                    ArchDef.Component to = a_arch.getMappedComponent(cp.m_node);
                     if (to != null && !selectedComponent.allowedDependency(to)) {
                         color = red;
                     }
@@ -618,7 +663,7 @@ public class TreeView {
 
 
             }
-        } else if (a_imgui.isMouseClicked(0, false)) {
+        } else if (a_imgui.isMouseClicked(0, false) && a_imgui.isInside(new Rect(offset, offset.plus(columnSize)), mousePos)) {
             // clicked outside
             //Tree.TNode parent = m_selectedNode.getParent();
             m_selectedClass = null;
@@ -632,5 +677,14 @@ public class TreeView {
 
     public String getArchRootFilter() {
         return treeViewRoots[0];
+    }
+
+    private void colorizeCircles(Circle a_root, ImGuiWrapper a_imgui, ArchDef a_arch, HNode.VisualsManager a_nvm) {
+        if (m_colorSelection[0] == 0) {
+            a_root.colorByMetric(m_statColor1, m_statColor2);
+        } else {
+            a_root.colorByMapping(a_imgui, a_arch, a_nvm);
+        }
+
     }
 }

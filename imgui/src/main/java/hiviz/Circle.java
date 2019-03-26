@@ -1,17 +1,15 @@
 package hiviz;
 
+import archviz.HNode;
 import glm_.vec2.Vec2;
 import glm_.vec4.Vec4;
 import gui.ImGuiWrapper;
-import imgui.impl.windowsIme.RECT;
 import imgui.internal.Rect;
-import se.lnu.siq.s4rdm3x.experiments.metric.ByteCodeInstructions;
-import se.lnu.siq.s4rdm3x.experiments.metric.LineCount;
 import se.lnu.siq.s4rdm3x.experiments.metric.Metric;
 import se.lnu.siq.s4rdm3x.model.CNode;
+import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 import se.lnu.siq.s4rdm3x.stats;
 
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
 public class Circle {
@@ -102,13 +100,7 @@ public class Circle {
         return ret;
     }
 
-    public void computeLayout(Vec2 a_center, int a_bgColor1, int a_bgColor2, Metric a_metric) {
-        NullPosition();
-        m_pos = a_center;
-        computeLayout(a_metric);
-
-        // get all the leafs and order them according to the metric value
-        // color those that are above some threshold (one sd?)
+    public void colorByMetric(int a_bgColor1, int a_bgColor2) {
         ArrayList<Circle> leafs = new ArrayList<>();
 
         getLeafs(leafs);
@@ -133,6 +125,33 @@ public class Circle {
                 }
             }
         }
+    }
+
+    public void colorByMapping(ImGuiWrapper a_imgui, ArchDef a_arch, HNode.VisualsManager a_nvm) {
+        ArrayList<Circle> leafs = new ArrayList<>();
+        getLeafs(leafs);
+
+        for (Circle c : leafs) {
+            CNode n = (CNode)c.getNode().getObject();
+
+            ArchDef.Component ac = a_arch.getMappedComponent(n);
+            if (ac != null) {
+                c.m_bgColor = new int[1];
+                c.m_bgColor[0] = a_imgui.toColor(a_nvm.getBGColor(ac.getName()));
+            } else {
+                c.m_bgColor = null;
+            }
+        }
+    }
+
+    public void computeLayout(Vec2 a_center, Metric a_metric) {
+        NullPosition();
+        m_pos = a_center;
+        computeLayout(a_metric);
+
+        // get all the leafs and order them according to the metric value
+        // color those that are above some threshold (one sd?)
+
     }
 
     private void NullPosition() {

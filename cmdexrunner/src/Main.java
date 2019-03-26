@@ -2,12 +2,14 @@ import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.MultiGraph;
 import se.lnu.siq.metrics.CSVRow;
 import se.lnu.siq.s4rdm3x.experiments.ExperimentRunner;
+import se.lnu.siq.s4rdm3x.experiments.NBMapperExperimentRunner;
 import se.lnu.siq.s4rdm3x.experiments.RunFileSaver;
 import se.lnu.siq.s4rdm3x.experiments.metric.*;
 import se.lnu.siq.s4rdm3x.experiments.metric.aggregated.*;
 import se.lnu.siq.s4rdm3x.experiments.system.System;
 import se.lnu.siq.s4rdm3x.experiments.system.*;
 import se.lnu.siq.s4rdm3x.model.CGraph;
+import se.lnu.siq.s4rdm3x.model.cmd.mapper.HuGMe;
 
 import java.io.File;
 import java.io.IOException;
@@ -151,25 +153,37 @@ public class Main {
     }
 
     private static class ExThread extends Thread {
+
+        public enum ExperimentType {
+            HuGMe,
+            NBMapper
+        };
+
         private int m_ix;
         Metric m_metric;
         System m_sua;
         RunFileSaver m_fs;
+        ExperimentType m_et;
         ExperimentRunner m_exr;
         boolean m_doSaveMappings;
 
-        public ExThread(System a_sua, Metric a_metric, int a_index, boolean a_doSaveMappings) {
+        public ExThread(ExperimentType a_et, System a_sua, Metric a_metric, int a_index, boolean a_doSaveMappings) {
             m_ix = a_index;
             m_metric = a_metric;
             m_sua = a_sua;
             m_doSaveMappings = a_doSaveMappings;
+            m_et = a_et;
         }
 
         public void run() {
             java.lang.System.out.print("" + m_ix + ", ");
             CGraph graph = new CGraph();
             m_fs = new RunFileSaver(m_sua.getName(), m_metric.getName(), m_doSaveMappings);
-            m_exr = new ExperimentRunner(m_sua, m_metric);
+            if (m_et == ExperimentType.HuGMe) {
+                m_exr = new ExperimentRunner(m_sua, m_metric);
+            } else {
+                m_exr = new NBMapperExperimentRunner(m_sua, m_metric);
+            }
             m_exr.setRunListener(m_fs);
             m_exr.run(graph);
         }
@@ -198,14 +212,14 @@ public class Main {
 
     }
 
-    private static ArrayList<ExThread> startThreads(int a_threadCount, System a_sua, Metric a_metric, boolean a_doSaveMappings) {
+    private static ArrayList<ExThread> startThreads(ExThread.ExperimentType a_et, int a_threadCount, System a_sua, Metric a_metric, boolean a_doSaveMappings) {
         ArrayList<ExThread> ret = new ArrayList<>();
         java.lang.System.out.print("Running experiments: ");
         for(int i = 0; i < a_threadCount; i++) {
             final int ix = i;
 
             // need to make a class of this so we can check te no rows
-            ExThread r = new ExThread(a_sua, a_metric, ix, a_doSaveMappings);
+            ExThread r = new ExThread(a_et, a_sua, a_metric, ix, a_doSaveMappings);
             ret.add(r);
             Thread t = new Thread(r);
             t.start();
@@ -266,13 +280,20 @@ public class Main {
         // -sys system or system model file
         // -metric metric (optional)
         // -mapping saves mappings (optional)
-        // -count the number of rows to (optional)
+        // -count the number of rows to get (optional)
+        // -type the type of experiment (hugme or nbmapper)
         final CmdArgsHandler args = new CmdArgsHandler(a_args);
         final String system = args.getArgumentString("-system");
         final String metric = args.getArgumentString("-metric");
         boolean saveMappings = args.getArgumentBool("-mapping", false);
         final int rowLimit = args.getArgumentInt("-count", 50000);
         final int threadCount = args.getArgumentInt("-threads", 1);
+        final String type = args.getArgumentString("-type");
+        ExThread.ExperimentType et = ExThread.ExperimentType.NBMapper;
+
+        if (type.equalsIgnoreCase("hugme")) {
+            et = ExThread.ExperimentType.HuGMe;
+        }
 
         System sua = getSystem(system);
         Metric m = getMetric(metric);
@@ -282,7 +303,7 @@ public class Main {
                 // could not find any metric with that name
             } else if (m != null) {
                 int initialRows = getInitialRows(sua.getName(), m.getName());
-                run(threadCount, rowLimit - initialRows, sua, m, saveMappings);
+                run(et, threadCount, rowLimit - initialRows, sua, m, saveMappings);
             } else {
 
                 ArrayList<String> metricNames = new ArrayList<>();
@@ -331,7 +352,7 @@ public class Main {
                     if (m != null) {
 
                         int initialRows = getInitialRows(sua.getName(), m.getName());
-                        run(threadCount, rowLimit - initialRows, sua, m, saveMappings);
+                        run(et, threadCount, rowLimit - initialRows, sua, m, saveMappings);
                     }
                 }
             }
@@ -342,13 +363,13 @@ public class Main {
 
     }
 
-    public static void run(int a_threadCount, int a_rows, System a_sua, Metric a_m, boolean a_doSaveMappings) {
+    public static void run(ExThread.ExperimentType a_et, int a_threadCount, int a_rows, System a_sua, Metric a_m, boolean a_doSaveMappings) {
         if (a_rows > 0) {
             java.lang.System.out.println("Running " + a_threadCount + " experiment threads on: " +a_sua.getName() + ":" +  a_m.getName() + " for " + a_rows + " additional rows.");
             if (a_doSaveMappings) {
                 java.lang.System.out.println("Also saving experiment mappings.");
             }
-            ArrayList<ExThread> threads = startThreads(a_threadCount, a_sua, a_m, a_doSaveMappings);
+            ArrayList<ExThread> threads = startThreads(a_et, a_threadCount, a_sua, a_m, a_doSaveMappings);
             java.lang.System.out.println("\nAll experiment threads Started!");
 
             while (sumRows(threads) < a_rows) {

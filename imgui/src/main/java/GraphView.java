@@ -4,7 +4,7 @@ import imgui.ImGui;
 import imgui.WindowFlag;
 import imgui.internal.Rect;
 import imgui.internal.Window;
-import se.lnu.siq.s4rdm3x.model.cmd.hugme.HuGMe;
+import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.model.CNode;
 
@@ -163,11 +163,11 @@ public class GraphView {
     Particle[] m_componentParticles = new Particle[0];
 
 
-    void doGraphView(ImGui a_imgui, Iterable<CNode> a_nodes, HuGMe.ArchDef a_arch, archviz.HNode.VisualsManager a_nvm, float a_dt) {
+    void doGraphView(ImGui a_imgui, Iterable<CNode> a_nodes, ArchDef a_arch, archviz.HNode.VisualsManager a_nvm, float a_dt) {
         ImGuiWrapper imgui = new ImGuiWrapper(a_imgui);
 
         for (int cIx = 0; cIx < a_arch.getComponentCount(); cIx++) {
-            HuGMe.ArchDef.Component c = a_arch.getComponent(cIx);
+            ArchDef.Component c = a_arch.getComponent(cIx);
 
             if (m_componentParticles.length < cIx + 1) {
                 //m_arNodes.ensureCapacity(n.getIndex() + 1);
@@ -227,7 +227,7 @@ public class GraphView {
                 gn.setSize(size);
 
                 for (int cIx = 0; cIx < a_arch.getComponentCount(); cIx++) {
-                    HuGMe.ArchDef.Component c = a_arch.getComponent(cIx);
+                    ArchDef.Component c = a_arch.getComponent(cIx);
 
                     if (c.isMappedTo(n)) {
                         gn.m_attractedTo = m_componentParticles[cIx];
@@ -393,7 +393,7 @@ public class GraphView {
         imgui.endTooltip();
     }
 
-    private void setFileParticleAttractions(Iterable<CNode> a_nodes, Particle a_source, HuGMe.ArchDef.Component a_c) {
+    private void setFileParticleAttractions(Iterable<CNode> a_nodes, Particle a_source, ArchDef.Component a_c) {
         for(CNode n : a_nodes) {
             if (n.getIndex() < m_fileParticles.length) {
                 if (a_c.isMappedTo(n)) {

@@ -10,9 +10,10 @@ import kotlin.Unit;
 import se.lnu.siq.s4rdm3x.GUIConsole;
 import se.lnu.siq.s4rdm3x.StringCommandHandler;
 import se.lnu.siq.s4rdm3x.model.Selector;
-import se.lnu.siq.s4rdm3x.model.cmd.hugme.HuGMe;
+import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
+import se.lnu.siq.s4rdm3x.model.cmd.mapper.MapNode;
 import uno.glfw.GlfwWindow;
 import uno.glfw.windowHint;
 
@@ -73,7 +74,7 @@ public class RectsAndArrows {
         // testing
         //sch.execute("load_arch data/systems/teammates/teammates-system_model.txt", graph).forEach(str -> guic.println(str));
 
-        HuGMe.ArchDef theArch = new HuGMe.ArchDef();
+        ArchDef theArch = new ArchDef();
         //theArch.addComponent("client.part1.part1_1");
 
         //theArch.addComponent("global");
@@ -177,7 +178,7 @@ public class RectsAndArrows {
         a_offset.plus(a_size.times(a_index, a_outTopLeftCorner), a_outTopLeftCorner);
     }
 
-    private boolean equalToLevel(final int a_level, HuGMe.ArchDef.Component a_c1, HuGMe.ArchDef.Component a_c2) {
+    private boolean equalToLevel(final int a_level, ArchDef.Component a_c1, ArchDef.Component a_c2) {
         String [] names1 = getLevels(a_c1);
         String [] names2 = getLevels(a_c2);
         if (a_level < names1.length && a_level < names2.length) {
@@ -191,11 +192,11 @@ public class RectsAndArrows {
         return false;
     }
 
-    private String [] getLevels(HuGMe.ArchDef.Component a_c) {
+    private String [] getLevels(ArchDef.Component a_c) {
         return a_c.getName().split("\\.");
     }
 
-    private void mainLoop(HuGMe.ArchDef a_arch, CGraph a_g) {
+    private void mainLoop(ArchDef a_arch, CGraph a_g) {
         // Start the Dear ImGui frame
         lwjglGlfw.newFrame();
 
@@ -228,21 +229,14 @@ public class RectsAndArrows {
             if (imgui.begin("Tree Views", showTreeView, 0)) {
                 TreeView.Action a = m_treeView.doTreeView(imgui, a_arch, a_g, m_vizState.m_nvm);
                 if (a != null && a.m_doMapAction != null) {
-                    HuGMe.ArchDef.Component target = a_arch.getComponent(a.m_doMapAction.a_toComponentName);
-                    if (target == null) {
-                        System.out.println("Unable to find component: " + a.m_doMapAction.a_toComponentName);
-                    } else {
-                        for (CNode n : a_g.getNodes()) {
-                            if (n.getName().startsWith(a.m_doMapAction.a_whatNodeName)) {
-                                System.out.println("Mapping: " + n.getName());
-                                if (!target.isMappedTo(n)) {
-                                    target.mapToNode(n);
-                                } else {
-                                    n.setMapping("");
-                                }
-                            }
-                        }
+                    ArchDef.Component target = null;
+                    if (a.m_doMapAction.a_toComponentName != null) {
+                        target = a_arch.getComponent(a.m_doMapAction.a_toComponentName);
                     }
+                    Selector.Pat selector = new Selector.Pat(a.m_doMapAction.a_whatNodeName.replace(".", "\\."));
+                    MapNode cmd = new MapNode(target, selector);
+                    cmd.run(a_g);
+
                 }
                 imgui.end();
             }
@@ -282,19 +276,19 @@ public class RectsAndArrows {
     }
 
 
-    private void doArchStructure(HuGMe.ArchDef a_arch, String a_rootComponentFilter, CGraph a_g) {
+    private void doArchStructure(ArchDef a_arch, String a_rootComponentFilter, CGraph a_g) {
         if (a_arch !=  null) {
 
             HRoot root = new HRoot();
-            for (HuGMe.ArchDef.Component c : a_arch.getComponents()) {
+            for (ArchDef.Component c : a_arch.getComponents()) {
 
                 if (c.getName().startsWith(a_rootComponentFilter)) {
                     root.add(c.getName());
                 }
             }
 
-            for (HuGMe.ArchDef.Component from : a_arch.getComponents()) {
-                for (HuGMe.ArchDef.Component to : a_arch.getComponents()) {
+            for (ArchDef.Component from : a_arch.getComponents()) {
+                for (ArchDef.Component to : a_arch.getComponents()) {
                     if (from.allowedDependency(to)) {
                         if (from.getName().startsWith(a_rootComponentFilter) && to.getName().startsWith(a_rootComponentFilter)) {
                             root.addDependency(from.getName(), to.getName());
@@ -321,13 +315,13 @@ public class RectsAndArrows {
 
             // we need to do resorting before renaming
             if (action != null && action.m_nodeOrder != null) {
-                ArrayList<HuGMe.ArchDef.Component> newOrder = new ArrayList<>();
+                ArrayList<ArchDef.Component> newOrder = new ArrayList<>();
 
                 for(String name : action.m_nodeOrder) {
                     newOrder.add(a_arch.getComponent(name));
                 }
                 a_arch.clear();
-                for(HuGMe.ArchDef.Component c : newOrder) {
+                for(ArchDef.Component c : newOrder) {
                     a_arch.addComponent(c);
                 }
             }
@@ -335,8 +329,8 @@ public class RectsAndArrows {
             // add dependenices
             if (action != null && action.m_addDependenices != null) {
                 for(HRoot.Action.NodeNamePair pair : action.m_addDependenices.getPairs()) {
-                    HuGMe.ArchDef.Component sC = a_arch.getComponent(pair.m_oldName);
-                    HuGMe.ArchDef.Component tC = a_arch.getComponent(pair.m_newName);
+                    ArchDef.Component sC = a_arch.getComponent(pair.m_oldName);
+                    ArchDef.Component tC = a_arch.getComponent(pair.m_newName);
                     if (tC == null) {
                         System.out.println("Could not find component named: " + pair.m_newName);
                     } else if (sC == null) {
@@ -350,8 +344,8 @@ public class RectsAndArrows {
             // remove dependenices
             if (action != null && action.m_removeDependencies != null) {
                 for(HRoot.Action.NodeNamePair pair : action.m_removeDependencies.getPairs()) {
-                    HuGMe.ArchDef.Component sC = a_arch.getComponent(pair.m_oldName);
-                    HuGMe.ArchDef.Component tC = a_arch.getComponent(pair.m_newName);
+                    ArchDef.Component sC = a_arch.getComponent(pair.m_oldName);
+                    ArchDef.Component tC = a_arch.getComponent(pair.m_newName);
                     if (tC == null) {
                         System.out.println("Could not find component named: " + pair.m_newName);
                     } else if (sC == null) {
@@ -365,7 +359,7 @@ public class RectsAndArrows {
             // node renaming
             if (action != null && action.m_hiearchyMove != null) {
                 for(HRoot.Action.NodeNamePair pair : action.m_hiearchyMove.getPairs()) {
-                    HuGMe.ArchDef.Component c = a_arch.getComponent(pair.m_oldName);
+                    ArchDef.Component c = a_arch.getComponent(pair.m_oldName);
                     if (c == null) {
                         System.out.println("Could not find component named: " + pair.m_oldName);
                     } else {

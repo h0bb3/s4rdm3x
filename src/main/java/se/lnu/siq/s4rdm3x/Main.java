@@ -4,7 +4,7 @@ import org.graphstream.graph.*;
 import org.graphstream.graph.implementations.*;
 import org.graphstream.ui.view.Viewer;
 import org.graphstream.ui.view.ViewerPipe;
-import se.lnu.siq.s4rdm3x.model.cmd.hugme.HuGMe;
+import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 
 public class Main {
 
@@ -17,7 +17,7 @@ public class Main {
         //C.io.setTitle("Hello World");
         GUIConsole guic = new GUIConsole();
 
-        HuGMe.ArchDef arch = null;  // this is set by loading the arch
+        ArchDef arch = null;  // this is set by loading the arch
 
         //CGraph graph = new CGraph();
         Graph graph = new MultiGraph("main_graph");

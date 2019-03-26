@@ -6,17 +6,14 @@ import hiviz.Tree;
 import imgui.ComboFlag;
 import imgui.ImGui;
 import imgui.SelectableFlag;
-import imgui.WindowFlag;
 import imgui.internal.ColumnsFlag;
-import jogamp.opengl.glu.nurbs.Curve;
-import se.lnu.siq.s4rdm3x.model.cmd.hugme.HuGMe;
+import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
-import se.lnu.siq.s4rdm3x.model.cmd.hugme.HuGMeManual;
+import se.lnu.siq.s4rdm3x.model.cmd.mapper.HuGMeManual;
 import se.lnu.siq.s4rdm3x.stats;
 
-import javax.swing.tree.TreeNode;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -98,7 +95,7 @@ public class HuGMeView {
 
 
 
-    Action doHugMeView(ImGui a_imgui, HuGMe.ArchDef a_arch, CGraph a_g, HNode.VisualsManager a_nvm) {
+    Action doHugMeView(ImGui a_imgui, ArchDef a_arch, CGraph a_g, HNode.VisualsManager a_nvm) {
         Action ret = null;
 
         ArrayList<String> items = new ArrayList<>();
@@ -168,14 +165,14 @@ public class HuGMeView {
         return ret;
     }
 
-    private void doSelectMappedEntities(ImGuiWrapper a_imgui, CGraph a_g, HuGMe.ArchDef a_arch, HNode.VisualsManager a_nvm) {
+    private void doSelectMappedEntities(ImGuiWrapper a_imgui, CGraph a_g, ArchDef a_arch, HNode.VisualsManager a_nvm) {
         a_imgui.imgui().beginColumns("doSelectMappedEntitiesColumns", 2, 0);
         a_imgui.text("Unselected Mapped Nodes:");
         hiviz.Tree tree = new hiviz.Tree();
         for (CNode n : a_g.getNodes()) {
 
             if (!m_selectedMappedNodes.contains(n)) {
-                HuGMe.ArchDef.Component component = a_arch.getMappedComponent(n);
+                ArchDef.Component component = a_arch.getMappedComponent(n);
 
                 for (dmClass c : n.getClasses()) {
                     if (!c.isInner()) {
@@ -201,7 +198,7 @@ public class HuGMeView {
         tree = new hiviz.Tree();
         for (CNode n : m_selectedMappedNodes) {
 
-            HuGMe.ArchDef.Component component = a_arch.getMappedComponent(n);
+            ArchDef.Component component = a_arch.getMappedComponent(n);
 
             for (dmClass c : n.getClasses()) {
                 if (!c.isInner()) {
@@ -222,14 +219,14 @@ public class HuGMeView {
         a_imgui.imgui().endColumns();
     }
 
-    private void doSelectOrphanEntities(ImGuiWrapper a_imgui, CGraph a_g, HuGMe.ArchDef a_arch, HNode.VisualsManager a_nvm) {
+    private void doSelectOrphanEntities(ImGuiWrapper a_imgui, CGraph a_g, ArchDef a_arch, HNode.VisualsManager a_nvm) {
         a_imgui.imgui().beginColumns("doSelectOrphanEntitiesColumns", 2, 0);
         a_imgui.text("Unselected Entities:");
         hiviz.Tree tree = new hiviz.Tree();
         for (CNode n : a_g.getNodes()) {
 
             if (!m_selectedOrphanNodes.contains(n) && !m_selectedMappedNodes.contains(n)) {
-                HuGMe.ArchDef.Component component = a_arch.getMappedComponent(n);
+                ArchDef.Component component = a_arch.getMappedComponent(n);
 
                 if (component != null) {
                     Tree.TNode tn = tree.addNode(n.getLogicName().replace("/", ".").replace(".java", ""), n);
@@ -251,7 +248,7 @@ public class HuGMeView {
         tree = new hiviz.Tree();
         for (CNode n : m_selectedOrphanNodes) {
 
-            HuGMe.ArchDef.Component component = a_arch.getMappedComponent(n);
+            ArchDef.Component component = a_arch.getMappedComponent(n);
             if (component != null) {
                 Tree.TNode tn = tree.addNode(n.getLogicName(), n);
                 tn.setName(tn.getName());
@@ -267,7 +264,7 @@ public class HuGMeView {
         a_imgui.imgui().endColumns();
     }
 
-    private void doHugMeParamsView(ImGuiWrapper a_imgui, HuGMe.ArchDef a_arch, HNode.VisualsManager a_nvm) {
+    private void doHugMeParamsView(ImGuiWrapper a_imgui, ArchDef a_arch, HNode.VisualsManager a_nvm) {
 
         a_imgui.imgui().beginColumns("doHugMeParamsViw", 2, 0);
 
@@ -277,7 +274,7 @@ public class HuGMeView {
         a_imgui.text("Mapped Entities: " + m_selectedMappedNodes.size());
 
         Tree tree = new Tree();
-        for(HuGMe.ArchDef.Component c : a_arch.getComponents()) {
+        for(ArchDef.Component c : a_arch.getComponents()) {
             Tree.TNode tn = null;
             for (CNode n : m_selectedMappedNodes) {
                 if (c.isMappedTo(n)) {
@@ -305,9 +302,9 @@ public class HuGMeView {
                     nodeCopy.addClass(c);
                 }
 
-                HuGMe.ArchDef.Component c = a_arch.getMappedComponent(n);
+                ArchDef.Component c = a_arch.getMappedComponent(n);
                 c.mapToNode(nodeCopy);
-                c.clusterToNode(nodeCopy, HuGMe.ArchDef.Component.ClusteringType.Initial);
+                c.clusterToNode(nodeCopy, ArchDef.Component.ClusteringType.Initial);
             }
 
             for (CNode n : m_selectedOrphanNodes) {
@@ -345,7 +342,7 @@ public class HuGMeView {
             Tree orphanTree = new Tree();
 
             for (CNode n : m_selectedMappedNodes) {
-                HuGMe.ArchDef.Component c = a_arch.getMappedComponent(n);
+                ArchDef.Component c = a_arch.getMappedComponent(n);
                 mappedTree.addNode(c.getName() + "." + n.getLogicName(), n);
             }
 
@@ -547,7 +544,7 @@ public class HuGMeView {
         a_imgui.imgui().endColumns();
     }
 
-    private void doAcceptAutoClusteredEntities(ImGuiWrapper a_imgui, CGraph a_g, HuGMe.ArchDef a_arch, HNode.VisualsManager a_nvm) {
+    private void doAcceptAutoClusteredEntities(ImGuiWrapper a_imgui, CGraph a_g, ArchDef a_arch, HNode.VisualsManager a_nvm) {
         a_imgui.imgui().beginColumns("doAcceptAutoClusteredEntities", 2, 0);
         a_imgui.text("Auto Clustered Entities:");
         hiviz.Tree tree = new hiviz.Tree();
@@ -555,7 +552,7 @@ public class HuGMeView {
 
             Tree.TNode tn = tree.addNode(n.getLogicName(), n);
 
-            HuGMe.ArchDef.Component component = a_arch.getMappedComponent(a_g.getNode(n.getName()));    // the orphan nodes are copies stripped from mapping information and the original node in the graph may contain the original mapping
+            ArchDef.Component component = a_arch.getMappedComponent(a_g.getNode(n.getName()));    // the orphan nodes are copies stripped from mapping information and the original node in the graph may contain the original mapping
             if (component != null) {
                 tn.setMapping("Mapped to: " + component.getName(), a_nvm.getBGColor(component.getName()), component);
             }
@@ -635,7 +632,7 @@ public class HuGMeView {
                 a_imgui.imgui().nextColumn();
 
 
-                HuGMe.ArchDef.Component mappedComponent = a_arch.getMappedComponent(a_g.getNode(n.getName()));
+                ArchDef.Component mappedComponent = a_arch.getMappedComponent(a_g.getNode(n.getName()));
                 if (mappedComponent != null) {
                     a_imgui.text(a_imgui.getLongestSubString(mappedComponent.getName(), columnWidths[a_imgui.imgui().getColumnIndex()] - (a_imgui.imgui().getCursorPos().getX() - a_imgui.imgui().getColumnOffset(a_imgui.imgui().getColumnIndex())), "\\."));
                 } else {
@@ -647,7 +644,7 @@ public class HuGMeView {
                 {   // comboboxes for the clustering
                     int [] selectedComponent = {0};
 
-                    HuGMe.ArchDef.Component clusteredTo = a_arch.getClusteredComponent(n);
+                    ArchDef.Component clusteredTo = a_arch.getClusteredComponent(n);
 
 
                     Vec2 zeroSize = new Vec2(0, 0);
@@ -655,10 +652,10 @@ public class HuGMeView {
                     if (a_imgui.imgui().beginCombo("##"+n.getLogicName(), a_imgui.getLongestSubString(clusteredTo.getName(), columnWidths[a_imgui.imgui().getColumnIndex()] - a_imgui.imgui().getFrameHeightWithSpacing() - (a_imgui.imgui().getCursorPos().getX() - a_imgui.imgui().getColumnOffset(a_imgui.imgui().getColumnIndex())), "\\."), ComboFlag.None.getI())) {
 
                         for (int i = 0; i < a_arch.getComponentCount(); i++) {
-                            HuGMe.ArchDef.Component c = a_arch.getComponent(i);
+                            ArchDef.Component c = a_arch.getComponent(i);
                             if (a_imgui.imgui().selectable(c.getName(), c == clusteredTo, SelectableFlag.None.getI(), zeroSize)) {
                                 selectedComponent[0] = i;
-                                c.clusterToNode(n, HuGMe.ArchDef.Component.ClusteringType.Manual);
+                                c.clusterToNode(n, ArchDef.Component.ClusteringType.Manual);
                             }
                         }
 

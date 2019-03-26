@@ -110,6 +110,7 @@ public class ASMdmProjectBuilder extends ClassVisitor {
             }
 
             m_currentClass.incFieldCount();
+            m_currentClass.addText(name);
 
             if ((access & Opcodes.ACC_STATIC) > 0 && (access & Opcodes.ACC_FINAL) > 0) {
                 println("Constant Field");
@@ -301,6 +302,7 @@ public class ASMdmProjectBuilder extends ClassVisitor {
 
                             println("Type.getType: " + Type.getType(desc).getClassName());
                             addLocalVar(Type.getType(desc).getClassName(), index);
+                            m_currentClass.addText(name);
                         }
                     } else {
                         println("Local Variable (skipped): " + desc + " " + name + " " + index);

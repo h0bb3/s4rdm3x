@@ -1,6 +1,6 @@
 package se.lnu.siq.s4rdm3x.model.cmd;
 
-import se.lnu.siq.s4rdm3x.model.cmd.hugme.HuGMe;
+import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
 import se.lnu.siq.s4rdm3x.model.CGraph;
@@ -15,7 +15,7 @@ public class CheckViolations {
 
     public static class Violation {
         public static class Part {
-            public HuGMe.ArchDef.Component m_component;
+            public ArchDef.Component m_component;
             public CNode m_node;
             public dmClass m_class;
         }
@@ -23,20 +23,20 @@ public class CheckViolations {
         public dmDependency m_dependency;
     }
 
-    public void run(CGraph a_g, HuGMe.ArchDef a_arch) {
-        HashMap<HuGMe.ArchDef.Component, ArrayList<CNode>> nodesPerComponent = new HashMap<>();
+    public void run(CGraph a_g, ArchDef a_arch) {
+        HashMap<ArchDef.Component, ArrayList<CNode>> nodesPerComponent = new HashMap<>();
 
-        for (HuGMe.ArchDef.Component c : a_arch.getComponents()) {
+        for (ArchDef.Component c : a_arch.getComponents()) {
             nodesPerComponent.put(c, new ArrayList<>());
         }
         for(CNode n : a_arch.getMappedNodes(a_g.getNodes())) {
-            HuGMe.ArchDef.Component c = a_arch.getMappedComponent(n);
+            ArchDef.Component c = a_arch.getMappedComponent(n);
             nodesPerComponent.get(c).add(n);
         }
 
-        for (HuGMe.ArchDef.Component cFrom : a_arch.getComponents()) {
+        for (ArchDef.Component cFrom : a_arch.getComponents()) {
 
-            for (HuGMe.ArchDef.Component cTo : a_arch.getComponents()) {
+            for (ArchDef.Component cTo : a_arch.getComponents()) {
                 if (cFrom != cTo && !cFrom.allowedDependency(cTo)) {
                     addDivergencies(cFrom, nodesPerComponent.get(cFrom), cTo, nodesPerComponent.get(cTo));
                 }
@@ -44,7 +44,7 @@ public class CheckViolations {
         }
     }
 
-    private void addDivergencies(HuGMe.ArchDef.Component a_cFrom, Iterable<CNode> a_from, HuGMe.ArchDef.Component a_cTo, Iterable<CNode> a_to) {
+    private void addDivergencies(ArchDef.Component a_cFrom, Iterable<CNode> a_from, ArchDef.Component a_cTo, Iterable<CNode> a_to) {
         for(CNode from : a_from) {
             for (CNode to : a_to) {
                 for (dmDependency d : from.getDependencies(to)) {
