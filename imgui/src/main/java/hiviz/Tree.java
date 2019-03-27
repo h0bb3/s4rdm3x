@@ -84,6 +84,16 @@ public class Tree {
             }
         }
 
+        public int fullChildCount() {
+            int ret = childCount();
+
+            for (TNode c : m_children) {
+                ret += c.fullChildCount();
+            }
+
+            return ret;
+        }
+
         public int childCount() {
             return m_children.size();
         }

@@ -7,6 +7,8 @@ import imgui.impl.ImplGL3;
 import imgui.impl.LwjglGlfw;
 import imgui.internal.Rect;
 import kotlin.Unit;
+import mapping.HuGMeView;
+import mapping.MappingView;
 import se.lnu.siq.s4rdm3x.GUIConsole;
 import se.lnu.siq.s4rdm3x.StringCommandHandler;
 import se.lnu.siq.s4rdm3x.model.Selector;
@@ -135,7 +137,7 @@ public class RectsAndArrows {
         sch.execute("load_arch_visuals data/slask/jabref_visuals.xml", graph).forEach(str -> guic.println(str));
         sch.execute("load_jar data/systems/JabRef/3.7/JabRef-3.7.jar net.sf.jabref.", graph).forEach(str -> guic.println(str));
         sch.execute("load_arch data/slask/jabref.txt", graph).forEach(str -> guic.println(str));
-        sch.execute("compute_metrics", graph).forEach(str -> guic.println(str));
+        //sch.execute("compute_metrics", graph).forEach(str -> guic.println(str));
 
 
         window.loop(() -> {
@@ -168,7 +170,7 @@ public class RectsAndArrows {
 
     private TreeView m_treeView = new TreeView();
     private GraphView m_graphView = new GraphView();
-    private HuGMeView m_hugMeView = new HuGMeView();
+    private MappingView m_mappingView = new MappingView();
 
 
 
@@ -253,12 +255,12 @@ public class RectsAndArrows {
         if (showHuGMeView[0]) {
             if (imgui.begin("HuGMe View", showHuGMeView, 0)) {
 
-                m_hugMeView.doHugMeView(imgui, a_arch, a_g, m_vizState.m_nvm);
+                m_mappingView.doView(imgui, a_arch, a_g, m_vizState.m_nvm);
 
                 imgui.end();
 
-                if (m_hugMeView.getSelectedClusteredNode() != null) {
-                    m_treeView.m_selectedClass = m_hugMeView.getSelectedClusteredNode();
+                if (m_mappingView.getSelectedClusteredNode() != null) {
+                    m_treeView.m_selectedClass = m_mappingView.getSelectedClusteredNode();
                 }
             }
         }

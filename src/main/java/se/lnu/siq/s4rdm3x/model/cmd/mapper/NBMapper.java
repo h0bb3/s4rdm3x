@@ -18,10 +18,12 @@ import weka.filters.unsupervised.attribute.StringToWordVector;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 public class NBMapper {
 
+    public ArrayList<CNode> m_clusteredElements = new ArrayList<>();
     protected ArchDef m_arch;
 
 
@@ -32,6 +34,7 @@ public class NBMapper {
     public int m_autoWrong = 0;
 
     private boolean m_doStemm = false;
+    private Filter m_filter = new StringToWordVector();
 
     public NBMapper(ArchDef a_arch) {
         m_arch = a_arch;
@@ -60,6 +63,10 @@ public class NBMapper {
         return ret;
     }
 
+    public Filter getFilter() {
+        return m_filter;
+    }
+
     public void run(CGraph a_g) {
 
         // get the mapped nodes
@@ -71,10 +78,9 @@ public class NBMapper {
 
         ArrayList<CNode> orphans = getOrphanNodes(a_g);
         ArrayList<CNode> initiallyMapped = getInitiallyMappedNodes(a_g);
+        m_clusteredElements.clear();
 
-        StringToWordVector filter = new StringToWordVector();
-
-        weka.core.Instances trainingData = getTrainingData(initiallyMapped, m_arch, filter);
+        weka.core.Instances trainingData = getTrainingData(initiallyMapped, m_arch, getFilter());
         //weka.core.Instances predictionData = getPredictionData(a_g);
 
         m_consideredNodes = orphans.size();
@@ -86,19 +92,22 @@ public class NBMapper {
         //Classifier nbClassifier = new RandomTree(); // avg 43% wrong
 
 
+
+
         try {
             nbClassifier.buildClassifier(trainingData);
 
-            System.out.print(" the expression for the input data as per alogrithm is ");
+            System.out.print(" the expression for the input data as per algorithm is ");
+
             System.out.println(nbClassifier);
 
             for (CNode orphanNode : orphans) {
                 double [] attraction = new double[m_arch.getComponentCount()];
 
                 for (int i = 0; i < m_arch.getComponentCount(); i++) {
-                    Instances data = getPredictionDataForNode(orphanNode, initiallyMapped, m_arch, filter);
 //                    double index = nbClassifier.classifyInstance(data.instance(i));
-                    double [] distribution = nbClassifier.distributionForInstance(data.instance(i));
+                    Instances data = getPredictionDataForNode(orphanNode, initiallyMapped, m_arch.getComponentNames(), m_arch.getComponent(i), getFilter());
+                    double [] distribution = nbClassifier.distributionForInstance(data.instance(0));
                     /*System.out.print("[");
                     for (int dIx = 0; dIx < distribution.length; dIx++) {
                         System.out.print(distribution[dIx] + " ");
@@ -124,6 +133,7 @@ public class NBMapper {
 
                 if (attractions[maxIx] > threshold) {
                     m_arch.getComponent(maxIx).clusterToNode(orphanNode, ArchDef.Component.ClusteringType.Automatic);
+                    m_clusteredElements.add(orphanNode);
                     m_automaticallyMappedNodes++;
                     System.out.println("Clustered to: " + orphanNode.getClusteringComponentName() +" mapped to: " + orphanNode.getMapping());
 
@@ -141,16 +151,13 @@ public class NBMapper {
         }
     }
 
-    private Instances getPredictionDataForNode(CNode a_node, Iterable<CNode> a_mappedNodes, ArchDef a_arch, Filter a_filter) {
+    private Instances getPredictionDataForNode(CNode a_node, Iterable<CNode> a_mappedNodes, String[] a_componentNames, ArchDef.Component a_component, Filter a_filter) {
         ArrayList<Attribute> attributes = new ArrayList<>();
 
         // first we have the architectural components
-
-        List<String> components = Arrays.asList(a_arch.getComponentNames());
-
-
-        attributes.add(new Attribute("component", components));
-        attributes.add(new Attribute("relations", (ArrayList<String>) null));
+        List<String> componentNames = Arrays.asList(a_componentNames);
+        attributes.add(new Attribute("component_blarg17", componentNames));
+        attributes.add(new Attribute("relations_blarg17", (ArrayList<String>) null));
 
         Instances data = new Instances("PredictionData", attributes, 0);
 
@@ -162,17 +169,18 @@ public class NBMapper {
         }
         nodeText += deCamelCase(a_node.getLogicName().replace(".", " "), 3, m_doStemm);
 
-        for (int i = 0; i < a_arch.getComponentCount(); i++) {
+        //for (int i = 0; i < a_arch.getComponentCount(); i++) {
             double[] values = new double[data.numAttributes()];
-            values[0] = components.indexOf(a_arch.getComponent(i).getName());
-            String relations = getDependencyStringFromNode(a_node, a_arch.getComponent(i).getName(), a_mappedNodes) + " " + getDependencyStringToNode(a_node, a_arch.getComponent(i).getName(), a_mappedNodes);
+            values[0] = componentNames.indexOf(a_component);
+            String relations = getDependencyStringFromNode(a_node, a_component.getName(), a_mappedNodes);
+            relations += " " + getDependencyStringToNode(a_node, a_component.getName(), a_mappedNodes);
 
             relations += " " + nodeText;
             //String relations = nodeText;
 
-            values[1] = data.attribute(1).addStringValue(relations);
+            values[0] = data.attribute(1).addStringValue(relations);
             data.add(new DenseInstance(1.0, values));
-        }
+        //}
 
 
         data.setClassIndex(0);
@@ -223,7 +231,7 @@ public class NBMapper {
             if (to != a_from) {
                 for (dmDependency d : a_from.getDependencies(to)) {
                     for (int i = 0; i < d.getCount(); i++) {
-                        relations += a_nodeComponentName + d.getType() + to.getMapping() + " ";
+                        relations += a_nodeComponentName.replace(".", "") + d.getType() + to.getMapping().replace(".", "") + " ";
                     }
                 }
             }
@@ -240,7 +248,7 @@ public class NBMapper {
             if (a_to != from) {
                 for (dmDependency d : from.getDependencies(a_to)) {
                     for (int i = 0; i < d.getCount(); i++) {
-                        relations += from.getMapping() + d.getType() + a_nodeComponentName + " ";
+                        relations += from.getMapping().replace(".", "") + d.getType() + a_nodeComponentName.replace(".", "") + " ";
                     }
                 }
             }
@@ -257,12 +265,10 @@ public class NBMapper {
     }
 
     String getDependencyStringFromNode(CNode a_from, Iterable<CNode>a_tos) {
-
-
         return getDependencyStringFromNode(a_from, a_from.getMapping(), a_tos);
     }
 
-    Instances getTrainingData(Iterable<CNode>a_nodes, ArchDef a_arch, Filter a_filter) {
+    public Instances getTrainingData(Iterable<CNode>a_nodes, ArchDef a_arch, Filter a_filter) {
         ArrayList<Attribute> attributes = new ArrayList<>();
 
         // first we have the architectural components
@@ -292,7 +298,6 @@ public class NBMapper {
             data.add(new DenseInstance(1.0, values));
         }
 
-
         data.setClassIndex(0);
 
         try {
@@ -308,6 +313,4 @@ public class NBMapper {
             return null;
         }
     }
-
-
 }

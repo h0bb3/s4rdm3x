@@ -5,13 +5,11 @@ import se.lnu.siq.s4rdm3x.model.CNode;
 
 import java.util.ArrayList;
 
-public class HuGMeManual extends HuGMe {
+public class NBMapperManual extends NBMapper {
 
-
-    public HuGMeManual(double a_filterThreshold, double a_violationWeight, ArchDef a_arch) {
-        super(a_filterThreshold, a_violationWeight, false, a_arch, null);
+    public NBMapperManual(ArchDef a_arch) {
+        super(a_arch);
     }
-
 
 
     // in this version an orphan node does not have a mapping and no clustering

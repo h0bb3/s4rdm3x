@@ -213,7 +213,7 @@ public class TreeView  {
 
             ArrayList<String> colors = new ArrayList<>();
             colors.add("by Metric (mean, std dev)");
-            colors.add("by Mapping");
+            colors.add("by MappingView");
             if (a_imgui.combo("Color##colorcombo", m_colorSelection, colors, colors.size())) {
                 m_selectedPackage.computeLayout(m_selectedPackage.getPos(), primitiveMetrics[m_metricSelection[0]]);
                 colorizeCircles(m_selectedPackage, iw, a_arch, a_nvm);
