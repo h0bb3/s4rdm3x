@@ -6,9 +6,11 @@ import glm_.vec4.Vec4;
 import gui.ImGuiWrapper;
 import hiviz.Tree;
 import imgui.ComboFlag;
+import imgui.DrawList;
 import imgui.ImGui;
 import imgui.SelectableFlag;
 import imgui.internal.ColumnsFlag;
+import imgui.internal.Rect;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.model.CGraph;
@@ -18,6 +20,7 @@ import se.lnu.siq.s4rdm3x.stats;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import static java.lang.Math.sin;
@@ -135,6 +138,10 @@ public class HuGMeView {
 
         a_imgui.imgui().nextColumn();
 
+        Vec2 columnSize = new Vec2(a_imgui.imgui().getColumnWidth(1) - 10, (float) a_imgui.imgui().getContentRegionAvail().getY());
+        a_imgui.imgui().beginChild("mappingandorphanpies", columnSize, true, 0);
+        Vec2 offset = a_imgui.imgui().getCurrentWindow().getPos();
+
         Tree mappedTree = new Tree();
         for (CNode n : m_selectedMappedNodes) {
             ArchDef.Component c = a_arch.getMappedComponent(n);
@@ -142,56 +149,147 @@ public class HuGMeView {
         }
         //mappedTree.doTree(a_imgui.imgui(), "mappedNodesTreeHuGMeViz");
 
-        class RectTreeDrawer implements Tree.TNodeVisitor {
-
-            ImGuiWrapper m_imgui;
-            HNode.VisualsManager m_nvm;
-            Vec2 m_topLeft;
-
-            RectTreeDrawer(ImGuiWrapper a_imgui, HNode.VisualsManager a_nvm, Vec2 a_topLeft) {
-                m_nvm = a_nvm;
-                m_imgui = a_imgui;
-                m_topLeft = a_topLeft;
-            }
-
-            @Override
-            public void visit(Tree.TNode a_node) {
-                final int white = m_imgui.toColor(new Vec4(1., 1., 1., 1));
-
-                Vec2 pos = new Vec2(m_topLeft);
-
-                if (a_node.childCount() > 0 && a_node.getName() != null) {
-                    a_imgui.addRect(m_topLeft, m_topLeft.plus(new Vec2(200, (a_node.fullChildCount() + 1) * a_imgui.getTextLineHeightWithSpacing())), white, 0, 0, 1);
-                }
-
-                if (a_node.getName() != null) {
-                    a_imgui.addText(pos, white, a_node.getName());
-                    pos.setY(pos.getY() + a_imgui.getTextLineHeightWithSpacing());
-                }
-
-                for (Tree.TNode c : a_node.children()) {
-                    c.accept(new RectTreeDrawer(m_imgui, m_nvm, pos.plus(new Vec2(17, -1))));
-                    pos.setY(pos.getY() + a_imgui.getTextLineHeightWithSpacing() * (1 + c.fullChildCount()));
-                }
-            }
-        };
-        mappedTree.doVisit(new RectTreeDrawer(a_imgui, a_nvm, a_imgui.imgui().getCursorPos().plus(new Vec2(150, 0))));
 
 
-        //doPieVisualization(a_imgui, a_arch, a_nvm);
+        RectTreeDrawer rtdMapped = new RectTreeDrawer(a_imgui, a_nvm, offset.plus(new Vec2(0, 5)), 350, m_selectedOrphanNodes, RectTreeDrawer.Align.Right, RectTreeDrawer.FanType.Out);
+        mappedTree.doVisit(rtdMapped);
+
+        Tree orphanTree = new Tree();
+        for (CNode n : m_selectedOrphanNodes) {
+            orphanTree.addNode(n.getLogicName(), n);
+        }
+
+        RectTreeDrawer rtdOrphans = new RectTreeDrawer(a_imgui, a_nvm, offset.plus(new Vec2(500, 5)), 350, m_selectedMappedNodes, RectTreeDrawer.Align.Center, RectTreeDrawer.FanType.InOut);
+        orphanTree.doVisit(rtdOrphans);
+        a_imgui.imgui().setCursorPos(a_imgui.imgui().getCursorPos().plus(new Vec2(0, Math.max(rtdMapped.getHeight(), rtdOrphans.getHeight()))));
+
+        Iterable<RectTreeDrawer.LeafNodeDrawData> mappedDrawData = rtdMapped.getDrawData();
+        Iterable<RectTreeDrawer.LeafNodeDrawData> orphanDrawData = rtdOrphans.getDrawData();
+
+        drawDependencies(a_imgui, mappedDrawData, orphanDrawData, a_nvm);
+
+
+        rtdMapped = new RectTreeDrawer(a_imgui, a_nvm, offset.plus(new Vec2(1050, 5)), 350, m_selectedOrphanNodes, RectTreeDrawer.Align.Left, RectTreeDrawer.FanType.In);
+        mappedTree.doVisit(rtdMapped);
+
+        mappedDrawData = rtdMapped.getDrawData();
+
+        drawDependencies(a_imgui, orphanDrawData, mappedDrawData, a_nvm);
 
 
 
+        //doPieVisualization(a_imgui, a_arch, a_nvm, columnsize);
+
+
+        a_imgui.imgui().endChild();
         a_imgui.imgui().endColumns();
     }
 
-    private void doPieVisualization(ImGuiWrapper a_imgui, ArchDef a_arch, HNode.VisualsManager a_nvm) {
+    private void drawDependencies(ImGuiWrapper a_imgui, Iterable<RectTreeDrawer.LeafNodeDrawData> a_from, Iterable<RectTreeDrawer.LeafNodeDrawData> a_to, HNode.VisualsManager a_nvm) {
+        final int white = a_imgui.toColor(new Vec4(1., 1., 1., 0.5));
+        for (RectTreeDrawer.LeafNodeDrawData fromDD : a_from) {
+            CNode fromNode = (CNode)fromDD.m_node.getObject();
+            ArrayList<RectTreeDrawer.LeafNodeDrawData> fanTo = new ArrayList<>();
+            int totalFan = 0;
+
+            for (RectTreeDrawer.LeafNodeDrawData toDD : a_to) {
+
+                CNode toNode;
+
+                toNode = (CNode)toDD.m_node.getObject();
+
+                if (fromNode.hasDependency(toNode)/* || toNode.hasDependency(fromNode)*/) {
+                    fanTo.add(toDD);
+                    totalFan += fromNode.getDependencyCount(toNode);
+                }
+            }
+
+            float heightStart = fromDD.getHeight();
+
+            Vec2 endOffset = new Vec2(-75, 0);
+            Vec2 startOffset = new Vec2(75, 0);
+
+            Vec4 color = null;
+
+            if (a_nvm.hasBGColor(fromNode.getMapping())) {
+                color =  a_nvm.getBGColor(fromNode.getMapping());
+            }
+
+
+            float yOffsetStart = 0;
+            for (RectTreeDrawer.LeafNodeDrawData toDD : fanTo) {
+                CNode toNode = (CNode)toDD.m_node.getObject();
+                int intColor = white;
+                if (color == null) {
+                    if (a_nvm.hasBGColor(toNode.getMapping())) {
+                        color =  a_nvm.getBGColor(toNode.getMapping());
+                    }
+                }
+
+                if (color != null) {
+                    intColor = a_imgui.toColor(color);
+                }
+
+                float heightEnd = toDD.getHeight();
+
+
+                final int fan = fromNode.getDependencyCount(toNode);
+                float yRatioStart = heightStart *  (fan / (float)fromDD.m_fan);
+                float yRatioEnd = heightEnd * (fan / (float)toDD.m_fan);  // the fan out to toDD is the fanIn from the mapped node
+
+                Vec2 start, end;
+                ArrayList<Vec2> upper = new ArrayList<>();
+                ArrayList<Vec2> lower = new ArrayList<>();
+
+                //start = fromDD.calcMiddleRight();
+
+                end = new Vec2((float)toDD.m_topLeft.getX(), toDD.m_topLeft.getY() + toDD.m_yOffset);
+                start = new Vec2((float)fromDD.m_bottomRight.getX(), fromDD.m_topLeft.getY() + yOffsetStart);
+                a_imgui.getCurvePoints(32, upper, start, start.plus(startOffset), end, end.plus(endOffset));
+
+                start.setY(start.getY() + yRatioStart);
+                end.setY(end.getY() + yRatioEnd);
+                a_imgui.getCurvePoints(32, lower, start, start.plus(startOffset), end, end.plus(endOffset));
+                toDD.m_yOffset += yRatioEnd;
+                yOffsetStart += yRatioStart;
+
+                DrawList dl = a_imgui.imgui().getWindowDrawList();
+
+                Vec2 whitePixel = a_imgui.imgui().getDrawListSharedData().getTexUvWhitePixel();
+                int vtxOffset = dl.get_vtxCurrentIdx();
+
+                dl.primReserve((upper.size() - 1) * 6, upper.size() * 2);
+
+                for (int i = 0; i < upper.size(); i++) {
+                    dl.primWriteVtx(upper.get(i), whitePixel, intColor);
+                    dl.primWriteVtx(lower.get(i), whitePixel, intColor);
+                }
+
+                for (int qIx = 0; qIx < upper.size() - 1; qIx++) {
+
+                    int tIx = qIx * 2;
+
+                    dl.primWriteIdx(vtxOffset + tIx + 0);
+                    dl.primWriteIdx(vtxOffset + tIx + 1);
+                    dl.primWriteIdx(vtxOffset + tIx + 2);
+
+                    dl.primWriteIdx(vtxOffset + tIx + 2);
+                    dl.primWriteIdx(vtxOffset + tIx + 1);
+                    dl.primWriteIdx(vtxOffset + tIx + 3);
+                }
+
+                a_imgui.imgui().getWindowDrawList().addPolyline(upper, white, false, 1);
+                a_imgui.imgui().getWindowDrawList().addPolyline(lower, white, false, 1);
+            }
+        }
+    }
+
+    private void doPieVisualization(ImGuiWrapper a_imgui, ArchDef a_arch, HNode.VisualsManager a_nvm, Vec2 a_size) {
         final int white = a_imgui.toColor(new Vec4(1., 1., 1., 1));
         final int black = a_imgui.toColor(new Vec4(0., 0., 0., 1));
-        Vec2 columnSize = new Vec2(a_imgui.imgui().getColumnWidth(1) - 10, (float) a_imgui.imgui().getContentRegionAvail().getY());
-        a_imgui.imgui().beginChild("mappingandorphanpies", columnSize, true, 0);
         Vec2 offset = a_imgui.imgui().getCurrentWindow().getPos();
-        Vec2 center = offset.plus(columnSize.times(0.5));
+
+        Vec2 center = offset.plus(a_size.times(0.5));
 
         Tree mappedTree = new Tree();
         Tree orphanTree = new Tree();
@@ -206,7 +304,7 @@ public class HuGMeView {
         }
 
 
-        double outerRadius = Math.min(columnSize.getX(), columnSize.getY()) / 2 - 10;
+        double outerRadius = Math.min(a_size.getX(), a_size.getY()) / 2 - 10;
         double innerRadius = outerRadius * 0.25;
 
         //
@@ -241,8 +339,6 @@ public class HuGMeView {
                 }
             }
         }
-
-        a_imgui.imgui().endChild();
     }
 
 

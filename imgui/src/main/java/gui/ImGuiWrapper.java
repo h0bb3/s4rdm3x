@@ -58,14 +58,12 @@ public class ImGuiWrapper {
 
     }
 
-
-    public void addCurve(Vec2 a_start, Vec2 a_startControl, Vec2 a_end, Vec2 a_endControl, int a_color, int a_thickness) {
-
+    public void getCurvePoints(int a_segments, ArrayList<Vec2>a_outPoints, Vec2 a_start, Vec2 a_startControl, Vec2 a_end, Vec2 a_endControl) {
         Vec2 l1 = a_startControl.minus(a_start);
         Vec2 l2 = a_endControl.minus(a_startControl);
         Vec2 l3 = a_end.minus(a_endControl);
 
-        ArrayList<Vec2> points = new ArrayList<>();
+
 
         final int segments = 32;
         for (int i = 0; i <= segments; i++) {
@@ -80,9 +78,14 @@ public class ImGuiWrapper {
 
             Vec2 p = p4.plus(p5.minus(p4).times(t));
 
-            points.add(p);
-
+            a_outPoints.add(p);
         }
+    }
+
+    public void addCurve(Vec2 a_start, Vec2 a_startControl, Vec2 a_end, Vec2 a_endControl, int a_color, int a_thickness) {
+
+        ArrayList<Vec2> points = new ArrayList<>();
+        getCurvePoints(32, points, a_start, a_startControl, a_end, a_endControl);
 
         m_imGui.getWindowDrawList().addPolyline(points, a_color, false, a_thickness);
 
