@@ -5,17 +5,48 @@ import glm_.vec2.Vec2;
 import glm_.vec4.Vec4;
 import gui.ImGuiWrapper;
 import hiviz.Tree;
+import org.jetbrains.annotations.NotNull;
 import se.lnu.siq.s4rdm3x.model.CNode;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
 class RectTreeDrawer implements Tree.TNodeVisitor {
-
     public Iterable<LeafNodeDrawData> getDrawData() {
         return m_drawData;
     }
 
-   public class LeafNodeDrawData {
+    private class TreeSorter implements Comparator<Tree.TNode> {
+
+        private RectTreeDrawer m_fanCalculator;
+        private Iterable<CNode> m_targetNodes;
+
+        public TreeSorter(RectTreeDrawer a_fanCalculator, Iterable<CNode> a_targetNodes) {
+            m_fanCalculator = a_fanCalculator;
+            m_targetNodes = a_targetNodes;
+        }
+
+        @Override
+        public int compare(Tree.TNode o1, Tree.TNode o2) {
+            return getFan(o2) - getFan(o1);
+        }
+
+        int getFan(Tree.TNode a_node) {
+            int fan = 0;
+
+            if (a_node.childCount() > 0) {
+                for (Tree.TNode c : a_node.children()) {
+                    fan += getFan(c);
+                }
+            } else {
+                fan = m_fanCalculator.getFan((CNode)a_node.getObject(), m_targetNodes);
+            }
+
+            return fan;
+        }
+    }
+
+    public class LeafNodeDrawData {
         Tree.TNode m_node;
         Vec2 m_topLeft;
         Vec2 m_bottomRight;
@@ -160,7 +191,7 @@ class RectTreeDrawer implements Tree.TNodeVisitor {
                 // right align the text
                 if (m_alignment == Align.Right) {
                     textOffset.setX(m_width - 5 - textSize.getX());
-                } if (m_alignment == Align.Center) {
+                } else if (m_alignment == Align.Center) {
                     textOffset.setX((m_width - textSize.getX()) / 2.0f);
                 } else {
                     textOffset.setX(5);
@@ -192,9 +223,9 @@ class RectTreeDrawer implements Tree.TNodeVisitor {
             m_imgui.imgui().setWindowFontScale(oldScale);
         }
 
-
+        a_node.sort(new TreeSorter(this, m_targetNodes));
         for (Tree.TNode c : a_node.children()) {
-            final int indent = 17;
+            final int indent = a_node.getName() != null ? 17 : 0;
             RectTreeDrawer rtd;
             if (m_alignment == Align.Right) {
                 rtd = new RectTreeDrawer(m_imgui, m_nvm, pos.plus(new Vec2(indent, 0)), m_width - indent, m_targetNodes, m_alignment, m_drawData, m_fanType);

@@ -8,6 +8,7 @@ import imgui.internal.Rect;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 
 import static imgui.ImguiKt.COL32;
 
@@ -140,6 +141,10 @@ public class Tree {
             m_isLeaf = false;
             m_nodeObject = a_nodeObject;
 
+        }
+
+        public void sort(Comparator<? super TNode> a_nodeComparator) {
+            m_children.sort(a_nodeComparator);
         }
 
         public String getFullName() {
@@ -341,6 +346,10 @@ public class Tree {
             }
             return addNode(Arrays.copyOfRange(a_names, 1, a_names.length), nextParent, a_nodeObject);
         }
+    }
+
+    public void sort(Comparator<? super TNode> a_nodeComparator) {
+        m_root.sort(a_nodeComparator);
     }
 
     public TNode addNode(String a_name, Object a_nodeObject) {

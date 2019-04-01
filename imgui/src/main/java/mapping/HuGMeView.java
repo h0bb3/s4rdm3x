@@ -5,10 +5,7 @@ import glm_.vec2.Vec2;
 import glm_.vec4.Vec4;
 import gui.ImGuiWrapper;
 import hiviz.Tree;
-import imgui.ComboFlag;
-import imgui.DrawList;
-import imgui.ImGui;
-import imgui.SelectableFlag;
+import imgui.*;
 import imgui.internal.ColumnsFlag;
 import imgui.internal.Rect;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
@@ -43,6 +40,7 @@ public class HuGMeView {
     private float[] m_phi = {0.5f};
 
     HuGMeManual m_hugme;
+    private float m_hugMeRectDrawerHeight = 0;
 
 
     public HuGMeView(List<CNode>a_mappedNodes, List<CNode>a_orphanNodes) {
@@ -138,8 +136,38 @@ public class HuGMeView {
 
         a_imgui.imgui().nextColumn();
 
-        Vec2 columnSize = new Vec2(a_imgui.imgui().getColumnWidth(1) - 10, (float) a_imgui.imgui().getContentRegionAvail().getY());
+        final float columnWidth = a_imgui.imgui().getColumnWidth(1);
+        Vec2 columnSize = new Vec2(columnWidth - 10, (float) a_imgui.imgui().getContentRegionAvail().getY());
         a_imgui.imgui().beginChild("mappingandorphanpies", columnSize, true, 0);
+
+        a_imgui.imgui().beginColumns("mappedorphanmappedcolumns", 5, 0);
+        a_imgui.text("Mapped Nodes");
+        a_imgui.imgui().nextColumn();
+        a_imgui.text("Dependencies");
+        a_imgui.imgui().nextColumn();
+        a_imgui.text("Orphan Nodes");
+        a_imgui.imgui().nextColumn();
+        a_imgui.text("Dependencies");
+        a_imgui.imgui().nextColumn();
+        a_imgui.text("Mapped Nodes");
+
+
+
+        final int columnCount = 5;
+        float [] columnWidths = new float[columnCount];
+        for (int cIx = 0; cIx < columnCount; cIx++) {
+            columnWidths[cIx] = a_imgui.imgui().getColumnWidth(cIx);
+        }
+
+        columnWidths[columnCount - 1] -= 20;    // scrollbar
+        a_imgui.imgui().endColumns();
+
+
+        columnSize = new Vec2(columnWidth - 20, (float) a_imgui.imgui().getContentRegionAvail().getY());
+        a_imgui.imgui().beginChild("mappingandorphanpies_body", columnSize, false, 0);
+        columnSize.setY(m_hugMeRectDrawerHeight);
+        a_imgui.imgui().beginChild("mappingandorphanpies_inner_body", columnSize, false, 0);
+
         Vec2 offset = a_imgui.imgui().getCurrentWindow().getPos();
 
         Tree mappedTree = new Tree();
@@ -150,47 +178,77 @@ public class HuGMeView {
         //mappedTree.doTree(a_imgui.imgui(), "mappedNodesTreeHuGMeViz");
 
 
+        final float yPos = a_imgui.imgui().getCursorPosY();
 
-        RectTreeDrawer rtdMapped = new RectTreeDrawer(a_imgui, a_nvm, offset.plus(new Vec2(0, 5)), 350, m_selectedOrphanNodes, RectTreeDrawer.Align.Right, RectTreeDrawer.FanType.Out);
+
+        final int columnPadding = 7;    // TODO: find the correct value
+
+        RectTreeDrawer rtdMapped = new RectTreeDrawer(a_imgui, a_nvm, offset.plus(new Vec2(0, yPos)), columnWidths[0] - columnPadding, m_selectedOrphanNodes, RectTreeDrawer.Align.Right, RectTreeDrawer.FanType.Out);
         mappedTree.doVisit(rtdMapped);
+        final float fromMappedHeight = rtdMapped.m_height;
+        Iterable<RectTreeDrawer.LeafNodeDrawData> fromMappedDrawData = rtdMapped.getDrawData();
 
         Tree orphanTree = new Tree();
         for (CNode n : m_selectedOrphanNodes) {
             orphanTree.addNode(n.getLogicName(), n);
         }
 
-        RectTreeDrawer rtdOrphans = new RectTreeDrawer(a_imgui, a_nvm, offset.plus(new Vec2(500, 5)), 350, m_selectedMappedNodes, RectTreeDrawer.Align.Center, RectTreeDrawer.FanType.InOut);
+        RectTreeDrawer rtdOrphans = new RectTreeDrawer(a_imgui, a_nvm, offset.plus(new Vec2(columnWidths[0]+columnWidths[1]-columnPadding, yPos)), columnWidths[2], m_selectedMappedNodes, RectTreeDrawer.Align.Center, RectTreeDrawer.FanType.InOut);
         orphanTree.doVisit(rtdOrphans);
-        a_imgui.imgui().setCursorPos(a_imgui.imgui().getCursorPos().plus(new Vec2(0, Math.max(rtdMapped.getHeight(), rtdOrphans.getHeight()))));
-
-        Iterable<RectTreeDrawer.LeafNodeDrawData> mappedDrawData = rtdMapped.getDrawData();
         Iterable<RectTreeDrawer.LeafNodeDrawData> orphanDrawData = rtdOrphans.getDrawData();
 
-        drawDependencies(a_imgui, mappedDrawData, orphanDrawData, a_nvm);
-
-
-        rtdMapped = new RectTreeDrawer(a_imgui, a_nvm, offset.plus(new Vec2(1050, 5)), 350, m_selectedOrphanNodes, RectTreeDrawer.Align.Left, RectTreeDrawer.FanType.In);
+        rtdMapped = new RectTreeDrawer(a_imgui, a_nvm, offset.plus(new Vec2(columnWidths[0]+columnWidths[1]+columnWidths[2]+columnWidths[3]-columnPadding, yPos)), columnWidths[4], m_selectedOrphanNodes, RectTreeDrawer.Align.Left, RectTreeDrawer.FanType.In);
         mappedTree.doVisit(rtdMapped);
-
-        mappedDrawData = rtdMapped.getDrawData();
-
-        drawDependencies(a_imgui, orphanDrawData, mappedDrawData, a_nvm);
+        Iterable<RectTreeDrawer.LeafNodeDrawData> toMappedDrawData = rtdMapped.getDrawData();
 
 
+
+        //a_imgui.imgui().beginColumns("mappedorphanmappedcolumns", 5, 0);
+        //for (int cIx = 0; cIx < columnCount; cIx++) {
+        //    a_imgui.imgui().setColumnWidth(cIx, columnWidths[cIx]);
+       // }
+        //a_imgui.imgui().nextColumn();
+        drawDependencies(a_imgui, fromMappedDrawData, orphanDrawData, a_nvm);
+        //a_imgui.imgui().nextColumn();
+        //a_imgui.imgui().nextColumn();
+        drawDependencies(a_imgui, orphanDrawData, toMappedDrawData, a_nvm);
+        //a_imgui.imgui().nextColumn();
+        //a_imgui.imgui().endColumns();
 
         //doPieVisualization(a_imgui, a_arch, a_nvm, columnsize);
 
+        m_hugMeRectDrawerHeight = Math.max(Math.max(rtdMapped.getHeight(), rtdOrphans.getHeight()), fromMappedHeight);
 
+
+        a_imgui.imgui().endChild();
+        a_imgui.imgui().endChild();
         a_imgui.imgui().endChild();
         a_imgui.imgui().endColumns();
     }
 
     private void drawDependencies(ImGuiWrapper a_imgui, Iterable<RectTreeDrawer.LeafNodeDrawData> a_from, Iterable<RectTreeDrawer.LeafNodeDrawData> a_to, HNode.VisualsManager a_nvm) {
-        final int white = a_imgui.toColor(new Vec4(1., 1., 1., 0.5));
+        final int white = a_imgui.toColor(new Vec4(1., 1., 1., 0.50));
+
+        class SelectedPath {
+            ArrayList<Vec2> m_upperPoints = null;
+            ArrayList<Vec2> m_lowerPoints = null;
+            int m_color = 0;
+        };
+
+        ArrayList<SelectedPath> selectedPaths = new ArrayList<>();
+
+
+        DrawList dl = a_imgui.imgui().getWindowDrawList();
+        Vec2 whitePixelUV = a_imgui.imgui().getDrawListSharedData().getTexUvWhitePixel();
+
         for (RectTreeDrawer.LeafNodeDrawData fromDD : a_from) {
             CNode fromNode = (CNode)fromDD.m_node.getObject();
             ArrayList<RectTreeDrawer.LeafNodeDrawData> fanTo = new ArrayList<>();
             int totalFan = 0;
+
+            Rect nodeRect = new Rect(fromDD.m_topLeft, fromDD.m_bottomRight);
+            final boolean isInsideFromNode = a_imgui.isInside(nodeRect, a_imgui.getMousePos());
+
 
             for (RectTreeDrawer.LeafNodeDrawData toDD : a_to) {
 
@@ -232,7 +290,6 @@ public class HuGMeView {
 
                 float heightEnd = toDD.getHeight();
 
-
                 final int fan = fromNode.getDependencyCount(toNode);
                 float yRatioStart = heightStart *  (fan / (float)fromDD.m_fan);
                 float yRatioEnd = heightEnd * (fan / (float)toDD.m_fan);  // the fan out to toDD is the fanIn from the mapped node
@@ -253,36 +310,121 @@ public class HuGMeView {
                 toDD.m_yOffset += yRatioEnd;
                 yOffsetStart += yRatioStart;
 
-                DrawList dl = a_imgui.imgui().getWindowDrawList();
 
-                Vec2 whitePixel = a_imgui.imgui().getDrawListSharedData().getTexUvWhitePixel();
                 int vtxOffset = dl.get_vtxCurrentIdx();
 
-                dl.primReserve((upper.size() - 1) * 6, upper.size() * 2);
-
-                for (int i = 0; i < upper.size(); i++) {
-                    dl.primWriteVtx(upper.get(i), whitePixel, intColor);
-                    dl.primWriteVtx(lower.get(i), whitePixel, intColor);
+                boolean selectedNode = isInsideFromNode;
+                if (selectedNode != true) {
+                    nodeRect.setMin(toDD.m_topLeft);
+                    nodeRect.setMax(toDD.m_bottomRight);
+                    selectedNode = a_imgui.isInside(nodeRect, a_imgui.getMousePos());
+                }
+                if (selectedNode) {
+                    // paths should be drawn as selected
+                    SelectedPath sp = new SelectedPath();
+                    sp.m_color = intColor;
+                    sp.m_upperPoints = upper;
+                    sp.m_lowerPoints = lower;
+                    selectedPaths.add(sp);
+                    continue;
                 }
 
-                for (int qIx = 0; qIx < upper.size() - 1; qIx++) {
+                dl.primReserve((upper.size() - 1) * 6, upper.size() * 2);
+                addCurveDrawVerts(intColor, upper, lower, dl, whitePixelUV);
 
-                    int tIx = qIx * 2;
+                if (selectedPaths.size() == 0) {
+                    Rect curveBoundingRect = new Rect();
 
-                    dl.primWriteIdx(vtxOffset + tIx + 0);
-                    dl.primWriteIdx(vtxOffset + tIx + 1);
-                    dl.primWriteIdx(vtxOffset + tIx + 2);
+                    curveBoundingRect.setMin(new Vec2((float) upper.get(0).getX(), Math.min(upper.get(0).getY(), upper.get(upper.size() - 1).getY())));
+                    curveBoundingRect.setMax(new Vec2((float) lower.get(lower.size() - 1).getX(), Math.max(lower.get(0).getY(), lower.get(lower.size() - 1).getY())));
 
-                    dl.primWriteIdx(vtxOffset + tIx + 2);
-                    dl.primWriteIdx(vtxOffset + tIx + 1);
-                    dl.primWriteIdx(vtxOffset + tIx + 3);
+                    Vec2 mousePos = a_imgui.getMousePos();
+                    if (a_imgui.isInside(curveBoundingRect, mousePos)) {
+
+                        a_imgui.beginTooltip();
+                        a_imgui.text("inside curve rect");
+                        a_imgui.endTooltip();
+
+                        Rect quadRect = new Rect();
+                        boolean isInsideQuad = false;
+                        //addAllCurveQuadIndices(upper.size() - 1, dl, vtxOffset, quadRect, a_imgui.getMousePos());
+                        if (addAllCurveQuadIndices(upper.size() - 1, dl, vtxOffset, quadRect, a_imgui.getMousePos()) && a_imgui.isInside(quadRect, a_imgui.getMousePos())) {
+                            SelectedPath sp = new SelectedPath();
+                            sp.m_color = intColor;
+                            sp.m_upperPoints = upper;
+                            sp.m_lowerPoints = lower;
+                            selectedPaths.add(sp);
+                        }
+                    } else {
+                        addAllCurveQuadIndices(upper.size() - 1, dl, vtxOffset, null, null);
+                    }
+                } else {
+                    addAllCurveQuadIndices(upper.size() - 1, dl, vtxOffset, null, null);
                 }
 
                 a_imgui.imgui().getWindowDrawList().addPolyline(upper, white, false, 1);
                 a_imgui.imgui().getWindowDrawList().addPolyline(lower, white, false, 1);
             }
         }
+
+        for (SelectedPath sp : selectedPaths) {
+            final int white25 = a_imgui.toColor(new Vec4(1., 1., 1., 0.25));
+
+            // draw with original colors so we end up on top.
+            int vtxOffset = dl.get_vtxCurrentIdx();
+            dl.primReserve((sp.m_upperPoints.size() - 1) * 6, sp.m_upperPoints.size() * 2);
+            addCurveDrawVerts(sp.m_color, sp.m_upperPoints, sp.m_lowerPoints, dl, whitePixelUV);
+            addAllCurveQuadIndices(sp.m_upperPoints.size() - 1, dl,  vtxOffset, null, null);
+            a_imgui.imgui().getWindowDrawList().addPolyline(sp.m_upperPoints, white, false, 1);
+            a_imgui.imgui().getWindowDrawList().addPolyline(sp.m_lowerPoints, white, false, 1);
+
+            // draw with overlay colors.
+            vtxOffset = dl.get_vtxCurrentIdx();
+            dl.primReserve((sp.m_upperPoints.size() - 1) * 6, sp.m_upperPoints.size() * 2);
+            addCurveDrawVerts(white25, sp.m_upperPoints, sp.m_lowerPoints, dl, whitePixelUV);
+            addAllCurveQuadIndices(sp.m_upperPoints.size() - 1, dl,  vtxOffset, null, null);
+            a_imgui.imgui().getWindowDrawList().addPolyline(sp.m_upperPoints, white, false, 1);
+            a_imgui.imgui().getWindowDrawList().addPolyline(sp.m_lowerPoints, white, false, 1);
+        }
     }
+
+    private void addCurveDrawVerts(int a_color, ArrayList<Vec2> a_upperCurvePoints, ArrayList<Vec2> a_lowerCurvePoints, DrawList dl, Vec2 a_uv) {
+        for (int i = 0; i < a_upperCurvePoints.size(); i++) {
+            dl.primWriteVtx(a_upperCurvePoints.get(i), a_uv, a_color);
+            dl.primWriteVtx(a_lowerCurvePoints.get(i), a_uv, a_color);
+
+        }
+    }
+
+    private boolean addAllCurveQuadIndices(int a_quadCount, DrawList dl, int vtxOffset, Rect a_quadRect, Vec2 a_checkPoint) {
+        boolean isInsideQuad = a_quadRect == null;
+        ArrayList<DrawVert> verts = dl.getVtxBuffer();
+        for (int qIx = 0; qIx < a_quadCount; qIx++) {
+            final int tIx = vtxOffset + qIx * 2;
+
+
+            dl.primWriteIdx(tIx + 0);
+            dl.primWriteIdx(tIx + 1);
+            dl.primWriteIdx(tIx + 2);
+
+            dl.primWriteIdx(tIx + 2);
+            dl.primWriteIdx(tIx + 1);
+            dl.primWriteIdx(tIx + 3);
+
+            if (!isInsideQuad) {
+                a_quadRect.setMin(new Vec2((float) verts.get(tIx + 0).getPos().getX(), Math.min(verts.get(tIx + 0).getPos().getY(), verts.get(tIx + 2).getPos().getY())));
+                a_quadRect.setMax(new Vec2((float) verts.get(tIx + 3).getPos().getX(), Math.max(verts.get(tIx + 3).getPos().getY(), verts.get(tIx + 1).getPos().getY())));
+                isInsideQuad = a_quadRect.contains(a_checkPoint);//a_imgui.isInside(quadRect, a_imgui.getMousePos());
+            }
+        }
+
+        return isInsideQuad;
+    }
+
+    /*private void addCurveQuadIndices(DrawList dl, int vtxOffset) {
+
+
+    }*/
 
     private void doPieVisualization(ImGuiWrapper a_imgui, ArchDef a_arch, HNode.VisualsManager a_nvm, Vec2 a_size) {
         final int white = a_imgui.toColor(new Vec4(1., 1., 1., 1));
