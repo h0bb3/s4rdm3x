@@ -23,6 +23,19 @@ import java.util.List;
 
 public class NBMapper {
 
+    public static class Classifier extends weka.classifiers.bayes.NaiveBayesMultinomial {
+
+        public double [] getProbabilityOfClass() {
+            return m_probOfClass;
+        }
+
+        public double getProbabilityOfWord(int a_wordIx, int a_classIx) {
+
+            // this is from the implementation of classifier.toString
+            return Math.exp(m_probOfWordGivenClass[a_classIx][a_wordIx]);
+        }
+    }
+
     public ArrayList<CNode> m_clusteredElements = new ArrayList<>();
     protected ArchDef m_arch;
 
@@ -33,11 +46,28 @@ public class NBMapper {
     public int m_failedMappings = 0;    // if the manual advice fails
     public int m_autoWrong = 0;
 
+    private double m_clusteringThreshold = 0.90;
+
     private boolean m_doStemm = false;
     private Filter m_filter = new StringToWordVector();
+    private double [] m_initialDistribution = null;
 
     public NBMapper(ArchDef a_arch) {
         m_arch = a_arch;
+        ((StringToWordVector)m_filter).setOutputWordCounts(true);
+    }
+    public NBMapper(ArchDef a_arch, double [] a_initialDistribution) {
+        m_arch = a_arch;
+        m_initialDistribution = a_initialDistribution;
+        ((StringToWordVector)m_filter).setOutputWordCounts(true);
+    }
+
+    public void setClusteringThreshold(double a_probability) {
+        m_clusteringThreshold = a_probability;
+    }
+
+    public double getClusteringThreshold() {
+        return m_clusteringThreshold;
     }
 
     protected java.util.ArrayList<CNode> getOrphanNodes(CGraph a_g) {
@@ -87,18 +117,22 @@ public class NBMapper {
 
 
         //Classifier nbClassifier = new NaiveBayes();   // avg 28% wrong
-        Classifier nbClassifier = new NaiveBayesMultinomial(); // avg 23% wrong
+        Classifier nbClassifier = new Classifier(); // avg 23% wrong
         //Classifier nbClassifier = new RandomForest(); // avg 25% wrong
         //Classifier nbClassifier = new RandomTree(); // avg 43% wrong
-
-
-
 
         try {
             nbClassifier.buildClassifier(trainingData);
 
-            System.out.print(" the expression for the input data as per algorithm is ");
 
+
+            if (m_initialDistribution != null && m_initialDistribution.length == nbClassifier.getProbabilityOfClass().length) {
+                for (int dIx = 0; dIx < nbClassifier.getProbabilityOfClass().length; dIx++) {
+                    nbClassifier.getProbabilityOfClass()[dIx] = m_initialDistribution[dIx];
+                }
+            }
+
+            System.out.print(" the expression for the input data as per algorithm is ");
             System.out.println(nbClassifier);
 
             for (CNode orphanNode : orphans) {
@@ -123,7 +157,6 @@ public class NBMapper {
             for (CNode orphanNode : orphans) {
                 // if the attraction is above some threshold then we cluster
                 double [] attractions = orphanNode.getAttractions();
-                final double threshold = 0.9;
                 int maxIx = 0;
                 for (int cIx = 1; cIx < attractions.length; cIx++) {
                     if (attractions[maxIx] < attractions[cIx]) {
@@ -131,7 +164,7 @@ public class NBMapper {
                     }
                 }
 
-                if (attractions[maxIx] > threshold) {
+                if (attractions[maxIx] > m_clusteringThreshold) {
                     m_arch.getComponent(maxIx).clusterToNode(orphanNode, ArchDef.Component.ClusteringType.Automatic);
                     m_clusteredElements.add(orphanNode);
                     m_automaticallyMappedNodes++;
@@ -208,21 +241,30 @@ public class NBMapper {
         }
 
         String ret = "";
+        for (int i = 0; i < 10; i++) {
+            a_string = a_string.replace("" + i, " ");
+        }
         a_string = a_string.replace("_", " ");
         a_string = a_string.replace("-", " ");
         for (String p : a_string.split(" ")) {
             // https://stackoverflow.com/questions/7593969/regex-to-split-camelcase-or-titlecase-advanced
             for (String w : p.split("(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])")) {
+                w = w.toLowerCase();
                 if (w.length() >= a_minLength && !w.contains("$")) {
                     if (stemmer != null) {
                         w = stemmer.stem(w);
                     }
+
+                    if (w.equals("tmp")) {
+                        w = "temp";
+                    }
+
                     ret += w + " ";
                 }
             }
         }
 
-        return ret.trim().toLowerCase();
+        return ret.trim();
     }
 
     private String getDependencyStringFromNode(CNode a_from, String a_nodeComponentName, Iterable<CNode> a_tos) {

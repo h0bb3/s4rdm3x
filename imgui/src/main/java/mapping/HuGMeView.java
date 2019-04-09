@@ -12,6 +12,7 @@ import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
+import se.lnu.siq.s4rdm3x.model.cmd.mapper.HuGMe;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.HuGMeManual;
 import se.lnu.siq.s4rdm3x.stats;
 
@@ -22,7 +23,7 @@ import java.util.List;
 
 import static java.lang.Math.sin;
 
-public class HuGMeView {
+public class HuGMeView extends MapperBaseView {
     private int[] m_viewSelection = {0};
 
     private final int g_hugMeParamsId = 0;
@@ -31,35 +32,16 @@ public class HuGMeView {
     private final int g_autoClusteredEntitiesId = 3;
     private final int g_humanClusteredEntitiesId = 4;
 
-    private List<CNode> m_selectedMappedNodes;   // this one is unmodifiable
-    private List<CNode> m_selectedOrphanNodes;  // this one is unmodifiable
-
-    private ArrayList<CNode> m_autoClusteredOrphans = new ArrayList<>();
-    private ArrayList<CNode> m_acceptedClusteredOrphans = new ArrayList<>();
     private float[] m_omega = {0.5f};
     private float[] m_phi = {0.5f};
 
-    HuGMeManual m_hugme;
+    HuGMe m_hugme;
     private float m_hugMeRectDrawerHeight = 0;
 
 
     public HuGMeView(List<CNode>a_mappedNodes, List<CNode>a_orphanNodes) {
-        m_selectedMappedNodes = a_mappedNodes;
-        m_selectedOrphanNodes = a_orphanNodes;
+        super(a_mappedNodes, a_orphanNodes);
     }
-
-    public Iterable<CNode> autoClusteredOrphans() {
-        return m_autoClusteredOrphans;
-    }
-
-    public int autoClusteredOrphanCount() {
-        return m_autoClusteredOrphans.size();
-    }
-
-    public void clearAutoClusteredOrphans() {
-        m_autoClusteredOrphans.clear();
-    }
-
 
     public static class Action {
         public static class DoMap {
@@ -70,7 +52,7 @@ public class HuGMeView {
         DoMap m_doMapAction;
     }
 
-    void doHugMeParamsView(ImGuiWrapper a_imgui, ArchDef a_arch, HNode.VisualsManager a_nvm) {
+    void doHugMeParamsView(ImGuiWrapper a_imgui, CGraph a_g, ArchDef a_arch, HNode.VisualsManager a_nvm) {
 
         a_imgui.imgui().beginColumns("doHugMeParamsView", 2, 0);
 
@@ -95,36 +77,12 @@ public class HuGMeView {
 
         tree.doTree(a_imgui.imgui(), "doHugMeParamsViewMappedEntities");
 
-
-
         if (a_imgui.button("HuGMe Plz", 150)) {
             m_hugme = new HuGMeManual((double)m_omega[0], (double)m_phi[0], a_arch);
-            CGraph g = new CGraph();
 
-            for (CNode n : m_selectedMappedNodes) {
-                CNode nodeCopy = g.createNode(n.getName());
+            m_hugme.run(createGraph());
 
-                for (dmClass c : n.getClasses()) {
-                    nodeCopy.addClass(c);
-                }
-
-                ArchDef.Component c = a_arch.getMappedComponent(n);
-                c.mapToNode(nodeCopy);
-                c.clusterToNode(nodeCopy, ArchDef.Component.ClusteringType.Initial);
-            }
-
-            for (CNode n : m_selectedOrphanNodes) {
-                CNode nodeCopy = g.createNode(n.getName());
-
-                for (dmClass c : n.getClasses()) {
-                    nodeCopy.addClass(c);
-                }
-            }
-
-            m_hugme.run(g);
-
-            m_autoClusteredOrphans.clear();
-            m_autoClusteredOrphans.addAll(m_hugme.m_clusteredElements);
+            setAutoClusteredNodes(m_hugme.m_clusteredElements);
         }
 
         if (m_hugme != null) {
@@ -183,7 +141,7 @@ public class HuGMeView {
 
         final int columnPadding = 7;    // TODO: find the correct value
 
-        RectTreeDrawer rtdMapped = new RectTreeDrawer(a_imgui, a_nvm, offset.plus(new Vec2(0, yPos)), columnWidths[0] - columnPadding, m_selectedOrphanNodes, RectTreeDrawer.Align.Right, RectTreeDrawer.FanType.Out);
+        RectTreeDrawer rtdMapped = new RectTreeDrawer(a_imgui, a_nvm, offset.plus(new Vec2(0, yPos)), columnWidths[0] - columnPadding, m_selectedOrphanNodes, RectTreeDrawer.Align.Right, RectTreeDrawer.FanType.InOut);
         mappedTree.doVisit(rtdMapped);
         final float fromMappedHeight = rtdMapped.m_height;
         Iterable<RectTreeDrawer.LeafNodeDrawData> fromMappedDrawData = rtdMapped.getDrawData();
@@ -193,27 +151,20 @@ public class HuGMeView {
             orphanTree.addNode(n.getLogicName(), n);
         }
 
-        RectTreeDrawer rtdOrphans = new RectTreeDrawer(a_imgui, a_nvm, offset.plus(new Vec2(columnWidths[0]+columnWidths[1]-columnPadding, yPos)), columnWidths[2], m_selectedMappedNodes, RectTreeDrawer.Align.Center, RectTreeDrawer.FanType.InOut);
+        ArrayList<CNode> allSelected = new ArrayList<>();
+        allSelected.addAll(m_selectedOrphanNodes);
+        allSelected.addAll(m_selectedMappedNodes);
+
+        RectTreeDrawer rtdOrphans = new RectTreeDrawer(a_imgui, a_nvm, offset.plus(new Vec2(columnWidths[0]+columnWidths[1]-columnPadding, yPos)), columnWidths[2], allSelected, RectTreeDrawer.Align.Center, RectTreeDrawer.FanType.InOut);
         orphanTree.doVisit(rtdOrphans);
         Iterable<RectTreeDrawer.LeafNodeDrawData> orphanDrawData = rtdOrphans.getDrawData();
 
-        rtdMapped = new RectTreeDrawer(a_imgui, a_nvm, offset.plus(new Vec2(columnWidths[0]+columnWidths[1]+columnWidths[2]+columnWidths[3]-columnPadding, yPos)), columnWidths[4], m_selectedOrphanNodes, RectTreeDrawer.Align.Left, RectTreeDrawer.FanType.In);
-        mappedTree.doVisit(rtdMapped);
+        rtdMapped = new RectTreeDrawer(a_imgui, a_nvm, offset.plus(new Vec2(columnWidths[0]+columnWidths[1]+columnWidths[2]+columnWidths[3]-columnPadding, yPos)), columnWidths[4], m_selectedOrphanNodes, RectTreeDrawer.Align.Left, RectTreeDrawer.FanType.InOut);
+        orphanTree.doVisit(rtdMapped);
         Iterable<RectTreeDrawer.LeafNodeDrawData> toMappedDrawData = rtdMapped.getDrawData();
 
-
-
-        //a_imgui.imgui().beginColumns("mappedorphanmappedcolumns", 5, 0);
-        //for (int cIx = 0; cIx < columnCount; cIx++) {
-        //    a_imgui.imgui().setColumnWidth(cIx, columnWidths[cIx]);
-       // }
-        //a_imgui.imgui().nextColumn();
-        drawDependencies(a_imgui, fromMappedDrawData, orphanDrawData, a_nvm);
-        //a_imgui.imgui().nextColumn();
-        //a_imgui.imgui().nextColumn();
-        drawDependencies(a_imgui, orphanDrawData, toMappedDrawData, a_nvm);
-        //a_imgui.imgui().nextColumn();
-        //a_imgui.imgui().endColumns();
+        drawDependencies(a_imgui, fromMappedDrawData, orphanDrawData, a_nvm, true);
+        drawDependencies(a_imgui, orphanDrawData, toMappedDrawData, a_nvm, false);
 
         //doPieVisualization(a_imgui, a_arch, a_nvm, columnsize);
 
@@ -226,7 +177,7 @@ public class HuGMeView {
         a_imgui.imgui().endColumns();
     }
 
-    private void drawDependencies(ImGuiWrapper a_imgui, Iterable<RectTreeDrawer.LeafNodeDrawData> a_from, Iterable<RectTreeDrawer.LeafNodeDrawData> a_to, HNode.VisualsManager a_nvm) {
+    private void drawDependencies(ImGuiWrapper a_imgui, Iterable<RectTreeDrawer.LeafNodeDrawData> a_from, Iterable<RectTreeDrawer.LeafNodeDrawData> a_to, HNode.VisualsManager a_nvm, boolean a_useMappingColor) {
         final int white = a_imgui.toColor(new Vec4(1., 1., 1., 0.50));
 
         class SelectedPath {
@@ -250,15 +201,24 @@ public class HuGMeView {
             final boolean isInsideFromNode = a_imgui.isInside(nodeRect, a_imgui.getMousePos());
 
 
+
             for (RectTreeDrawer.LeafNodeDrawData toDD : a_to) {
 
                 CNode toNode;
 
                 toNode = (CNode)toDD.m_node.getObject();
 
-                if (fromNode.hasDependency(toNode)/* || toNode.hasDependency(fromNode)*/) {
+                if (toNode == fromNode) {
+                    continue;
+                }
+
+                if (fromNode.hasDependency(toNode)) {
                     fanTo.add(toDD);
                     totalFan += fromNode.getDependencyCount(toNode);
+                }
+                if (toNode.hasDependency(fromNode)) {
+                    fanTo.add(toDD);
+                    totalFan += toNode.getDependencyCount(fromNode);
                 }
             }
 
@@ -269,8 +229,10 @@ public class HuGMeView {
 
             Vec4 color = null;
 
-            if (a_nvm.hasBGColor(fromNode.getMapping())) {
+            if (a_useMappingColor && a_nvm.hasBGColor(fromNode.getMapping())) {
                 color =  a_nvm.getBGColor(fromNode.getMapping());
+            } else if (!a_useMappingColor) {
+                color = new Vec4(0.25, 0.25, 0.25, 1);
             }
 
 
@@ -290,7 +252,7 @@ public class HuGMeView {
 
                 float heightEnd = toDD.getHeight();
 
-                final int fan = fromNode.getDependencyCount(toNode);
+                final int fan = fromNode.getDependencyCount(toNode) + toNode.getDependencyCount(fromNode);
                 float yRatioStart = heightStart *  (fan / (float)fromDD.m_fan);
                 float yRatioEnd = heightEnd * (fan / (float)toDD.m_fan);  // the fan out to toDD is the fanIn from the mapped node
 

@@ -102,6 +102,8 @@ public class ImGuiWrapper {
     }
 
 
+
+
     protected static class DashContext {
         float m_remainingDrawLength;
         int m_ix;
@@ -559,7 +561,7 @@ public class ImGuiWrapper {
     }
 
     public boolean isInside(Vec2 a_center, float a_radius, Vec2 a_pos) {
-        if (m_imGui.getCurrentWindow().isActiveAndVisible() && m_imGui.isWindowHovered(HoveredFlag.RootAndChildWindows)) {
+        if (isCurrentWindowActive()) {
             return a_center.minus(a_pos).length2() <= a_radius * a_radius;
         }
         return false;
@@ -569,8 +571,30 @@ public class ImGuiWrapper {
         return COL32((int)(a_v.getX() * 255), (int)(a_v.getY() * 255), (int)(a_v.getZ() * 255), (int)(a_v.getW() * 255));
     }
 
+    public boolean isCurrentWindowActive() {
+        return m_imGui.getCurrentWindow().isActiveAndVisible() && m_imGui.isWindowHovered(HoveredFlag.RootAndChildWindows);
+    }
+
+
+
+    public boolean isInside(Vec2 a_p1, Vec2 a_p2, double a_thickness, Vec2 a_pos) {
+        if (isCurrentWindowActive()) {
+            Vec2 p2p1 = a_p2.minus(a_p1);
+            float l2 = p2p1.length2();
+            // Consider the line extending the segment, parameterized as v + t (w - v).
+            // We find projection of point p onto the line.
+            // It falls where t = [(p-v) . (w-v)] / |w-v|^2
+            // We clamp t from [0,1] to handle points outside the segment vw.
+            float t = Math.max(0, Math.min(1, a_pos.minus(a_p1).dot(p2p1) / l2));
+            Vec2 projection = a_p1.plus(p2p1.times(t));  // Projection falls on the segment
+            return projection.minus(a_pos).length2() < a_thickness * a_thickness;
+
+        }
+        return false;
+    }
+
     public boolean isInside(Rect a_rect, Vec2 a_pos) {
-        if (m_imGui.getCurrentWindow().isActiveAndVisible() && m_imGui.isWindowHovered(HoveredFlag.RootAndChildWindows)) {
+        if (isCurrentWindowActive()) {
             /*Vec4 clipRect = m_imGui.getCurrentWindow().getDrawList().getCurrentClipRect();
             if (clipRect != null) {
                 return a_rect.contains(a_pos) && new Rect(clipRect).contains(a_pos);
@@ -579,6 +603,14 @@ public class ImGuiWrapper {
         }
 
         return false;
+    }
+
+    public boolean isInsideClipRect(Vec2 a_pos) {
+        Vec4 clipRect = m_imGui.getCurrentWindow().getDrawList().getCurrentClipRect();
+        if (clipRect != null) {
+            return new Rect(clipRect).contains(a_pos);
+        }
+        return true;
     }
 
     public boolean button(String a_text, float a_width) {

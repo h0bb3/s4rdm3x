@@ -1,3 +1,4 @@
+
 package se.lnu.siq.s4rdm3x.model.cmd.mapper;
 
 import se.lnu.siq.s4rdm3x.model.CGraph;
@@ -22,6 +23,17 @@ public class ArchDef {
 
     public void removeComponent(Component a_component) {
         m_components.remove(a_component);
+    }
+
+    public int getComponentIx(Component a_component) {
+        int ix = 0;
+        for (Component c : m_components) {
+            if (c == a_component) {
+                return ix;
+            }
+            ix++;
+        }
+        return -1;
     }
 
     public static class Component {

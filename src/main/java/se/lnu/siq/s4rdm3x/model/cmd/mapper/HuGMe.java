@@ -237,7 +237,7 @@ public class HuGMe {
     }
 
 
-    private double CountAttractP(CNode a_node, int a_cluster, ArrayList<ArrayList<CNode>> a_clusters) {
+    double CountAttractP(CNode a_node, int a_cluster, ArrayList<ArrayList<CNode>> a_clusters) {
         double overall = 0;
         double toOthers = 0;
 
@@ -269,6 +269,11 @@ public class HuGMe {
                 }
 
                 toOthers += CountAttract(a_node, a_clusters.get(i), weightFrom, weightTo);
+
+                // remember the attraction contribution to the cluster will be reduced to 0 if there are violations
+                // otherwise the attraction to the cluster will increase as allowed dependencies does not reduce the attraction.
+                // this also means that the overall value is the maximum attraction we can get for the
+                // node and should be the number of dependencies from the node to any other mapped node
             }
 
             overall += CountAttract(a_node, a_clusters.get(i), 1.0, 1.0);

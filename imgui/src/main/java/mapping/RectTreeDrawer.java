@@ -28,16 +28,18 @@ class RectTreeDrawer implements Tree.TNodeVisitor {
 
         @Override
         public int compare(Tree.TNode o1, Tree.TNode o2) {
-            return getFan(o2) - getFan(o1);
+            return (int)(getFan(o2)*1000) - (int)(getFan(o1)*1000);
         }
 
-        int getFan(Tree.TNode a_node) {
-            int fan = 0;
+        float getFan(Tree.TNode a_node) {
+            float fan = 0;
 
             if (a_node.childCount() > 0) {
                 for (Tree.TNode c : a_node.children()) {
                     fan += getFan(c);
                 }
+
+                fan = (int)((fan / (float)a_node.childCount()));
             } else {
                 fan = m_fanCalculator.getFan((CNode)a_node.getObject(), m_targetNodes);
             }
@@ -118,6 +120,31 @@ class RectTreeDrawer implements Tree.TNodeVisitor {
         m_fanType = a_fanType;
     }
 
+    /*int getCoupling(CNode a_node, Iterable<CNode>a_targets) {
+        if (a_node == null) {
+            return 0;
+        }
+        int cinIn = 0;
+        int coutOut = 0;
+
+        for (CNode a_target : a_targets) {
+            if (a_node.hasDependency(a_target)) {
+                coutOut++;
+            }
+            if (a_target.hasDependency(a_node)) {
+                cinIn++;
+            }
+        }
+
+        if (m_fanType == FanType.In) {
+            return cinIn;
+        } else if (m_fanType == FanType.Out) {
+            return coutOut;
+        } else {
+            return cinIn + coutOut;
+        }
+    }*/
+
     int getFan(CNode a_node, Iterable<CNode>a_targets) {
         if (a_node == null) {
             return 0;
@@ -126,8 +153,10 @@ class RectTreeDrawer implements Tree.TNodeVisitor {
         int fanOut = 0;
 
         for (CNode a_target : a_targets) {
-            fanOut += a_node.getDependencyCount(a_target);
-            fanIn += a_target.getDependencyCount(a_node);
+            if (a_node != a_target) {
+                fanOut += a_node.getDependencyCount(a_target);
+                fanIn += a_target.getDependencyCount(a_node);
+            }
         }
 
         if (m_fanType == FanType.In) {

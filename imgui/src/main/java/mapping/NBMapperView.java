@@ -1,7 +1,14 @@
 package mapping;
 
 import archviz.HNode;
+import glm_.vec2.Vec2;
+import glm_.vec4.Vec4;
 import gui.ImGuiWrapper;
+import imgui.WindowFlag;
+import imgui.internal.ColumnsFlag;
+import imgui.internal.Rect;
+import imgui.internal.Window;
+import org.w3c.dom.Attr;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
@@ -13,101 +20,310 @@ import weka.core.Attribute;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.filters.Filter;
+import weka.filters.unsupervised.attribute.StringToWordVector;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
-public class NBMapperView {
+public class NBMapperView extends MapperBaseView {
 
     NBMapperManual m_nbmapper;
 
-    private List<CNode> m_selectedMappedNodes;   // this one is unmodifiable
-    private List<CNode> m_selectedOrphanNodes;  // this one is unmodifiable
-
     private ArrayList<CNode> m_autoClusteredOrphans = new ArrayList<>();
-
-    public Iterable<CNode> autoClusteredOrphans() {
-        return m_autoClusteredOrphans;
-    }
-
-    public int autoClusteredOrphanCount() {
-        return m_autoClusteredOrphans.size();
-    }
-
-    public void clearAutoClusteredOrphans() {
-        m_autoClusteredOrphans.clear();
-    }
+    private double[] m_probabilityOfClass = null;
+    private double m_threshold = 0.90;
 
     public NBMapperView(List<CNode>a_mappedNodes, List<CNode>a_orphanNodes) {
-        m_selectedMappedNodes = a_mappedNodes;
-        m_selectedOrphanNodes = a_orphanNodes;
+        super(a_mappedNodes, a_orphanNodes);
     }
 
-    void doNBMapperParamsView(ImGuiWrapper a_imgui, ArchDef a_arch, HNode.VisualsManager a_nvm) {
+    void doNBMapperParamsView(ImGuiWrapper a_imgui, ArchDef a_arch, HNode.VisualsManager a_nvm, Iterable<CNode>a_system) {
+
+        // first we get the data
+        NBMapper mapper = new NBMapper(null);
+
+        StringToWordVector filter = (StringToWordVector) mapper.getFilter();
+        Instances td = mapper.getTrainingData(m_selectedMappedNodes, a_arch, filter);
+        NBMapper.Classifier classifier = new NBMapper.Classifier();
+
+
+        if (m_selectedMappedNodes.size() > 0) {
+            try {
+                classifier.buildClassifier(td);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        Attribute classAttribute = td.classAttribute();
+
+        String[] rigthColHeadlines = new String[td.numAttributes()];
+        float longestHeadline = 0;
+        for (int attribIx = 0; attribIx < td.numAttributes(); attribIx++) {
+            rigthColHeadlines[attribIx] = td.attribute(attribIx).name();
+            Vec2 size = a_imgui.calcTextSize(rigthColHeadlines[attribIx], false);
+            if (size.getX() > longestHeadline) {
+                longestHeadline = size.getX();
+            }
+        }
+
 
         a_imgui.imgui().beginColumns("doNBMapperParamsView", 2, 0);
 
+        a_imgui.imgui().beginChild("componensdistribution", new Vec2(a_imgui.imgui().getContentRegionAvailWidth(), a_imgui.imgui().getStyle().getFramePadding().getY() * 4 + (a_arch.getComponentCount() + 1) * (a_imgui.getTextLineHeightWithSpacing() + a_imgui.imgui().getStyle().getFramePadding().getY() * 2) ), true, 0);
+
+        if (classifier.getProbabilityOfClass() != null) {
+            if (a_imgui.button("Training Data", 0) || m_probabilityOfClass == null || m_probabilityOfClass.length != classifier.getProbabilityOfClass().length) {
+                m_probabilityOfClass = new double[classifier.getProbabilityOfClass().length];
+                for (int pIx = 0; pIx < classifier.getProbabilityOfClass().length; pIx++) {
+                    m_probabilityOfClass[pIx] = classifier.getProbabilityOfClass()[pIx];
+                }
+            }
+
+            a_imgui.imgui().sameLine(0);
+
+            if (a_imgui.button("Uniform", 0)) {
+                for (int pIx = 0; pIx < classifier.getProbabilityOfClass().length; pIx++) {
+                    m_probabilityOfClass[pIx] = (float) 1 / classifier.getProbabilityOfClass().length;
+                }
+            }
+
+            a_imgui.imgui().sameLine(0);
+
+            if (a_imgui.button("System", 0)) {
+                int[] nodeCounts = new int[a_arch.getComponentCount()];
+                int sum = 0;
+
+                for (CNode n : a_arch.getMappedNodes(a_system)) {
+                    nodeCounts[a_arch.getComponentIx(a_arch.getMappedComponent(n))]++;
+                    sum++;
+                }
+
+
+                for (int pIx = 0; pIx < classifier.getProbabilityOfClass().length; pIx++) {
+                    m_probabilityOfClass[pIx] = (float) nodeCounts[pIx] / (float) sum;
+                }
+            }
+
+            final float textMaxWidth = a_imgui.imgui().getContentRegionAvailWidth() / 3.0f - 5;
+            for (int pIx = 0; pIx < classifier.getProbabilityOfClass().length; pIx++) {
+                float[] prob = {(float) m_probabilityOfClass[pIx]};
+
+                if (a_imgui.imgui().sliderFloat(a_imgui.getLongestSubString(td.classAttribute().value(pIx), textMaxWidth, "\\."), prob, 0, 1, "%.2f", 1)) {
+                    m_probabilityOfClass[pIx] = prob[0];
+                }
+            }
+        }
+        a_imgui.imgui().endChild();
+
+
+        {
+            float [] threshold = {(float)m_threshold};
+            if (a_imgui.imgui().sliderFloat("Probability Threshold", threshold, 0, 1, "%.2f", 1)) {
+                m_threshold = threshold[0];
+            }
+        }
+
+
         if (a_imgui.button("NBMap me Plz", 150)) {
-            m_nbmapper = new NBMapperManual(a_arch);
-            CGraph g = new CGraph();
+            m_nbmapper = new NBMapperManual(a_arch, m_probabilityOfClass);
 
-            for (CNode n : m_selectedMappedNodes) {
-                CNode nodeCopy = g.createNode(n.getName());
+            m_nbmapper.setClusteringThreshold(m_threshold);
+            m_nbmapper.run(createGraph());
 
-                for (dmClass c : n.getClasses()) {
-                    nodeCopy.addClass(c);
-                }
-
-                ArchDef.Component c = a_arch.getMappedComponent(n);
-                c.mapToNode(nodeCopy);
-                c.clusterToNode(nodeCopy, ArchDef.Component.ClusteringType.Initial);
-            }
-
-            for (CNode n : m_selectedOrphanNodes) {
-                CNode nodeCopy = g.createNode(n.getName());
-
-                for (dmClass c : n.getClasses()) {
-                    nodeCopy.addClass(c);
-                }
-            }
-
-            m_nbmapper.run(g);
+            setAutoClusteredNodes(m_nbmapper.m_clusteredElements);
 
             m_autoClusteredOrphans.clear();
-            m_autoClusteredOrphans.addAll(m_nbmapper.m_clusteredElements);
+            m_autoClusteredOrphans.addAll(getAllByName(m_selectedOrphanNodes, m_nbmapper.m_clusteredElements));
         }
 
         a_imgui.imgui().nextColumn();
 
-        NBMapper mapper = new NBMapper(null);
-
-        Instances td = mapper.getTrainingData(m_selectedMappedNodes, a_arch, mapper.getFilter());
 
 
-        Filter filter = mapper.getFilter();
+        final int white = a_imgui.toColor(new Vec4(1, 1, 1, 1));
+        final int white15 = a_imgui.toColor(new Vec4(1, 1, 1, 0.15));
+        final int rightColCount = td.numAttributes();
+        final int rows = m_selectedMappedNodes.size();
+        final int heightOffset = (int)longestHeadline;
+        final boolean childWindowBorder = false;
 
-        a_imgui.text(filter.toString());
+        Vec2 columnSize = new Vec2(a_imgui.imgui().getColumnWidth(-1) - 10, (float)a_imgui.imgui().getContentRegionAvail().getY());
+        if (a_imgui.imgui().beginChild("NBMapperChildTableOuter", columnSize, childWindowBorder, 0)) {
+            columnSize.plus(0, heightOffset, columnSize);
+            a_imgui.imgui().beginChild("NBMapperChildTableInner", columnSize, childWindowBorder, 0);
+            a_imgui.imgui().beginColumns("NBMapperTableOuterColumns", 2, 0);
 
-        for (Instance inst : td) {
+            a_imgui.imgui().setCursorPosY(a_imgui.imgui().getCursorPosY() + heightOffset);
 
-            for (int aIx = 0; aIx < inst.numAttributes(); aIx++) {
-                Attribute attrib = inst.attribute(aIx);
+            //columnSize = new Vec2(a_imgui.imgui().getColumnWidth(0), (float)a_imgui.imgui().getContentRegionAvail().getY());
+            columnSize = new Vec2(a_imgui.imgui().getContentRegionAvail());
+            a_imgui.imgui().beginChild("NBMapperChildTableLeft", columnSize, childWindowBorder, WindowFlag.NoScrollbar.getI());
 
-                String value = attrib.name() + "[";
+            // headline left column
+            a_imgui.imgui().beginColumns("NBMapperTableLeftColumns", 2, 0);
+            a_imgui.text("Node");
+            a_imgui.imgui().nextColumn();
+            a_imgui.text("Mapping");
 
-                value += inst.toString(attrib);
+            float [] leftHeadlineColWidths = {a_imgui.imgui().getColumnWidth(0), a_imgui.imgui().getColumnWidth(1)};
+            a_imgui.imgui().endColumns();
+            a_imgui.imgui().separator();
+
+            // body -21 for the horizontal scrollbar on the right part
+            columnSize = new Vec2((float)a_imgui.imgui().getContentRegionAvail().getX(), (float)a_imgui.imgui().getContentRegionAvail().getY() - 21);
+            a_imgui.imgui().beginChild("NBMapperChildTableLeftBody", columnSize, childWindowBorder,0);
 
 
-                /*for (int vIx = 0; vIx < attrib.numValues(); vIx++) {
-                    value += inst.toString()attrib.value(vIx) + ",";
-                }*/
+            columnSize = new Vec2((float)a_imgui.imgui().getContentRegionAvail().getX(), rows * a_imgui.getTextLineHeightWithSpacing());
+            final boolean scrollBar = columnSize.getY() > a_imgui.imgui().getContentRegionAvail().getY();
+            a_imgui.imgui().beginChild("NBMapperChildTableLeftContents", columnSize, childWindowBorder, WindowFlag.NoScrollbar.getI());
 
-                value += "]";
+            for (int i = 0; i < rows; i++) {
+                a_imgui.imgui().beginColumns("NBMapperTableLeftColumns", 2, ColumnsFlag.NoResize.getI());
 
-                a_imgui.text(value);
+
+                {
+                    Vec2 tl = a_imgui.imgui().getCurrentWindow().getPos().plus(a_imgui.imgui().getCursorPos());
+                    tl.plus(-10, 0, tl);
+
+                    Vec2 br = tl.plus(leftHeadlineColWidths[0] + 10, a_imgui.getTextLineHeightWithSpacing());
+
+                    a_imgui.addRectFilled(tl, br, a_imgui.toColor(a_nvm.getBGColor(m_selectedMappedNodes.get(i).getMapping())), 0, 0);
+
+                    if (i % 2 == 0) {
+                        a_imgui.addRectFilled(tl, br, white15, 0, 0);
+                    }
+                }
+
+                a_imgui.text(a_imgui.getLongestSubString(m_selectedMappedNodes.get(i).getLogicName(), leftHeadlineColWidths[0] - 13, "\\."));
+                a_imgui.imgui().setColumnWidth(0, leftHeadlineColWidths[0]);
+                a_imgui.imgui().nextColumn();
+
+                {
+                    Vec2 tl = a_imgui.imgui().getCurrentWindow().getPos().plus(a_imgui.imgui().getCursorPos());
+                    tl.plus(-10, 0, tl);
+
+                    Vec2 br = tl.plus(leftHeadlineColWidths[1] + 10, a_imgui.getTextLineHeightWithSpacing());
+
+                    a_imgui.addRectFilled(tl, br, a_imgui.toColor(a_nvm.getBGColor(m_selectedMappedNodes.get(i).getMapping())), 0, 0);
+
+                    if (i % 2 == 0) {
+                        a_imgui.addRectFilled(tl, br, white15, 0, 0);
+                    }
+                }
+
+
+
+                a_imgui.text(a_imgui.getLongestSubString(m_selectedMappedNodes.get(i).getMapping(), leftHeadlineColWidths[1] - 6 - (scrollBar ? 18 : 0), "\\."));
+                a_imgui.imgui().endColumns();
+            }
+
+            a_imgui.imgui().endChild();
+
+            final float yScroll = a_imgui.imgui().getScrollY();
+
+            a_imgui.imgui().endChild();
+
+            a_imgui.imgui().endChild();
+
+            a_imgui.imgui().nextColumn();
+
+
+            a_imgui.imgui().setCursorPosY(a_imgui.imgui().getCursorPosY() + heightOffset);
+            a_imgui.imgui().setCursorPosX(a_imgui.imgui().getColumnWidth(0) - 7);   // this seems to fix the rather large offset between the table left and right side parts
+
+
+            float height = (rows + 1 )* a_imgui.getTextLineHeightWithSpacing() + 21;
+            columnSize = new Vec2(a_imgui.imgui().getContentRegionAvailWidth(), a_imgui.imgui().getContentRegionAvail().getY() < height ? a_imgui.imgui().getContentRegionAvail().getY() : height);    // +16 for scrollbar
+            a_imgui.imgui().beginChild("NBMapperChildTableRight", columnSize, childWindowBorder, WindowFlag.NoScrollbar.or(WindowFlag.AlwaysHorizontalScrollbar));
+
+            final float colWidth = a_imgui.getTextLineHeightWithSpacing() * 2;
+            a_imgui.imgui().beginColumns("NBMapperTableRightColumns", rightColCount, ColumnsFlag.NoResize.getI() | ColumnsFlag.NoForceWithinWindow.getI());
+            Vec2 [] rightHeadlinePositions = new Vec2[rightColCount];
+
+            for (int cIx = 0; cIx < rightColCount; cIx++) {
+                a_imgui.imgui().setCursorPosY(a_imgui.imgui().getCursorPosY() + a_imgui.getTextLineHeightWithSpacing());
+                rightHeadlinePositions[cIx] = a_imgui.imgui().getCurrentWindow().getPos().plus(a_imgui.imgui().getCursorPos()).plus(2 - a_imgui.imgui().getScrollX(), -a_imgui.getTextLineHeightWithSpacing() / 2);
+                a_imgui.imgui().setColumnWidth(cIx, colWidth);
+                a_imgui.imgui().nextColumn();
+            }
+            a_imgui.imgui().endColumns();
+
+            a_imgui.imgui().separator();
+
+            columnSize = new Vec2(rightColCount * colWidth, (float)a_imgui.imgui().getContentRegionAvail().getY());
+            a_imgui.imgui().beginChild("NBMapperChildTableRightBody", columnSize, childWindowBorder,WindowFlag.NoScrollbar.getI());
+
+            columnSize = new Vec2(rightColCount * colWidth,rows * a_imgui.getTextLineHeightWithSpacing() );
+            a_imgui.imgui().beginChild("NBMapperChildTableRightBodyContents", columnSize, childWindowBorder, WindowFlag.NoScrollbar.getI());
+
+            for (int i = 0; i < rows; i++) {
+                Instance inst = td.get(i);
+                a_imgui.imgui().beginColumns("NBMapperTableRightColumns", rightColCount, ColumnsFlag.NoResize.getI() | ColumnsFlag.NoForceWithinWindow.getI());
+                for (int cIx = 0; cIx < rightColCount; cIx++) {
+
+                    {
+                        Vec2 tl = a_imgui.imgui().getCurrentWindow().getPos().plus(a_imgui.imgui().getCursorPos());
+                        tl.plus(-10, 0, tl);
+
+                        Vec2 br = tl.plus(colWidth + 10, a_imgui.getTextLineHeightWithSpacing());
+
+                        a_imgui.addRectFilled(tl, br, a_imgui.toColor(a_nvm.getBGColor(m_selectedMappedNodes.get(i).getMapping())), 0, 0);
+
+                        if (i % 2 == 0) {
+                            a_imgui.addRectFilled(tl, br, white15, 0, 0);
+                        }
+                    }
+
+                    int count = (int)inst.value(cIx);
+
+                    if (count > 0) {
+                        a_imgui.text("" + count);
+                    }
+                    a_imgui.imgui().setColumnWidth(cIx, colWidth);
+                    a_imgui.imgui().nextColumn();
+                }
+                a_imgui.imgui().endColumns();
             }
 
 
+            a_imgui.imgui().endChild();
+
+
+            a_imgui.imgui().setScrollY(yScroll);
+
+            a_imgui.imgui().endChild();
+
+            a_imgui.imgui().endChild();
+
+            // we now draw the slanted headlines to avoid column and child window clipping
+            for (int hIx = 0; hIx < rightColCount; hIx++) {
+                final float angle = (float)(2 * Math.PI - Math.PI / 2.4);
+                final float textLength = a_imgui.calcTextSize(rigthColHeadlines[hIx], false).getX();
+                Vec2 to = new Vec2(Math.cos(angle) * textLength, Math.sin(angle) * textLength);
+                to.plus(rightHeadlinePositions[hIx], to);
+                to.plus(5,0, to);
+                a_imgui.text(rigthColHeadlines[hIx], rightHeadlinePositions[hIx], white, angle);
+
+                if (a_imgui.isInsideClipRect(a_imgui.getMousePos()) && a_imgui.isInside(rightHeadlinePositions[hIx], to, a_imgui.getTextLineHeightWithSpacing() / 2.0, a_imgui.getMousePos())) {
+                    a_imgui.beginTooltip();
+                    a_imgui.text(rigthColHeadlines[hIx]);
+
+                    for (int cIx = 0; cIx < a_arch.getComponentCount(); cIx++) {
+                        a_imgui.text(a_arch.getComponent(cIx).getName() + ":" + weka.core.Utils.doubleToString(classifier.getProbabilityOfWord(hIx, cIx), 2));
+                    }
+
+                    a_imgui.endTooltip();
+
+                    //System.out.println(classifier);
+                }
+                //a_imgui.addLine(rightHeadlinePositions[hIx], to, white, 1);
+            }
+            a_imgui.imgui().endColumns();
+
+
+            a_imgui.imgui().endChild();
+            a_imgui.imgui().endChild();
         }
 
 

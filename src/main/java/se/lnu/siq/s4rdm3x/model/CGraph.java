@@ -8,7 +8,9 @@ import java.util.regex.Pattern;
 
 public class CGraph {
 
-    ArrayList<CNode> m_nodes = new ArrayList<>();
+   ArrayList<CNode> m_nodes = new ArrayList<>();
+
+
 
     public CGraph() {
     }
@@ -67,5 +69,9 @@ public class CGraph {
             }
         }
         return ret;
+    }
+
+    public void removeNode(CNode a_node) {
+        m_nodes.remove(a_node);
     }
 }

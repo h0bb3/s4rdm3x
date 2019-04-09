@@ -33,6 +33,8 @@ public class MappingView {
     HuGMeView m_hugmeView = new HuGMeView(Collections.unmodifiableList(m_selectedMappedNodes), Collections.unmodifiableList(m_selectedOrphanNodes));
     NBMapperView m_nbmapperView = new NBMapperView(Collections.unmodifiableList(m_selectedMappedNodes), Collections.unmodifiableList(m_selectedOrphanNodes));
 
+    CGraph m_graph = new CGraph();
+
 
     private CNode m_selectedClusteredNode;
 
@@ -74,13 +76,22 @@ public class MappingView {
                     "net/sf/jabref/collab/FileUpdateListener.java",
                     "net/sf/jabref/collab/StringNameChange.java"};
 
-            m_selectedOrphanNodes.clear();
+            m_graph = new CGraph();
+            m_selectedMappedNodes.clear();
             for (String n : mappedNodes) {
-                m_selectedMappedNodes.add(a_g.getNode(n));
+                CNode node = a_g.getNode(n);
+                CNode cpy = m_graph.createNode(n);
+                cpy.shallowCopy(node);
+
+                m_selectedMappedNodes.add(cpy);
             }
             m_selectedOrphanNodes.clear();
             for (String n : orphanNodes) {
-                m_selectedOrphanNodes.add(a_g.getNode(n));
+                CNode node = a_g.getNode(n);
+                CNode cpy = m_graph.createNode(n);
+                cpy.shallowCopy(node);
+
+                m_selectedOrphanNodes.add(cpy);
             }
         }
 
@@ -90,10 +101,10 @@ public class MappingView {
 
         switch (m_viewSelection[0]) {
             case g_hugMeParamsId:
-                m_hugmeView.doHugMeParamsView(iw, a_arch, a_nvm);
+                m_hugmeView.doHugMeParamsView(iw, m_graph, a_arch, a_nvm);
                 break;
             case g_nbmapperParamsId:
-                m_nbmapperView.doNBMapperParamsView(iw, a_arch, a_nvm);
+                m_nbmapperView.doNBMapperParamsView(iw, a_arch, a_nvm, a_g.getNodes());
                 break;
             case g_mappedEntitiesId:
                 doSelectMappedEntities(iw, a_g, a_arch, a_nvm);
@@ -116,7 +127,7 @@ public class MappingView {
         hiviz.Tree tree = new hiviz.Tree();
         for (CNode n : a_g.getNodes()) {
 
-            if (!m_selectedMappedNodes.contains(n)) {
+            if (!containsByName(m_selectedOrphanNodes, n) && !containsByName(m_selectedMappedNodes, n)) {
                 ArchDef.Component component = a_arch.getMappedComponent(n);
 
                 for (dmClass c : n.getClasses()) {
@@ -133,7 +144,7 @@ public class MappingView {
 
         Tree.TNode hovered = tree.doTree(a_imgui.imgui(), "notSelectedMappedEntitiesTree");
         if (hovered != null && a_imgui.isMouseDoubleClicked(0)) {
-            hovered.accept(TNodeCollectionWorker.doAdd(m_selectedMappedNodes));
+            hovered.accept(TNodeCollectionWorker.doAdd(m_graph, m_selectedMappedNodes));
         }
 
         a_imgui.imgui().nextColumn();
@@ -158,10 +169,19 @@ public class MappingView {
 
         hovered = tree.doTree(a_imgui.imgui(), "selectedMappedEntitiesTree");
         if (hovered != null && a_imgui.isMouseDoubleClicked(0)){
-            hovered.accept(TNodeCollectionWorker.doRemove(m_selectedMappedNodes));
+            hovered.accept(TNodeCollectionWorker.doRemove(m_graph, m_selectedMappedNodes));
         }
 
         a_imgui.imgui().endColumns();
+    }
+
+    private boolean containsByName(Iterable<CNode> a_collection, CNode a_node) {
+        for (CNode n : a_collection) {
+            if (n.getName().equals(a_node.getName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void doSelectOrphanEntities(ImGuiWrapper a_imgui, CGraph a_g, ArchDef a_arch, HNode.VisualsManager a_nvm) {
@@ -170,7 +190,7 @@ public class MappingView {
         hiviz.Tree tree = new hiviz.Tree();
         for (CNode n : a_g.getNodes()) {
 
-            if (!m_selectedOrphanNodes.contains(n) && !m_selectedMappedNodes.contains(n)) {
+            if (!containsByName(m_selectedOrphanNodes, n) && !containsByName(m_selectedMappedNodes, n)) {
                 ArchDef.Component component = a_arch.getMappedComponent(n);
 
                 if (component != null) {
@@ -183,7 +203,7 @@ public class MappingView {
 
         Tree.TNode hovered = tree.doTree(a_imgui.imgui(), "notSelectedOrphanEntitiesTree");
         if (hovered != null && a_imgui.isMouseDoubleClicked(0)) {
-            hovered.accept(TNodeCollectionWorker.doAdd(m_selectedOrphanNodes));
+            hovered.accept(TNodeCollectionWorker.doAdd(m_graph, m_selectedOrphanNodes));
         }
 
         a_imgui.imgui().nextColumn();
@@ -203,7 +223,7 @@ public class MappingView {
 
         hovered = tree.doTree(a_imgui.imgui(), "selectedOrphanEntitiesTree");
         if (hovered != null && a_imgui.isMouseDoubleClicked(0)){
-            hovered.accept(TNodeCollectionWorker.doRemove(m_selectedOrphanNodes));
+            hovered.accept(TNodeCollectionWorker.doRemove(m_graph, m_selectedOrphanNodes));
         }
 
         a_imgui.imgui().endColumns();
@@ -262,15 +282,30 @@ public class MappingView {
         a_imgui.text("NBMapper Mapping Results");
         doClusteringTable(m_nbmapperView.autoClusteredOrphans(), m_nbmapperView.autoClusteredOrphanCount(), a_imgui, a_g, a_arch, "NBMapperAutoClusteredOrphans");
 
-        if (a_imgui.button("Accept Auto Clustered Nodes", 150)) {
-            for (CNode n : m_hugmeView.autoClusteredOrphans()) {
+        if (a_imgui.button("Accept to Main", 0)) {
+            for (CNode n : m_nbmapperView.autoClusteredOrphans()) {
                 CNode graphNode = a_g.getNode(n.getName());
                 a_arch.getClusteredComponent(n).mapToNode(graphNode);
             }
 
             m_hugmeView.clearAutoClusteredOrphans();
-            m_selectedMappedNodes.clear();
-            m_selectedOrphanNodes.clear();
+            m_nbmapperView.clearAutoClusteredOrphans();
+            //m_selectedMappedNodes.clear();
+            //m_selectedOrphanNodes.clear();
+        }
+
+        a_imgui.imgui().sameLine(0);
+
+
+        if (a_imgui.button("Accept to Mapped", 0)) {
+            for (CNode n : m_nbmapperView.autoClusteredOrphans()) {
+                a_arch.getClusteredComponent(n).mapToNode(n);
+                m_selectedMappedNodes.add(n);
+                m_selectedOrphanNodes.remove(m_nbmapperView.getByName(m_selectedOrphanNodes, n.getName()));
+            }
+
+            m_hugmeView.clearAutoClusteredOrphans();
+            m_nbmapperView.clearAutoClusteredOrphans();
         }
 
         a_imgui.imgui().endColumns();
@@ -404,25 +439,31 @@ public class MappingView {
     private abstract static class TNodeCollectionWorker implements Tree.TNodeVisitor {
 
         private Collection<CNode> m_collection;
+        private CGraph m_graph;
 
-        protected TNodeCollectionWorker(Collection a_collection) {
+        protected TNodeCollectionWorker(CGraph a_graph, Collection a_collection){
+            m_graph = a_graph;
             m_collection = a_collection;
         }
 
 
-        static public Tree.TNodeVisitor doAdd(Collection<CNode> a_collection) {
-            return new TNodeCollectionWorker(a_collection) {
+        static public Tree.TNodeVisitor doAdd(CGraph a_graph, Collection<CNode> a_collection) {
+            return new TNodeCollectionWorker(a_graph, a_collection) {
                 @Override
-                protected void doWork(CNode a_node, Collection a_collection) {
-                    a_collection.add(a_node);
+                protected void doWork(CNode a_node, CGraph a_graph, Collection a_collection) {
+
+                    CNode cpy = a_graph.createNode(a_node.getName());
+                    cpy.shallowCopy(a_node);
+                    a_collection.add(cpy);
                 }
             };
         }
 
-        static public Tree.TNodeVisitor doRemove(Collection<CNode> a_collection) {
-            return new TNodeCollectionWorker(a_collection) {
+        static public Tree.TNodeVisitor doRemove(CGraph a_graph, Collection<CNode> a_collection) {
+            return new TNodeCollectionWorker(a_graph, a_collection) {
                 @Override
-                protected void doWork(CNode a_node, Collection a_collection) {
+                protected void doWork(CNode a_node,  CGraph a_graph, Collection a_collection) {
+                    a_graph.removeNode(a_node);
                     a_collection.remove(a_node);
                 }
             };
@@ -435,11 +476,11 @@ public class MappingView {
 
             Object o = a_node.getObject();
             if (o != null) {
-                doWork((CNode) o, m_collection);
+                doWork((CNode) o, m_graph, m_collection);
             }
         }
 
-        protected abstract void doWork(CNode a_node, Collection a_collection);
+        protected abstract void doWork(CNode a_node, CGraph a_graph, Collection a_collection);
 
     }
 }

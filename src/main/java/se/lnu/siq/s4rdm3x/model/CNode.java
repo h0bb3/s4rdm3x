@@ -46,11 +46,17 @@ public class CNode {
         }
     }
 
+    public void shallowCopy(CNode a_node) {
+        m_mappedToComponent = a_node.m_mappedToComponent;
+        m_clusteredToComponent = a_node.m_clusteredToComponent;
+        m_clusteringType = a_node.m_clusteringType;
+        m_classes.addAll(a_node.m_classes);
+        m_tags.addAll(a_node.m_tags);
+    }
 
     public static class MetricMap extends HashMap<String, Double> {}
 
     private MetricMap m_metrics = new MetricMap();
-
 
     public String getTags() {
         return getTags(",");
@@ -74,9 +80,9 @@ public class CNode {
         return m_id;
     }*/
 
-    public int getIndex() {
+    /*public int getIndex() {
         return m_index;
-    }
+    }*/
 
 
 

@@ -5,9 +5,13 @@ import se.lnu.siq.s4rdm3x.dmodel.NodeGenerator;
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
+import weka.core.Attribute;
+import weka.core.Instance;
 import weka.core.Instances;
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.StringToWordVector;
+
+import java.util.Enumeration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -66,7 +70,7 @@ public class NBMapperTests {
     @Test
     void getTrainingData() {
         NodeGenerator ng = new NodeGenerator();
-        CGraph g = ng.generateGraph(dmDependency.Type.Returns, new String [] {"AB", "BC", "CA", "DC", "AC"});
+        CGraph g = ng.generateGraph(dmDependency.Type.Returns, new String [] {"AB", "BC", "CA", "DC", "AC", "AB"});
         CNode a = g.getNode("A");
         CNode b = g.getNode("B");
         CNode c = g.getNode("C");
@@ -85,11 +89,32 @@ public class NBMapperTests {
         c2.mapToNode(d);
 
         NBMapper sut = new NBMapper(arch);
-        Filter filter = new StringToWordVector();
+        StringToWordVector filter = new StringToWordVector();
+        filter.setOutputWordCounts(true);
 
         Instances actual = sut.getTrainingData(sut.getInitiallyMappedNodes(g), arch, filter);
 
-        System.out.print(actual);
+        System.out.println(actual);
+        Attribute classAttribute = actual.classAttribute();
+
+        for (Instance inst : actual) {
+
+            Enumeration<Attribute> attribs = actual.enumerateAttributes();
+
+            System.out.print("class: " + classAttribute.value((int)inst.value(classAttribute)) + " ");
+            while (attribs.hasMoreElements()) {
+                Attribute attr = attribs.nextElement();
+                //if (attr.isNumeric()) {
+                    System.out.print(attr.name() + ":" + inst.value(attr));
+                //} else {
+                    //System.out.print(attr.name() + ":" + inst.stringValue(attr));
+                //}
+            }
+            System.out.println("");
+            //inst.stringValue()
+
+
+        }
     }
 
     @Test

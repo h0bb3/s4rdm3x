@@ -165,7 +165,7 @@ public class GraphView {
 
     void doGraphView(ImGui a_imgui, Iterable<CNode> a_nodes, ArchDef a_arch, archviz.HNode.VisualsManager a_nvm, float a_dt) {
         ImGuiWrapper imgui = new ImGuiWrapper(a_imgui);
-
+/*
         for (int cIx = 0; cIx < a_arch.getComponentCount(); cIx++) {
             ArchDef.Component c = a_arch.getComponent(cIx);
 
@@ -391,9 +391,11 @@ public class GraphView {
         imgui.beginTooltip();
         imgui.text("" + particlesParent.getScrollMaxX());
         imgui.endTooltip();
+        */
     }
 
     private void setFileParticleAttractions(Iterable<CNode> a_nodes, Particle a_source, ArchDef.Component a_c) {
+        /*
         for(CNode n : a_nodes) {
             if (n.getIndex() < m_fileParticles.length) {
                 if (a_c.isMappedTo(n)) {
@@ -402,6 +404,7 @@ public class GraphView {
                 }
             }
         }
+        */
     }
 
     private void renderParticles(Particle[] a_particles, ImGuiWrapper a_imgui, Vec2 offset, float a_scale) {

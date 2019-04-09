@@ -85,4 +85,27 @@ public class stats {
             return 0;
         }
     }
+
+    public static double getStandardNormalProbabilityDensity(double a_x) {
+        return Math.exp(-Math.pow(a_x, 2) / 2) / Math.sqrt(2 * Math.PI);
+    }
+
+    public static double getNormalProbabilityDensity(double a_x, double a_mean, double a_stdDev) {
+        return (getStandardNormalProbabilityDensity((a_x - a_mean) / a_stdDev)) / a_stdDev;
+    }
+
+    public static double getNormalProbability(double a_lower, double a_higher, double a_mean, double a_stdDev) {
+        int steps = 1000;
+        final double width = (a_higher - a_lower) / steps;
+        double area = 0;
+        double x = a_lower;
+
+        while (steps > 0) {
+            area += getNormalProbabilityDensity(x, a_mean, a_stdDev) * width;
+            x += width;
+            steps--;
+        }
+
+        return area;
+    }
 }
