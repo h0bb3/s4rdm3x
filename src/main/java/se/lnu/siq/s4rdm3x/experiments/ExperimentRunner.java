@@ -1,5 +1,6 @@
 package se.lnu.siq.s4rdm3x.experiments;
 
+import se.lnu.siq.s4rdm3x.experiments.metric.Rand;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.HuGMe;
 import se.lnu.siq.s4rdm3x.model.cmd.util.FanInCache;
@@ -8,11 +9,13 @@ import se.lnu.siq.s4rdm3x.experiments.system.System;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Random;
 
-public class ExperimentRunner {
+public abstract class ExperimentRunner {
     protected Random m_rand = new Random();
     private RunListener m_listener = null;
     private System m_sua;
@@ -24,6 +27,72 @@ public class ExperimentRunner {
       Stoping,
       Idle
     };
+
+    public static class RandomBoolVariable {
+        int m_value;
+        boolean m_doGenerate;
+
+        public RandomBoolVariable() {
+            m_doGenerate = true;
+            m_value = -1;
+        }
+
+        public RandomBoolVariable(boolean a_value) {
+            m_value = a_value ? 1 : 0;
+        }
+
+        public boolean getValue() {
+            return m_value == 1;
+        }
+
+        public boolean generate(Random a_rand) {
+            if (m_doGenerate) {
+                m_value = a_rand.nextBoolean() ? 1 : 0;
+            }
+            return getValue();
+        }
+    }
+
+
+    public static class RandomDoubleVariable {
+        double m_value;
+        double m_base;
+        double m_scale;
+
+
+        public RandomDoubleVariable() {
+            set(0.5, 0.5);
+        }
+
+        public RandomDoubleVariable(double a_base) {
+            set(a_base, 0);
+        }
+
+        public RandomDoubleVariable(double a_base, double a_scale) {
+            set(a_base, a_scale);
+        }
+
+        public void setInterval(double a_min, double a_max) {
+            m_scale = a_max - a_min / 2;
+            m_base = a_min + m_scale;
+        }
+
+        public void set(double a_base, double a_scale) {
+            m_base = a_base;
+            m_scale = a_scale;
+
+            m_value = a_base - a_scale * 2; // generate something illegal
+        }
+
+        public double generate(Random a_rand) {
+            m_value = m_base + ((a_rand.nextDouble() - 0.5) * 2) * m_scale;
+            return m_value;
+        }
+
+        public double getValue() {
+            return m_value;
+        }
+    }
 
     public void stop() {
         if (m_state == State.Running) {
@@ -42,24 +111,11 @@ public class ExperimentRunner {
     }
 
     public interface RunListener {
-        BasicRunData OnRunInit(BasicRunData a_rd, CGraph a_g, ArchDef a_arch);
-        void OnRunCompleted(BasicRunData a_rd, CGraph a_g, ArchDef a_arch);
+        public ExperimentRunData.BasicRunData OnRunInit(ExperimentRunData.BasicRunData a_rd, CGraph a_g, ArchDef a_arch);
+        public void OnRunCompleted(ExperimentRunData.BasicRunData a_rd, CGraph a_g, ArchDef a_arch);
     }
 
-    public static class BasicRunData {
-        public Metric m_metric;
-        public String m_system;
-        public long m_time;
-        public int m_id;
-        public double m_omega;
-        public double m_phi;
-        public double m_initialClusteringPercent;
-        public int m_iterations;
-        public int m_totalManuallyClustered;
-        public int m_totalAutoClustered;
-        public int m_totalAutoWrong;
-        public int m_totalFailedClusterings;
-    }
+
 
     public void setRunListener(RunListener a_listener) {
         m_listener = a_listener;
@@ -80,18 +136,28 @@ public class ExperimentRunner {
         m_metric.assignMetric(arch.getMappedNodes(a_g.getNodes()));
 
         m_state = State.Running;
+        RandomDoubleVariable initialClustering = new RandomDoubleVariable(0.1, 0.1);
+        SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         while(m_state == State.Running) {
 
-            BasicRunData rd = new BasicRunData();
+            ExperimentRunData.BasicRunData rd = createNewRunData(m_rand);
             rd.m_metric = m_metric;
             rd.m_system = m_sua.getName();
-            rd.m_initialClusteringPercent = m_rand.nextDouble() * 0.2;
-            rd.m_phi = m_rand.nextDouble();
-            rd.m_omega = m_rand.nextDouble();
+            rd.m_initialClusteringPercent = initialClustering.generate(m_rand);
+
+            rd.m_initialClustered = arch.getClusteredNodeCount(a_g.getNodes());
+            rd.m_totalMapped = arch.getMappedNodeCount(a_g.getNodes());
+
+            rd.m_date = sdfDate.format(new Date());
 
             arch.cleanNodeClusters(a_g.getNodes());
             assignInitialClusters(a_g, arch, rd.m_initialClusteringPercent);
+
             //assignInitialClustersPerComponent(a_g, arch, rd.m_initialClusteringPercent);
+
+            rd.m_initialClustered = arch.getClusteredNodeCount(a_g.getNodes());
+            rd.m_totalMapped = arch.getMappedNodeCount(a_g.getNodes());
+
 
             //rd.m_totalMapped = 0;
             rd.m_totalManuallyClustered = 0;
@@ -109,7 +175,7 @@ public class ExperimentRunner {
                 rd = m_listener.OnRunInit(rd, a_g, arch);
             }
             while(m_state == State.Running) {
-                if (runClustering(a_g, fic, arch, rd)) break;
+                if (runClustering(a_g, fic, arch)) break;
             }
 
             if (m_listener != null) {
@@ -123,24 +189,9 @@ public class ExperimentRunner {
         m_state = State.Idle;
     }
 
-    protected boolean runClustering(CGraph a_g, FanInCache fic, ArchDef arch, BasicRunData rd) {
-        HuGMe c = new HuGMe(rd.m_omega, rd.m_phi, true, arch, fic);
-        long start = java.lang.System.nanoTime();
-        c.run(a_g);
-        rd.m_time = java.lang.System.nanoTime() - start;
+    protected abstract ExperimentRunData.BasicRunData createNewRunData(Random m_rand);
 
-        rd.m_totalManuallyClustered += c.m_manuallyMappedNodes;
-        rd.m_totalAutoClustered += c.m_automaticallyMappedNodes;
-        rd.m_totalAutoWrong  += c.m_autoWrong;
-        rd.m_totalFailedClusterings  += c.m_failedMappings;
-
-        if (c.m_automaticallyMappedNodes + c.m_manuallyMappedNodes == 0) {
-            return true;
-        }
-
-        rd.m_iterations++;
-        return false;
-    }
+    protected abstract boolean runClustering(CGraph a_g, FanInCache fic, ArchDef arch);
 
 
     private void assignInitialClusters(CGraph a_g, ArchDef a_arch, double a_percentage) {

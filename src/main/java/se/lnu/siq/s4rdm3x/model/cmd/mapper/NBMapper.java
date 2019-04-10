@@ -32,7 +32,11 @@ public class NBMapper {
         public double getProbabilityOfWord(int a_wordIx, int a_classIx) {
 
             // this is from the implementation of classifier.toString
-            return Math.exp(m_probOfWordGivenClass[a_classIx][a_wordIx]);
+            if (m_probOfWordGivenClass != null && a_classIx < m_probOfWordGivenClass.length && a_wordIx < m_probOfWordGivenClass[a_classIx].length) {
+                return Math.exp(m_probOfWordGivenClass[a_classIx][a_wordIx]);
+            } else {
+                return -1;
+            }
         }
     }
 
@@ -54,12 +58,12 @@ public class NBMapper {
 
     public NBMapper(ArchDef a_arch) {
         m_arch = a_arch;
-        ((StringToWordVector)m_filter).setOutputWordCounts(true);
+        ((StringToWordVector)m_filter).setOutputWordCounts(false);
     }
     public NBMapper(ArchDef a_arch, double [] a_initialDistribution) {
         m_arch = a_arch;
         m_initialDistribution = a_initialDistribution;
-        ((StringToWordVector)m_filter).setOutputWordCounts(true);
+        ((StringToWordVector)m_filter).setOutputWordCounts(false);
     }
 
     public void setClusteringThreshold(double a_probability) {
@@ -132,8 +136,8 @@ public class NBMapper {
                 }
             }
 
-            System.out.print(" the expression for the input data as per algorithm is ");
-            System.out.println(nbClassifier);
+            //System.out.print(" the expression for the input data as per algorithm is ");
+            //System.out.println(nbClassifier);
 
             for (CNode orphanNode : orphans) {
                 double [] attraction = new double[m_arch.getComponentCount()];
@@ -168,7 +172,7 @@ public class NBMapper {
                     m_arch.getComponent(maxIx).clusterToNode(orphanNode, ArchDef.Component.ClusteringType.Automatic);
                     m_clusteredElements.add(orphanNode);
                     m_automaticallyMappedNodes++;
-                    System.out.println("Clustered to: " + orphanNode.getClusteringComponentName() +" mapped to: " + orphanNode.getMapping());
+                    //System.out.println("Clustered to: " + orphanNode.getClusteringComponentName() +" mapped to: " + orphanNode.getMapping());
 
                     if (m_arch.getComponent(orphanNode.getMapping()) != m_arch.getComponent(maxIx)) {
                         m_autoWrong++;

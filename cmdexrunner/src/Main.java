@@ -2,6 +2,7 @@ import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.MultiGraph;
 import se.lnu.siq.metrics.CSVRow;
 import se.lnu.siq.s4rdm3x.experiments.ExperimentRunner;
+import se.lnu.siq.s4rdm3x.experiments.HuGMeExperimentRunner;
 import se.lnu.siq.s4rdm3x.experiments.NBMapperExperimentRunner;
 import se.lnu.siq.s4rdm3x.experiments.RunFileSaver;
 import se.lnu.siq.s4rdm3x.experiments.metric.*;
@@ -180,7 +181,7 @@ public class Main {
             CGraph graph = new CGraph();
             m_fs = new RunFileSaver(m_sua.getName(), m_metric.getName(), m_doSaveMappings);
             if (m_et == ExperimentType.HuGMe) {
-                m_exr = new ExperimentRunner(m_sua, m_metric);
+                m_exr = new HuGMeExperimentRunner(m_sua, m_metric);
             } else {
                 m_exr = new NBMapperExperimentRunner(m_sua, m_metric);
             }

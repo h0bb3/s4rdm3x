@@ -1,43 +1,37 @@
 package se.lnu.siq.s4rdm3x.experiments;
 
+import se.lnu.siq.s4rdm3x.experiments.ExperimentRunData;
+import se.lnu.siq.s4rdm3x.experiments.ExperimentRunner;
 import se.lnu.siq.s4rdm3x.experiments.metric.Metric;
 import se.lnu.siq.s4rdm3x.experiments.system.System;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.HuGMe;
-import se.lnu.siq.s4rdm3x.model.cmd.mapper.NBMapper;
 import se.lnu.siq.s4rdm3x.model.cmd.util.FanInCache;
 
 import java.util.Random;
 
-public class NBMapperExperimentRunner extends ExperimentRunner {
+public class HuGMeExperimentRunner extends ExperimentRunner {
 
-    private ExperimentRunData.NBMapperData m_exData;
+    private ExperimentRunData.HuGMEData m_exData;
 
-    RandomBoolVariable m_doStemming;
-    RandomBoolVariable m_doWordCount;
-    RandomDoubleVariable m_threshold;
-
-
-    public NBMapperExperimentRunner(System a_sua, Metric a_metric) {
+    public HuGMeExperimentRunner(System a_sua, Metric a_metric) {
         super (a_sua, a_metric);
-        m_doStemming = new RandomBoolVariable(false);
-        m_doWordCount = new RandomBoolVariable(false);
-        m_threshold = new RandomDoubleVariable(0.9, 0);
     }
 
     @Override
-    protected ExperimentRunData.BasicRunData createNewRunData(Random a_rand) {
-        m_exData = new ExperimentRunData.NBMapperData();
-        m_exData.m_threshold = m_threshold.generate(a_rand);
-        m_exData.m_doStemming = m_doStemming.generate(a_rand);
-        m_exData.m_doWordCount = m_doWordCount.generate(a_rand);
+    protected ExperimentRunData.BasicRunData createNewRunData(Random m_rand) {
+        m_exData = new ExperimentRunData.HuGMEData();
+        m_exData.m_phi = m_rand.nextDouble();
+        m_exData.m_omega = m_rand.nextDouble();
         return m_exData;
     }
 
+
     @Override
     protected boolean runClustering(CGraph a_g, FanInCache fic, ArchDef arch) {
-        NBMapper c = new NBMapper(arch);
+
+        HuGMe c = new HuGMe(m_exData.m_omega, m_exData.m_phi, true, arch, fic);
         long start = java.lang.System.nanoTime();
         c.run(a_g);
         m_exData.m_time = java.lang.System.nanoTime() - start;
@@ -52,6 +46,9 @@ public class NBMapperExperimentRunner extends ExperimentRunner {
         }
 
         m_exData.m_iterations++;
-        return true;
+        return false;
     }
 }
+
+
+

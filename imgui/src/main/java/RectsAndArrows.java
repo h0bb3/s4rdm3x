@@ -1,4 +1,5 @@
 import archviz.HRoot;
+import experimenting.ExperimentView;
 import glm_.vec2.Vec2;
 import glm_.vec2.Vec2i;
 import glm_.vec4.Vec4;
@@ -166,11 +167,13 @@ public class RectsAndArrows {
     private boolean[] showTreeView = {true};
     private boolean[] showGraphView = {false};
     private boolean[] showHuGMeView = {true};
+    private boolean[] showExperimentView = {true};
     private int[] counter = {0};
 
     private TreeView m_treeView = new TreeView();
     private GraphView m_graphView = new GraphView();
     private MappingView m_mappingView = new MappingView();
+    private ExperimentView m_experimentView = new ExperimentView();
 
 
 
@@ -210,7 +213,8 @@ public class RectsAndArrows {
         imgui.checkbox("Architectural Structure", showArchitecture);
         imgui.checkbox("Tree View", showTreeView);
         imgui.checkbox("Graph View", showGraphView);
-        imgui.checkbox("HuGMe View", showHuGMeView);
+        imgui.checkbox("Mapping View", showHuGMeView);
+        imgui.checkbox("Experiment View", showExperimentView);
 
         if (imgui.button("Button", new Vec2()))                               // Buttons return true when clicked (NB: most widgets return true when edited/activated)
             counter[0]++;
@@ -253,7 +257,7 @@ public class RectsAndArrows {
         }
 
         if (showHuGMeView[0]) {
-            if (imgui.begin("HuGMe View", showHuGMeView, 0)) {
+            if (imgui.begin("Mapping View", showHuGMeView, 0)) {
 
                 m_mappingView.doView(imgui, a_arch, a_g, m_vizState.m_nvm);
 
@@ -262,6 +266,15 @@ public class RectsAndArrows {
                 if (m_mappingView.getSelectedClusteredNode() != null) {
                     m_treeView.m_selectedClass = m_mappingView.getSelectedClusteredNode();
                 }
+            }
+        }
+
+        if (showExperimentView[0]) {
+            if (imgui.begin("Experiment View", showExperimentView, 0)) {
+
+                m_experimentView.doView(imgui, a_arch, a_g, m_vizState.m_nvm);
+
+                imgui.end();
             }
         }
 

@@ -18,7 +18,6 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
 
     Path m_filePath;
     Path m_mappingsFilePath;
-    RunData m_rd;
     int m_errorCounter;
     int m_runCount;
 
@@ -31,21 +30,12 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
         public String m_clusteringType;
     }
 
-    public static class RunData {
-        public String m_date;
-        public int m_initialClustered;
-        public int m_totalMapped;
-        public String m_initialDistribution;
-
-    }
-
     public int getRunCount() {
         return m_runCount;
     }
 
     public RunFileSaver(String a_system, String a_metric, boolean a_doSaveMappings) {
         m_errorCounter = 0;
-        m_rd = null;
         m_runCount = 0;
         m_filePath = createFile(a_system, a_metric, a_system + "_" + a_metric);
 
@@ -54,8 +44,6 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
         row.add("date");
         row.add("time");
         row.add("localId");
-        row.add("omega" );
-        row.add("phi");
         row.add("initialClustered");
         row.add("totalMapped");
         row.add("initialDistribution");
@@ -67,6 +55,9 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
         row.add("mappingPercent");
         row.add("metric");
         row.add("system");
+
+        row.add("omega");
+        row.add("phi");
 
         writeRow(m_filePath, row);
 
@@ -88,31 +79,53 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
         }
     }
 
+    private Path initSaveFile(ExperimentRunData.BasicRunData a_rd) {
+        Path p = createFile(a_rd.m_system, a_rd.m_metric.getName(), a_rd.m_system + "_" + a_rd.m_metric.getName());
 
-    public ExperimentRunner.BasicRunData OnRunInit(ExperimentRunner.BasicRunData a_rd, CGraph a_g, ArchDef a_arch) {
-        m_rd = new RunData();
 
-        m_rd.m_initialClustered = a_arch.getClusteredNodeCount(a_g.getNodes());
-        m_rd.m_totalMapped= a_arch.getMappedNodeCount(a_g.getNodes());
+        ArrayList<String> row = new ArrayList<>();
+        row.add("date");
+        row.add("time");
+        row.add("localId");
+        row.add("initialClustered");
+        row.add("totalMapped");
+        row.add("initialDistribution");
+        row.add("iterations");
+        row.add("totalManuallyClustered");
+        row.add("totalAutoClustered");
+        row.add("totalAutoWrong");
+        row.add("totalFailedClusterings");
+        row.add("mappingPercent");
+        row.add("metric");
+        row.add("system");
 
-        m_rd.m_initialDistribution = getInitialClusterDistributionString(a_g, a_arch);
+        row.add("omega");
+        row.add("phi");
 
-        SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//dd/MM/yyyy
-        m_rd.m_date = sdfDate.format(new Date());
+        writeRow(p, row);
 
+        return p;
+    }
+
+
+     public ExperimentRunData.BasicRunData OnRunInit(ExperimentRunData.BasicRunData a_rd, CGraph a_g, ArchDef a_arch) {
+        a_rd.m_initialDistribution = getInitialClusterDistributionString(a_g, a_arch);
         return a_rd;
     }
 
-    public void OnRunCompleted(ExperimentRunner.BasicRunData a_rd, CGraph a_g, ArchDef a_arch) {
+    public void OnRunCompleted(ExperimentRunData.BasicRunData a_rd, CGraph a_g, ArchDef a_arch) {
+
+        if (m_filePath == null) {
+            m_filePath = initSaveFile(a_rd);
+        }
+
         ArrayList<String> row = new ArrayList<>();
-        row.add(m_rd.m_date);
+        row.add(a_rd.m_date);
         row.add("" + a_rd.m_time);
         row.add("" + a_rd.m_id);
-        row.add("" + a_rd.m_omega);
-        row.add("" + a_rd.m_phi);
-        row.add("" + m_rd.m_initialClustered);
-        row.add("" + m_rd.m_totalMapped);
-        row.add(m_rd.m_initialDistribution);
+        row.add("" + a_rd.m_initialClustered);
+        row.add("" + a_rd.m_totalMapped);
+        row.add(a_rd.m_initialDistribution);
         row.add("" + a_rd.m_iterations);
         row.add("" + a_rd.m_totalManuallyClustered);
         row.add("" + a_rd.m_totalAutoClustered);
@@ -121,6 +134,13 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
         row.add("" + a_rd.m_initialClusteringPercent);
         row.add(a_rd.m_metric.getName());
         row.add(a_rd.m_system);
+
+        if (a_rd instanceof ExperimentRunData.HuGMEData){
+            ExperimentRunData.HuGMEData rd = (ExperimentRunData.HuGMEData)a_rd;
+
+            row.add("" + rd.m_omega);
+            row.add("" + rd.m_phi);
+        }
 
         writeRow(m_filePath, row);
 

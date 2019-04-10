@@ -28,7 +28,7 @@ class ExperimentRunnerTest {
     public void getWorkingSetTest() {
         CGraph g = new CGraph();
         MetricSetter ms = new MetricSetter();
-        ExperimentRunner er = new ExperimentRunner(null, ms);
+        ExperimentRunner er = new HuGMeExperimentRunner(null, ms);
 
                            //1  1  2  4  6  6  6  7  7
                            //0  1  2  3  4  5  6  7  8
@@ -79,7 +79,7 @@ class ExperimentRunnerTest {
     public void getWorkingSetTest2() {
         CGraph g = new CGraph();
         MetricSetter ms = new MetricSetter();
-        ExperimentRunner er = new ExperimentRunner(null, ms);
+        ExperimentRunner er = new HuGMeExperimentRunner(null, ms);
 
 
                            //0  1  2  3  4  5  6  7  8
