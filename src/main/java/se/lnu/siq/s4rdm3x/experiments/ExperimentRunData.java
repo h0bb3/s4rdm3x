@@ -24,6 +24,14 @@ public class ExperimentRunData {
         public double calcAutoPerformance() {
             return (m_totalAutoClustered - m_totalAutoWrong) / (double)m_totalMapped;
         }
+
+        public double calcAutoPrecision() {
+            return 1 - (m_totalAutoWrong / (double)m_totalAutoClustered);
+        }
+
+        public double calcAutoRecall() {
+            return m_totalAutoClustered / (double)(m_totalMapped - m_initialClustered);
+        }
     }
 
     public static class HuGMEData extends BasicRunData {
