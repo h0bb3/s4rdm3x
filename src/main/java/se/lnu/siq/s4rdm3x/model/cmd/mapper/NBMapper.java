@@ -2,6 +2,7 @@ package se.lnu.siq.s4rdm3x.model.cmd.mapper;
 
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
+import se.lnu.siq.s4rdm3x.experiments.ExperimentRunData;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
 import weka.classifiers.Classifier;
@@ -23,6 +24,16 @@ import java.util.List;
 
 public class NBMapper {
 
+    private boolean m_addRawArchitectureTrainingData = false;
+
+    public void doStemming(boolean a_doStemming) {
+        m_doStemm = a_doStemming;
+    }
+
+    public void doWordCount(boolean a_doWordCount) {
+        ((StringToWordVector)m_filter).setOutputWordCounts(a_doWordCount);
+    }
+
     public static class Classifier extends weka.classifiers.bayes.NaiveBayesMultinomial {
 
         public double [] getProbabilityOfClass() {
@@ -38,6 +49,10 @@ public class NBMapper {
                 return -1;
             }
         }
+    }
+
+    public boolean doAddRawArchitectureTrainingData() {
+        return m_addRawArchitectureTrainingData;
     }
 
     public ArrayList<CNode> m_clusteredElements = new ArrayList<>();
@@ -96,6 +111,8 @@ public class NBMapper {
 
         return ret;
     }
+
+
 
     public Filter getFilter() {
         return m_filter;
@@ -199,11 +216,13 @@ public class NBMapper {
         Instances data = new Instances("PredictionData", attributes, 0);
 
         String nodeText = " ";
+
         for (dmClass c : a_node.getClasses()) {
             for (String t : c.getTexts()) {
                 nodeText += deCamelCase(t, 3, m_doStemm) + " ";
             }
         }
+
         nodeText += deCamelCase(a_node.getLogicName().replace(".", " "), 3, m_doStemm);
 
         //for (int i = 0; i < a_arch.getComponentCount(); i++) {
@@ -271,13 +290,17 @@ public class NBMapper {
         return ret.trim();
     }
 
+    private String getComponentComponentRelationString(String a_from, dmDependency.Type a_relation, String a_to) {
+        return a_from.replace(".", "") + a_relation + a_to.replace(".", "");
+    }
+
     private String getDependencyStringFromNode(CNode a_from, String a_nodeComponentName, Iterable<CNode> a_tos) {
         String relations = "";
         for (CNode to : a_tos) {
             if (to != a_from) {
                 for (dmDependency d : a_from.getDependencies(to)) {
                     for (int i = 0; i < d.getCount(); i++) {
-                        relations += a_nodeComponentName.replace(".", "") + d.getType() + to.getMapping().replace(".", "") + " ";
+                        relations += getComponentComponentRelationString(a_nodeComponentName, d.getType(), to.getMapping()) + " ";
                     }
                 }
             }
@@ -294,7 +317,7 @@ public class NBMapper {
             if (a_to != from) {
                 for (dmDependency d : from.getDependencies(a_to)) {
                     for (int i = 0; i < d.getCount(); i++) {
-                        relations += from.getMapping().replace(".", "") + d.getType() + a_nodeComponentName.replace(".", "") + " ";
+                        relations += getComponentComponentRelationString(from.getMapping(), d.getType(), a_nodeComponentName) + " ";//from.getMapping().replace(".", "") + d.getType() + a_nodeComponentName.replace(".", "") + " ";
                     }
                 }
             }
@@ -318,7 +341,6 @@ public class NBMapper {
         ArrayList<Attribute> attributes = new ArrayList<>();
 
         // first we have the architectural components
-
         List<String> components = Arrays.asList(a_arch.getComponentNames());
 
 
@@ -326,6 +348,29 @@ public class NBMapper {
         attributes.add(new Attribute("relations_blarg17", (ArrayList<String>) null));
 
         Instances data = new Instances("TrainingData", attributes, 0);
+
+        if (m_addRawArchitectureTrainingData) {
+            for (ArchDef.Component from : a_arch.getComponents()) {
+                double[] values = new double[data.numAttributes()];
+                values[0] = components.indexOf(from.getName());
+                String relations = deCamelCase(from.getName(), 3, m_doStemm);
+                for (ArchDef.Component to : a_arch.getComponents()) {
+                    if (from == to || from.allowedDependency(to)) {
+
+
+                        for (dmDependency.Type t : dmDependency.Type.values()) {
+                             relations +=  getComponentComponentRelationString(from.getName(), t, to.getName()) + " ";
+                        }
+                    } else if (to.allowedDependency(from)) {
+                        for (dmDependency.Type t : dmDependency.Type.values()) {
+                            relations +=  getComponentComponentRelationString(to.getName(), t, from.getName()) + " ";
+                        }
+                    }
+                }
+                values[1] = data.attribute(1).addStringValue(relations);
+                data.add(new DenseInstance(1.0, values));
+            }
+        }
 
         String relations = "";
         for (CNode n : a_arch.getMappedNodes(a_nodes)) {

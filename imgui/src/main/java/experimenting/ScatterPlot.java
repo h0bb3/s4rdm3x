@@ -8,13 +8,23 @@ import java.util.ArrayList;
 
 public class ScatterPlot {
 
+    public int dataCount() {
+        return m_data.size();
+    }
+
+    public void clearData() {
+        m_data.clear();
+    }
+
     public static class Data {
         Vec2 m_point;
+        int m_color;
         int m_id;
 
-        Data(double a_x, double a_y, int a_id) {
+        Data(double a_x, double a_y, int a_id, int a_color) {
             m_point = new Vec2(a_x, a_y);
             m_id = a_id;
+            m_color = a_color;
         }
     }
 
@@ -45,9 +55,9 @@ public class ScatterPlot {
         return a_screenPosOut;
     }
 
-    public void addData(double x, double y, int a_id) {
+    public void addData(double x, double y, int a_id, int a_color) {
 
-        m_data.add(new Data(x, y, a_id));
+        m_data.add(new Data(x, y, a_id, a_color));
         if (m_min == null) {
             m_min = new Vec2(x, y);
         } else {
@@ -83,15 +93,15 @@ public class ScatterPlot {
         offset.plus(5, 5, offset);
         size.minus(10, size);
 
-        final int white = a_imgui.toColor(new Vec4(1, 1, 1, 1));
-        final int blue = a_imgui.toColor(new Vec4(0.25, 0.25, 1, 1));
+        //final int white = a_imgui.toColor(new Vec4(1, 1, 1, 1));
+        //final int blue = a_imgui.toColor(new Vec4(0.25, 0.25, 1, 1));
 
-        a_imgui.addCircleFilled(offset, 2, blue, 6);
+        //a_imgui.addCircleFilled(offset, 2, blue, 6);
 
         // y coords are flipped in the plot
         offset.setY(offset.getY() + size.getY());
 
-        a_imgui.addCircleFilled(offset, 2, blue, 6);
+        //a_imgui.addCircleFilled(offset, 2, blue, 6);
 
         size.times(1, -1, size);
         Vec2 minMax = null;
@@ -114,7 +124,7 @@ public class ScatterPlot {
                 Data p = m_data.get(pIx);
 
                 toScreenPos(p.m_point, point);
-                a_imgui.addCircleFilled(point, 2, white, 6);
+                a_imgui.addCircleFilled(point, 2, p.m_color, 6);
 
                 if (a_selectedData != null && a_imgui.isInside(point, 4, a_imgui.getMousePos())) {
                     a_selectedData.add(p);

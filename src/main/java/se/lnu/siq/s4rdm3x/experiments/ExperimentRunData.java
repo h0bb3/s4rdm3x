@@ -1,37 +1,76 @@
 package se.lnu.siq.s4rdm3x.experiments;
 
+import se.lnu.siq.s4rdm3x.experiments.system.System;
 import se.lnu.siq.s4rdm3x.experiments.metric.Metric;
+import se.lnu.siq.s4rdm3x.model.CNode;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 public class ExperimentRunData {
     public static class BasicRunData {
         public Metric m_metric;
-        public String m_system;
+        public System m_system;
         public long m_time;
         public int m_id;
         public double m_initialClusteringPercent;
         public int m_iterations;
         public int m_totalManuallyClustered;
-        public int m_totalAutoClustered;
         public int m_totalAutoWrong;
         public int m_totalFailedClusterings;
 
         public String m_date;
-        public int m_initialClustered;
         public int m_totalMapped;
         public String m_initialDistribution;
+        private ArrayList<CNode> m_initialClustering = new ArrayList<>();
+        private ArrayList<CNode> m_autoClustered = new ArrayList<>();
+
+        public void addInitialClusteredNode(CNode a_node) {
+            m_initialClustering.add(new CNode(a_node));
+        }
+
+        public void addAutoClusteredNode(CNode a_node) {
+            m_autoClustered.add(new CNode(a_node));
+        }
+
+        public int getAutoClusteredNodeCount() {
+            return m_autoClustered.size();
+        }
+
+        public int getInitialClusteringNodeCount() {
+            return m_initialClustering.size();
+        }
+
+        public Iterable<CNode> getAutoClusteredNodes() {
+            return m_autoClustered;
+        }
+
+        public Iterable<CNode> getInitialClusteringNodes() {
+            return m_initialClustering;
+        }
 
 
         public double calcAutoPerformance() {
-            return (m_totalAutoClustered - m_totalAutoWrong) / (double)m_totalMapped;
+            return (m_autoClustered.size() - m_totalAutoWrong) / (double)m_totalMapped;
         }
 
         public double calcAutoPrecision() {
-            return 1 - (m_totalAutoWrong / (double)m_totalAutoClustered);
+            if (m_autoClustered.size() > 0) {
+                return 1 - (m_totalAutoWrong / (double) m_autoClustered.size());
+            } else {
+                return 0;
+            }
         }
 
         public double calcAutoRecall() {
-            return m_totalAutoClustered / (double)(m_totalMapped - m_initialClustered);
+            return m_autoClustered.size() / (double)(m_totalMapped - m_initialClustering.size());
         }
+
+        /*public void addInitialClusteredNodes(Iterable<? extends CNode> a_nodes) {
+            for (CNode n : a_nodes) {
+                addInitialClusteredNode(n);
+            }
+        }*/
     }
 
     public static class HuGMEData extends BasicRunData {

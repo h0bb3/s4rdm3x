@@ -8,6 +8,7 @@ import se.lnu.siq.s4rdm3x.model.cmd.mapper.HuGMe;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.NBMapper;
 import se.lnu.siq.s4rdm3x.model.cmd.util.FanInCache;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 public class NBMapperExperimentRunner extends ExperimentRunner {
@@ -19,11 +20,18 @@ public class NBMapperExperimentRunner extends ExperimentRunner {
     RandomDoubleVariable m_threshold;
 
 
-    public NBMapperExperimentRunner(System a_sua, Metric a_metric) {
-        super (a_sua, a_metric);
+    public NBMapperExperimentRunner(System a_sua, Metric a_metric, RandomDoubleVariable a_initialSetSize) {
+        super (a_sua, a_metric, false, a_initialSetSize);
         m_doStemming = new RandomBoolVariable(false);
         m_doWordCount = new RandomBoolVariable(false);
         m_threshold = new RandomDoubleVariable(0.9, 0);
+    }
+
+    public NBMapperExperimentRunner(System a_sua, Metric a_metric, boolean a_doUseManualMapping, RandomDoubleVariable a_initialSetSize, RandomBoolVariable a_doStemming, RandomBoolVariable a_doWordCount, RandomDoubleVariable a_threshold) {
+        super (a_sua, a_metric, a_doUseManualMapping, a_initialSetSize);
+        m_doStemming = new RandomBoolVariable(a_doStemming);
+        m_doWordCount = new RandomBoolVariable(a_doWordCount);
+        m_threshold = new RandomDoubleVariable(a_threshold);
     }
 
     @Override
@@ -38,12 +46,12 @@ public class NBMapperExperimentRunner extends ExperimentRunner {
     @Override
     protected boolean runClustering(CGraph a_g, FanInCache fic, ArchDef arch) {
         NBMapper c = new NBMapper(arch);
-        long start = java.lang.System.nanoTime();
+        c.setClusteringThreshold(m_exData.m_threshold);
+        c.doStemming(m_exData.m_doStemming);
+        c.doWordCount(m_exData.m_doWordCount);
         c.run(a_g);
-        m_exData.m_time = java.lang.System.nanoTime() - start;
 
         m_exData.m_totalManuallyClustered += c.m_manuallyMappedNodes;
-        m_exData.m_totalAutoClustered += c.m_automaticallyMappedNodes;
         m_exData.m_totalAutoWrong  += c.m_autoWrong;
         m_exData.m_totalFailedClusterings  += c.m_failedMappings;
 

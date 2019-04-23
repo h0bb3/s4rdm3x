@@ -80,7 +80,7 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
     }
 
     private Path initSaveFile(ExperimentRunData.BasicRunData a_rd) {
-        Path p = createFile(a_rd.m_system, a_rd.m_metric.getName(), a_rd.m_system + "_" + a_rd.m_metric.getName());
+        Path p = createFile(a_rd.m_system.getName(), a_rd.m_metric.getName(), a_rd.m_system + "_" + a_rd.m_metric.getName());
 
 
         ArrayList<String> row = new ArrayList<>();
@@ -123,17 +123,17 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
         row.add(a_rd.m_date);
         row.add("" + a_rd.m_time);
         row.add("" + a_rd.m_id);
-        row.add("" + a_rd.m_initialClustered);
+        row.add("" + a_rd.getInitialClusteringNodeCount());
         row.add("" + a_rd.m_totalMapped);
         row.add(a_rd.m_initialDistribution);
         row.add("" + a_rd.m_iterations);
         row.add("" + a_rd.m_totalManuallyClustered);
-        row.add("" + a_rd.m_totalAutoClustered);
+        row.add("" + a_rd.getAutoClusteredNodeCount());
         row.add("" + a_rd.m_totalAutoWrong);
         row.add("" + a_rd.m_totalFailedClusterings);
         row.add("" + a_rd.m_initialClusteringPercent);
         row.add(a_rd.m_metric.getName());
-        row.add(a_rd.m_system);
+        row.add(a_rd.m_system.getName());
 
         if (a_rd instanceof ExperimentRunData.HuGMEData){
             ExperimentRunData.HuGMEData rd = (ExperimentRunData.HuGMEData)a_rd;

@@ -10,6 +10,7 @@ import imgui.internal.Rect;
 import imgui.internal.Window;
 import org.w3c.dom.Attr;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
+import se.lnu.siq.s4rdm3x.experiments.ExperimentRunData;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
@@ -28,9 +29,11 @@ public class NBMapperView extends MapperBaseView {
 
     NBMapperManual m_nbmapper;
 
-    private ArrayList<CNode> m_autoClusteredOrphans = new ArrayList<>();
+    //private ArrayList<CNode> m_autoClusteredOrphans = new ArrayList<>();
     private double[] m_probabilityOfClass = null;
     private double m_threshold = 0.90;
+    private boolean m_doStemming;
+    private boolean m_doWordCount;
 
     public NBMapperView(List<CNode>a_mappedNodes, List<CNode>a_orphanNodes) {
         super(a_mappedNodes, a_orphanNodes);
@@ -42,11 +45,13 @@ public class NBMapperView extends MapperBaseView {
         NBMapper mapper = new NBMapper(null);
 
         StringToWordVector filter = (StringToWordVector) mapper.getFilter();
+        filter.setOutputWordCounts(m_doWordCount);
         Instances td = mapper.getTrainingData(m_selectedMappedNodes, a_arch, filter);
         NBMapper.Classifier classifier = new NBMapper.Classifier();
+        final boolean doAddRawArchitectureTrainingData = mapper.doAddRawArchitectureTrainingData();
 
 
-        if (m_selectedMappedNodes.size() > 0) {
+        if (m_selectedMappedNodes.size() > 0 || doAddRawArchitectureTrainingData) {
             try {
                 classifier.buildClassifier(td);
             } catch (Exception e) {
@@ -123,27 +128,68 @@ public class NBMapperView extends MapperBaseView {
             }
         }
 
+        {
+            boolean [] stemming = {m_doStemming};
+            if (a_imgui.imgui().checkbox("Use Word Stemming", stemming)) {
+
+            }
+        }
+
+        {
+            boolean [] wordCount = {m_doWordCount};
+            if (a_imgui.imgui().checkbox("Use Word Counts", wordCount)) {
+
+            }
+        }
+
 
         if (a_imgui.button("NBMap me Plz", 150)) {
-            m_nbmapper = new NBMapperManual(a_arch, m_probabilityOfClass);
+            //m_nbmapper = new NBMapperManual(a_arch, m_probabilityOfClass);
+            m_nbmapper = new NBMapperManual(a_arch, null);
 
-            m_nbmapper.setClusteringThreshold(m_threshold);
+            //m_nbmapper.setClusteringThreshold(m_threshold);
             m_nbmapper.run(createGraph());
 
-            setAutoClusteredNodes(m_nbmapper.m_clusteredElements);
+            setAutoClusteredNodes(m_nbmapper.m_clusteredElements, m_selectedOrphanNodes);
 
-            m_autoClusteredOrphans.clear();
-            m_autoClusteredOrphans.addAll(getAllByName(m_selectedOrphanNodes, m_nbmapper.m_clusteredElements));
+
         }
 
         a_imgui.imgui().nextColumn();
 
+        class DataRow {
+            public String m_name;
+            public String m_mapping;
+            public Instance m_data;
+        }
+
+        ArrayList<DataRow> rows = new ArrayList<>();
+        {
+            int iIx = 0;
+            if (doAddRawArchitectureTrainingData) {
+
+                for (ArchDef.Component c : a_arch.getComponents()) {
+                    DataRow dr = new DataRow();
+                    dr.m_name = "Component";
+                    dr.m_mapping = c.getName();
+                    dr.m_data = td.get(iIx++);
+                    rows.add(dr);
+                }
+            }
+
+            for (CNode n : m_selectedMappedNodes) {
+                DataRow dr = new DataRow();
+                dr.m_name = n.getLogicName();
+                dr.m_mapping = n.getMapping();
+                dr.m_data = td.get(iIx++);
+                rows.add(dr);
+            }
+        }
 
 
         final int white = a_imgui.toColor(new Vec4(1, 1, 1, 1));
         final int white15 = a_imgui.toColor(new Vec4(1, 1, 1, 0.15));
         final int rightColCount = td.numAttributes();
-        final int rows = m_selectedMappedNodes.size();
         final int heightOffset = (int)longestHeadline;
         final boolean childWindowBorder = false;
 
@@ -174,11 +220,12 @@ public class NBMapperView extends MapperBaseView {
             a_imgui.imgui().beginChild("NBMapperChildTableLeftBody", columnSize, childWindowBorder,0);
 
 
-            columnSize = new Vec2((float)a_imgui.imgui().getContentRegionAvail().getX(), rows * a_imgui.getTextLineHeightWithSpacing());
+            columnSize = new Vec2((float)a_imgui.imgui().getContentRegionAvail().getX(), rows.size() * a_imgui.getTextLineHeightWithSpacing());
             final boolean scrollBar = columnSize.getY() > a_imgui.imgui().getContentRegionAvail().getY();
             a_imgui.imgui().beginChild("NBMapperChildTableLeftContents", columnSize, childWindowBorder, WindowFlag.NoScrollbar.getI());
 
-            for (int i = 0; i < rows; i++) {
+            for (int i = 0; i < rows.size(); i++) {
+                DataRow row = rows.get(i);
                 a_imgui.imgui().beginColumns("NBMapperTableLeftColumns", 2, ColumnsFlag.NoResize.getI());
 
 
@@ -188,14 +235,16 @@ public class NBMapperView extends MapperBaseView {
 
                     Vec2 br = tl.plus(leftHeadlineColWidths[0] + 10, a_imgui.getTextLineHeightWithSpacing());
 
-                    a_imgui.addRectFilled(tl, br, a_imgui.toColor(a_nvm.getBGColor(m_selectedMappedNodes.get(i).getMapping())), 0, 0);
+                    if (a_nvm.hasBGColor(row.m_mapping)) {
+                        a_imgui.addRectFilled(tl, br, a_imgui.toColor(a_nvm.getBGColor(row.m_mapping)), 0, 0);
+                    }
 
                     if (i % 2 == 0) {
                         a_imgui.addRectFilled(tl, br, white15, 0, 0);
                     }
                 }
 
-                a_imgui.text(a_imgui.getLongestSubString(m_selectedMappedNodes.get(i).getLogicName(), leftHeadlineColWidths[0] - 13, "\\."));
+                a_imgui.text(a_imgui.getLongestSubString(row.m_name, leftHeadlineColWidths[0] - 13, "\\."));
                 a_imgui.imgui().setColumnWidth(0, leftHeadlineColWidths[0]);
                 a_imgui.imgui().nextColumn();
 
@@ -205,7 +254,9 @@ public class NBMapperView extends MapperBaseView {
 
                     Vec2 br = tl.plus(leftHeadlineColWidths[1] + 10, a_imgui.getTextLineHeightWithSpacing());
 
-                    a_imgui.addRectFilled(tl, br, a_imgui.toColor(a_nvm.getBGColor(m_selectedMappedNodes.get(i).getMapping())), 0, 0);
+                    if (a_nvm.hasBGColor(row.m_mapping)) {
+                        a_imgui.addRectFilled(tl, br, a_imgui.toColor(a_nvm.getBGColor(row.m_mapping)), 0, 0);
+                    }
 
                     if (i % 2 == 0) {
                         a_imgui.addRectFilled(tl, br, white15, 0, 0);
@@ -214,7 +265,7 @@ public class NBMapperView extends MapperBaseView {
 
 
 
-                a_imgui.text(a_imgui.getLongestSubString(m_selectedMappedNodes.get(i).getMapping(), leftHeadlineColWidths[1] - 6 - (scrollBar ? 18 : 0), "\\."));
+                a_imgui.text(a_imgui.getLongestSubString(row.m_mapping, leftHeadlineColWidths[1] - 6 - (scrollBar ? 18 : 0), "\\."));
                 a_imgui.imgui().endColumns();
             }
 
@@ -233,7 +284,7 @@ public class NBMapperView extends MapperBaseView {
             a_imgui.imgui().setCursorPosX(a_imgui.imgui().getColumnWidth(0) - 7);   // this seems to fix the rather large offset between the table left and right side parts
 
 
-            float height = (rows + 1 )* a_imgui.getTextLineHeightWithSpacing() + 21;
+            float height = (rows.size() + 1) * a_imgui.getTextLineHeightWithSpacing() + 21;
             columnSize = new Vec2(a_imgui.imgui().getContentRegionAvailWidth(), a_imgui.imgui().getContentRegionAvail().getY() < height ? a_imgui.imgui().getContentRegionAvail().getY() : height);    // +16 for scrollbar
             a_imgui.imgui().beginChild("NBMapperChildTableRight", columnSize, childWindowBorder, WindowFlag.NoScrollbar.or(WindowFlag.AlwaysHorizontalScrollbar));
 
@@ -254,11 +305,12 @@ public class NBMapperView extends MapperBaseView {
             columnSize = new Vec2(rightColCount * colWidth, (float)a_imgui.imgui().getContentRegionAvail().getY());
             a_imgui.imgui().beginChild("NBMapperChildTableRightBody", columnSize, childWindowBorder,WindowFlag.NoScrollbar.getI());
 
-            columnSize = new Vec2(rightColCount * colWidth,rows * a_imgui.getTextLineHeightWithSpacing() );
+            columnSize = new Vec2(rightColCount * colWidth,rows.size() * a_imgui.getTextLineHeightWithSpacing() );
             a_imgui.imgui().beginChild("NBMapperChildTableRightBodyContents", columnSize, childWindowBorder, WindowFlag.NoScrollbar.getI());
 
-            for (int i = 0; i < rows; i++) {
-                Instance inst = td.get(i);
+            for (int i = 0; i < rows.size(); i++) {
+                DataRow row = rows.get(i);
+                Instance inst = row.m_data;
                 a_imgui.imgui().beginColumns("NBMapperTableRightColumns", rightColCount, ColumnsFlag.NoResize.getI() | ColumnsFlag.NoForceWithinWindow.getI());
                 for (int cIx = 0; cIx < rightColCount; cIx++) {
 
@@ -268,7 +320,9 @@ public class NBMapperView extends MapperBaseView {
 
                         Vec2 br = tl.plus(colWidth + 10, a_imgui.getTextLineHeightWithSpacing());
 
-                        a_imgui.addRectFilled(tl, br, a_imgui.toColor(a_nvm.getBGColor(m_selectedMappedNodes.get(i).getMapping())), 0, 0);
+                        if (a_nvm.hasBGColor(row.m_mapping)) {
+                            a_imgui.addRectFilled(tl, br, a_imgui.toColor(a_nvm.getBGColor(row.m_mapping)), 0, 0);
+                        }
 
                         if (i % 2 == 0) {
                             a_imgui.addRectFilled(tl, br, white15, 0, 0);
@@ -332,4 +386,10 @@ public class NBMapperView extends MapperBaseView {
     }
 
 
+    public void setInitialParameters(ExperimentRunData.NBMapperData a_data) {
+        m_threshold = a_data.m_threshold;
+        m_doStemming = a_data.m_doStemming;
+        m_doWordCount = a_data.m_doWordCount;
+
+    }
 }

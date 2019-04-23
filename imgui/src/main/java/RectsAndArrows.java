@@ -150,6 +150,7 @@ public class RectsAndArrows {
             }
 
             mainLoop(sch.getArchDef() != null ? sch.getArchDef() : theArch, graph);
+
             return Unit.INSTANCE;
         });
 
@@ -204,6 +205,9 @@ public class RectsAndArrows {
     private void mainLoop(ArchDef a_arch, CGraph a_g) {
         // Start the Dear ImGui frame
         lwjglGlfw.newFrame();
+
+        boolean [] showDemo = {true};
+        imgui.showDemoWindow(showDemo);
 
         imgui.text("Hello, world!");                                // Display some text (you can use a format string too)
         imgui.sliderFloat("float", f, 0.25f, 5f, "%.3f", 1f);       // Edit 1 float using a slider from 0.0f to 1.0f

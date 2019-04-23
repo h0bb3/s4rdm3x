@@ -181,9 +181,9 @@ public class Main {
             CGraph graph = new CGraph();
             m_fs = new RunFileSaver(m_sua.getName(), m_metric.getName(), m_doSaveMappings);
             if (m_et == ExperimentType.HuGMe) {
-                m_exr = new HuGMeExperimentRunner(m_sua, m_metric);
+                m_exr = new HuGMeExperimentRunner(m_sua, m_metric, false, new ExperimentRunner.RandomDoubleVariable(0.1, 0.1), new ExperimentRunner.RandomDoubleVariable(0.5, 0.5), new ExperimentRunner.RandomDoubleVariable(0.5, 0.5));
             } else {
-                m_exr = new NBMapperExperimentRunner(m_sua, m_metric);
+                m_exr = new NBMapperExperimentRunner(m_sua, m_metric, new ExperimentRunner.RandomDoubleVariable(0.1, 0.1));
             }
             m_exr.setRunListener(m_fs);
             m_exr.run(graph);

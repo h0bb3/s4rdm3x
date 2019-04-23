@@ -20,6 +20,10 @@ public class CNode {
     private String m_clusteredToComponent = "";
     private String m_clusteringType = "";
 
+    public CNode(CNode a_node) {
+        shallowCopy(a_node);
+    }
+
     public void clearAttributes() {
         m_tags = new ArrayList<>();
         m_metrics = new MetricMap();
@@ -47,6 +51,8 @@ public class CNode {
     }
 
     public void shallowCopy(CNode a_node) {
+        m_name = a_node.m_name;
+        m_attractions = a_node.m_attractions;
         m_mappedToComponent = a_node.m_mappedToComponent;
         m_clusteredToComponent = a_node.m_clusteredToComponent;
         m_clusteringType = a_node.m_clusteringType;
@@ -87,7 +93,7 @@ public class CNode {
 
 
 
-    CNode(String a_name, int a_index) {
+    public CNode(String a_name, int a_index) {
         m_name = a_name;
         m_index = a_index;
     }

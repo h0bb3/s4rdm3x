@@ -2,6 +2,7 @@ package mapping;
 
 import gui.ImGuiWrapper;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
+import se.lnu.siq.s4rdm3x.experiments.ExperimentRunData;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
@@ -19,6 +20,22 @@ public class MapperBaseView {
         m_selectedMappedNodes = a_mappedNodes;
         m_selectedOrphanNodes = a_orphanNodes;
 
+    }
+
+    public void fillRunData(ExperimentRunData.BasicRunData a_rd, ArchDef a_arch, CGraph a_originalMappings) {
+        m_autoClusteredOrphans.forEach(n -> a_rd.addAutoClusteredNode(n));
+        m_selectedMappedNodes.forEach(n -> a_rd.addInitialClusteredNode(n));
+        a_rd.m_id = 1;
+        a_rd.m_totalMapped = m_selectedMappedNodes.size() + m_selectedOrphanNodes.size();
+        a_rd.m_initialClusteringPercent = m_selectedMappedNodes.size() / (double)a_rd.m_totalMapped;
+
+        for (CNode n : m_autoClusteredOrphans) {
+            ArchDef.Component c = a_arch.getClusteredComponent(n);
+
+            if (c != a_arch.getMappedComponent(a_originalMappings.getNode(n.getName()))) {
+                a_rd.m_totalAutoWrong++;
+            }
+        }
     }
 
 
@@ -76,8 +93,12 @@ public class MapperBaseView {
         return g;
     }
 
-    protected void setAutoClusteredNodes(Iterable<CNode>a_clustered) {
+    protected void setAutoClusteredNodes(Iterable<CNode>a_clustered, Iterable<CNode> a_nodemappings) {
         m_autoClusteredOrphans.clear();
-        m_autoClusteredOrphans.addAll(getAllByName(m_selectedOrphanNodes, a_clustered));
+        //m_autoClusteredOrphans.addAll(getAllByName(m_selectedOrphanNodes, a_clustered));
+        for (CNode n : a_clustered) {
+            n.setMapping(getByName(a_nodemappings, n.getName()).getMapping());
+            m_autoClusteredOrphans.add(n);
+        }
     }
 }

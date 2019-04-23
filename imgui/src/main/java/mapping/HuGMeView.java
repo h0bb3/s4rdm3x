@@ -82,7 +82,7 @@ public class HuGMeView extends MapperBaseView {
 
             m_hugme.run(createGraph());
 
-            setAutoClusteredNodes(m_hugme.m_clusteredElements);
+            setAutoClusteredNodes(m_hugme.m_clusteredElements, m_selectedOrphanNodes);
         }
 
         if (m_hugme != null) {

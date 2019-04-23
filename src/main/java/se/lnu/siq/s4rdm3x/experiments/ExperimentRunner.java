@@ -16,11 +16,13 @@ import java.util.Date;
 import java.util.Random;
 
 public abstract class ExperimentRunner {
+    protected boolean m_doUseManualmapping;
     protected Random m_rand = new Random();
     private RunListener m_listener = null;
     private System m_sua;
     private Metric m_metric;
     private State m_state;
+    private RandomDoubleVariable m_initialSetSize;
 
     public enum State {
       Running,
@@ -37,10 +39,20 @@ public abstract class ExperimentRunner {
             m_value = -1;
         }
 
-        public RandomBoolVariable(boolean a_value) {
-            m_value = a_value ? 1 : 0;
+
+        public RandomBoolVariable(boolean a_setValue) {
+            m_doGenerate = false;
+            m_value = a_setValue ? 1 : 0;
         }
 
+        public RandomBoolVariable(RandomBoolVariable a_cpy) {
+            m_value = a_cpy.m_value;
+            m_doGenerate = a_cpy.m_doGenerate;
+        }
+
+        public boolean isRandom() {
+            return m_doGenerate;
+        }
         public boolean getValue() {
             return m_value == 1;
         }
@@ -72,9 +84,10 @@ public abstract class ExperimentRunner {
             set(a_base, a_scale);
         }
 
-        public void setInterval(double a_min, double a_max) {
-            m_scale = a_max - a_min / 2;
-            m_base = a_min + m_scale;
+        public RandomDoubleVariable(RandomDoubleVariable a_cpy) {
+            m_value = a_cpy.m_value;
+            m_base = a_cpy.m_base;
+            m_scale = a_cpy.m_scale;
         }
 
         public void set(double a_base, double a_scale) {
@@ -92,11 +105,26 @@ public abstract class ExperimentRunner {
         public double getValue() {
             return m_value;
         }
+
+        public double getMin() {
+            return m_base - m_scale;
+        }
+
+        public double getMax() {
+            return m_base + m_scale;
+        }
     }
 
     public void stop() {
         if (m_state == State.Running) {
             m_state = State.Stoping;
+            while(getState() == ExperimentRunner.State.Running) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+
+                }
+            }
         }
     }
 
@@ -105,9 +133,11 @@ public abstract class ExperimentRunner {
     }
 
 
-    public ExperimentRunner(System a_sua, Metric a_metric) {
+    public ExperimentRunner(System a_sua, Metric a_metric, boolean a_doUseManualmapping, RandomDoubleVariable a_initialSetSize) {
         m_sua = a_sua;
         m_metric = a_metric;
+        m_initialSetSize = a_initialSetSize;
+        m_doUseManualmapping = a_doUseManualmapping;
     }
 
     public interface RunListener {
@@ -136,16 +166,14 @@ public abstract class ExperimentRunner {
         m_metric.assignMetric(arch.getMappedNodes(a_g.getNodes()));
 
         m_state = State.Running;
-        RandomDoubleVariable initialClustering = new RandomDoubleVariable(0.1, 0.1);
+        RandomDoubleVariable initialClustering = m_initialSetSize;
         SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         while(m_state == State.Running) {
 
-            ExperimentRunData.BasicRunData rd = createNewRunData(m_rand);
+            final ExperimentRunData.BasicRunData rd = createNewRunData(m_rand);
             rd.m_metric = m_metric;
-            rd.m_system = m_sua.getName();
+            rd.m_system = m_sua;
             rd.m_initialClusteringPercent = initialClustering.generate(m_rand);
-
-            rd.m_initialClustered = arch.getClusteredNodeCount(a_g.getNodes());
             rd.m_totalMapped = arch.getMappedNodeCount(a_g.getNodes());
 
             rd.m_date = sdfDate.format(new Date());
@@ -155,13 +183,12 @@ public abstract class ExperimentRunner {
 
             //assignInitialClustersPerComponent(a_g, arch, rd.m_initialClusteringPercent);
 
-            rd.m_initialClustered = arch.getClusteredNodeCount(a_g.getNodes());
+            arch.getClusteredNodes(a_g.getNodes()).forEach(n -> rd.addInitialClusteredNode(n));
             rd.m_totalMapped = arch.getMappedNodeCount(a_g.getNodes());
 
 
             //rd.m_totalMapped = 0;
             rd.m_totalManuallyClustered = 0;
-            rd.m_totalAutoClustered = 0;
             rd.m_totalAutoWrong = 0;
             rd.m_iterations = 0;
             rd.m_totalFailedClusterings = 0;
@@ -172,11 +199,13 @@ public abstract class ExperimentRunner {
             }
 
             if (m_listener != null) {
-                rd = m_listener.OnRunInit(rd, a_g, arch);
+                m_listener.OnRunInit(rd, a_g, arch);
             }
-            while(m_state == State.Running) {
-                if (runClustering(a_g, fic, arch)) break;
-            }
+            long start = java.lang.System.nanoTime();
+            while(!runClustering(a_g, fic, arch));  // we always run until we are finished even if we are stopped to avoid partial data sets.
+            rd.m_time = java.lang.System.nanoTime() - start;
+
+            arch.getClusteredNodes(a_g.getNodes(), ArchDef.Component.ClusteringType.Automatic).forEach(n -> rd.addAutoClusteredNode(n));
 
             if (m_listener != null) {
                 m_listener.OnRunCompleted(rd, a_g, arch);

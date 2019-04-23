@@ -8,11 +8,14 @@ import imgui.ComboFlag;
 import imgui.ImGui;
 import imgui.SelectableFlag;
 import imgui.internal.ColumnsFlag;
+import org.graphstream.graph.Graph;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
+import se.lnu.siq.s4rdm3x.experiments.ExperimentRunData;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 import se.lnu.siq.s4rdm3x.stats;
+import weka.core.pmml.jaxbbindings.Cluster;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,13 +25,14 @@ public class MappingView {
     private ArrayList<CNode> m_selectedMappedNodes = new ArrayList<>();
     private ArrayList<CNode> m_selectedOrphanNodes = new ArrayList<>();
 
-    private int[] m_viewSelection = {0};
+
     private final int g_hugMeParamsId = 0;
     private final int g_nbmapperParamsId = 1;
     private final int g_mappedEntitiesId = 2;
     private final int g_orphanEntitiesId = 3;
     private final int g_autoClusteredEntitiesId = 4;
     private final int g_humanClusteredEntitiesId = 5;
+    private int[] m_viewSelection = {g_autoClusteredEntitiesId};
 
     HuGMeView m_hugmeView = new HuGMeView(Collections.unmodifiableList(m_selectedMappedNodes), Collections.unmodifiableList(m_selectedOrphanNodes));
     NBMapperView m_nbmapperView = new NBMapperView(Collections.unmodifiableList(m_selectedMappedNodes), Collections.unmodifiableList(m_selectedOrphanNodes));
@@ -123,10 +127,10 @@ public class MappingView {
 
     private void doSelectMappedEntities(ImGuiWrapper a_imgui, CGraph a_g, ArchDef a_arch, HNode.VisualsManager a_nvm) {
         a_imgui.imgui().beginColumns("doSelectMappedEntitiesColumns", 2, 0);
-        a_imgui.text("Unselected Mapped Nodes:");
-        hiviz.Tree tree = new hiviz.Tree();
-        for (CNode n : a_g.getNodes()) {
 
+        hiviz.Tree tree = new hiviz.Tree();
+        int nodeCount = 0;
+        for (CNode n : a_g.getNodes()) {
             if (!containsByName(m_selectedOrphanNodes, n) && !containsByName(m_selectedMappedNodes, n)) {
                 ArchDef.Component component = a_arch.getMappedComponent(n);
 
@@ -136,12 +140,14 @@ public class MappingView {
                             Tree.TNode tn = tree.addNode(n.getName().replace("/", ".").replace(".java", ""), n);
                             tn.setName(tn.getName());
                             tn.setMapping(component.getName(), a_nvm.getBGColor(component.getName()), component);
+                            nodeCount++;
                         }
                     }
                 }
             }
         }
 
+        a_imgui.text("Unselected Mapped Nodes: " + nodeCount);
         Tree.TNode hovered = tree.doTree(a_imgui.imgui(), "notSelectedMappedEntitiesTree");
         if (hovered != null && a_imgui.isMouseDoubleClicked(0)) {
             hovered.accept(TNodeCollectionWorker.doAdd(m_graph, m_selectedMappedNodes));
@@ -150,7 +156,7 @@ public class MappingView {
         a_imgui.imgui().nextColumn();
 
 
-        a_imgui.text("Selected Mapped Nodes:");
+        a_imgui.text("Selected Mapped Nodes: " + m_selectedMappedNodes.size());
         tree = new hiviz.Tree();
         for (CNode n : m_selectedMappedNodes) {
 
@@ -186,8 +192,9 @@ public class MappingView {
 
     private void doSelectOrphanEntities(ImGuiWrapper a_imgui, CGraph a_g, ArchDef a_arch, HNode.VisualsManager a_nvm) {
         a_imgui.imgui().beginColumns("doSelectOrphanEntitiesColumns", 2, 0);
-        a_imgui.text("Unselected Entities:");
+
         hiviz.Tree tree = new hiviz.Tree();
+        int nodeCount = 0;
         for (CNode n : a_g.getNodes()) {
 
             if (!containsByName(m_selectedOrphanNodes, n) && !containsByName(m_selectedMappedNodes, n)) {
@@ -197,10 +204,12 @@ public class MappingView {
                     Tree.TNode tn = tree.addNode(n.getLogicName().replace("/", ".").replace(".java", ""), n);
                     tn.setName(tn.getName());
                     tn.setMapping(component.getName(), a_nvm.getBGColor(component.getName()), component);
+                    nodeCount++;
                 }
             }
         }
 
+        a_imgui.text("Unselected Entities: " + nodeCount);
         Tree.TNode hovered = tree.doTree(a_imgui.imgui(), "notSelectedOrphanEntitiesTree");
         if (hovered != null && a_imgui.isMouseDoubleClicked(0)) {
             hovered.accept(TNodeCollectionWorker.doAdd(m_graph, m_selectedOrphanNodes));
@@ -209,7 +218,7 @@ public class MappingView {
         a_imgui.imgui().nextColumn();
 
 
-        a_imgui.text("Selected Orphan Entities:");
+        a_imgui.text("Selected Orphan Entities: " + m_selectedOrphanNodes.size());
         tree = new hiviz.Tree();
         for (CNode n : m_selectedOrphanNodes) {
 
@@ -263,7 +272,11 @@ public class MappingView {
             });
         }
 
-        a_imgui.text("NBMapper Auto Clustered Entities:");
+        ExperimentRunData.BasicRunData rd = new ExperimentRunData.BasicRunData();
+        m_nbmapperView.fillRunData(rd, a_arch, a_g);
+        a_imgui.text(String.format("Performance %.2f, Precision: %.2f, Recall: %.2f", rd.calcAutoPerformance(), rd.calcAutoPrecision(), rd.calcAutoRecall()));
+
+        a_imgui.text("NBMapper Auto Clustered Entities: " + m_nbmapperView.autoClusteredOrphanCount());
         hovered = doClusteredTree(a_imgui, m_nbmapperView.autoClusteredOrphans(), "notSelectedNBMapperClusteredEntitiesTree", a_arch, a_g, a_nvm);
         if (hovered != null && a_imgui.isMouseDoubleClicked(0)) {
             hovered.accept(a_node -> {
@@ -275,11 +288,14 @@ public class MappingView {
 
         a_imgui.imgui().nextColumn();
 
+
         a_imgui.text("HuGMe Mapping Results");
         doClusteringTable(m_hugmeView.autoClusteredOrphans(), m_hugmeView.autoClusteredOrphanCount(), a_imgui, a_g, a_arch, "HuGMEAutoClusteredOrphans");
 
         a_imgui.imgui().separator();
         a_imgui.text("NBMapper Mapping Results");
+
+
         doClusteringTable(m_nbmapperView.autoClusteredOrphans(), m_nbmapperView.autoClusteredOrphanCount(), a_imgui, a_g, a_arch, "NBMapperAutoClusteredOrphans");
 
         if (a_imgui.button("Accept to Main", 0)) {
@@ -315,124 +331,151 @@ public class MappingView {
         // table of attraction values
         final int columnCount = a_arch.getComponentCount() + 5;
         Vec2 columnSize = new Vec2(a_imgui.imgui().getColumnWidth(1) - 10, (a_nodeCount + 2) * a_imgui.imgui().getFrameHeightWithSpacing());
-        if (a_imgui.imgui().beginChild(a_tableId+"Table", columnSize, false, 0)) {
+        a_imgui.imgui().beginChild(a_tableId+"Table", columnSize, false, 0);
 
-            // header
-            a_imgui.imgui().beginColumns(a_tableId+ "TableColumns", columnCount, ColumnsFlag.NoPreserveWidths.getI());
-            a_imgui.text("Entity");
+        // header
+        a_imgui.imgui().beginColumns(a_tableId+ "TableColumns", columnCount, ColumnsFlag.NoPreserveWidths.getI());
+        a_imgui.text("Entity");
+        a_imgui.imgui().nextColumn();
+
+        a_imgui.text("MappingView");
+        a_imgui.imgui().nextColumn();
+
+        a_imgui.text("Clustering");
+        a_imgui.imgui().nextColumn();
+
+        int cIx  = 0;
+        for (; cIx < a_arch.getComponentCount(); cIx++) {
+
+            String text = a_imgui.getLongestSubString(a_arch.getComponent(cIx).getName(), a_imgui.imgui().getColumnWidth(a_imgui.imgui().getColumnIndex()), "\\.");
+
+            a_imgui.text(text);
+            a_imgui.imgui().nextColumn();
+        }
+
+        a_imgui.text("Average");
+        a_imgui.imgui().nextColumn();
+        a_imgui.text("StdDev");
+
+
+        float [] columnWidths = new float[columnCount];
+        for (cIx = 0; cIx < columnCount; cIx++) {
+            columnWidths[cIx] = a_imgui.imgui().getColumnWidth(cIx);
+        }
+
+
+        a_imgui.imgui().endColumns();
+        a_imgui.imgui().separator();
+        a_imgui.imgui().separator();
+
+        // rows
+        for (CNode n : a_nodes) {
+            a_imgui.imgui().beginColumns(a_tableId + "TableColumns", columnCount, ColumnsFlag.NoResize.getI());
+
+            for (cIx = 0; cIx < columnCount; cIx++) {
+                a_imgui.imgui().setColumnWidth(cIx, columnWidths[cIx]);
+            }
+
+            double [] attractions = n.getAttractions();
+
+            String logicName = a_imgui.getLongestSubString(n.getLogicName(), columnWidths[a_imgui.imgui().getColumnIndex()], "\\.");
+            //a_imgui.text(logicName);
+            if (a_imgui.imgui().selectable(logicName, false, 0, new Vec2(a_imgui.imgui().getColumnWidth(a_imgui.imgui().getColumnIndex()), a_imgui.imgui().getFrameHeightWithSpacing()))) {
+                m_selectedClusteredNode = a_g.getNode(n.getName());
+            }
             a_imgui.imgui().nextColumn();
 
-            a_imgui.text("MappingView");
+
+            ArchDef.Component mappedComponent = a_arch.getMappedComponent(n);
+            if (mappedComponent != null) {
+                a_imgui.text(a_imgui.getLongestSubString(mappedComponent.getName(), columnWidths[a_imgui.imgui().getColumnIndex()] - (a_imgui.imgui().getCursorPos().getX() - a_imgui.imgui().getColumnOffset(a_imgui.imgui().getColumnIndex())), "\\."));
+            } else {
+                a_imgui.text("");
+            }
             a_imgui.imgui().nextColumn();
 
-            a_imgui.text("Clustering");
+
+            {   // comboboxes for the clustering
+                int [] selectedComponent = {0};
+
+                ArchDef.Component clusteredTo = a_arch.getClusteredComponent(n);
+
+
+                Vec2 zeroSize = new Vec2(0, 0);
+                a_imgui.imgui().pushItemWidth(-1);
+                if (a_imgui.imgui().beginCombo("##"+n.getLogicName(), a_imgui.getLongestSubString(clusteredTo.getName(), columnWidths[a_imgui.imgui().getColumnIndex()] - a_imgui.imgui().getFrameHeightWithSpacing() - (a_imgui.imgui().getCursorPos().getX() - a_imgui.imgui().getColumnOffset(a_imgui.imgui().getColumnIndex())), "\\."), ComboFlag.None.getI())) {
+
+                    for (int i = 0; i < a_arch.getComponentCount(); i++) {
+                        ArchDef.Component c = a_arch.getComponent(i);
+                        if (a_imgui.imgui().selectable(c.getName(), c == clusteredTo, SelectableFlag.None.getI(), zeroSize)) {
+                            selectedComponent[0] = i;
+                            c.clusterToNode(n, ArchDef.Component.ClusteringType.Manual);
+                        }
+                    }
+
+                    a_imgui.imgui().endCombo();
+                }
+                a_imgui.imgui().popItemWidth();
+
+            }
             a_imgui.imgui().nextColumn();
 
-            int cIx  = 0;
+            double mean = stats.mean(attractions);
+            double stddev = stats.stdDev(attractions, mean);
+
+            cIx = 0;
             for (; cIx < a_arch.getComponentCount(); cIx++) {
-
-                String text = a_imgui.getLongestSubString(a_arch.getComponent(cIx).getName(), a_imgui.imgui().getColumnWidth(a_imgui.imgui().getColumnIndex()), "\\.");
-
+                String text = "" + Math.round(attractions[cIx] * 100D) / 100D;
+                if (attractions[cIx] >= mean) {
+                    text += " (>=m)";
+                }
+                if (attractions[cIx] - mean >= stddev) {
+                    text += " (>=sd)";
+                }
                 a_imgui.text(text);
                 a_imgui.imgui().nextColumn();
             }
 
-            a_imgui.text("Average");
+
+            a_imgui.text("" + mean);
             a_imgui.imgui().nextColumn();
-            a_imgui.text("StdDev");
 
-
-            float [] columnWidths = new float[columnCount];
-            for (cIx = 0; cIx < columnCount; cIx++) {
-                columnWidths[cIx] = a_imgui.imgui().getColumnWidth(cIx);
-            }
-
+            a_imgui.text("" + stddev);
+            a_imgui.imgui().nextColumn();
 
             a_imgui.imgui().endColumns();
-            a_imgui.imgui().separator();
-            a_imgui.imgui().separator();
-
-            // rows
-            for (CNode n : a_nodes) {
-                a_imgui.imgui().beginColumns(a_tableId + "TableColumns", columnCount, ColumnsFlag.NoResize.getI());
-
-                for (cIx = 0; cIx < columnCount; cIx++) {
-                    a_imgui.imgui().setColumnWidth(cIx, columnWidths[cIx]);
-                }
-
-                double [] attractions = n.getAttractions();
-
-                String logicName = a_imgui.getLongestSubString(n.getLogicName(), columnWidths[a_imgui.imgui().getColumnIndex()], "\\.");
-                //a_imgui.text(logicName);
-                if (a_imgui.imgui().selectable(logicName, false, 0, new Vec2(a_imgui.imgui().getColumnWidth(a_imgui.imgui().getColumnIndex()), a_imgui.imgui().getFrameHeightWithSpacing()))) {
-                    m_selectedClusteredNode = a_g.getNode(n.getName());
-                }
-                a_imgui.imgui().nextColumn();
-
-
-                ArchDef.Component mappedComponent = a_arch.getMappedComponent(a_g.getNode(n.getName()));
-                if (mappedComponent != null) {
-                    a_imgui.text(a_imgui.getLongestSubString(mappedComponent.getName(), columnWidths[a_imgui.imgui().getColumnIndex()] - (a_imgui.imgui().getCursorPos().getX() - a_imgui.imgui().getColumnOffset(a_imgui.imgui().getColumnIndex())), "\\."));
-                } else {
-                    a_imgui.text("");
-                }
-                a_imgui.imgui().nextColumn();
-
-
-                {   // comboboxes for the clustering
-                    int [] selectedComponent = {0};
-
-                    ArchDef.Component clusteredTo = a_arch.getClusteredComponent(n);
-
-
-                    Vec2 zeroSize = new Vec2(0, 0);
-                    a_imgui.imgui().pushItemWidth(-1);
-                    if (a_imgui.imgui().beginCombo("##"+n.getLogicName(), a_imgui.getLongestSubString(clusteredTo.getName(), columnWidths[a_imgui.imgui().getColumnIndex()] - a_imgui.imgui().getFrameHeightWithSpacing() - (a_imgui.imgui().getCursorPos().getX() - a_imgui.imgui().getColumnOffset(a_imgui.imgui().getColumnIndex())), "\\."), ComboFlag.None.getI())) {
-
-                        for (int i = 0; i < a_arch.getComponentCount(); i++) {
-                            ArchDef.Component c = a_arch.getComponent(i);
-                            if (a_imgui.imgui().selectable(c.getName(), c == clusteredTo, SelectableFlag.None.getI(), zeroSize)) {
-                                selectedComponent[0] = i;
-                                c.clusterToNode(n, ArchDef.Component.ClusteringType.Manual);
-                            }
-                        }
-
-                        a_imgui.imgui().endCombo();
-                    }
-                    a_imgui.imgui().popItemWidth();
-
-                }
-                a_imgui.imgui().nextColumn();
-
-                double mean = stats.mean(attractions);
-                double stddev = stats.stdDev(attractions, mean);
-
-                cIx = 0;
-                for (; cIx < a_arch.getComponentCount(); cIx++) {
-                    String text = "" + Math.round(attractions[cIx] * 100D) / 100D;
-                    if (attractions[cIx] >= mean) {
-                        text += " (>=m)";
-                    }
-                    if (attractions[cIx] - mean >= stddev) {
-                        text += " (>=sd)";
-                    }
-                    a_imgui.text(text);
-                    a_imgui.imgui().nextColumn();
-                }
-
-
-                a_imgui.text("" + mean);
-                a_imgui.imgui().nextColumn();
-
-                a_imgui.text("" + stddev);
-                a_imgui.imgui().nextColumn();
-
-                a_imgui.imgui().endColumns();
-            }
-
-
-            a_imgui.imgui().endChild();
         }
+        a_imgui.imgui().endChild();
+    }
+
+    public void setInitialNBData(ExperimentRunData.NBMapperData a_data, CGraph a_system, ArchDef a_arch) {
+
+        ArrayList<CNode> orphans = new ArrayList<>();
+        CGraph creator = new CGraph();
+
+        for (CNode n : a_system.getNodes()) {
+            ArchDef.Component m = a_arch.getMappedComponent(n);
+            if (m != null) {
+                CNode initialNode = m_nbmapperView.getByName(a_data.getInitialClusteringNodes(), n.getName());
+                if (initialNode == null) {
+                    CNode cpy = creator.createNode(n.getName());
+                    cpy.shallowCopy(n);
+                    orphans.add(cpy);
+                }
+            }
+        }
+
+        setInitial(a_data.getInitialClusteringNodes(), orphans);
+        m_nbmapperView.setAutoClusteredNodes(a_data.getAutoClusteredNodes(), a_system.getNodes());
+        m_nbmapperView.setInitialParameters(a_data);
+
+    }
+
+    public void setInitial(Iterable<CNode> a_initialClustering, ArrayList<CNode> a_orphans) {
+        m_selectedMappedNodes.clear();
+        a_initialClustering.forEach(n -> m_selectedMappedNodes.add(n));
+        m_selectedOrphanNodes.clear();
+        m_selectedOrphanNodes.addAll(a_orphans);
     }
 
 

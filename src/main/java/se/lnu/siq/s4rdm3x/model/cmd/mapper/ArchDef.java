@@ -6,6 +6,7 @@ import se.lnu.siq.s4rdm3x.model.CNode;
 import se.lnu.siq.s4rdm3x.model.Selector;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 public class ArchDef {
 
@@ -34,6 +35,32 @@ public class ArchDef {
             ix++;
         }
         return -1;
+    }
+
+    public Collection<? extends CNode> getClusteredNodes(Iterable<CNode> a_nodes) {
+        ArrayList<CNode> ret = new ArrayList<>();
+
+        for (CNode n : a_nodes) {
+            Component c = getClusteredComponent(n);
+            if (c != null) {
+                ret.add(n);
+            }
+        }
+
+        return ret;
+    }
+
+    public Collection<? extends CNode> getClusteredNodes(Iterable<CNode> a_nodes, Component.ClusteringType a_type) {
+        ArrayList<CNode> ret = new ArrayList<>();
+
+        for (CNode n : a_nodes) {
+            Component c = getClusteredComponent(n);
+            if (c != null && c.getClusteringType(n) == a_type) {
+                ret.add(n);
+            }
+        }
+
+        return ret;
     }
 
     public static class Component {
