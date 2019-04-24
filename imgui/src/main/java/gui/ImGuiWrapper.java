@@ -437,7 +437,7 @@ public class ImGuiWrapper {
                 buffer[i] = a_text.charAt(i);
             }
 
-            if (m_imGui.inputText("Root", buffer, 0)) {
+            if (m_imGui.inputText(a_label, buffer, 0)) {
                 String txt = new String();
                 for (int i = 0; i < buffer.length; i++) {
                     if (buffer[i] == '\0') {

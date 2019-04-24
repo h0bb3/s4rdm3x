@@ -23,6 +23,9 @@ import weka.core.Utils;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -119,6 +122,12 @@ public class ExperimentView {
         ExperimentRunner.RandomDoubleVariable m_initialSetSize = new ExperimentRunner.RandomDoubleVariable(0.1, 0.1);
         SystemSelection m_selectedSystem = new SystemSelection();
         boolean m_useManualmapping = false;
+
+
+        private static Metric[] g_metrics = { new Rand(),  new ByteCodeCyclomaticComplexity(), new ByteCodeInstructions(), new CouplingIn(), new CouplingOut(), new FanIn(), new FanOut(), new LCOMHS(), new LineCount(),
+                new NumberOfMethods(), new NumberOfChildren(), new NumberOfChildLevels(), new NumberOfChildrenLevel0(), new NumberOfFields(), new NumberOfParents(), new Rank(), new NumberOfClasses()};
+        private Metric m_selectedMetric = g_metrics[0];
+        private String m_saveFile = "C:\\hObbE\\projects\\coding\\research\\test.csv";
 
         static class SystemNameFile {
             public String m_name;
@@ -276,6 +285,21 @@ public class ExperimentView {
                 }
             }
             m_initialSetSize = doRandomDoubleVariable(a_imgui, "Initial Set Size", m_initialSetSize);
+
+            {
+
+                if (a_imgui.imgui().beginCombo("Metric##" + m_id, m_selectedMetric.getName(), 0)) {
+
+                    for (Metric m : g_metrics) {
+                        if (a_imgui.imgui().selectable(m.getName() + "##"+m_id, m == m_selectedMetric, 0, new Vec2(0, 0))) {
+                            m_selectedMetric = m;
+                        }
+                    }
+                    a_imgui.imgui().endCombo();
+                }
+            }
+
+
             {
                 boolean [] manualMappnig = {m_useManualmapping};
                 if (a_imgui.imgui().checkbox("Use Manual Mapping##" + m_id, manualMappnig)) {
@@ -298,9 +322,9 @@ public class ExperimentView {
                         }
                         se.lnu.siq.s4rdm3x.experiments.system.FileBased sys = new se.lnu.siq.s4rdm3x.experiments.system.FileBased(m_selectedSystem.getCurrentSystem().m_file);
                         if (m_experimentIx == g_nbmapper_ex) {
-                            m_experiment = new NBMapperExperimentRunner(sys, new Rand(), m_useManualmapping, m_initialSetSize, m_doStemming, m_doWordCount, m_threshold);
+                            m_experiment = new NBMapperExperimentRunner(sys, m_selectedMetric, m_useManualmapping, m_initialSetSize, m_doStemming, m_doWordCount, m_threshold);
                         } else if (m_experimentIx == g_hugmemapper_ex) {
-                            m_experiment = new HuGMeExperimentRunner(sys, new Rand(), m_useManualmapping, m_omega, m_phi, m_initialSetSize);
+                            m_experiment = new HuGMeExperimentRunner(sys, m_selectedMetric, m_useManualmapping, m_omega, m_phi, m_initialSetSize);
                         }
 
                         m_experiment.setRunListener(new ExperimentRunner.RunListener() {
@@ -342,6 +366,33 @@ public class ExperimentView {
                         m_performanceVsInitialMapped.clearData();
                         m_precisionVsInitialMapped.clearData();
                         m_recallVsInitialMapped.clearData();
+                    }
+                    m_saveFile = a_imgui.inputTextSingleLine("##SaveAs"+m_id, m_saveFile);
+                    a_imgui.imgui().sameLine(0);
+                    if (a_imgui.button("Save Data", 0)) {
+                        Path filePath = Paths.get(m_saveFile);
+                        RundDataCSVFileSaver saver = new RundDataCSVFileSaver();
+                        try {
+                            if (!Files.exists(filePath)) {
+                                Files.createFile(filePath);
+                                try {
+                                    saver.writeHeader(filePath);
+                                } catch (IOException e) {
+                                    System.out.println("Could not write to file");
+                                }
+                            }
+
+                            try {
+                                saver.writeData(filePath, m_experimentData);
+                            } catch (IOException e) {
+                                System.out.println("Could not write to file");
+                            }
+
+                        } catch (IOException e) {
+                            System.out.println("Could not create file");
+                        }
+
+
                     }
                 }
             } else {

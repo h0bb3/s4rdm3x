@@ -7,13 +7,13 @@ import se.lnu.siq.s4rdm3x.stats;
 
 import java.util.ArrayList;
 
-public class HuGMe {
+public class HuGMe extends MapperBase {
 
     private double m_filterThreshold;   // omega in paper
     private double m_violationWeight;   // psi in paper
     //private FanInCache m_fic;
 
-    private boolean m_doManualMapping;
+
 
     protected ArchDef m_arch;
 
@@ -21,16 +21,16 @@ public class HuGMe {
 
     public int m_consideredNodes = 0;           // all nodes that pass the filter
     public int m_automaticallyMappedNodes = 0;
-    public int m_manuallyMappedNodes = 0;
-    public int m_failedMappings = 0;
+
+
     public int m_autoWrong = 0;
     public int m_unmappedNodesFromStart = 0;
     public int m_mappedNodesFromStart = 0;
 
     public HuGMe(double a_filterThreshold, double a_violationWeight, boolean a_doManualMapping, ArchDef a_arch, FanInCache a_fic) {
+        super(a_doManualMapping);
         m_violationWeight = a_violationWeight;
         m_filterThreshold = a_filterThreshold;
-        m_doManualMapping = a_doManualMapping;
         m_arch = a_arch;
        // m_fic = a_fic;
     }
@@ -168,14 +168,14 @@ public class HuGMe {
                     m_autoWrong++;
                 }
                 m_automaticallyMappedNodes++;
-            } else if (m_doManualMapping) {
+            } else if (doManualMapping()) {
 
 
                 // we always map to the correct cluster using the oracle
                 // we count the advice as a fail if the attraction is below the median attraction of the clusters
                 // this is possibly more correct in relation to the paper
-                boolean clustered = false;
-                ArchDef.Component targetC = m_arch.getMappedComponent(n);
+                boolean clustered = manualMapping(n, m_arch);
+                /*ArchDef.Component targetC = m_arch.getMappedComponent(n);
                 for(int i = 0; i < m_arch.getComponentCount(); i++){
                     if (m_arch.getComponent(i) == targetC) {
                         clustered = attractions[i] > stats.medianUnsorted(attractions);
@@ -184,7 +184,7 @@ public class HuGMe {
                         m_manuallyMappedNodes++;
                         break;
                     }
-                }
+                }*/
 
 
 

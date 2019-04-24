@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-public class NBMapper {
+public class NBMapper extends MapperBase {
 
     private boolean m_addRawArchitectureTrainingData = false;
 
@@ -61,8 +61,6 @@ public class NBMapper {
 
     public int m_consideredNodes = 0;
     public int m_automaticallyMappedNodes = 0;
-    public int m_manuallyMappedNodes = 0;
-    public int m_failedMappings = 0;    // if the manual advice fails
     public int m_autoWrong = 0;
 
     private double m_clusteringThreshold = 0.90;
@@ -72,10 +70,12 @@ public class NBMapper {
     private double [] m_initialDistribution = null;
 
     public NBMapper(ArchDef a_arch) {
+        super(false);
         m_arch = a_arch;
         ((StringToWordVector)m_filter).setOutputWordCounts(false);
     }
-    public NBMapper(ArchDef a_arch, double [] a_initialDistribution) {
+    public NBMapper(ArchDef a_arch, boolean a_doManualMapping, double [] a_initialDistribution) {
+        super(a_doManualMapping);
         m_arch = a_arch;
         m_initialDistribution = a_initialDistribution;
         ((StringToWordVector)m_filter).setOutputWordCounts(false);
@@ -194,6 +194,8 @@ public class NBMapper {
                     if (m_arch.getComponent(orphanNode.getMapping()) != m_arch.getComponent(maxIx)) {
                         m_autoWrong++;
                     }
+                } else if (doManualMapping()) {
+                    manualMapping(orphanNode, m_arch);
                 }
             }
 

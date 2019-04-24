@@ -14,6 +14,8 @@ public class ScatterPlot {
 
     public void clearData() {
         m_data.clear();
+        m_min = null;
+        m_max = null;
     }
 
     public static class Data {
