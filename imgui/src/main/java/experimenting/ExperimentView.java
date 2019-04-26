@@ -126,7 +126,7 @@ public class ExperimentView {
 
         private static Metric[] g_metrics = { new Rand(),  new ByteCodeCyclomaticComplexity(), new ByteCodeInstructions(), new CouplingIn(), new CouplingOut(), new FanIn(), new FanOut(), new LCOMHS(), new LineCount(),
                 new NumberOfMethods(), new NumberOfChildren(), new NumberOfChildLevels(), new NumberOfChildrenLevel0(), new NumberOfFields(), new NumberOfParents(), new Rank(), new NumberOfClasses()};
-        private Metric m_selectedMetric = g_metrics[0];
+        private ArrayList<Metric> m_selectedMetrics = new ArrayList<>();
         private String m_saveFile = "C:\\hObbE\\projects\\coding\\research\\test.csv";
 
         static class SystemNameFile {
@@ -146,7 +146,8 @@ public class ExperimentView {
                     new SystemNameFile("Lucene", "data/systems/lucene/lucene-system_model.txt"),
                     new SystemNameFile("Sweethome 3d", "data/systems/sweethome3d/sweethome3d-system_model.txt"),
                     new SystemNameFile("Teammates", "data/systems/teammates/teammates-system_model.txt")};
-            int m_currentSystem = 0;
+
+            ArrayList<SystemNameFile> m_selectedSystems = new ArrayList<>();
 
             ArrayList<String> getSystemNames() {
                 ArrayList<String> ret = new ArrayList<>();
@@ -157,20 +158,36 @@ public class ExperimentView {
                 return ret;
             }
 
-            SystemNameFile getCurrentSystem() {
-                return m_systems[m_currentSystem];
+            Iterable<SystemNameFile> getSystems() {
+                return Arrays.asList(m_systems);
             }
 
-            void setCurrentSystem(int a_ix) {
-                m_currentSystem = a_ix;
+            Iterable<SystemNameFile> getSelectedSystems() {
+                return m_selectedSystems;
             }
 
-            public int getCurrentSystemIx() {
-                return m_currentSystem;
+            boolean isSelected(SystemNameFile a_snf) {
+                return m_selectedSystems.contains(a_snf);
             }
+
+            void toogleSelection(SystemNameFile a_snf) {
+                if (isSelected(a_snf)) {
+                    m_selectedSystems.remove(a_snf);
+                } else {
+                    m_selectedSystems.add(a_snf);
+                }
+            }
+
+
+
+
 
             public int getSystemCount() {
                 return m_systems.length;
+            }
+
+            public boolean isLastSystem(SystemNameFile a_snf) {
+                return m_systems[m_systems.length - 1] == a_snf;
             }
         }
 
@@ -196,19 +213,13 @@ public class ExperimentView {
             if (a_imgui.menuItem("Show Mapping", "", showing, true)) {
                 showing = !showing;
                 if (foundMV == null && showing) {
-                    try {
-                        se.lnu.siq.s4rdm3x.experiments.system.FileBased sys = new se.lnu.siq.s4rdm3x.experiments.system.FileBased(m_selectedSystem.getCurrentSystem().m_file);
-                        CGraph graph = new CGraph();
-                        a_runData.m_system.load(graph);
-                        ArchDef arch = sys.createAndMapArch(graph);
-                        foundMV = new MappingViewWrapper(graph, arch, a_runData);
-                        //foundMV.setInitialNBData(a_rundData, graph, arch);
-                        //foundMV.setInitialClustering(a_rundData.m_initialClustering);
-                        m_mappingViews.add(foundMV);
-                    } catch (IOException e) {
-                        System.out.println(e);
-                        e.printStackTrace();
-                    }
+                    CGraph graph = new CGraph();
+                    a_runData.m_system.load(graph);
+                    ArchDef arch = a_runData.m_system.createAndMapArch(graph);
+                    foundMV = new MappingViewWrapper(graph, arch, a_runData);
+                    //foundMV.setInitialNBData(a_rundData, graph, arch);
+                    //foundMV.setInitialClustering(a_rundData.m_initialClustering);
+                    m_mappingViews.add(foundMV);
                 }
 
                 if (foundMV != null) {
@@ -279,24 +290,47 @@ public class ExperimentView {
 
             a_imgui.imgui().separator();
             {
-                int [] currentSystem = {m_selectedSystem.getCurrentSystemIx()};
+                /*int [] currentSystem = {m_selectedSystem.getCurrentSystemIx()};
                 if (a_imgui.imgui().combo("System##" + m_id, currentSystem, m_selectedSystem.getSystemNames(), m_selectedSystem.getSystemCount())) {
                     m_selectedSystem.setCurrentSystem(currentSystem[0]);
+                }*/
+                for (SystemNameFile snf : m_selectedSystem.getSystems()) {
+                    boolean isSelected[] = {m_selectedSystem.isSelected(snf)};
+                    if (a_imgui.imgui().checkbox(snf.m_name + "##" + m_id, isSelected)) {
+                        m_selectedSystem.toogleSelection(snf);
+                    }
+                    if (!m_selectedSystem.isLastSystem(snf)) {
+                        a_imgui.imgui().sameLine(0, 10);
+                    }
+
                 }
             }
             m_initialSetSize = doRandomDoubleVariable(a_imgui, "Initial Set Size", m_initialSetSize);
 
-            {
+            if (a_imgui.imgui().collapsingHeader("Metrics##" + m_id, 0)){
 
-                if (a_imgui.imgui().beginCombo("Metric##" + m_id, m_selectedMetric.getName(), 0)) {
+                //if (a_imgui.imgui().beginCombo("Metric##" + m_id, m_selectedMetric.getName(), 0)) {
 
+                int count = 0;
                     for (Metric m : g_metrics) {
-                        if (a_imgui.imgui().selectable(m.getName() + "##"+m_id, m == m_selectedMetric, 0, new Vec2(0, 0))) {
-                            m_selectedMetric = m;
+                        boolean[] isSelected = {m_selectedMetrics.contains(m)};
+                        if (a_imgui.imgui().checkbox(m.getName() + "##"+m_id, isSelected)) {
+                            if (m_selectedMetrics.contains(m)) {
+                                m_selectedMetrics.remove(m);
+                            } else {
+                                m_selectedMetrics.add(m);
+                            }
                         }
+                        count++;
+                        if (count % 4 != 0) {
+                            a_imgui.imgui().sameLine((count % 4) * 250, 0);
+                        }
+
                     }
-                    a_imgui.imgui().endCombo();
-                }
+                    if (count % 4 != 0) {
+                        a_imgui.imgui().newLine();
+                    }
+                a_imgui.imgui().separator();
             }
 
 
@@ -320,11 +354,18 @@ public class ExperimentView {
 
                             //halt();
                         }
-                        se.lnu.siq.s4rdm3x.experiments.system.FileBased sys = new se.lnu.siq.s4rdm3x.experiments.system.FileBased(m_selectedSystem.getCurrentSystem().m_file);
+
+                        ArrayList<se.lnu.siq.s4rdm3x.experiments.system.System> systems = new ArrayList<>();
+                        for (SystemNameFile snf : m_selectedSystem.getSelectedSystems()) {
+                            if (snf.m_file != null) {
+                                systems.add(new se.lnu.siq.s4rdm3x.experiments.system.FileBased(snf.m_file));
+                            }
+                        }
+
                         if (m_experimentIx == g_nbmapper_ex) {
-                            m_experiment = new NBMapperExperimentRunner(sys, m_selectedMetric, m_useManualmapping, m_initialSetSize, m_doStemming, m_doWordCount, m_threshold);
+                            m_experiment = new NBMapperExperimentRunner(systems, m_selectedMetrics, m_useManualmapping, m_initialSetSize, m_doStemming, m_doWordCount, m_threshold);
                         } else if (m_experimentIx == g_hugmemapper_ex) {
-                            m_experiment = new HuGMeExperimentRunner(sys, m_selectedMetric, m_useManualmapping, m_omega, m_phi, m_initialSetSize);
+                            m_experiment = new HuGMeExperimentRunner(systems, m_selectedMetrics, m_useManualmapping, m_initialSetSize, m_omega, m_phi);
                         }
 
                         m_experiment.setRunListener(new ExperimentRunner.RunListener() {
@@ -445,6 +486,17 @@ public class ExperimentView {
 
             for (ScatterPlot.Data pd : selectedData) {
                 ExperimentRunData.BasicRunData exd = m_experimentData.get(pd.m_id);
+
+                a_imgui.beginTooltip();
+                    a_imgui.text("System:\t" + exd.m_system.getName());
+                    a_imgui.text("Metric:\t" + exd.m_metric.getName());
+                    a_imgui.text("Size:\t" + exd.m_totalMapped);
+                    a_imgui.text("Initial:\t" + exd.getInitialClusteringNodeCount());
+                    a_imgui.text("A. Clustered:\t" + exd.getAutoClusteredNodeCount());
+                    a_imgui.text("A. Failed:\t\t" + exd.m_totalAutoWrong);
+                    a_imgui.text("M. Clustered:\t" + exd.m_totalManuallyClustered);
+                    a_imgui.text("M. Failed:\t\t" + exd.m_totalFailedClusterings);
+                a_imgui.endTooltip();
 
                 if (mouseClicked) {
                     if (m_selectedDataPoints.contains(exd)) {

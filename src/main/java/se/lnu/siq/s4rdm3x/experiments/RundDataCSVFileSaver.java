@@ -33,6 +33,9 @@ public class RundDataCSVFileSaver {
         row.add("phi");
 
         // parameters for NBMapper
+        row.add("threshold");
+        row.add("stemming");
+        row.add("wordcount");
 
 
         writeRow(a_filePath, row);
@@ -68,14 +71,17 @@ public class RundDataCSVFileSaver {
             row.add("" + rd.m_omega);
             row.add("" + rd.m_phi);
         } else {
-            row.add("");
-            row.add("");
+            row.add("");row.add("");
         }
 
         if (a_rd instanceof ExperimentRunData.NBMapperData){
+            ExperimentRunData.NBMapperData rd = (ExperimentRunData.NBMapperData)a_rd;
             row.add("NaiveBayes");
-            row.add("");    // hugme parameter
-            row.add("");    // hugme parameter
+            row.add("" + rd.m_threshold);
+            row.add("" + (rd.m_doStemming ? "Y" : "N"));
+            row.add("" + (rd.m_doWordCount ? "Y" : "N"));
+        } else {
+            row.add("");row.add("");row.add("");
         }
 
         writeRow(a_filePath, row);

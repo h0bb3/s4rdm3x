@@ -34,6 +34,13 @@ public class NBMapperExperimentRunner extends ExperimentRunner {
         m_threshold = new RandomDoubleVariable(a_threshold);
     }
 
+    public NBMapperExperimentRunner(Iterable<System> a_suas, Iterable<Metric> a_metrics, boolean a_doUseManualMapping, RandomDoubleVariable a_initialSetSize, RandomBoolVariable a_doStemming, RandomBoolVariable a_doWordCount, RandomDoubleVariable a_threshold) {
+        super (a_suas, a_metrics, a_doUseManualMapping, a_initialSetSize);
+        m_doStemming = new RandomBoolVariable(a_doStemming);
+        m_doWordCount = new RandomBoolVariable(a_doWordCount);
+        m_threshold = new RandomDoubleVariable(a_threshold);
+    }
+
     @Override
     protected ExperimentRunData.BasicRunData createNewRunData(Random a_rand) {
         m_exData = new ExperimentRunData.NBMapperData();
@@ -45,7 +52,7 @@ public class NBMapperExperimentRunner extends ExperimentRunner {
 
     @Override
     protected boolean runClustering(CGraph a_g, FanInCache fic, ArchDef arch) {
-        NBMapper c = new NBMapper(arch);
+        NBMapper c = new NBMapper(arch, m_doUseManualmapping, null);
         c.setClusteringThreshold(m_exData.m_threshold);
         c.doStemming(m_exData.m_doStemming);
         c.doWordCount(m_exData.m_doWordCount);

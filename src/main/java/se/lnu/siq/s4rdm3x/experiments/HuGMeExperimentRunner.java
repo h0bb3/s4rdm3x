@@ -24,6 +24,12 @@ public class HuGMeExperimentRunner extends ExperimentRunner {
         m_phi = new RandomDoubleVariable(a_phi);
     }
 
+    public HuGMeExperimentRunner(Iterable<System> a_suas, Iterable<Metric> a_metrics, boolean a_doManualMapping, RandomDoubleVariable a_initialSetSize, RandomDoubleVariable a_omega, RandomDoubleVariable a_phi) {
+        super (a_suas, a_metrics, a_doManualMapping, a_initialSetSize);
+        m_omega = new RandomDoubleVariable(a_omega);
+        m_phi = new RandomDoubleVariable(a_phi);
+    }
+
     @Override
     protected ExperimentRunData.BasicRunData createNewRunData(Random m_rand) {
         m_exData = new ExperimentRunData.HuGMEData();

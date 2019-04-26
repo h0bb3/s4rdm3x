@@ -10,19 +10,38 @@ import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.Random;
+import java.util.*;
 
 public abstract class ExperimentRunner {
     protected boolean m_doUseManualmapping;
     protected Random m_rand = new Random();
     private RunListener m_listener = null;
-    private System m_sua;
-    private Metric m_metric;
+    private ArrayList<System> m_suas = new ArrayList<>();
+    private ArrayList<Metric> m_metrics = new ArrayList<>();
     private State m_state;
     private RandomDoubleVariable m_initialSetSize;
+
+    Iterable<System> getSystems() {
+        return m_suas;
+    }
+
+    Iterable<Metric> getMetrics() {
+        return m_metrics;
+    }
+
+    boolean doUseManualmapping() {
+        return m_doUseManualmapping;
+    }
+
+    RandomDoubleVariable getInitialSetSize() {
+        return m_initialSetSize;
+    }
+
+
+    private static class GraphArchitecturePair {
+        public CGraph m_g;
+        public ArchDef m_a;
+    }
 
     public enum State {
       Running,
@@ -113,6 +132,14 @@ public abstract class ExperimentRunner {
         public double getMax() {
             return m_base + m_scale;
         }
+
+        public double getBase() {
+            return m_base;
+        }
+
+        public double getScale() {
+            return m_scale;
+        }
     }
 
     public void stop() {
@@ -132,10 +159,16 @@ public abstract class ExperimentRunner {
         return m_state;
     }
 
+    public ExperimentRunner(Iterable<System> a_suas, Iterable<Metric> a_metrics, boolean a_doUseManualmapping, RandomDoubleVariable a_initialSetSize) {
+        a_suas.forEach(s -> m_suas.add(s));
+        a_metrics.forEach(m -> m_metrics.add(m));
+        m_initialSetSize = a_initialSetSize;
+        m_doUseManualmapping = a_doUseManualmapping;
+    }
 
     public ExperimentRunner(System a_sua, Metric a_metric, boolean a_doUseManualmapping, RandomDoubleVariable a_initialSetSize) {
-        m_sua = a_sua;
-        m_metric = a_metric;
+        m_suas .add(a_sua);
+        m_metrics.add(a_metric);
         m_initialSetSize = a_initialSetSize;
         m_doUseManualmapping = a_doUseManualmapping;
     }
@@ -153,66 +186,102 @@ public abstract class ExperimentRunner {
 
     public void run(CGraph a_g) {
 
+        HashMap<System, GraphArchitecturePair> loadedSystems = new HashMap<>();
         int i = 0;
 
         FanInCache fic = null;
 
-        if (!m_sua.load(a_g)) {
-            return;
-        }
-        ArchDef arch = m_sua.createAndMapArch(a_g);
 
 
-        m_metric.assignMetric(arch.getMappedNodes(a_g.getNodes()));
+
 
         m_state = State.Running;
         RandomDoubleVariable initialClustering = m_initialSetSize;
         SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         while(m_state == State.Running) {
 
-            final ExperimentRunData.BasicRunData rd = createNewRunData(m_rand);
-            rd.m_metric = m_metric;
-            rd.m_system = m_sua;
-            rd.m_initialClusteringPercent = initialClustering.generate(m_rand);
-            rd.m_totalMapped = arch.getMappedNodeCount(a_g.getNodes());
+            for (System sua : m_suas) {
+                Metric prevMetric = null;
+                for (Metric metric : m_metrics) {
+                    ArchDef arch;
 
-            rd.m_date = sdfDate.format(new Date());
+                    if (!loadedSystems.containsKey(sua)) {
 
-            arch.cleanNodeClusters(a_g.getNodes());
-            assignInitialClusters(a_g, arch, rd.m_initialClusteringPercent);
+                        GraphArchitecturePair gap = new GraphArchitecturePair();
+                        gap.m_g = new CGraph();
+                        sua.load(gap.m_g);
+                        gap.m_a = sua.createAndMapArch(gap.m_g);
+                        loadedSystems.put(sua, gap);
+                        a_g = gap.m_g;
+                        arch = gap.m_a;
 
-            //assignInitialClustersPerComponent(a_g, arch, rd.m_initialClusteringPercent);
+                    } else {
+                        GraphArchitecturePair gap = loadedSystems.get(sua);
+                        a_g = gap.m_g;
+                        arch = gap.m_a;
+                    }
 
-            arch.getClusteredNodes(a_g.getNodes()).forEach(n -> rd.addInitialClusteredNode(n));
-            rd.m_totalMapped = arch.getMappedNodeCount(a_g.getNodes());
+                    // this is an optimization if we only have one metric we do not need to reassign it
+                    if (prevMetric != metric) {
+                        metric.assignMetric(arch.getMappedNodes(a_g.getNodes()));
+                    }
+
+                    final ExperimentRunData.BasicRunData rd = createNewRunData(m_rand);
+                    rd.m_metric = metric;
+                    rd.m_system = sua;
+                    rd.m_initialClusteringPercent = initialClustering.generate(m_rand);
+                    rd.m_totalMapped = arch.getMappedNodeCount(a_g.getNodes());
+
+                    rd.m_date = sdfDate.format(new Date());
+
+                    arch.cleanNodeClusters(a_g.getNodes());
+                    assignInitialClusters(a_g, arch, rd.m_initialClusteringPercent, metric);
+
+                    //assignInitialClustersPerComponent(a_g, arch, rd.m_initialClusteringPercent);
+
+                    arch.getClusteredNodes(a_g.getNodes()).forEach(n -> rd.addInitialClusteredNode(n));
+                    rd.m_totalMapped = arch.getMappedNodeCount(a_g.getNodes());
 
 
-            //rd.m_totalMapped = 0;
-            rd.m_totalManuallyClustered = 0;
-            rd.m_totalAutoWrong = 0;
-            rd.m_iterations = 0;
-            rd.m_totalFailedClusterings = 0;
-            rd.m_id = i;
+                    //rd.m_totalMapped = 0;
+                    rd.m_totalManuallyClustered = 0;
+                    rd.m_totalAutoWrong = 0;
+                    rd.m_iterations = 0;
+                    rd.m_totalFailedClusterings = 0;
+                    rd.m_id = i;
 
-            if (fic == null) {
-                fic = new FanInCache(arch.getMappedNodes(a_g.getNodes()));
+                    if (fic == null) {
+                        fic = new FanInCache(arch.getMappedNodes(a_g.getNodes()));
+                    }
+
+                    if (m_listener != null) {
+                        m_listener.OnRunInit(rd, a_g, arch);
+                    }
+                    long start = java.lang.System.nanoTime();
+                    while (!runClustering(a_g, fic, arch))
+                        ;  // we always run until we are finished even if we are stopped to avoid partial data sets.
+                    rd.m_time = java.lang.System.nanoTime() - start;
+
+                    arch.getClusteredNodes(a_g.getNodes(), ArchDef.Component.ClusteringType.Automatic).forEach(n -> rd.addAutoClusteredNode(n));
+
+                    if (m_listener != null) {
+                        m_listener.OnRunCompleted(rd, a_g, arch);
+                    }
+
+                    i++;
+                    prevMetric = metric;
+                    // Needed?
+                    metric.reassignMetric(arch.getMappedNodes(a_g.getNodes()));
+
+                    if (getState() != State.Running) {
+                        break;
+                    }
+                }
+
+                if (getState() != State.Running) {
+                    break;
+                }
             }
-
-            if (m_listener != null) {
-                m_listener.OnRunInit(rd, a_g, arch);
-            }
-            long start = java.lang.System.nanoTime();
-            while(!runClustering(a_g, fic, arch));  // we always run until we are finished even if we are stopped to avoid partial data sets.
-            rd.m_time = java.lang.System.nanoTime() - start;
-
-            arch.getClusteredNodes(a_g.getNodes(), ArchDef.Component.ClusteringType.Automatic).forEach(n -> rd.addAutoClusteredNode(n));
-
-            if (m_listener != null) {
-                m_listener.OnRunCompleted(rd, a_g, arch);
-            }
-
-            i++;
-            m_metric.reassignMetric(arch.getMappedNodes(a_g.getNodes()));
         }
 
         m_state = State.Idle;
@@ -223,7 +292,7 @@ public abstract class ExperimentRunner {
     protected abstract boolean runClustering(CGraph a_g, FanInCache fic, ArchDef arch);
 
 
-    private void assignInitialClusters(CGraph a_g, ArchDef a_arch, double a_percentage) {
+    private void assignInitialClusters(CGraph a_g, ArchDef a_arch, double a_percentage, Metric a_metric) {
         ArrayList<CNode> nodes = new ArrayList<>();
         a_arch.getMappedNodes(a_g.getNodes()).forEach(a_n -> nodes.add(a_n));
 
@@ -231,11 +300,11 @@ public abstract class ExperimentRunner {
         if (nodeCount <= 0) {
             nodeCount = 1;
         }
-        ArrayList<CNode> workingSet = getWorkingSet(nodes, nodeCount);
+        ArrayList<CNode> workingSet = getWorkingSet(nodes, nodeCount, a_metric);
 
         // we may have added too many nodes (i.e. the last batch may be bigger)
         while (workingSet.size() > nodeCount) {
-            int firstBatchSize = getFirstBatchSize(workingSet);
+            int firstBatchSize = getFirstBatchSize(workingSet, a_metric);
             workingSet.remove(Math.abs(m_rand.nextInt()) % firstBatchSize);
         }
 
@@ -245,7 +314,7 @@ public abstract class ExperimentRunner {
         }
     }
 
-    private void assignInitialClustersPerComponent(CGraph a_g, ArchDef a_arch, double a_percentage) {
+    private void assignInitialClustersPerComponent(CGraph a_g, ArchDef a_arch, double a_percentage, Metric a_metric) {
         // OBS this assigns a number of classes per component, this is not actually that realistic
         for (ArchDef.Component component : a_arch.getComponents()) {
 
@@ -261,7 +330,7 @@ public abstract class ExperimentRunner {
                 nodeCount = 1;
             }
 
-            ArrayList<CNode> workingSet = getWorkingSet(nodes, nodeCount);
+            ArrayList<CNode> workingSet = getWorkingSet(nodes, nodeCount, a_metric);
 
             for (CNode n : workingSet) {
                 component.clusterToNode(n, ArchDef.Component.ClusteringType.Initial);
@@ -271,33 +340,33 @@ public abstract class ExperimentRunner {
 
 
 
-    private int getFirstBatchSize(ArrayList<CNode> a_set) {
+    private int getFirstBatchSize(ArrayList<CNode> a_set, Metric a_metric) {
         int firstBatchSize = 1;
-        double firstBatchFan = m_metric.getMetric(a_set.get(0));
-        while(firstBatchSize < a_set.size() && firstBatchFan == m_metric.getMetric(a_set.get(firstBatchSize))) {
+        double firstBatchFan = a_metric.getMetric(a_set.get(0));
+        while(firstBatchSize < a_set.size() && firstBatchFan == a_metric.getMetric(a_set.get(firstBatchSize))) {
             firstBatchSize++;
         }
 
         return firstBatchSize;
     }
 
-    private ArrayList<CNode> getWorkingSet(Iterable<CNode> a_nodes, int a_nodesToAdd) {
+    private ArrayList<CNode> getWorkingSet(Iterable<CNode> a_nodes, int a_nodesToAdd, Metric a_metric) {
         // this sorts to lowest first
         ArrayList<CNode> sortedNodes = new ArrayList<>();
         a_nodes.forEach(a_n -> {sortedNodes.add(a_n);});
         sortedNodes.sort(Comparator.comparingDouble(a_n -> {
-            return m_metric.getMetric(a_n);
+            return a_metric.getMetric(a_n);
         }));
 
         // things can have the same metric so we need to count this
         ArrayList<CNode> workingSet = new ArrayList<>();
-        double  currentMetric = m_metric.getMetric(sortedNodes.get(sortedNodes.size() - 1));
+        double  currentMetric = a_metric.getMetric(sortedNodes.get(sortedNodes.size() - 1));
         int ix = sortedNodes.size() - 1;
         int count = 0;
         while(ix >= 0 && count < a_nodesToAdd) {
 
-            if (currentMetric != m_metric.getMetric(sortedNodes.get(ix))) {
-                currentMetric = m_metric.getMetric(sortedNodes.get(ix));
+            if (currentMetric != a_metric.getMetric(sortedNodes.get(ix))) {
+                currentMetric = a_metric.getMetric(sortedNodes.get(ix));
                 count = sortedNodes.size() - ix - 1;  // we have completed the whole batch (at ix - 1) with the same metric
             }
             ix--;
@@ -314,15 +383,15 @@ public abstract class ExperimentRunner {
 
         // we may have added too many nodes (i.e. the last batch may be bigger)
         while (workingSet.size() > a_nodesToAdd) {
-            int firstBatchSize = getFirstBatchSize(workingSet);
+            int firstBatchSize = getFirstBatchSize(workingSet, a_metric);
             workingSet.remove(Math.abs(m_rand.nextInt()) % firstBatchSize);
         }
 
         return workingSet;
     }
 
-    ArrayList<CNode> getWorkingSetTestHelper(Iterable<CNode> a_nodes, int a_nodesToAdd) {
-        return getWorkingSet(a_nodes, a_nodesToAdd);
+    ArrayList<CNode> getWorkingSetTestHelper(Iterable<CNode> a_nodes, int a_nodesToAdd, Metric a_metric) {
+        return getWorkingSet(a_nodes, a_nodesToAdd, a_metric);
     }
 
 
