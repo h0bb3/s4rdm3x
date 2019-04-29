@@ -16,11 +16,13 @@ import org.jetbrains.annotations.Nullable;
 import se.lnu.siq.s4rdm3x.experiments.*;
 import se.lnu.siq.s4rdm3x.experiments.ExperimentRunner.RunListener;
 import se.lnu.siq.s4rdm3x.experiments.metric.*;
+import se.lnu.siq.s4rdm3x.experiments.system.FileBased;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 import weka.core.Utils;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.nio.file.Files;
@@ -128,6 +130,7 @@ public class ExperimentView {
                 new NumberOfMethods(), new NumberOfChildren(), new NumberOfChildLevels(), new NumberOfChildrenLevel0(), new NumberOfFields(), new NumberOfParents(), new Rank(), new NumberOfClasses()};
         private ArrayList<Metric> m_selectedMetrics = new ArrayList<>();
         private String m_saveFile = "C:\\hObbE\\projects\\coding\\research\\test.csv";
+        private String m_experimentSaveFile = "C:\\hObbE\\projects\\coding\\research\\experiment.xml";
 
         static class SystemNameFile {
             public String m_name;
@@ -179,15 +182,26 @@ public class ExperimentView {
             }
 
 
-
-
-
             public int getSystemCount() {
                 return m_systems.length;
             }
 
             public boolean isLastSystem(SystemNameFile a_snf) {
                 return m_systems[m_systems.length - 1] == a_snf;
+            }
+
+            public void selectFileName(String a_fileName) {
+                for (SystemNameFile snf : m_systems) {
+                    if (snf.m_file.equals(a_fileName)) {
+                        if (!isSelected(snf)) {
+                            m_selectedSystems.add(snf);
+                        }
+                    }
+                }
+            }
+
+            public void clearSelection() {
+                m_selectedSystems.clear();
             }
         }
 
@@ -344,6 +358,38 @@ public class ExperimentView {
 
             a_imgui.imgui().colorEdit3("Plot Color##" + m_id, m_currentColor, 0);
 
+            m_saveFile = a_imgui.inputTextSingleLine("##SaveEperimentAs" + m_id, m_experimentSaveFile);
+            a_imgui.imgui().sameLine(0);
+            if (a_imgui.button("Save Experiment", 0)) {
+                ExperimentXMLPersistence exmlp = new ExperimentXMLPersistence();
+                ArrayList<ExperimentRunner> experiments = new ArrayList<>();
+
+                try {
+                    experiments.add(createExperiment());
+                    exmlp.saveExperiments(experiments, m_experimentSaveFile);
+                } catch (Exception e) {
+                    System.out.println(e);
+                    e.printStackTrace();
+                }
+            }
+            a_imgui.imgui().sameLine(0);
+            if (a_imgui.button("Load Experiment", 0)) {
+                ExperimentXMLPersistence exmlp = new ExperimentXMLPersistence();
+                try {
+                    ArrayList<ExperimentRunner> experiments = exmlp.loadExperiments(m_experimentSaveFile);
+                    if (experiments.size() != 0) {
+                        ExperimentRunner exr = experiments.get(0);
+
+                        setExperiment(exr);
+                    }
+                } catch (Exception e) {
+                    System.out.println(e);
+                    e.printStackTrace();
+                }
+            }
+
+
+
             if (m_experiment == null || m_experiment.getState() == ExperimentRunner.State.Idle) {
 
 
@@ -355,18 +401,7 @@ public class ExperimentView {
                             //halt();
                         }
 
-                        ArrayList<se.lnu.siq.s4rdm3x.experiments.system.System> systems = new ArrayList<>();
-                        for (SystemNameFile snf : m_selectedSystem.getSelectedSystems()) {
-                            if (snf.m_file != null) {
-                                systems.add(new se.lnu.siq.s4rdm3x.experiments.system.FileBased(snf.m_file));
-                            }
-                        }
-
-                        if (m_experimentIx == g_nbmapper_ex) {
-                            m_experiment = new NBMapperExperimentRunner(systems, m_selectedMetrics, m_useManualmapping, m_initialSetSize, m_doStemming, m_doWordCount, m_threshold);
-                        } else if (m_experimentIx == g_hugmemapper_ex) {
-                            m_experiment = new HuGMeExperimentRunner(systems, m_selectedMetrics, m_useManualmapping, m_initialSetSize, m_omega, m_phi);
-                        }
+                        m_experiment = createExperiment();
 
                         m_experiment.setRunListener(new ExperimentRunner.RunListener() {
                             public ExperimentRunData.BasicRunData OnRunInit(ExperimentRunData.BasicRunData a_rd, CGraph a_g, ArchDef a_arch) {
@@ -553,6 +588,58 @@ public class ExperimentView {
             for (MappingViewWrapper mv : m_mappingViews) {
                 mv.doView(a_imgui);
             }
+        }
+
+        private void setExperiment(ExperimentRunner a_exr) {
+
+            if (m_experiment != null && m_experiment.getState() == ExperimentRunner.State.Running) {
+                m_experiment.stop();
+                m_experiment = null;
+            }
+
+            m_selectedMetrics.clear();
+            for (Metric exrMetric : a_exr.getMetrics()) {
+                for (Metric m : g_metrics) {
+                    if (exrMetric.getName().equals(m.getName())) {
+                        m_selectedMetrics.add(m);
+                        break;
+                    }
+                }
+            }
+            m_selectedSystem.clearSelection();
+            a_exr.getSystems().forEach(s -> m_selectedSystem.selectFileName(((FileBased)s).getFile()));
+
+            m_useManualmapping = a_exr.doUseManualmapping();
+            m_initialSetSize = a_exr.getInitialSetSize();
+
+            if (a_exr instanceof NBMapperExperimentRunner) {
+                NBMapperExperimentRunner nbexr = (NBMapperExperimentRunner)a_exr;
+                m_threshold = nbexr.getThreshold();
+                m_doStemming = nbexr.getStemming();
+                m_doWordCount = nbexr.getWordCount();
+            } else if (a_exr instanceof HuGMeExperimentRunner) {
+                HuGMeExperimentRunner hugme = (HuGMeExperimentRunner)a_exr;
+                m_omega = hugme.getOmega();
+                m_phi = hugme.getPhi();
+            }
+        }
+
+        private ExperimentRunner createExperiment() throws IOException {
+            ExperimentRunner ret = null;
+            ArrayList<se.lnu.siq.s4rdm3x.experiments.system.System> systems = new ArrayList<>();
+            for (SystemNameFile snf : m_selectedSystem.getSelectedSystems()) {
+                if (snf.m_file != null) {
+                    systems.add(new se.lnu.siq.s4rdm3x.experiments.system.FileBased(snf.m_file));
+                }
+            }
+
+            if (m_experimentIx == g_nbmapper_ex) {
+                ret = new NBMapperExperimentRunner(systems, m_selectedMetrics, m_useManualmapping, m_initialSetSize, m_doStemming, m_doWordCount, m_threshold);
+            } else if (m_experimentIx == g_hugmemapper_ex) {
+                ret = new HuGMeExperimentRunner(systems, m_selectedMetrics, m_useManualmapping, m_initialSetSize, m_omega, m_phi);
+            }
+
+            return ret;
         }
 
         private ExperimentRunner.RandomDoubleVariable doRandomDoubleVariable(ImGuiWrapper a_imgui, String a_label, ExperimentRunner.RandomDoubleVariable a_threshold) {

@@ -21,19 +21,19 @@ public abstract class ExperimentRunner {
     private State m_state;
     private RandomDoubleVariable m_initialSetSize;
 
-    Iterable<System> getSystems() {
+    public Iterable<System> getSystems() {
         return m_suas;
     }
 
-    Iterable<Metric> getMetrics() {
+    public Iterable<Metric> getMetrics() {
         return m_metrics;
     }
 
-    boolean doUseManualmapping() {
+    public boolean doUseManualmapping() {
         return m_doUseManualmapping;
     }
 
-    RandomDoubleVariable getInitialSetSize() {
+    public RandomDoubleVariable getInitialSetSize() {
         return m_initialSetSize;
     }
 

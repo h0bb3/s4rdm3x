@@ -69,4 +69,16 @@ public class NBMapperExperimentRunner extends ExperimentRunner {
         m_exData.m_iterations++;
         return true;
     }
+
+    public RandomDoubleVariable getThreshold() {
+        return m_threshold;
+    }
+
+    public RandomBoolVariable getWordCount() {
+        return m_doWordCount;
+    }
+
+    public RandomBoolVariable getStemming() {
+        return m_doStemming;
+    }
 }

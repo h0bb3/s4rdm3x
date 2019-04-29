@@ -58,6 +58,14 @@ public class HuGMeExperimentRunner extends ExperimentRunner {
         m_exData.m_iterations++;
         return false;
     }
+
+    public RandomDoubleVariable getOmega() {
+        return m_omega;
+    }
+
+    public RandomDoubleVariable getPhi() {
+        return m_phi;
+    }
 }
 
 

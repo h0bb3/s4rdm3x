@@ -16,6 +16,10 @@ public class FileBased extends System {
     String m_file;
     SystemModelReader m_smr;
 
+    public String getFile() {
+        return m_file;
+    }
+
     public FileBased(String a_file) throws IOException {
         m_file = a_file;
         m_smr = new SystemModelReader();
