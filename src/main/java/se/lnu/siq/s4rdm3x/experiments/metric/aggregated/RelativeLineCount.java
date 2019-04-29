@@ -7,6 +7,7 @@ import se.lnu.siq.s4rdm3x.model.CNode;
 
 public class RelativeLineCount extends Metric {
 
+    public static final String g_nameSuffix = "_linecount";
     private Metric m_rel;
 
     public RelativeLineCount(Metric a_rel) {
@@ -15,7 +16,7 @@ public class RelativeLineCount extends Metric {
 
     @Override
     public String getName() {
-        return m_rel.getName() + "_linecount";
+        return m_rel.getName() + g_nameSuffix;
     }
 
 

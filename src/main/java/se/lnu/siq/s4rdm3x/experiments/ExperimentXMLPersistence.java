@@ -7,6 +7,7 @@ import org.w3c.dom.NodeList;
 import se.lnu.siq.s4rdm3x.experiments.metric.Metric;
 import se.lnu.siq.s4rdm3x.experiments.metric.MetricFactory;
 import se.lnu.siq.s4rdm3x.experiments.metric.Rand;
+import se.lnu.siq.s4rdm3x.experiments.metric.aggregated.RelativeLineCount;
 import se.lnu.siq.s4rdm3x.experiments.system.FileBased;
 import se.lnu.siq.s4rdm3x.experiments.system.System;
 
@@ -80,11 +81,19 @@ public class ExperimentXMLPersistence {
                 Metric metric = mf.getMetric(metricName);
                 if (metric == null) {
                     if (metricName.equals("rand")) {
-                        metrics.add(new Rand());
-                    } else {
-                        throw new Exception("Unknown metric: " + metricName);
+                        metric = new Rand();
+                    } else if (metricName.endsWith(RelativeLineCount.g_nameSuffix)) {
+                        metricName = metricName.replace(RelativeLineCount.g_nameSuffix, "");
+                        metric = mf.getMetric(metricName);
+                        if (metric != null) {
+                            metric = new RelativeLineCount(metric);
+                        }
                     }
-                } else {
+                }
+
+                if (metric == null) {
+                    throw new Exception("Unknown metric: " + metricName);
+                }else {
                     metrics.add(metric);
                 }
             }

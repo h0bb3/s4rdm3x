@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import se.lnu.siq.s4rdm3x.experiments.*;
 import se.lnu.siq.s4rdm3x.experiments.ExperimentRunner.RunListener;
 import se.lnu.siq.s4rdm3x.experiments.metric.*;
+import se.lnu.siq.s4rdm3x.experiments.metric.aggregated.RelativeLineCount;
 import se.lnu.siq.s4rdm3x.experiments.system.FileBased;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
@@ -126,9 +127,91 @@ public class ExperimentView {
         boolean m_useManualmapping = false;
 
 
-        private static Metric[] g_metrics = { new Rand(),  new ByteCodeCyclomaticComplexity(), new ByteCodeInstructions(), new CouplingIn(), new CouplingOut(), new FanIn(), new FanOut(), new LCOMHS(), new LineCount(),
-                new NumberOfMethods(), new NumberOfChildren(), new NumberOfChildLevels(), new NumberOfChildrenLevel0(), new NumberOfFields(), new NumberOfParents(), new Rank(), new NumberOfClasses()};
-        private ArrayList<Metric> m_selectedMetrics = new ArrayList<>();
+        static class MetricPair {
+
+            MetricPair(String a_name, Metric a_abs) {
+                m_name = a_name;
+                m_absMetric = a_abs;
+                m_relMetric = new RelativeLineCount(a_abs);
+            }
+
+            MetricPair(String a_name, Metric a_abs, Metric a_rel) {
+                m_name = a_name;
+                m_absMetric = a_abs;
+                m_relMetric = a_rel;
+            }
+
+            String m_name;
+            Metric m_absMetric;
+            Metric m_relMetric;
+
+            public String getName() {
+                return m_name;
+            }
+        }
+
+        static class MetricSelection {
+
+            private MetricPair[] m_metrics = { new MetricPair("Random", new Rand(), null), new MetricPair("BC. Cyclo. Cpl.", new ByteCodeCyclomaticComplexity()), new MetricPair("BC. Instr. Count", new ByteCodeInstructions()),
+                    new MetricPair("Coupling In", new CouplingIn()), new MetricPair("Coupling Out", new CouplingOut()), new MetricPair("Fan In", new FanIn()), new MetricPair("Fan Out", new FanOut()),
+                    new MetricPair("LCOM HS", new LCOMHS()), new MetricPair("Line Count", new LineCount(), null), new MetricPair("Methoc Count", new NumberOfMethods()), new MetricPair("Child Cound", new NumberOfChildren()),
+                    new MetricPair("Child Level Count", new NumberOfChildLevels()), new MetricPair("Child Count Lvl 0", new NumberOfChildrenLevel0()), new MetricPair("Field Count", new NumberOfFields()), new MetricPair("Parent Count", new NumberOfParents()),
+                    new MetricPair("Rank", new Rank()), new MetricPair("Class Count", new NumberOfClasses())
+            };
+
+            /*private static Metric[] g_metrics = {new NumberOfMethods(), new NumberOfChildren(), new NumberOfChildLevels(), new NumberOfChildrenLevel0(), new NumberOfFields(), new NumberOfParents(), new Rank(), new NumberOfClasses()};*/
+            private ArrayList<Metric> m_selectedMetrics = new ArrayList<>();
+
+            void select(Metric a_metric) {
+                if (!isSelected(a_metric)) {
+                    m_selectedMetrics.add(a_metric);
+                }
+            }
+
+
+            boolean isSelected(Metric a_metric) {
+                return getSelected(a_metric) != null;
+            }
+
+            Metric getSelected(Metric a_metric) {
+                for (Metric m : m_selectedMetrics) {
+                    if (m.getName().equals(a_metric.getName())) {
+                        return m;
+                    }
+                }
+
+                return null;
+            }
+
+            Iterable<MetricPair> getMetricPairs() {
+                return Arrays.asList(m_metrics);
+            }
+
+            public void toogle(Metric a_m) {
+                Metric m = getSelected(a_m);
+                if (m != null) {
+                    m_selectedMetrics.remove(m);
+                } else {
+                    m_selectedMetrics.add(a_m);
+                }
+            }
+
+            public void clear() {
+                m_selectedMetrics.clear();
+            }
+
+            public Iterable<Metric> getSelected() {
+                return m_selectedMetrics;
+            }
+        }
+
+        MetricSelection m_selectedMetrics = new MetricSelection();
+
+
+
+
+
+        //private ArrayList<Metric> m_selectedMetrics = new ArrayList<>();
         private String m_saveFile = "C:\\hObbE\\projects\\coding\\research\\test.csv";
         private String m_experimentSaveFile = "C:\\hObbE\\projects\\coding\\research\\experiment.xml";
 
@@ -323,17 +406,29 @@ public class ExperimentView {
 
             if (a_imgui.imgui().collapsingHeader("Metrics##" + m_id, 0)){
 
-                //if (a_imgui.imgui().beginCombo("Metric##" + m_id, m_selectedMetric.getName(), 0)) {
-
                 int count = 0;
-                    for (Metric m : g_metrics) {
-                        boolean[] isSelected = {m_selectedMetrics.contains(m)};
-                        if (a_imgui.imgui().checkbox(m.getName() + "##"+m_id, isSelected)) {
-                            if (m_selectedMetrics.contains(m)) {
-                                m_selectedMetrics.remove(m);
-                            } else {
-                                m_selectedMetrics.add(m);
+                    for (MetricPair m : m_selectedMetrics.getMetricPairs()) {
+
+                        if (m.m_relMetric != null) {
+                            boolean[] isSelected = {m_selectedMetrics.isSelected(m.m_relMetric)};
+                            if (a_imgui.imgui().checkbox("##" + m.getName() + m_id, isSelected)) {
+                                m_selectedMetrics.toogle(m.m_relMetric);
                             }
+                            if (a_imgui.imgui().isItemHovered(0) && a_imgui.beginTooltip()) {
+                                a_imgui.text("Relative Linecount");
+                                a_imgui.endTooltip();
+                            }
+                            // for some reason the first column gets a wierd offset
+                            a_imgui.imgui().sameLine((count % 4) * 250 + 25, (count % 4) == 0 ? 7 : 0);
+                        }
+
+                        boolean[] isSelected = {m_selectedMetrics.isSelected(m.m_absMetric)};
+                        if (a_imgui.imgui().checkbox(m.getName() + "##"+m_id, isSelected)) {
+                            m_selectedMetrics.toogle(m.m_absMetric);
+                        }
+                        if (a_imgui.imgui().isItemHovered(0) && a_imgui.beginTooltip()) {
+                            a_imgui.text("Absolute");
+                            a_imgui.endTooltip();
                         }
                         count++;
                         if (count % 4 != 0) {
@@ -478,6 +573,11 @@ public class ExperimentView {
                     m_experiment.stop();
                     halt();
                 }
+
+                if (a_imgui.imgui().collapsingHeader("Power Selection##" + m_id, 0)){
+                    a_imgui.imgui().radioButton("System##PowerSelection" + m_id, true);
+                    a_imgui.imgui().radioButton("Metric##PowerSelection" + m_id, false);
+                }
             }
 
             a_imgui.imgui().sameLine(0);
@@ -500,8 +600,8 @@ public class ExperimentView {
 
             final int blue = a_imgui.toColor(new Vec4(0.25, 0.25, 1, 0.75));
 
-            //boolean mouseClicked = a_imgui.isMouseClicked(0, false);
-            boolean mouseClicked = false;
+            boolean mouseClicked = a_imgui.isMouseClicked(0, false);
+            //boolean mouseClicked = true;
 
             for (ExperimentRunData.BasicRunData exd : m_selectedDataPoints) {
 
@@ -518,11 +618,16 @@ public class ExperimentView {
                 a_imgui.addCircleFilled(screenPos, 4, blue, 6);
             }
 
+            if(mouseClicked && selectedData.size() > 0 && m_selectedDataPoints.size() > 0) {
+                mouseClicked = false;
+                m_selectedDataPoints.clear();
+            }
+
 
             for (ScatterPlot.Data pd : selectedData) {
                 ExperimentRunData.BasicRunData exd = m_experimentData.get(pd.m_id);
 
-                a_imgui.beginTooltip();
+                if (a_imgui.beginTooltip()) {
                     a_imgui.text("System:\t" + exd.m_system.getName());
                     a_imgui.text("Metric:\t" + exd.m_metric.getName());
                     a_imgui.text("Size:\t" + exd.m_totalMapped);
@@ -531,14 +636,19 @@ public class ExperimentView {
                     a_imgui.text("A. Failed:\t\t" + exd.m_totalAutoWrong);
                     a_imgui.text("M. Clustered:\t" + exd.m_totalManuallyClustered);
                     a_imgui.text("M. Failed:\t\t" + exd.m_totalFailedClusterings);
-                a_imgui.endTooltip();
+                    a_imgui.endTooltip();
+                }
 
                 if (mouseClicked) {
-                    if (m_selectedDataPoints.contains(exd)) {
-                        m_selectedDataPoints.remove(exd);
-                    } else {
-                        m_selectedDataPoints.add(exd);
+                    for (ExperimentRunData.BasicRunData data : m_experimentData) {
+                        if (data.m_metric.getName().equals(exd.m_metric.getName())) {
+                            if (!m_selectedDataPoints.contains(data)) {
+                                m_selectedDataPoints.add(data);
+                                System.out.println("added");
+                            }
+                        }
                     }
+
                 }
 
                 if (beginPopupContextItem(a_imgui, "SomePopupID", 1)) {
@@ -599,12 +709,7 @@ public class ExperimentView {
 
             m_selectedMetrics.clear();
             for (Metric exrMetric : a_exr.getMetrics()) {
-                for (Metric m : g_metrics) {
-                    if (exrMetric.getName().equals(m.getName())) {
-                        m_selectedMetrics.add(m);
-                        break;
-                    }
-                }
+                m_selectedMetrics.select(exrMetric);
             }
             m_selectedSystem.clearSelection();
             a_exr.getSystems().forEach(s -> m_selectedSystem.selectFileName(((FileBased)s).getFile()));
@@ -634,9 +739,9 @@ public class ExperimentView {
             }
 
             if (m_experimentIx == g_nbmapper_ex) {
-                ret = new NBMapperExperimentRunner(systems, m_selectedMetrics, m_useManualmapping, m_initialSetSize, m_doStemming, m_doWordCount, m_threshold);
+                ret = new NBMapperExperimentRunner(systems, m_selectedMetrics.getSelected(), m_useManualmapping, m_initialSetSize, m_doStemming, m_doWordCount, m_threshold);
             } else if (m_experimentIx == g_hugmemapper_ex) {
-                ret = new HuGMeExperimentRunner(systems, m_selectedMetrics, m_useManualmapping, m_initialSetSize, m_omega, m_phi);
+                ret = new HuGMeExperimentRunner(systems, m_selectedMetrics.getSelected(), m_useManualmapping, m_initialSetSize, m_omega, m_phi);
             }
 
             return ret;

@@ -10,6 +10,7 @@ import org.w3c.dom.Text;
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Stack;
 
 import static imgui.ImguiKt.COL32;
 
@@ -515,8 +516,31 @@ public class ImGuiWrapper {
         return m_imGui.calcTextSize(a_str, a_hideTextAfterDoubleHash);
     }
 
-    public void beginTooltip() {
-        m_imGui.beginTooltip();
+    public boolean beginTooltip() {
+
+        // as it seems a too large tool tip can crash the application
+        // we ned to restore the clipRect stack to prevent further problems
+        Stack<Vec4> clipRectStack = new Stack<>();
+        clipRectStack.addAll(m_imGui.getCurrentWindow().getDrawList().get_clipRectStack());
+        try {
+            m_imGui.beginTooltip();
+            return true;
+        } catch (Exception e) {
+
+            try {
+                m_imGui.endTooltip();
+            } catch (Exception e2) {
+                e2.printStackTrace();
+            }
+            e.printStackTrace();
+
+            // restore the clip rect stack
+            Stack<Vec4> s = m_imGui.getCurrentWindow().getDrawList().get_clipRectStack();
+            s.clear();
+            s.addAll(clipRectStack);
+
+            return false;
+        }
     }
 
     public void endTooltip() {
