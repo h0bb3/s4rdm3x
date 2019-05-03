@@ -131,14 +131,14 @@ public class NBMapperView extends MapperBaseView {
         {
             boolean [] stemming = {m_doStemming};
             if (a_imgui.imgui().checkbox("Use Word Stemming", stemming)) {
-
+                m_doStemming = stemming[0];
             }
         }
 
         {
             boolean [] wordCount = {m_doWordCount};
             if (a_imgui.imgui().checkbox("Use Word Counts", wordCount)) {
-
+                m_doWordCount = wordCount[0];
             }
         }
 
@@ -185,6 +185,8 @@ public class NBMapperView extends MapperBaseView {
                 rows.add(dr);
             }
         }
+
+        rows.sort((a, b)->a.m_mapping.compareTo(b.m_mapping));
 
 
         final int white = a_imgui.toColor(new Vec4(1, 1, 1, 1));
@@ -287,6 +289,9 @@ public class NBMapperView extends MapperBaseView {
             float height = (rows.size() + 1) * a_imgui.getTextLineHeightWithSpacing() + 21;
             columnSize = new Vec2(a_imgui.imgui().getContentRegionAvailWidth(), a_imgui.imgui().getContentRegionAvail().getY() < height ? a_imgui.imgui().getContentRegionAvail().getY() : height);    // +16 for scrollbar
             a_imgui.imgui().beginChild("NBMapperChildTableRight", columnSize, childWindowBorder, WindowFlag.NoScrollbar.or(WindowFlag.AlwaysHorizontalScrollbar));
+            Rect rightClipRect = new Rect(a_imgui.imgui().getCurrentWindow().getDrawList().getCurrentClipRect());
+
+            a_imgui.addRect(rightClipRect.getTl(), rightClipRect.getBr(), white, 0, 0, 2);
 
             final float colWidth = a_imgui.getTextLineHeightWithSpacing() * 2;
             a_imgui.imgui().beginColumns("NBMapperTableRightColumns", rightColCount, ColumnsFlag.NoResize.getI() | ColumnsFlag.NoForceWithinWindow.getI());
@@ -307,38 +312,76 @@ public class NBMapperView extends MapperBaseView {
 
             columnSize = new Vec2(rightColCount * colWidth,rows.size() * a_imgui.getTextLineHeightWithSpacing() );
             a_imgui.imgui().beginChild("NBMapperChildTableRightBodyContents", columnSize, childWindowBorder, WindowFlag.NoScrollbar.getI());
+            int clipped = 0;
 
-            for (int i = 0; i < rows.size(); i++) {
+            int startRowIx, maxRows;
+            float rowHeight = a_imgui.getTextLineHeightWithSpacing();
+            Vec2 windowPos = a_imgui.imgui().getCurrentWindow().getPos();
+
+            startRowIx = (int)((rightClipRect.getTl().getY() - windowPos.getY()) / rowHeight);
+            if (startRowIx < 0) {
+                startRowIx = 0;
+            }
+            maxRows = startRowIx + (int)(rightClipRect.getHeight() / rowHeight) + 1;
+            if (maxRows > rows.size()) {
+                maxRows = rows.size();
+            }
+
+            a_imgui.beginTooltip();
+            a_imgui.text("Start row Ix: " + startRowIx);
+            a_imgui.text("maxRows: " + maxRows);
+            a_imgui.endTooltip();
+
+            a_imgui.imgui().setCursorPosY(startRowIx * rowHeight);
+
+            for (int i = startRowIx; i < maxRows; i++) {
                 DataRow row = rows.get(i);
                 Instance inst = row.m_data;
-                a_imgui.imgui().beginColumns("NBMapperTableRightColumns", rightColCount, ColumnsFlag.NoResize.getI() | ColumnsFlag.NoForceWithinWindow.getI());
-                for (int cIx = 0; cIx < rightColCount; cIx++) {
+                //a_imgui.imgui().beginColumns("NBMapperTableRightColumns", rightColCount, ColumnsFlag.NoResize.getI() | ColumnsFlag.NoForceWithinWindow.getI());
 
+                for (int cIx = 0; cIx < rightColCount; cIx++) {
+                    boolean isInside = true;
                     {
                         Vec2 tl = a_imgui.imgui().getCurrentWindow().getPos().plus(a_imgui.imgui().getCursorPos());
-                        tl.plus(-10, 0, tl);
+                        tl.plus(0, 0, tl);
 
-                        Vec2 br = tl.plus(colWidth + 10, a_imgui.getTextLineHeightWithSpacing());
+                        Vec2 br = tl.plus(colWidth, a_imgui.getTextLineHeightWithSpacing());
 
-                        if (a_nvm.hasBGColor(row.m_mapping)) {
-                            a_imgui.addRectFilled(tl, br, a_imgui.toColor(a_nvm.getBGColor(row.m_mapping)), 0, 0);
-                        }
+                        isInside = true;//rightClipRect.contains(tl) || rightClipRect.contains(br);
 
-                        if (i % 2 == 0) {
-                            a_imgui.addRectFilled(tl, br, white15, 0, 0);
+                        if (isInside) {
+
+                            if (a_nvm.hasBGColor(row.m_mapping)) {
+                                a_imgui.addRectFilled(tl, br, a_imgui.toColor(a_nvm.getBGColor(row.m_mapping)), 0, 0);
+                            }
+
+                            if (i % 2 == 0) {
+                                a_imgui.addRectFilled(tl, br, white15, 0, 0);
+                            }
+                        } else {
+                            clipped++;
                         }
                     }
 
                     int count = (int)inst.value(cIx);
 
-                    if (count > 0) {
+                    if (isInside && count > 0) {
                         a_imgui.text("" + count);
                     }
-                    a_imgui.imgui().setColumnWidth(cIx, colWidth);
-                    a_imgui.imgui().nextColumn();
+                    a_imgui.imgui().sameLine(cIx * colWidth, 0);
+                    //a_imgui.imgui().setColumnWidth(cIx, colWidth);
+                    //a_imgui.imgui().nextColumn();
                 }
-                a_imgui.imgui().endColumns();
+                a_imgui.imgui().newLine();
+                //a_imgui.imgui().endColumns();
             }
+
+            a_imgui.imgui().setCursorPosY(maxRows * rowHeight);
+
+            /*a_imgui.beginTooltip();
+            a_imgui.text("Clipped: " + clipped);
+            a_imgui.text("window pos" + a_imgui.imgui().getCurrentWindow().getPos());
+            a_imgui.endTooltip();*/
 
 
             a_imgui.imgui().endChild();
@@ -351,27 +394,40 @@ public class NBMapperView extends MapperBaseView {
             a_imgui.imgui().endChild();
 
             // we now draw the slanted headlines to avoid column and child window clipping
-            for (int hIx = 0; hIx < rightColCount; hIx++) {
-                final float angle = (float)(2 * Math.PI - Math.PI / 2.4);
-                final float textLength = a_imgui.calcTextSize(rigthColHeadlines[hIx], false).getX();
-                Vec2 to = new Vec2(Math.cos(angle) * textLength, Math.sin(angle) * textLength);
-                to.plus(rightHeadlinePositions[hIx], to);
-                to.plus(5,0, to);
-                a_imgui.text(rigthColHeadlines[hIx], rightHeadlinePositions[hIx], white, angle);
+            {
+                // we do accept some owerdraw to avoid early clipping of texts
+                final float angle = (float) (2 * Math.PI - Math.PI / 2.4);
+                Vec2 maxTo = new Vec2(Math.cos(angle) * 250, Math.sin(angle) * 250);
 
-                if (a_imgui.isInsideClipRect(a_imgui.getMousePos()) && a_imgui.isInside(rightHeadlinePositions[hIx], to, a_imgui.getTextLineHeightWithSpacing() / 2.0, a_imgui.getMousePos())) {
-                    a_imgui.beginTooltip();
-                    a_imgui.text(rigthColHeadlines[hIx]);
+                for (int hIx = 0; hIx < rightColCount; hIx++) {
 
-                    for (int cIx = 0; cIx < a_arch.getComponentCount(); cIx++) {
-                        a_imgui.text(a_arch.getComponent(cIx).getName() + ":" + weka.core.Utils.doubleToString(classifier.getProbabilityOfWord(hIx, cIx), 2));
+                    // early bail if we are outside the window
+                    Vec2 clipTo = maxTo.plus(rightHeadlinePositions[hIx]);
+
+                    //a_imgui.addLine(rightHeadlinePositions[hIx], clipTo, white, 1);
+
+                    if (a_imgui.isInsideClipRect(rightHeadlinePositions[hIx]) || a_imgui.isInsideClipRect(clipTo)) {
+                        final float textLength = a_imgui.calcTextSize(rigthColHeadlines[hIx], false).getX();
+                        Vec2 to = new Vec2(Math.cos(angle) * textLength, Math.sin(angle) * textLength);
+                        to.plus(rightHeadlinePositions[hIx], to);
+                        to.plus(5, 0, to);
+                        a_imgui.text(rigthColHeadlines[hIx], rightHeadlinePositions[hIx], white, angle);
+
+                        if (a_imgui.isInsideClipRect(a_imgui.getMousePos()) && a_imgui.isInside(rightHeadlinePositions[hIx], to, a_imgui.getTextLineHeightWithSpacing() / 2.0, a_imgui.getMousePos())) {
+                            a_imgui.beginTooltip();
+                            a_imgui.text(rigthColHeadlines[hIx]);
+
+                            for (int cIx = 0; cIx < a_arch.getComponentCount(); cIx++) {
+                                a_imgui.text(a_arch.getComponent(cIx).getName() + ":" + weka.core.Utils.doubleToString(classifier.getProbabilityOfWord(hIx, cIx), 2));
+                            }
+
+                            a_imgui.endTooltip();
+
+                            //System.out.println(classifier);
+                        }
                     }
-
-                    a_imgui.endTooltip();
-
-                    //System.out.println(classifier);
+                    //a_imgui.addLine(rightHeadlinePositions[hIx], to, white, 1);
                 }
-                //a_imgui.addLine(rightHeadlinePositions[hIx], to, white, 1);
             }
             a_imgui.imgui().endColumns();
 

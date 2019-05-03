@@ -18,6 +18,14 @@ public class ScatterPlot {
         m_max = null;
     }
 
+    public void setColor(int a_id, int a_color) {
+        for (Data d : m_data) {
+            if (d.m_id == a_id) {
+                d.m_color = a_color;
+            }
+        }
+    }
+
     public static class Data {
         Vec2 m_point;
         int m_color;

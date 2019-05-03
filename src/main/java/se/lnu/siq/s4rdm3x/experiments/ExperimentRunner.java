@@ -18,7 +18,8 @@ public abstract class ExperimentRunner {
     private RunListener m_listener = null;
     private ArrayList<System> m_suas = new ArrayList<>();
     private ArrayList<Metric> m_metrics = new ArrayList<>();
-    private State m_state;
+    private State m_state;  // this is the desired state
+    private State m_currentState;   // this is the actual state
     private RandomDoubleVariable m_initialSetSize;
 
     public Iterable<System> getSystems() {
@@ -143,20 +144,18 @@ public abstract class ExperimentRunner {
     }
 
     public void stop() {
-        if (m_state == State.Running) {
-            m_state = State.Stoping;
-            while(getState() == ExperimentRunner.State.Running) {
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
+        m_state = State.Stoping;
+        while(getState() == ExperimentRunner.State.Running) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
 
-                }
             }
         }
     }
 
     public State getState() {
-        return m_state;
+        return m_currentState;
     }
 
     public ExperimentRunner(Iterable<System> a_suas, Iterable<Metric> a_metrics, boolean a_doUseManualmapping, RandomDoubleVariable a_initialSetSize) {
@@ -178,7 +177,7 @@ public abstract class ExperimentRunner {
         public void OnRunCompleted(ExperimentRunData.BasicRunData a_rd, CGraph a_g, ArchDef a_arch);
     }
 
-
+    public abstract ExperimentRunner clone();
 
     public void setRunListener(RunListener a_listener) {
         m_listener = a_listener;
@@ -192,9 +191,7 @@ public abstract class ExperimentRunner {
         FanInCache fic = null;
 
 
-
-
-
+        m_currentState = State.Running;
         m_state = State.Running;
         RandomDoubleVariable initialClustering = m_initialSetSize;
         SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -203,88 +200,88 @@ public abstract class ExperimentRunner {
             for (System sua : m_suas) {
                 Metric prevMetric = null;
                 for (Metric metric : m_metrics) {
-                    ArchDef arch;
+                    for (int iterations = 0; iterations < 10 && m_state == State.Running; iterations++) {
+                        ArchDef arch;
 
-                    if (!loadedSystems.containsKey(sua)) {
+                        if (!loadedSystems.containsKey(sua)) {
 
-                        GraphArchitecturePair gap = new GraphArchitecturePair();
-                        gap.m_g = new CGraph();
-                        sua.load(gap.m_g);
-                        gap.m_a = sua.createAndMapArch(gap.m_g);
-                        loadedSystems.put(sua, gap);
-                        a_g = gap.m_g;
-                        arch = gap.m_a;
+                            GraphArchitecturePair gap = new GraphArchitecturePair();
+                            gap.m_g = new CGraph();
+                            sua.load(gap.m_g);
+                            gap.m_a = sua.createAndMapArch(gap.m_g);
+                            loadedSystems.put(sua, gap);
+                            a_g = gap.m_g;
+                            arch = gap.m_a;
 
-                    } else {
-                        GraphArchitecturePair gap = loadedSystems.get(sua);
-                        a_g = gap.m_g;
-                        arch = gap.m_a;
+                        } else {
+                            GraphArchitecturePair gap = loadedSystems.get(sua);
+                            a_g = gap.m_g;
+                            arch = gap.m_a;
+                        }
+
+                        // this is an optimization if we only have one metric we do not need to reassign it
+                        if (prevMetric != metric) {
+                            metric.assignMetric(arch.getMappedNodes(a_g.getNodes()));
+                        }
+
+                        final ExperimentRunData.BasicRunData rd = createNewRunData(m_rand);
+                        rd.m_metric = metric;
+                        rd.m_system = sua;
+                        rd.m_initialClusteringPercent = initialClustering.generate(m_rand);
+                        rd.m_totalMapped = arch.getMappedNodeCount(a_g.getNodes());
+
+                        rd.m_date = sdfDate.format(new Date());
+
+                        arch.cleanNodeClusters(a_g.getNodes());
+                        assignInitialClusters(a_g, arch, rd.m_initialClusteringPercent, metric);
+
+                        //assignInitialClustersPerComponent(a_g, arch, rd.m_initialClusteringPercent);
+
+                        arch.getClusteredNodes(a_g.getNodes()).forEach(n -> rd.addInitialClusteredNode(n));
+                        rd.m_totalMapped = arch.getMappedNodeCount(a_g.getNodes());
+
+
+                        //rd.m_totalMapped = 0;
+                        rd.m_totalManuallyClustered = 0;
+                        rd.m_totalAutoWrong = 0;
+                        rd.m_iterations = 0;
+                        rd.m_totalFailedClusterings = 0;
+                        rd.m_id = i;
+
+                        if (fic == null) {
+                            fic = new FanInCache(arch.getMappedNodes(a_g.getNodes()));
+                        }
+
+                        if (m_listener != null) {
+                            m_listener.OnRunInit(rd, a_g, arch);
+                        }
+                        long start = java.lang.System.nanoTime();
+                        while (!runClustering(a_g, fic, arch));  // we always run until we are finished even if we are stopped to avoid partial data sets.
+                        rd.m_time = java.lang.System.nanoTime() - start;
+
+                        arch.getClusteredNodes(a_g.getNodes(), ArchDef.Component.ClusteringType.Automatic).forEach(n -> rd.addAutoClusteredNode(n));
+
+                        if (m_listener != null) {
+                            m_listener.OnRunCompleted(rd, a_g, arch);
+                        }
+
+                        i++;
+                        prevMetric = metric;
+                        // Needed?
+                        metric.reassignMetric(arch.getMappedNodes(a_g.getNodes()));
                     }
-
-                    // this is an optimization if we only have one metric we do not need to reassign it
-                    if (prevMetric != metric) {
-                        metric.assignMetric(arch.getMappedNodes(a_g.getNodes()));
-                    }
-
-                    final ExperimentRunData.BasicRunData rd = createNewRunData(m_rand);
-                    rd.m_metric = metric;
-                    rd.m_system = sua;
-                    rd.m_initialClusteringPercent = initialClustering.generate(m_rand);
-                    rd.m_totalMapped = arch.getMappedNodeCount(a_g.getNodes());
-
-                    rd.m_date = sdfDate.format(new Date());
-
-                    arch.cleanNodeClusters(a_g.getNodes());
-                    assignInitialClusters(a_g, arch, rd.m_initialClusteringPercent, metric);
-
-                    //assignInitialClustersPerComponent(a_g, arch, rd.m_initialClusteringPercent);
-
-                    arch.getClusteredNodes(a_g.getNodes()).forEach(n -> rd.addInitialClusteredNode(n));
-                    rd.m_totalMapped = arch.getMappedNodeCount(a_g.getNodes());
-
-
-                    //rd.m_totalMapped = 0;
-                    rd.m_totalManuallyClustered = 0;
-                    rd.m_totalAutoWrong = 0;
-                    rd.m_iterations = 0;
-                    rd.m_totalFailedClusterings = 0;
-                    rd.m_id = i;
-
-                    if (fic == null) {
-                        fic = new FanInCache(arch.getMappedNodes(a_g.getNodes()));
-                    }
-
-                    if (m_listener != null) {
-                        m_listener.OnRunInit(rd, a_g, arch);
-                    }
-                    long start = java.lang.System.nanoTime();
-                    while (!runClustering(a_g, fic, arch))
-                        ;  // we always run until we are finished even if we are stopped to avoid partial data sets.
-                    rd.m_time = java.lang.System.nanoTime() - start;
-
-                    arch.getClusteredNodes(a_g.getNodes(), ArchDef.Component.ClusteringType.Automatic).forEach(n -> rd.addAutoClusteredNode(n));
-
-                    if (m_listener != null) {
-                        m_listener.OnRunCompleted(rd, a_g, arch);
-                    }
-
-                    i++;
-                    prevMetric = metric;
-                    // Needed?
-                    metric.reassignMetric(arch.getMappedNodes(a_g.getNodes()));
-
-                    if (getState() != State.Running) {
+                    if (m_state != State.Running) {
                         break;
                     }
                 }
 
-                if (getState() != State.Running) {
+                if (m_state != State.Running) {
                     break;
                 }
             }
         }
 
-        m_state = State.Idle;
+        m_currentState = State.Idle;
     }
 
     protected abstract ExperimentRunData.BasicRunData createNewRunData(Random m_rand);

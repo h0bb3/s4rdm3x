@@ -31,6 +31,11 @@ public class HuGMeExperimentRunner extends ExperimentRunner {
     }
 
     @Override
+    public ExperimentRunner clone() {
+        return new HuGMeExperimentRunner(getSystems(), getMetrics(), doUseManualmapping(), getInitialSetSize(), m_omega, m_phi);
+    }
+
+    @Override
     protected ExperimentRunData.BasicRunData createNewRunData(Random m_rand) {
         m_exData = new ExperimentRunData.HuGMEData();
         m_exData.m_phi = m_phi.generate(m_rand);

@@ -33,6 +33,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 public class ExperimentView {
 
@@ -125,6 +128,8 @@ public class ExperimentView {
         ExperimentRunner.RandomDoubleVariable m_initialSetSize = new ExperimentRunner.RandomDoubleVariable(0.1, 0.1);
         SystemSelection m_selectedSystem = new SystemSelection();
         boolean m_useManualmapping = false;
+        private Vec4 m_workingColor;
+        private int m_powerSelection = 0;
 
 
         static class MetricPair {
@@ -323,6 +328,24 @@ public class ExperimentView {
                     foundMV.show(showing);
                 }
             }
+
+            {
+                if (m_workingColor == null) {
+                    m_workingColor = new Vec4(m_currentColor);
+                }
+                if (a_imgui.imgui().colorEdit3("Set Point Color", m_workingColor, 0)) {
+
+                    int intCol = a_imgui.toColor(m_workingColor);
+                    //m_workingColor = null;
+                    for (ExperimentRunData.BasicRunData brd : m_selectedDataPoints) {
+                        int ix = m_experimentData.indexOf(brd);
+
+                        m_performanceVsInitialMapped.setColor(ix, intCol);
+                        m_recallVsInitialMapped.setColor(ix, intCol);
+                        m_precisionVsInitialMapped.setColor(ix, intCol);
+                    }
+                }
+            }
         }
 
         // this one is needed to create context menus over child windows after the child is ended.
@@ -362,8 +385,18 @@ public class ExperimentView {
             return a_var;
         }
 
+        interface PowerSelectionFilter extends BiPredicate<ExperimentRunData.BasicRunData, ExperimentRunData.BasicRunData> {}
+
         public void doExperiment(ImGuiWrapper a_imgui) {
             Vec2 size = new Vec2(a_imgui.imgui().getContentRegionAvailWidth(), a_imgui.getTextLineHeightWithSpacing() * 2 + a_imgui.imgui().getContentRegionAvailWidth() / 3);
+
+            final String [] powerSelections = {"None", "System", "Metric"};
+
+            final PowerSelectionFilter[] powerSelectionFilters = new PowerSelectionFilter[]{
+                    (target, source) -> false,
+                    (target, source) -> target.m_system.getName().equals(source.m_system.getName()),
+                    (target, source) -> target.m_metric.getName().equals(source.m_metric.getName())
+            };
 
             a_imgui.imgui().beginChild(m_id, size, true, 0);
 
@@ -537,6 +570,7 @@ public class ExperimentView {
                         m_performanceVsInitialMapped.clearData();
                         m_precisionVsInitialMapped.clearData();
                         m_recallVsInitialMapped.clearData();
+                        m_selectedDataPoints.clear();
                     }
                     m_saveFile = a_imgui.inputTextSingleLine("##SaveAs"+m_id, m_saveFile);
                     a_imgui.imgui().sameLine(0);
@@ -562,8 +596,6 @@ public class ExperimentView {
                         } catch (IOException e) {
                             System.out.println("Could not create file");
                         }
-
-
                     }
                 }
             } else {
@@ -573,14 +605,16 @@ public class ExperimentView {
                     m_experiment.stop();
                     halt();
                 }
+            }
 
-                if (a_imgui.imgui().collapsingHeader("Power Selection##" + m_id, 0)){
-                    a_imgui.imgui().radioButton("System##PowerSelection" + m_id, true);
-                    a_imgui.imgui().radioButton("Metric##PowerSelection" + m_id, false);
+            if (m_experimentData.size() > 0) {
+                int [] selectedItem = {m_powerSelection};
+                if (a_imgui.imgui().combo("Power Selection##" + m_id, selectedItem, Arrays.asList(powerSelections), powerSelections.length)) {
+                    m_powerSelection = selectedItem[0];
                 }
             }
 
-            a_imgui.imgui().sameLine(0);
+
 
             a_imgui.text(String.format("Average Performance: %.2f", getAvgPerformance() * 100));
 
@@ -639,16 +673,13 @@ public class ExperimentView {
                     a_imgui.endTooltip();
                 }
 
-                if (mouseClicked) {
-                    for (ExperimentRunData.BasicRunData data : m_experimentData) {
-                        if (data.m_metric.getName().equals(exd.m_metric.getName())) {
-                            if (!m_selectedDataPoints.contains(data)) {
-                                m_selectedDataPoints.add(data);
-                                System.out.println("added");
-                            }
-                        }
-                    }
 
+
+
+
+                if (mouseClicked) {
+                    // good luck with this one :D
+                    m_experimentData.stream().filter((d -> powerSelectionFilters[m_powerSelection].test(d, exd) && !m_selectedDataPoints.contains(d))).forEach(d->m_selectedDataPoints.add(d));
                 }
 
                 if (beginPopupContextItem(a_imgui, "SomePopupID", 1)) {
@@ -683,9 +714,9 @@ public class ExperimentView {
                 }
             }
 
-            for (ExperimentRunData.BasicRunData exd : m_selectedDataPoints) {
+            /*for (ExperimentRunData.BasicRunData exd : m_selectedDataPoints) {
                 a_imgui.text(exd.m_system.getName());
-            }
+            }*/
 
             /*if (beginPopupContextItem(a_imgui,"test_popup", 1)) {
                 a_imgui.menuItem("test_item", "", false, true);

@@ -70,6 +70,11 @@ public class NBMapperExperimentRunner extends ExperimentRunner {
         return true;
     }
 
+    @Override
+    public ExperimentRunner clone() {
+        return new NBMapperExperimentRunner(getSystems(), getMetrics(), doUseManualmapping(), getInitialSetSize(), m_doStemming, m_doWordCount, m_threshold);
+    }
+
     public RandomDoubleVariable getThreshold() {
         return m_threshold;
     }
