@@ -327,19 +327,39 @@ public class NBMapperView extends MapperBaseView {
                 maxRows = rows.size();
             }
 
+
+            int startColIx = 0;
+            int maxCols = rightColCount;
+            startColIx = (int)((rightClipRect.getTl().getX() - windowPos.getX()) / colWidth);
+            if (startColIx < 0) {
+                startColIx = 0;
+            }
+
+            maxCols = startColIx + (int)(rightClipRect.getWidth() / colWidth) + 2;
+            if (maxCols > rightColCount) {
+               maxCols = rightColCount;
+            }
+
             a_imgui.beginTooltip();
             a_imgui.text("Start row Ix: " + startRowIx);
             a_imgui.text("maxRows: " + maxRows);
+
+            a_imgui.text("Start col Ix: " + startColIx);
+            a_imgui.text("maxCols: " + maxCols);
             a_imgui.endTooltip();
 
             a_imgui.imgui().setCursorPosY(startRowIx * rowHeight);
+
 
             for (int i = startRowIx; i < maxRows; i++) {
                 DataRow row = rows.get(i);
                 Instance inst = row.m_data;
                 //a_imgui.imgui().beginColumns("NBMapperTableRightColumns", rightColCount, ColumnsFlag.NoResize.getI() | ColumnsFlag.NoForceWithinWindow.getI());
 
-                for (int cIx = 0; cIx < rightColCount; cIx++) {
+
+                for (int cIx = startColIx; cIx < maxCols; cIx++) {
+                    a_imgui.imgui().setCursorPosX(cIx * colWidth);
+                    a_imgui.imgui().setCursorPosY(i * rowHeight);
                     boolean isInside = true;
                     {
                         Vec2 tl = a_imgui.imgui().getCurrentWindow().getPos().plus(a_imgui.imgui().getCursorPos());
@@ -368,7 +388,7 @@ public class NBMapperView extends MapperBaseView {
                     if (isInside && count > 0) {
                         a_imgui.text("" + count);
                     }
-                    a_imgui.imgui().sameLine(cIx * colWidth, 0);
+                    //a_imgui.imgui().sameLine((cIx + 1 - startRowIx) * colWidth, 0);
                     //a_imgui.imgui().setColumnWidth(cIx, colWidth);
                     //a_imgui.imgui().nextColumn();
                 }
