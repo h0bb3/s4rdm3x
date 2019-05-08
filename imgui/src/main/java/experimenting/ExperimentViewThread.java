@@ -15,9 +15,6 @@ import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.function.BiPredicate;
@@ -25,16 +22,11 @@ import java.util.function.BiPredicate;
 class ExperimentViewThread extends Thread {
     String m_id;
     ExperimentRunner m_experiment;
-    public ArrayList<ExperimentRunData.BasicRunData> m_experimentData = new ArrayList<>();  // this one is accessed by threads so take care...
+
     private double m_avgPerformance = 0;
     private int m_avgCount = 0;
-    private ScatterPlot m_performanceVsInitialMapped = new ScatterPlot();
-    private ScatterPlot m_precisionVsInitialMapped = new ScatterPlot();
-    private ScatterPlot m_recallVsInitialMapped = new ScatterPlot();
-    private Vec4 m_currentColor = new Vec4(0.75, 0.75, 0.75, 1);
 
-    public ArrayList<ExperimentRunData.BasicRunData> m_selectedDataPoints = new ArrayList<>();
-    public ArrayList<ExperimentView.MappingViewWrapper> m_mappingViews = new ArrayList<>();
+    private Vec4 m_currentColor = new Vec4(0.75, 0.75, 0.75, 1);
 
     static final int g_nbmapper_ex = 0;
     static final int g_hugmemapper_ex = 1;
@@ -55,6 +47,11 @@ class ExperimentViewThread extends Thread {
     boolean m_useManualmapping = false;
     private Vec4 m_workingColor;
     private int m_powerSelection = 0;
+
+    public ExperimentViewThread(int a_id, ExperimentRunner a_exr) {
+        m_id = "ExThread_" + a_id;
+        setExperiment(a_exr);
+    }
 
 
     static class MetricPair {
@@ -138,13 +135,6 @@ class ExperimentViewThread extends Thread {
     MetricSelection m_selectedMetrics = new MetricSelection();
 
 
-
-
-
-    //private ArrayList<Metric> m_selectedMetrics = new ArrayList<>();
-    private String m_saveFile = "C:\\hObbE\\projects\\coding\\research\\test.csv";
-    private String m_experimentSaveFile = "C:\\hObbE\\projects\\coding\\research\\experiment.xml";
-
     static class SystemNameFile {
         public String m_name;
         public String m_file;
@@ -219,71 +209,15 @@ class ExperimentViewThread extends Thread {
     }
 
 
-    private ExperimentRunData.BasicRunData m_popupMenuData = null;
+
 
     ExperimentViewThread(int a_id) {
         m_id = "ExThread_" + a_id;
     }
 
-    public void doPopupMenu(ImGuiWrapper a_imgui, ExperimentRunData.BasicRunData a_runData) {
-        boolean showing = false;
-        ExperimentView.MappingViewWrapper foundMV = null;
 
-        for (ExperimentView.MappingViewWrapper mv : m_mappingViews) {
-            if (mv.isViewFor(a_runData)) {
-                showing = mv.isShowing();
-                foundMV = mv;
-                break;
-            }
-        }
 
-        if (a_imgui.menuItem("Show Mapping", "", showing, true)) {
-            showing = !showing;
-            if (foundMV == null && showing) {
-                CGraph graph = new CGraph();
-                a_runData.m_system.load(graph);
-                ArchDef arch = a_runData.m_system.createAndMapArch(graph);
-                foundMV = new ExperimentView.MappingViewWrapper(graph, arch, a_runData);
-                //foundMV.setInitialNBData(a_rundData, graph, arch);
-                //foundMV.setInitialClustering(a_rundData.m_initialClustering);
-                m_mappingViews.add(foundMV);
-            }
 
-            if (foundMV != null) {
-                foundMV.show(showing);
-            }
-        }
-
-        {
-            if (m_workingColor == null) {
-                m_workingColor = new Vec4(m_currentColor);
-            }
-            if (a_imgui.imgui().colorEdit3("Set Point Color", m_workingColor, 0)) {
-
-                int intCol = a_imgui.toColor(m_workingColor);
-                //m_workingColor = null;
-                for (ExperimentRunData.BasicRunData brd : m_selectedDataPoints) {
-                    int ix = m_experimentData.indexOf(brd);
-
-                    m_performanceVsInitialMapped.setColor(ix, intCol);
-                    m_recallVsInitialMapped.setColor(ix, intCol);
-                    m_precisionVsInitialMapped.setColor(ix, intCol);
-                }
-            }
-        }
-    }
-
-    // this one is needed to create context menus over child windows after the child is ended.
-    boolean beginPopupContextItem(ImGuiWrapper a_imgui, String a_id, int a_mouseButton) {
-        Window window = a_imgui.imgui().getCurrentWindow();
-        int id = a_id != null ? window.getId(a_id) : window.getDc().getLastItemId(); // If user hasn't passed an ID, we can use the LastItemID. Using LastItemID as a Popup ID won't conflict!
-
-        if (a_imgui.imgui().isMouseReleased(a_mouseButton) && a_imgui.imgui().isWindowHovered(HoveredFlag.AllowWhenBlockedByPopup.getI() | HoveredFlag.RootAndChildWindows.getI())) {
-            a_imgui.imgui().openPopupEx(id);
-        }
-
-        return a_imgui.imgui().beginPopupEx(id, WindowFlag.AlwaysAutoResize.or(WindowFlag.NoTitleBar.or(WindowFlag.NoSavedSettings)));
-    }
 
     private ExperimentRunner.RandomBoolVariable doRandomBoolVariable(ImGuiWrapper a_imgui, String a_label, ExperimentRunner.RandomBoolVariable a_var) {
         String [] randomBoolLabels = {"Yes", "No", "Random"};
@@ -312,347 +246,190 @@ class ExperimentViewThread extends Thread {
 
     interface PowerSelectionFilter extends BiPredicate<ExperimentRunData.BasicRunData, ExperimentRunData.BasicRunData> {}
 
-    public void doExperiment(ImGuiWrapper a_imgui) {
-        Vec2 size = new Vec2(a_imgui.imgui().getContentRegionAvailWidth(), a_imgui.getTextLineHeightWithSpacing() * 2 + a_imgui.imgui().getContentRegionAvailWidth() / 3);
+    interface DataListener {
+        void onNewData(ExperimentRunData.BasicRunData a_rd, int a_color);
+    }
 
-        final String [] powerSelections = {"None", "System", "Metric"};
+    public void doExperiment(ImGuiWrapper a_imgui, DataListener a_newDataListener) {
+        if (a_imgui.imgui().collapsingHeader("Experiment Parameters##" + m_id, 0)) {
+            //Vec2 size = new Vec2(a_imgui.imgui().getContentRegionAvailWidth(), a_imgui.getTextLineHeightWithSpacing() * 2 + a_imgui.imgui().getContentRegionAvailWidth() / 3);
 
-        final PowerSelectionFilter[] powerSelectionFilters = new PowerSelectionFilter[]{
-                (target, source) -> false,
-                (target, source) -> target.m_system.getName().equals(source.m_system.getName()),
-                (target, source) -> target.m_metric.getName().equals(source.m_metric.getName())
-        };
+            final String[] powerSelections = {"None", "System", "Metric"};
 
-        a_imgui.imgui().beginChild(m_id, size, true, 0);
+            final PowerSelectionFilter[] powerSelectionFilters = new PowerSelectionFilter[]{
+                    (target, source) -> false,
+                    (target, source) -> target.m_system.getName().equals(source.m_system.getName()),
+                    (target, source) -> target.m_metric.getName().equals(source.m_metric.getName())
+            };
 
-        {
-            String [] experiments = {"Naive Bayes Mapping", "HuGMe"};
-            int [] exIx = {m_experimentIx};
-            if (a_imgui.imgui().combo("Experiment Type" + "##" + m_id, exIx, Arrays.asList(experiments), 2)) {
-                m_experimentIx = exIx[0];
-            }
-        }
+            //a_imgui.imgui().beginChild(m_id, size, true, 0);
 
-        if (m_experimentIx == g_nbmapper_ex) {
-
-            m_doStemming = doRandomBoolVariable(a_imgui, "Use Stemming", m_doStemming);
-            m_doWordCount = doRandomBoolVariable(a_imgui, "Use Word Counts", m_doWordCount);
-            m_threshold = doRandomDoubleVariable(a_imgui, "Threshold", m_threshold);
-        } else if (m_experimentIx == g_hugmemapper_ex) {
-            m_omega = doRandomDoubleVariable(a_imgui, "Omega Threshold", m_omega);
-            m_phi = doRandomDoubleVariable(a_imgui, "Phi", m_phi);
-        }
-
-        a_imgui.imgui().separator();
-        {
-                /*int [] currentSystem = {m_selectedSystem.getCurrentSystemIx()};
-                if (a_imgui.imgui().combo("System##" + m_id, currentSystem, m_selectedSystem.getSystemNames(), m_selectedSystem.getSystemCount())) {
-                    m_selectedSystem.setCurrentSystem(currentSystem[0]);
-                }*/
-            for (SystemNameFile snf : m_selectedSystem.getSystems()) {
-                boolean isSelected[] = {m_selectedSystem.isSelected(snf)};
-                if (a_imgui.imgui().checkbox(snf.m_name + "##" + m_id, isSelected)) {
-                    m_selectedSystem.toogleSelection(snf);
+            {
+                String[] experiments = {"Naive Bayes Mapping", "HuGMe"};
+                int[] exIx = {m_experimentIx};
+                if (a_imgui.imgui().combo("Experiment Type" + "##" + m_id, exIx, Arrays.asList(experiments), 2)) {
+                    m_experimentIx = exIx[0];
                 }
-                if (!m_selectedSystem.isLastSystem(snf)) {
-                    a_imgui.imgui().sameLine(0, 10);
-                }
-
             }
-        }
-        m_initialSetSize = doRandomDoubleVariable(a_imgui, "Initial Set Size", m_initialSetSize);
 
-        if (a_imgui.imgui().collapsingHeader("Metrics##" + m_id, 0)){
+            if (m_experimentIx == g_nbmapper_ex) {
 
-            int count = 0;
-            for (MetricPair m : m_selectedMetrics.getMetricPairs()) {
+                m_doStemming = doRandomBoolVariable(a_imgui, "Use Stemming", m_doStemming);
+                m_doWordCount = doRandomBoolVariable(a_imgui, "Use Word Counts", m_doWordCount);
+                m_threshold = doRandomDoubleVariable(a_imgui, "Threshold", m_threshold);
+            } else if (m_experimentIx == g_hugmemapper_ex) {
+                m_omega = doRandomDoubleVariable(a_imgui, "Omega Threshold", m_omega);
+                m_phi = doRandomDoubleVariable(a_imgui, "Phi", m_phi);
+            }
 
-                if (m.m_relMetric != null) {
-                    boolean[] isSelected = {m_selectedMetrics.isSelected(m.m_relMetric)};
-                    if (a_imgui.imgui().checkbox("##" + m.getName() + m_id, isSelected)) {
-                        m_selectedMetrics.toogle(m.m_relMetric);
+            a_imgui.imgui().separator();
+            {
+                    /*int [] currentSystem = {m_selectedSystem.getCurrentSystemIx()};
+                    if (a_imgui.imgui().combo("System##" + m_id, currentSystem, m_selectedSystem.getSystemNames(), m_selectedSystem.getSystemCount())) {
+                        m_selectedSystem.setCurrentSystem(currentSystem[0]);
+                    }*/
+                for (SystemNameFile snf : m_selectedSystem.getSystems()) {
+                    boolean isSelected[] = {m_selectedSystem.isSelected(snf)};
+                    if (a_imgui.imgui().checkbox(snf.m_name + "##" + m_id, isSelected)) {
+                        m_selectedSystem.toogleSelection(snf);
+                    }
+                    if (!m_selectedSystem.isLastSystem(snf)) {
+                        a_imgui.imgui().sameLine(0, 10);
+                    }
+
+                }
+            }
+            m_initialSetSize = doRandomDoubleVariable(a_imgui, "Initial Set Size", m_initialSetSize);
+
+            if (a_imgui.imgui().collapsingHeader("Metrics##" + m_id, 0)) {
+
+                int count = 0;
+                for (MetricPair m : m_selectedMetrics.getMetricPairs()) {
+
+                    if (m.m_relMetric != null) {
+                        boolean[] isSelected = {m_selectedMetrics.isSelected(m.m_relMetric)};
+                        if (a_imgui.imgui().checkbox("##" + m.getName() + m_id, isSelected)) {
+                            m_selectedMetrics.toogle(m.m_relMetric);
+                        }
+                        if (a_imgui.imgui().isItemHovered(0) && a_imgui.beginTooltip()) {
+                            a_imgui.text("Relative Linecount");
+                            a_imgui.endTooltip();
+                        }
+                        // for some reason the first column gets a wierd offset
+                        a_imgui.imgui().sameLine((count % 4) * 250 + 25, (count % 4) == 0 ? 7 : 0);
+                    }
+
+                    boolean[] isSelected = {m_selectedMetrics.isSelected(m.m_absMetric)};
+                    if (a_imgui.imgui().checkbox(m.getName() + "##" + m_id, isSelected)) {
+                        m_selectedMetrics.toogle(m.m_absMetric);
                     }
                     if (a_imgui.imgui().isItemHovered(0) && a_imgui.beginTooltip()) {
-                        a_imgui.text("Relative Linecount");
+                        a_imgui.text("Absolute");
                         a_imgui.endTooltip();
                     }
-                    // for some reason the first column gets a wierd offset
-                    a_imgui.imgui().sameLine((count % 4) * 250 + 25, (count % 4) == 0 ? 7 : 0);
-                }
-
-                boolean[] isSelected = {m_selectedMetrics.isSelected(m.m_absMetric)};
-                if (a_imgui.imgui().checkbox(m.getName() + "##"+m_id, isSelected)) {
-                    m_selectedMetrics.toogle(m.m_absMetric);
-                }
-                if (a_imgui.imgui().isItemHovered(0) && a_imgui.beginTooltip()) {
-                    a_imgui.text("Absolute");
-                    a_imgui.endTooltip();
-                }
-                count++;
-                if (count % 4 != 0) {
-                    a_imgui.imgui().sameLine((count % 4) * 250, 0);
-                }
-
-            }
-            if (count % 4 != 0) {
-                a_imgui.imgui().newLine();
-            }
-            a_imgui.imgui().separator();
-        }
-
-
-        {
-            boolean [] manualMappnig = {m_useManualmapping};
-            if (a_imgui.imgui().checkbox("Use Manual Mapping##" + m_id, manualMappnig)) {
-                m_useManualmapping = manualMappnig[0];
-            }
-        }
-
-
-        a_imgui.imgui().colorEdit3("Plot Color##" + m_id, m_currentColor, 0);
-
-        m_saveFile = a_imgui.inputTextSingleLine("##SaveEperimentAs" + m_id, m_experimentSaveFile);
-        a_imgui.imgui().sameLine(0);
-        if (a_imgui.button("Save Experiment", 0)) {
-            ExperimentXMLPersistence exmlp = new ExperimentXMLPersistence();
-            ArrayList<ExperimentRunner> experiments = new ArrayList<>();
-
-            try {
-                experiments.add(createExperiment());
-                exmlp.saveExperiments(experiments, m_experimentSaveFile);
-            } catch (Exception e) {
-                System.out.println(e);
-                e.printStackTrace();
-            }
-        }
-        a_imgui.imgui().sameLine(0);
-        if (a_imgui.button("Load Experiment", 0)) {
-            ExperimentXMLPersistence exmlp = new ExperimentXMLPersistence();
-            try {
-                ArrayList<ExperimentRunner> experiments = exmlp.loadExperiments(m_experimentSaveFile);
-                if (experiments.size() != 0) {
-                    ExperimentRunner exr = experiments.get(0);
-
-                    setExperiment(exr);
-                }
-            } catch (Exception e) {
-                System.out.println(e);
-                e.printStackTrace();
-            }
-        }
-
-
-
-        if (m_experiment == null || m_experiment.getState() == ExperimentRunner.State.Idle) {
-
-
-            if (a_imgui.button("Run Experiment", 0)) {
-                try {
-                    if (m_experiment != null) {
-                        m_experiment.stop();
-
-                        //halt();
+                    count++;
+                    if (count % 4 != 0) {
+                        a_imgui.imgui().sameLine((count % 4) * 250, 0);
                     }
 
-                    m_experiment = createExperiment();
-
-                    m_experiment.setRunListener(new ExperimentRunner.RunListener() {
-                        public ExperimentRunData.BasicRunData OnRunInit(ExperimentRunData.BasicRunData a_rd, CGraph a_g, ArchDef a_arch) {
-
-                            return a_rd;
-                        }
-
-                        public void OnRunCompleted(ExperimentRunData.BasicRunData a_rd, CGraph a_g, ArchDef a_arch) {
-
-                            m_performanceVsInitialMapped.addData(a_rd.m_initialClusteringPercent, a_rd.calcAutoPerformance(), m_experimentData.size(), a_imgui.toColor(m_currentColor));
-                            m_precisionVsInitialMapped.addData(a_rd.m_initialClusteringPercent, a_rd.calcAutoPrecision(), m_experimentData.size(), a_imgui.toColor(m_currentColor));
-                            m_recallVsInitialMapped.addData(a_rd.m_initialClusteringPercent, a_rd.calcAutoRecall(), m_experimentData.size(), a_imgui.toColor(m_currentColor));
-
-                            if (m_avgCount == 0) {
-                                m_avgCount = 1;
-                                m_avgPerformance = a_rd.calcAutoPerformance();
-                            } else {
-                                m_avgPerformance = m_avgPerformance * (m_avgCount / (double) (m_avgCount + 1)) + a_rd.calcAutoPerformance() / (double) (m_avgCount + 1);
-                                m_avgCount++;
-                            }
-                            m_experimentData.add(a_rd);
-                        }
-                    });
+                }
+                if (count % 4 != 0) {
+                    a_imgui.imgui().newLine();
+                }
+                a_imgui.imgui().separator();
+            }
 
 
-
-                    Thread t = new Thread(this);
-                    t.start();
-
-                } catch (IOException e) {
-                    System.out.println(e);
-                    System.out.println(e.getStackTrace());
+            {
+                boolean[] manualMappnig = {m_useManualmapping};
+                if (a_imgui.imgui().checkbox("Use Manual Mapping##" + m_id, manualMappnig)) {
+                    m_useManualmapping = manualMappnig[0];
                 }
             }
-            if (m_performanceVsInitialMapped.dataCount() > 0 ) {
-                a_imgui.imgui().sameLine(0);
-                if (a_imgui.button("Clear Data", 0)) {
-                    m_performanceVsInitialMapped.clearData();
-                    m_precisionVsInitialMapped.clearData();
-                    m_recallVsInitialMapped.clearData();
-                    m_selectedDataPoints.clear();
-                }
-                m_saveFile = a_imgui.inputTextSingleLine("##SaveAs"+m_id, m_saveFile);
-                a_imgui.imgui().sameLine(0);
-                if (a_imgui.button("Save Data", 0)) {
-                    Path filePath = Paths.get(m_saveFile);
-                    RundDataCSVFileSaver saver = new RundDataCSVFileSaver();
+
+
+            a_imgui.imgui().colorEdit3("Plot Color##" + m_id, m_currentColor, 0);
+
+
+            if (m_experiment == null || m_experiment.getState() == ExperimentRunner.State.Idle) {
+
+
+                if (a_imgui.button("Run Experiment", 0)) {
                     try {
-                        if (!Files.exists(filePath)) {
-                            Files.createFile(filePath);
-                            try {
-                                saver.writeHeader(filePath);
-                            } catch (IOException e) {
-                                System.out.println("Could not write to file");
-                            }
+                        if (m_experiment != null) {
+                            m_experiment.stop();
+
+                            //halt();
                         }
 
-                        try {
-                            saver.writeData(filePath, m_experimentData);
-                        } catch (IOException e) {
-                            System.out.println("Could not write to file");
-                        }
+                        m_experiment = createExperiment();
+
+                        m_experiment.setRunListener(new ExperimentRunner.RunListener() {
+                            public ExperimentRunData.BasicRunData OnRunInit(ExperimentRunData.BasicRunData a_rd, CGraph a_g, ArchDef a_arch) {
+
+                                return a_rd;
+                            }
+
+                            public void OnRunCompleted(ExperimentRunData.BasicRunData a_rd, CGraph a_g, ArchDef a_arch) {
+
+                                a_newDataListener.onNewData(a_rd, a_imgui.toColor(m_currentColor));
+
+                                if (m_avgCount == 0) {
+                                    m_avgCount = 1;
+                                    m_avgPerformance = a_rd.calcAutoPerformance();
+                                } else {
+                                    m_avgPerformance = m_avgPerformance * (m_avgCount / (double) (m_avgCount + 1)) + a_rd.calcAutoPerformance() / (double) (m_avgCount + 1);
+                                    m_avgCount++;
+                                }
+
+                            }
+                        });
+
+
+                        Thread t = new Thread(this);
+                        t.start();
 
                     } catch (IOException e) {
-                        System.out.println("Could not create file");
+                        System.out.println(e);
+                        System.out.println(e.getStackTrace());
                     }
                 }
-            }
-        } else {
-            if (a_imgui.button("Stop Experiment", 0)) {
-                m_avgPerformance = 0;
-                m_avgCount = 0;
-                m_experiment.stop();
-                halt();
-            }
-        }
 
-        if (m_experimentData.size() > 0) {
-            int [] selectedItem = {m_powerSelection};
-            if (a_imgui.imgui().combo("Power Selection##" + m_id, selectedItem, Arrays.asList(powerSelections), powerSelections.length)) {
-                m_powerSelection = selectedItem[0];
-            }
-        }
-
-
-
-        a_imgui.text(String.format("Average Performance: %.2f", getAvgPerformance() * 100));
-
-        ArrayList<ScatterPlot.Data> selectedData = new ArrayList<>();
-        a_imgui.imgui().beginColumns("plots", 3, 0);
-        a_imgui.text("Auto Performance vs Initial Set Size");
-        m_performanceVsInitialMapped.doPlot(a_imgui, selectedData);
-
-        a_imgui.imgui().nextColumn();
-        a_imgui.text("Auto Precision vs Initial Set Size");
-        m_precisionVsInitialMapped.doPlot(a_imgui, selectedData);
-
-        a_imgui.imgui().nextColumn();
-        a_imgui.text("Auto Recall vs Initial Set Size");
-        m_recallVsInitialMapped.doPlot(a_imgui, selectedData);
-        a_imgui.imgui().endColumns();
-
-        final int blue = a_imgui.toColor(new Vec4(0.25, 0.25, 1, 0.75));
-
-        boolean mouseClicked = a_imgui.isMouseClicked(0, false);
-        //boolean mouseClicked = true;
-
-        for (ExperimentRunData.BasicRunData exd : m_selectedDataPoints) {
-
-            Vec2 screenPos = new Vec2(exd.m_initialClusteringPercent, exd.calcAutoPerformance());
-            m_performanceVsInitialMapped.toScreenPos(screenPos, screenPos);
-            a_imgui.addCircleFilled(screenPos, 4, blue, 6);
-
-            screenPos = new Vec2(exd.m_initialClusteringPercent, exd.calcAutoPrecision());
-            m_precisionVsInitialMapped.toScreenPos(screenPos, screenPos);
-            a_imgui.addCircleFilled(screenPos, 4, blue, 6);
-
-            screenPos = new Vec2(exd.m_initialClusteringPercent, exd.calcAutoRecall());
-            m_recallVsInitialMapped.toScreenPos(screenPos, screenPos);
-            a_imgui.addCircleFilled(screenPos, 4, blue, 6);
-        }
-
-        if(mouseClicked && selectedData.size() > 0 && m_selectedDataPoints.size() > 0) {
-            mouseClicked = false;
-            m_selectedDataPoints.clear();
-        }
-
-
-        for (ScatterPlot.Data pd : selectedData) {
-            ExperimentRunData.BasicRunData exd = m_experimentData.get(pd.m_id);
-
-            if (a_imgui.beginTooltip()) {
-                a_imgui.text("System:\t" + exd.m_system.getName());
-                a_imgui.text("Metric:\t" + exd.m_metric.getName());
-                a_imgui.text("Size:\t" + exd.m_totalMapped);
-                a_imgui.text("Initial:\t" + exd.getInitialClusteringNodeCount());
-                a_imgui.text("A. Clustered:\t" + exd.getAutoClusteredNodeCount());
-                a_imgui.text("A. Failed:\t\t" + exd.m_totalAutoWrong);
-                a_imgui.text("M. Clustered:\t" + exd.m_totalManuallyClustered);
-                a_imgui.text("M. Failed:\t\t" + exd.m_totalFailedClusterings);
-                a_imgui.endTooltip();
-            }
-
-
-
-
-
-            if (mouseClicked) {
-                // good luck with this one :D
-                m_experimentData.stream().filter((d -> powerSelectionFilters[m_powerSelection].test(d, exd) && !m_selectedDataPoints.contains(d))).forEach(d->m_selectedDataPoints.add(d));
-            }
-
-            if (beginPopupContextItem(a_imgui, "SomePopupID", 1)) {
-                m_popupMenuData = exd;
-                doPopupMenu(a_imgui, m_popupMenuData);
-                a_imgui.endPopup();
             } else {
-                m_popupMenuData = null;
+                if (a_imgui.button("Stop Experiment", 0)) {
+                    m_avgPerformance = 0;
+                    m_avgCount = 0;
+                    m_experiment.stop();
+                    halt();
+                }
             }
 
-
-            Vec2 screenPos = new Vec2(pd.m_point.getX(), exd.calcAutoPerformance());
-            m_performanceVsInitialMapped.toScreenPos(screenPos, screenPos);
-            a_imgui.addCircleFilled(screenPos, 4, blue, 6);
-
-            screenPos = new Vec2(pd.m_point.getX(), exd.calcAutoPrecision());
-            m_precisionVsInitialMapped.toScreenPos(screenPos, screenPos);
-            a_imgui.addCircleFilled(screenPos, 4, blue, 6);
-
-            screenPos = new Vec2(pd.m_point.getX(), exd.calcAutoRecall());
-            m_recallVsInitialMapped.toScreenPos(screenPos, screenPos);
-            a_imgui.addCircleFilled(screenPos, 4, blue, 6);
-        }
-
-        if (selectedData.size() == 0 && m_popupMenuData != null) {
-            if (beginPopupContextItem(a_imgui, "SomePopupID", 1)) {
-                m_popupMenuData = m_popupMenuData;
-                doPopupMenu(a_imgui, m_popupMenuData);
-                a_imgui.endPopup();
-            } else {
-                m_popupMenuData = null;
-            }
-        }
-
-            /*for (ExperimentRunData.BasicRunData exd : m_selectedDataPoints) {
-                a_imgui.text(exd.m_system.getName());
-            }*/
-
-            /*if (beginPopupContextItem(a_imgui,"test_popup", 1)) {
-                a_imgui.menuItem("test_item", "", false, true);
-                a_imgui.endPopup();
+            /*
+            if (m_experimentData.size() > 0) {
+                int [] selectedItem = {m_powerSelection};
+                if (a_imgui.imgui().combo("Power Selection##" + m_id, selectedItem, Arrays.asList(powerSelections), powerSelections.length)) {
+                    m_powerSelection = selectedItem[0];
+                }
             }*/
 
 
-        a_imgui.imgui().endChild();
+            a_imgui.text(String.format("Average Performance: %.2f", getAvgPerformance() * 100));
 
-        for (ExperimentView.MappingViewWrapper mv : m_mappingViews) {
-            mv.doView(a_imgui);
+
+
+                /*for (ExperimentRunData.BasicRunData exd : m_selectedDataPoints) {
+                    a_imgui.text(exd.m_system.getName());
+                }*/
+
+                /*if (beginPopupContextItem(a_imgui,"test_popup", 1)) {
+                    a_imgui.menuItem("test_item", "", false, true);
+                    a_imgui.endPopup();
+                }*/
+
+
+            //a_imgui.imgui().endChild();
+            a_imgui.imgui().separator();
+            a_imgui.imgui().separator();
         }
     }
 
@@ -685,7 +462,7 @@ class ExperimentViewThread extends Thread {
         }
     }
 
-    private ExperimentRunner createExperiment() throws IOException {
+    ExperimentRunner createExperiment() throws IOException {
         ExperimentRunner ret = null;
         ArrayList<se.lnu.siq.s4rdm3x.experiments.system.System> systems = new ArrayList<>();
         for (SystemNameFile snf : m_selectedSystem.getSelectedSystems()) {
