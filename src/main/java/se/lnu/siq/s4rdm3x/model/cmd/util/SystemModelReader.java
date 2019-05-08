@@ -3,7 +3,7 @@ package se.lnu.siq.s4rdm3x.model.cmd.util;
 import java.io.*;
 import java.util.ArrayList;
 
-public class SystemModelReader {
+public class    SystemModelReader {
     public static class Module {
         public String m_name;
     }

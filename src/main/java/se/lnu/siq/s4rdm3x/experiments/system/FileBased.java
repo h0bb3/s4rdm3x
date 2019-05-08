@@ -20,6 +20,11 @@ public class FileBased extends System {
         return m_file;
     }
 
+    public FileBased(SystemModelReader a_smr) {
+        m_file = "";
+        m_smr = a_smr;
+    }
+
     public FileBased(String a_file) throws IOException {
         m_file = a_file;
         m_smr = new SystemModelReader();
@@ -51,7 +56,12 @@ public class FileBased extends System {
         String [] roots = new String[m_smr.m_roots.size()];
         m_smr.m_roots.toArray(roots);
         for (String jar : m_smr.m_jars) {
-            Path p = Paths.get(Paths.get(m_file).getParent().toString(), jar);
+            Path p;
+            if (m_file.length() > 0) {
+                p = Paths.get(Paths.get(m_file).getParent().toString(), jar);
+            } else {
+                p = Paths.get(jar);
+            }
             LoadJar c = new LoadJar(p.toString(), roots);
             try {
                 c.run(a_g);
