@@ -40,6 +40,7 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
     public ArrayList<ExperimentView.MappingViewWrapper> m_mappingViews = new ArrayList<>();
 
     public ArrayList<ExperimentRunData.BasicRunData> m_experimentData = new ArrayList<>();  // this one is accessed by threads so take care...
+    private boolean[] m_showPlots = {true};
 
     public void doView(ImGui a_imgui, ArchDef a_arch, CGraph a_g, HNode.VisualsManager a_nvm) {
 
@@ -50,22 +51,25 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
         }
 
 
-        doPlots(iw);
+        doSaveButtons(iw);
+
+        a_imgui.checkbox("Show Experiment Plots", m_showPlots);
+        if (m_showPlots[0]) {
+            if (a_imgui.begin("Experiment Plots", m_showPlots, 0)) {
+
+                doPlots(iw);
+
+                a_imgui.end();
+            }
+        }
+
 
         for (ExperimentViewThread experiment :  m_experiments) {
             experiment.doExperiment(iw, this);
         }
     }
 
-    public synchronized void onNewData(ExperimentRunData.BasicRunData a_rd, int a_color) {
-        m_performanceVsInitialMapped.addData(a_rd.m_initialClusteringPercent, a_rd.calcAutoPerformance(), m_experimentData.size(), a_color);
-        m_precisionVsInitialMapped.addData(a_rd.m_initialClusteringPercent, a_rd.calcAutoPrecision(), m_experimentData.size(), a_color);
-        m_recallVsInitialMapped.addData(a_rd.m_initialClusteringPercent, a_rd.calcAutoRecall(), m_experimentData.size(), a_color);
-
-        m_experimentData.add(a_rd);
-    }
-
-    private void doPlots(ImGuiWrapper a_imgui) {
+    private void doSaveButtons(ImGuiWrapper a_imgui) {
         m_experimentSaveFile = a_imgui.inputTextSingleLine("##SaveEperimentsAs", m_experimentSaveFile);
         a_imgui.imgui().sameLine(0);
         if (a_imgui.button("Save Experiments", 0)) {
@@ -100,13 +104,6 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
         }
 
         if (m_performanceVsInitialMapped.dataCount() > 0 ) {
-            a_imgui.imgui().sameLine(0);
-            if (a_imgui.button("Clear Data", 0)) {
-                m_performanceVsInitialMapped.clearData();
-                m_precisionVsInitialMapped.clearData();
-                m_recallVsInitialMapped.clearData();
-                m_selectedDataPoints.clear();
-            }
             m_saveFile = a_imgui.inputTextSingleLine("##SaveAsExperimentDataAs", m_saveFile);
             a_imgui.imgui().sameLine(0);
             if (a_imgui.button("Save Data", 0)) {
@@ -132,9 +129,25 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
                     System.out.println("Could not create file");
                 }
             }
-
+            a_imgui.imgui().sameLine(0);
+            if (a_imgui.button("Clear Data", 0)) {
+                m_performanceVsInitialMapped.clearData();
+                m_precisionVsInitialMapped.clearData();
+                m_recallVsInitialMapped.clearData();
+                m_selectedDataPoints.clear();
+            }
         }
+    }
 
+    public synchronized void onNewData(ExperimentRunData.BasicRunData a_rd, int a_color) {
+        m_performanceVsInitialMapped.addData(a_rd.m_initialClusteringPercent, a_rd.calcAutoPerformance(), m_experimentData.size(), a_color);
+        m_precisionVsInitialMapped.addData(a_rd.m_initialClusteringPercent, a_rd.calcAutoPrecision(), m_experimentData.size(), a_color);
+        m_recallVsInitialMapped.addData(a_rd.m_initialClusteringPercent, a_rd.calcAutoRecall(), m_experimentData.size(), a_color);
+
+        m_experimentData.add(a_rd);
+    }
+
+    private void doPlots(ImGuiWrapper a_imgui) {
 
 
         ArrayList<ScatterPlot.Data> selectedData = new ArrayList<>();
