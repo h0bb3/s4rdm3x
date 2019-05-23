@@ -166,7 +166,7 @@ public class Main {
             // start the experiments
             for (ExperimentRunner exr : expRunners) {
                 Exp e = new Exp();
-                String dir = outDir + File.separator + exCount;
+                String dir = outDir + File.separator + exr.getName() + "_" + exCount;
                 int initialRows = getInitialRows(dir);
                 e.m_threads = run(exr, threadCount, dir, saveMappings);
                 e.m_runner = exr;

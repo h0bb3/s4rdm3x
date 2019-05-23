@@ -14,6 +14,7 @@ import weka.classifiers.trees.RandomTree;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instances;
+import weka.core.stemmers.SnowballStemmer;
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.StringToWordVector;
 
@@ -33,6 +34,8 @@ public class NBMapper extends MapperBase {
     public void doWordCount(boolean a_doWordCount) {
         ((StringToWordVector)m_filter).setOutputWordCounts(a_doWordCount);
     }
+
+
 
     public static class Classifier extends weka.classifiers.bayes.NaiveBayesMultinomial {
 
@@ -131,7 +134,19 @@ public class NBMapper extends MapperBase {
         ArrayList<CNode> initiallyMapped = getInitiallyMappedNodes(a_g);
         m_clusteredElements.clear();
 
-        weka.core.Instances trainingData = getTrainingData(initiallyMapped, m_arch, getFilter());
+        weka.core.stemmers.Stemmer stemmer = null;
+        if (m_doStemm) {
+            stemmer = new weka.core.stemmers.SnowballStemmer();
+            do {
+                try {
+                    Thread.sleep(100);
+                } catch (Exception e) {
+
+                }
+            } while (!((SnowballStemmer) stemmer).stemmerTipText().contains("english"));  // when using multiple threads this is apparently needed...
+        }
+
+        weka.core.Instances trainingData = getTrainingData(initiallyMapped, m_arch, getFilter(), stemmer);
         //weka.core.Instances predictionData = getPredictionData(a_g);
 
         m_consideredNodes = orphans.size();
@@ -141,6 +156,8 @@ public class NBMapper extends MapperBase {
         Classifier nbClassifier = new Classifier(); // avg 23% wrong
         //Classifier nbClassifier = new RandomForest(); // avg 25% wrong
         //Classifier nbClassifier = new RandomTree(); // avg 43% wrong
+
+
 
         try {
             nbClassifier.buildClassifier(trainingData);
@@ -161,7 +178,7 @@ public class NBMapper extends MapperBase {
 
                 for (int i = 0; i < m_arch.getComponentCount(); i++) {
 //                    double index = nbClassifier.classifyInstance(data.instance(i));
-                    Instances data = getPredictionDataForNode(orphanNode, initiallyMapped, m_arch.getComponentNames(), m_arch.getComponent(i), getFilter());
+                    Instances data = getPredictionDataForNode(orphanNode, initiallyMapped, m_arch.getComponentNames(), m_arch.getComponent(i), getFilter(), stemmer);
                     double [] distribution = nbClassifier.distributionForInstance(data.instance(0));
                     /*System.out.print("[");
                     for (int dIx = 0; dIx < distribution.length; dIx++) {
@@ -207,7 +224,7 @@ public class NBMapper extends MapperBase {
         }
     }
 
-    private Instances getPredictionDataForNode(CNode a_node, Iterable<CNode> a_mappedNodes, String[] a_componentNames, ArchDef.Component a_component, Filter a_filter) {
+    private Instances getPredictionDataForNode(CNode a_node, Iterable<CNode> a_mappedNodes, String[] a_componentNames, ArchDef.Component a_component, Filter a_filter, weka.core.stemmers.Stemmer a_stemmer) {
         ArrayList<Attribute> attributes = new ArrayList<>();
 
         // first we have the architectural components
@@ -221,11 +238,11 @@ public class NBMapper extends MapperBase {
 
         for (dmClass c : a_node.getClasses()) {
             for (String t : c.getTexts()) {
-                nodeText += deCamelCase(t, 3, m_doStemm) + " ";
+                nodeText += deCamelCase(t, 3, a_stemmer) + " ";
             }
         }
 
-        nodeText += deCamelCase(a_node.getLogicName().replace(".", " "), 3, m_doStemm);
+        nodeText += deCamelCase(a_node.getLogicName().replace(".", " "), 3, a_stemmer);
 
         //for (int i = 0; i < a_arch.getComponentCount(); i++) {
             double[] values = new double[data.numAttributes()];
@@ -256,15 +273,7 @@ public class NBMapper extends MapperBase {
         }
     }
 
-    public String deCamelCase(String a_string, int a_minLength, boolean a_doStemm) {
-
-        weka.core.stemmers.Stemmer stemmer = null;
-
-        if (a_doStemm) {
-            //stemmer = new weka.core.stemmers.LovinsStemmer();
-            stemmer = new weka.core.stemmers.SnowballStemmer();
-        }
-
+    public String deCamelCase(String a_string, int a_minLength, weka.core.stemmers.Stemmer a_stemmer) {
         String ret = "";
         for (int i = 0; i < 10; i++) {
             a_string = a_string.replace("" + i, " ");
@@ -276,8 +285,8 @@ public class NBMapper extends MapperBase {
             for (String w : p.split("(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])")) {
                 w = w.toLowerCase();
                 if (w.length() >= a_minLength && !w.contains("$")) {
-                    if (stemmer != null) {
-                        w = stemmer.stem(w);
+                    if (a_stemmer != null ) {
+                        w = a_stemmer.stem(w);
                     }
 
                     if (w.equals("tmp")) {
@@ -339,7 +348,7 @@ public class NBMapper extends MapperBase {
         return getDependencyStringFromNode(a_from, a_from.getMapping(), a_tos);
     }
 
-    public Instances getTrainingData(Iterable<CNode>a_nodes, ArchDef a_arch, Filter a_filter) {
+    public Instances getTrainingData(Iterable<CNode>a_nodes, ArchDef a_arch, Filter a_filter, weka.core.stemmers.Stemmer a_stemmer) {
         ArrayList<Attribute> attributes = new ArrayList<>();
 
         // first we have the architectural components
@@ -355,7 +364,7 @@ public class NBMapper extends MapperBase {
             for (ArchDef.Component from : a_arch.getComponents()) {
                 double[] values = new double[data.numAttributes()];
                 values[0] = components.indexOf(from.getName());
-                String relations = deCamelCase(from.getName(), 3, m_doStemm);
+                String relations = deCamelCase(from.getName(), 3, a_stemmer);
                 for (ArchDef.Component to : a_arch.getComponents()) {
                     if (from == to || from.allowedDependency(to)) {
 
@@ -382,10 +391,10 @@ public class NBMapper extends MapperBase {
 
             for (dmClass c : n.getClasses()) {
                 for (String t : c.getTexts()) {
-                    relations += deCamelCase(t, 3, m_doStemm) + " ";
+                    relations += deCamelCase(t, 3, a_stemmer) + " ";
                 }
             }
-            relations += " " + deCamelCase(n.getLogicName().replace(".", " "), 3, m_doStemm);
+            relations += " " + deCamelCase(n.getLogicName().replace(".", " "), 3, a_stemmer);
 
             values[1] = data.attribute(1).addStringValue(relations);
             data.add(new DenseInstance(1.0, values));

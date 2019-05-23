@@ -20,6 +20,9 @@ import se.lnu.siq.s4rdm3x.model.cmd.mapper.MapNode;
 import uno.glfw.GlfwWindow;
 import uno.glfw.windowHint;
 
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
@@ -110,7 +113,7 @@ public class RectsAndArrows {
         theArch.addComponent("bzip2");*/
 
 
-       /*
+
         try {
             FontConfig fc = new FontConfig();
             byte[] bytes;
@@ -123,13 +126,12 @@ public class RectsAndArrows {
                 chars[ix] = (char)bytes[ix];
             }
 
-            Font f = imgui.getIo().getFonts().addFontFromMemoryTTF(chars, 8, fc,new int[] {0x0020, 0x00FF} );
+            Font f = imgui.getIo().getFonts().addFontFromMemoryTTF(chars, 32, fc,new int[] {0x0020, 0x00FF} );
             imgui.setCurrentFont(f);
            // System.out.println("" + bytes[0]);
         } catch (Exception e) {
             System.out.println(e);
         }
-        */
 
        archviz.Command c = new archviz.Command(m_vizState);
        sch.addCommand(c);

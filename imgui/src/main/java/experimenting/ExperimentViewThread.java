@@ -19,12 +19,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.function.BiPredicate;
 
+import static imgui.ImguiKt.COL32;
+
 class ExperimentViewThread extends Thread {
     String m_id;
     ExperimentRunner m_experiment;
 
     private double m_avgPerformance = 0;
     private int m_avgCount = 0;
+
+    private String m_name = "";
 
     private Vec4 m_currentColor = new Vec4(0.75, 0.75, 0.75, 1);
 
@@ -45,12 +49,64 @@ class ExperimentViewThread extends Thread {
     ExperimentRunner.RandomDoubleVariable m_initialSetSize = new ExperimentRunner.RandomDoubleVariable(0.1, 0.1);
     SystemSelection m_selectedSystem = new SystemSelection();
     boolean m_useManualmapping = false;
-    private Vec4 m_workingColor;
-    private int m_powerSelection = 0;
 
     public ExperimentViewThread(int a_id, ExperimentRunner a_exr) {
         m_id = "ExThread_" + a_id;
         setExperiment(a_exr);
+    }
+
+
+
+    public void runExperiment(DataListener a_newDataListener) {
+        try {
+            if (m_experiment != null) {
+                m_experiment.stop();
+            }
+
+            m_experiment = createExperiment();
+
+            ExperimentViewThread source = this;
+
+            m_experiment.setRunListener(new ExperimentRunner.RunListener() {
+                public ExperimentRunData.BasicRunData OnRunInit(ExperimentRunData.BasicRunData a_rd, CGraph a_g, ArchDef a_arch) {
+
+                    return a_rd;
+                }
+
+                public void OnRunCompleted(ExperimentRunData.BasicRunData a_rd, CGraph a_g, ArchDef a_arch) {
+
+                    a_newDataListener.onNewData(a_rd, source);
+
+                    if (m_avgCount == 0) {
+                        m_avgCount = 1;
+                        m_avgPerformance = a_rd.calcAutoPerformance();
+                    } else {
+                        m_avgPerformance = m_avgPerformance * (m_avgCount / (double) (m_avgCount + 1)) + a_rd.calcAutoPerformance() / (double) (m_avgCount + 1);
+                        m_avgCount++;
+                    }
+
+                }
+            });
+
+
+            Thread t = new Thread(this);
+            t.start();
+
+        } catch (IOException e) {
+            System.out.println(e);
+            System.out.println(e.getStackTrace());
+        }
+    }
+
+    public void stopExperiment() {
+        if (m_experiment != null) {
+            m_experiment.stop();
+            m_experiment = null;
+        }
+    }
+
+    public Vec4 getColor() {
+        return m_currentColor;
     }
 
 
@@ -244,25 +300,23 @@ class ExperimentViewThread extends Thread {
         return a_var;
     }
 
-    interface PowerSelectionFilter extends BiPredicate<ExperimentRunData.BasicRunData, ExperimentRunData.BasicRunData> {}
+
 
     interface DataListener {
-        void onNewData(ExperimentRunData.BasicRunData a_rd, int a_color);
+        void onNewData(ExperimentRunData.BasicRunData a_rd, ExperimentViewThread a_source);
     }
 
     public void doExperiment(ImGuiWrapper a_imgui, DataListener a_newDataListener) {
-        if (a_imgui.imgui().collapsingHeader("Experiment Parameters##" + m_id, 0)) {
+        if (a_imgui.imgui().collapsingHeader("Experiment " + m_name + "###Header" + m_id, 0)) {
             //Vec2 size = new Vec2(a_imgui.imgui().getContentRegionAvailWidth(), a_imgui.getTextLineHeightWithSpacing() * 2 + a_imgui.imgui().getContentRegionAvailWidth() / 3);
 
-            final String[] powerSelections = {"None", "System", "Metric"};
+            m_name = a_imgui.inputTextSingleLine("Name###Name" + m_id, m_name);
 
-            final PowerSelectionFilter[] powerSelectionFilters = new PowerSelectionFilter[]{
-                    (target, source) -> false,
-                    (target, source) -> target.m_system.getName().equals(source.m_system.getName()),
-                    (target, source) -> target.m_metric.getName().equals(source.m_metric.getName())
-            };
+
 
             //a_imgui.imgui().beginChild(m_id, size, true, 0);
+
+
 
             {
                 String[] experiments = {"Naive Bayes Mapping", "HuGMe"};
@@ -271,6 +325,8 @@ class ExperimentViewThread extends Thread {
                     m_experimentIx = exIx[0];
                 }
             }
+
+
 
             if (m_experimentIx == g_nbmapper_ex) {
 
@@ -355,44 +411,7 @@ class ExperimentViewThread extends Thread {
 
 
                 if (a_imgui.button("Run Experiment", 0)) {
-                    try {
-                        if (m_experiment != null) {
-                            m_experiment.stop();
-
-                            //halt();
-                        }
-
-                        m_experiment = createExperiment();
-
-                        m_experiment.setRunListener(new ExperimentRunner.RunListener() {
-                            public ExperimentRunData.BasicRunData OnRunInit(ExperimentRunData.BasicRunData a_rd, CGraph a_g, ArchDef a_arch) {
-
-                                return a_rd;
-                            }
-
-                            public void OnRunCompleted(ExperimentRunData.BasicRunData a_rd, CGraph a_g, ArchDef a_arch) {
-
-                                a_newDataListener.onNewData(a_rd, a_imgui.toColor(m_currentColor));
-
-                                if (m_avgCount == 0) {
-                                    m_avgCount = 1;
-                                    m_avgPerformance = a_rd.calcAutoPerformance();
-                                } else {
-                                    m_avgPerformance = m_avgPerformance * (m_avgCount / (double) (m_avgCount + 1)) + a_rd.calcAutoPerformance() / (double) (m_avgCount + 1);
-                                    m_avgCount++;
-                                }
-
-                            }
-                        });
-
-
-                        Thread t = new Thread(this);
-                        t.start();
-
-                    } catch (IOException e) {
-                        System.out.println(e);
-                        System.out.println(e.getStackTrace());
-                    }
+                    runExperiment(a_newDataListener);
                 }
 
             } else {
@@ -404,13 +423,7 @@ class ExperimentViewThread extends Thread {
                 }
             }
 
-            /*
-            if (m_experimentData.size() > 0) {
-                int [] selectedItem = {m_powerSelection};
-                if (a_imgui.imgui().combo("Power Selection##" + m_id, selectedItem, Arrays.asList(powerSelections), powerSelections.length)) {
-                    m_powerSelection = selectedItem[0];
-                }
-            }*/
+
 
 
             a_imgui.text(String.format("Average Performance: %.2f", getAvgPerformance() * 100));
@@ -455,11 +468,15 @@ class ExperimentViewThread extends Thread {
             m_threshold = nbexr.getThreshold();
             m_doStemming = nbexr.getStemming();
             m_doWordCount = nbexr.getWordCount();
+            m_experimentIx = 0;
         } else if (a_exr instanceof HuGMeExperimentRunner) {
             HuGMeExperimentRunner hugme = (HuGMeExperimentRunner)a_exr;
             m_omega = hugme.getOmega();
             m_phi = hugme.getPhi();
+            m_experimentIx = 1;
         }
+
+        m_name = a_exr.getName();
     }
 
     ExperimentRunner createExperiment() throws IOException {
@@ -476,6 +493,8 @@ class ExperimentViewThread extends Thread {
         } else if (m_experimentIx == g_hugmemapper_ex) {
             ret = new HuGMeExperimentRunner(systems, m_selectedMetrics.getSelected(), m_useManualmapping, m_initialSetSize, m_omega, m_phi);
         }
+
+        ret.setName(m_name);
 
         return ret;
     }

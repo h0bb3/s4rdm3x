@@ -46,7 +46,7 @@ public class NBMapperView extends MapperBaseView {
 
         StringToWordVector filter = (StringToWordVector) mapper.getFilter();
         filter.setOutputWordCounts(m_doWordCount);
-        Instances td = mapper.getTrainingData(m_selectedMappedNodes, a_arch, filter);
+        Instances td = mapper.getTrainingData(m_selectedMappedNodes, a_arch, filter, m_doStemming ? new weka.core.stemmers.SnowballStemmer() : null);
         NBMapper.Classifier classifier = new NBMapper.Classifier();
         final boolean doAddRawArchitectureTrainingData = mapper.doAddRawArchitectureTrainingData();
 

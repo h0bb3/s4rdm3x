@@ -5,9 +5,7 @@ import glm_.vec4.Vec4;
 import imgui.*;
 import imgui.internal.Rect;
 import imgui.internal.Window;
-import org.w3c.dom.Text;
 
-import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Stack;
@@ -591,7 +589,21 @@ public class ImGuiWrapper {
         return false;
     }
 
-    public int toColor(Vec4 a_v) {
+    public static Vec4 fromColor(int a_color) {
+        Vec4 col = new Vec4();
+        final int R_SHIFT = 0;
+        final int G_SHIFT = 8;
+        final int B_SHIFT = 16;
+        final int A_SHIFT = 24;
+
+        col.setX((float)((a_color >> R_SHIFT) & 0xFF) / 255.0f);
+        col.setY((float)((a_color >> G_SHIFT) & 0xFF) / 255.0f);
+        col.setZ((float)((a_color >> B_SHIFT) & 0xFF) / 255.0f);
+        col.setW((float)((a_color >> A_SHIFT) & 0xFF) / 255.0f);
+
+        return col;
+    }
+    public static int toColor(Vec4 a_v) {
         return COL32((int)(a_v.getX() * 255), (int)(a_v.getY() * 255), (int)(a_v.getZ() * 255), (int)(a_v.getW() * 255));
     }
 

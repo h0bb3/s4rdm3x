@@ -107,7 +107,7 @@ public class HuGMeView extends MapperBaseView {
         a_imgui.imgui().nextColumn();
         a_imgui.text("Dependencies");
         a_imgui.imgui().nextColumn();
-        a_imgui.text("Mapped Nodes");
+        a_imgui.text("Orphan Nodes");
 
 
 
@@ -179,11 +179,13 @@ public class HuGMeView extends MapperBaseView {
 
     private void drawDependencies(ImGuiWrapper a_imgui, Iterable<RectTreeDrawer.LeafNodeDrawData> a_from, Iterable<RectTreeDrawer.LeafNodeDrawData> a_to, HNode.VisualsManager a_nvm, boolean a_useMappingColor) {
         final int white = a_imgui.toColor(new Vec4(1., 1., 1., 0.50));
+        int outlineColor = white;
 
         class SelectedPath {
             ArrayList<Vec2> m_upperPoints = null;
             ArrayList<Vec2> m_lowerPoints = null;
             int m_color = 0;
+            int m_outlineColor = 0;
         };
 
         ArrayList<SelectedPath> selectedPaths = new ArrayList<>();
@@ -228,11 +230,15 @@ public class HuGMeView extends MapperBaseView {
             Vec2 startOffset = new Vec2(75, 0);
 
             Vec4 color = null;
+            Vec4 outlineColorV4 = null;
 
             if (a_useMappingColor && a_nvm.hasBGColor(fromNode.getMapping())) {
                 color =  a_nvm.getBGColor(fromNode.getMapping());
+                outlineColorV4 = a_nvm.getTextColor(fromNode.getMapping());
             } else if (!a_useMappingColor) {
-                color = new Vec4(0.25, 0.25, 0.25, 1);
+                //color = new Vec4(0.25, 0.25, 0.25, 1);
+                color = a_imgui.imgui().getStyleColorVec4(Col.TitleBgActive);
+                outlineColorV4 = a_imgui.imgui().getStyleColorVec4(Col.Separator);
             }
 
 
@@ -243,11 +249,16 @@ public class HuGMeView extends MapperBaseView {
                 if (color == null) {
                     if (a_nvm.hasBGColor(toNode.getMapping())) {
                         color =  a_nvm.getBGColor(toNode.getMapping());
+                        outlineColorV4 = a_nvm.getTextColor(toNode.getMapping());
                     }
                 }
 
                 if (color != null) {
                     intColor = a_imgui.toColor(color);
+                }
+
+                if (outlineColorV4 != null) {
+                    outlineColor = a_imgui.toColor(outlineColorV4);
                 }
 
                 float heightEnd = toDD.getHeight();
@@ -285,6 +296,7 @@ public class HuGMeView extends MapperBaseView {
                     // paths should be drawn as selected
                     SelectedPath sp = new SelectedPath();
                     sp.m_color = intColor;
+                    sp.m_outlineColor = outlineColor;
                     sp.m_upperPoints = upper;
                     sp.m_lowerPoints = lower;
                     selectedPaths.add(sp);
@@ -303,9 +315,9 @@ public class HuGMeView extends MapperBaseView {
                     Vec2 mousePos = a_imgui.getMousePos();
                     if (a_imgui.isInside(curveBoundingRect, mousePos)) {
 
-                        a_imgui.beginTooltip();
+                        /*a_imgui.beginTooltip();
                         a_imgui.text("inside curve rect");
-                        a_imgui.endTooltip();
+                        a_imgui.endTooltip();*/
 
                         Rect quadRect = new Rect();
                         boolean isInsideQuad = false;
@@ -324,8 +336,8 @@ public class HuGMeView extends MapperBaseView {
                     addAllCurveQuadIndices(upper.size() - 1, dl, vtxOffset, null, null);
                 }
 
-                a_imgui.imgui().getWindowDrawList().addPolyline(upper, white, false, 1);
-                a_imgui.imgui().getWindowDrawList().addPolyline(lower, white, false, 1);
+                a_imgui.imgui().getWindowDrawList().addPolyline(upper, outlineColor, false, 1);
+                a_imgui.imgui().getWindowDrawList().addPolyline(lower, outlineColor, false, 1);
             }
         }
 
@@ -337,16 +349,16 @@ public class HuGMeView extends MapperBaseView {
             dl.primReserve((sp.m_upperPoints.size() - 1) * 6, sp.m_upperPoints.size() * 2);
             addCurveDrawVerts(sp.m_color, sp.m_upperPoints, sp.m_lowerPoints, dl, whitePixelUV);
             addAllCurveQuadIndices(sp.m_upperPoints.size() - 1, dl,  vtxOffset, null, null);
-            a_imgui.imgui().getWindowDrawList().addPolyline(sp.m_upperPoints, white, false, 1);
-            a_imgui.imgui().getWindowDrawList().addPolyline(sp.m_lowerPoints, white, false, 1);
+            a_imgui.imgui().getWindowDrawList().addPolyline(sp.m_upperPoints, sp.m_outlineColor, false, 1);
+            a_imgui.imgui().getWindowDrawList().addPolyline(sp.m_lowerPoints, sp.m_outlineColor, false, 1);
 
             // draw with overlay colors.
             vtxOffset = dl.get_vtxCurrentIdx();
             dl.primReserve((sp.m_upperPoints.size() - 1) * 6, sp.m_upperPoints.size() * 2);
             addCurveDrawVerts(white25, sp.m_upperPoints, sp.m_lowerPoints, dl, whitePixelUV);
             addAllCurveQuadIndices(sp.m_upperPoints.size() - 1, dl,  vtxOffset, null, null);
-            a_imgui.imgui().getWindowDrawList().addPolyline(sp.m_upperPoints, white, false, 1);
-            a_imgui.imgui().getWindowDrawList().addPolyline(sp.m_lowerPoints, white, false, 1);
+            a_imgui.imgui().getWindowDrawList().addPolyline(sp.m_upperPoints, sp.m_outlineColor, false, 1);
+            a_imgui.imgui().getWindowDrawList().addPolyline(sp.m_lowerPoints, sp.m_outlineColor, false, 1);
         }
     }
 

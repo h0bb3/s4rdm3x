@@ -21,6 +21,15 @@ public abstract class ExperimentRunner {
     private State m_state;  // this is the desired state
     private State m_currentState;   // this is the actual state
     private RandomDoubleVariable m_initialSetSize;
+    private String m_name;
+
+    public String getName() {
+        return m_name;
+    }
+
+    public void setName(String a_name) {
+        m_name = a_name;
+    }
 
     public Iterable<System> getSystems() {
         return m_suas;

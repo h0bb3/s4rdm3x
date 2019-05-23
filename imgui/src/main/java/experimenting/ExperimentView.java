@@ -9,6 +9,9 @@ import imgui.ImGui;
 import imgui.WindowFlag;
 import imgui.internal.Window;
 import mapping.MappingView;
+import org.jetbrains.annotations.NotNull;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import se.lnu.siq.s4rdm3x.experiments.*;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 
@@ -18,8 +21,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Queue;
+import java.util.*;
+import java.util.function.BiPredicate;
 
 
 public class ExperimentView implements ExperimentViewThread.DataListener {
@@ -34,13 +37,51 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
     private ScatterPlot m_precisionVsInitialMapped = new ScatterPlot();
     private ScatterPlot m_recallVsInitialMapped = new ScatterPlot();
 
-    private ExperimentRunData.BasicRunData m_popupMenuData = null;
+    private RunData m_popupMenuData = null;
 
-    public ArrayList<ExperimentRunData.BasicRunData> m_selectedDataPoints = new ArrayList<>();
+    public ArrayList<RunData> m_selectedDataPoints = new ArrayList<>();
     public ArrayList<ExperimentView.MappingViewWrapper> m_mappingViews = new ArrayList<>();
 
-    public ArrayList<ExperimentRunData.BasicRunData> m_experimentData = new ArrayList<>();  // this one is accessed by threads so take care...
+    private static class RunData {
+        ExperimentViewThread m_source;
+        ExperimentRunData.BasicRunData m_data;
+
+        public RunData(ExperimentRunData.BasicRunData a_data, ExperimentViewThread a_source) {
+            m_source = a_source;
+            m_data = a_data;
+        }
+    }
+
+    public ArrayList<RunData> m_experimentData = new ArrayList<>();  // this one is accessed by threads so take care...
     private boolean[] m_showPlots = {true};
+    private Vec4 m_workingColor = null;
+
+    Iterable<? extends ExperimentRunData.BasicRunData> getExperimentRunData() {
+
+        class BrdIterable implements Iterable<ExperimentRunData.BasicRunData> {
+
+            @NotNull
+            @Override
+            public Iterator<ExperimentRunData.BasicRunData> iterator() {
+                return new Iterator<ExperimentRunData.BasicRunData>() {
+
+                    Iterator<RunData> m_it = m_experimentData.iterator();
+
+                    @Override
+                    public boolean hasNext() {
+                        return m_it.hasNext();
+                    }
+
+                    @Override
+                    public ExperimentRunData.BasicRunData next() {
+                        return m_it.next().m_data;
+                    }
+                };
+            }
+        }
+
+        return new BrdIterable();
+    }
 
     public void doView(ImGui a_imgui, ArchDef a_arch, CGraph a_g, HNode.VisualsManager a_nvm) {
 
@@ -49,6 +90,18 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
         if (iw.button("Add Experiment", 0)) {
             m_experiments.add(new ExperimentViewThread(m_experiments.size()));
         }
+        a_imgui.sameLine(0);
+        if (iw.button("Delete Experiments", 0)) {
+            m_experiments.clear();
+        }
+        a_imgui.sameLine(0);
+        if (iw.button("Run Experiments", 0)) {
+            m_experiments.forEach(e -> e.runExperiment(this));
+        }
+        if (iw.button("Stop Experiments", 0)) {
+            m_experiments.forEach(e -> e.stopExperiment());
+        }
+
 
 
         doSaveButtons(iw);
@@ -74,12 +127,22 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
         a_imgui.imgui().sameLine(0);
         if (a_imgui.button("Save Experiments", 0)) {
             try {
-                ArrayList<ExperimentRunner> experiments = new ArrayList<>();
+                HashMap<ExperimentRunner, ExperimentViewThread> experiments = new HashMap<>();
                 for (ExperimentViewThread e : m_experiments) {
-                    experiments.add(e.createExperiment());
+                    experiments.put(e.createExperiment(), e);
                 }
                 ExperimentXMLPersistence exmlp = new ExperimentXMLPersistence();
-                exmlp.saveExperiments(experiments, m_experimentSaveFile);
+                exmlp.saveExperiments(experiments.keySet(), m_experimentSaveFile, new ExperimentXMLPersistence.Listener() {
+                    @Override
+                    public void onLoadedExperiment(Element a_experimentElement, ExperimentRunner a_loadedExperiment) {
+                    }
+
+                    @Override
+                    public void onSavedExperiment(Document a_doc, Element a_experimentElement, ExperimentRunner a_savedExperiment) {
+                        ExperimentViewThread evt = experiments.get(a_savedExperiment);
+                        a_experimentElement.appendChild(exmlp.vec4ToElement(a_doc, evt.getColor().toFloatArray(), "plot_color"));
+                    }
+                });
             } catch (Exception e) {
                 System.out.println(e);
                 e.printStackTrace();
@@ -90,13 +153,19 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
         if (a_imgui.button("Load Experiment", 0)) {
             ExperimentXMLPersistence exmlp = new ExperimentXMLPersistence();
             try {
-                ArrayList<ExperimentRunner> experiments = exmlp.loadExperiments(m_experimentSaveFile);
-                if (experiments.size() != 0) {
-                    ExperimentRunner exr = experiments.get(0);
+                ArrayList<ExperimentRunner> experiments = exmlp.loadExperiments(m_experimentSaveFile, new ExperimentXMLPersistence.Listener() {
+                    @Override
+                    public void onLoadedExperiment(Element a_experimentElement, ExperimentRunner a_loadedExperiment) {
+                        ExperimentViewThread ex = new ExperimentViewThread(m_experiments.size(), a_loadedExperiment);
+                        ex.getColor().setArray(exmlp.elementToVec4(a_experimentElement, "plot_color"));
+                        m_experiments.add(ex);
+                    }
 
-                    ExperimentViewThread ex = new ExperimentViewThread(m_experiments.size(), exr);
-                    m_experiments.add(ex);
-                }
+                    @Override
+                    public void onSavedExperiment(Document a_doc, Element a_experimentElement, ExperimentRunner a_loadedExperiment) {
+                    }
+                });
+
             } catch (Exception e) {
                 System.out.println(e);
                 e.printStackTrace();
@@ -104,7 +173,7 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
         }
 
         if (m_performanceVsInitialMapped.dataCount() > 0 ) {
-            m_saveFile = a_imgui.inputTextSingleLine("##SaveAsExperimentDataAs", m_saveFile);
+            m_saveFile = a_imgui.inputTextSingleLine("###SaveAsExperimentDataAs", m_saveFile);
             a_imgui.imgui().sameLine(0);
             if (a_imgui.button("Save Data", 0)) {
                 Path filePath = Paths.get(m_saveFile);
@@ -120,7 +189,7 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
                     }
 
                     try {
-                        saver.writeData(filePath, m_experimentData);
+                        saver.writeData(filePath, getExperimentRunData());
                     } catch (IOException e) {
                         System.out.println("Could not write to file");
                     }
@@ -139,15 +208,40 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
         }
     }
 
-    public synchronized void onNewData(ExperimentRunData.BasicRunData a_rd, int a_color) {
-        m_performanceVsInitialMapped.addData(a_rd.m_initialClusteringPercent, a_rd.calcAutoPerformance(), m_experimentData.size(), a_color);
-        m_precisionVsInitialMapped.addData(a_rd.m_initialClusteringPercent, a_rd.calcAutoPrecision(), m_experimentData.size(), a_color);
-        m_recallVsInitialMapped.addData(a_rd.m_initialClusteringPercent, a_rd.calcAutoRecall(), m_experimentData.size(), a_color);
 
-        m_experimentData.add(a_rd);
+    public synchronized void onNewData(ExperimentRunData.BasicRunData a_rd, ExperimentViewThread a_src) {
+
+        int intColor = ImGuiWrapper.toColor(a_src.getColor());
+        m_performanceVsInitialMapped.addData(a_rd.m_initialClusteringPercent, a_rd.calcAutoPerformance(), m_experimentData.size(), intColor);
+        m_precisionVsInitialMapped.addData(a_rd.m_initialClusteringPercent, a_rd.calcAutoPrecision(), m_experimentData.size(), intColor);
+        m_recallVsInitialMapped.addData(a_rd.m_initialClusteringPercent, a_rd.calcAutoRecall(), m_experimentData.size(), intColor);
+
+
+        m_experimentData.add(new RunData(a_rd, a_src));
     }
 
+    private int m_powerSelection = 0;
+    interface PowerSelectionFilter extends BiPredicate<RunData, RunData> {}
+
     private void doPlots(ImGuiWrapper a_imgui) {
+
+        final String[] powerSelections = {"None", "System", "Metric", "Algorithm", "Paint"};
+        final int paintIx = 4;
+
+        final PowerSelectionFilter[] powerSelectionFilters = new PowerSelectionFilter[]{
+                (target, source) -> false,
+                (target, source) -> target.m_data.m_system.getName().equals(source.m_data.m_system.getName()),
+                (target, source) -> target.m_data.m_metric.getName().equals(source.m_data.m_metric.getName()),
+                (target, source) -> target.m_data.getClass() == source.m_data.getClass()
+        };
+
+
+        if (m_experimentData.size() > 0) {
+            int [] selectedItem = {m_powerSelection};
+            if (a_imgui.imgui().combo("Power Selection", selectedItem, Arrays.asList(powerSelections), powerSelections.length)) {
+                m_powerSelection = selectedItem[0];
+            }
+        }
 
 
         ArrayList<ScatterPlot.Data> selectedData = new ArrayList<>();
@@ -164,22 +258,29 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
         m_recallVsInitialMapped.doPlot(a_imgui, selectedData);
         a_imgui.imgui().endColumns();
 
+        if (m_powerSelection == paintIx) {
+            selectedData.forEach(dp -> {
+                if (!m_selectedDataPoints.contains(m_experimentData.get(dp.m_id)))
+                    m_selectedDataPoints.add(m_experimentData.get(dp.m_id));
+            });
+        }
+
         final int blue = a_imgui.toColor(new Vec4(0.25, 0.25, 1, 0.75));
 
         boolean mouseClicked = a_imgui.isMouseClicked(0, false);
         //boolean mouseClicked = true;
 
-        for (ExperimentRunData.BasicRunData exd : m_selectedDataPoints) {
+        for (RunData exd : m_selectedDataPoints) {
 
-            Vec2 screenPos = new Vec2(exd.m_initialClusteringPercent, exd.calcAutoPerformance());
+            Vec2 screenPos = new Vec2(exd.m_data.m_initialClusteringPercent, exd.m_data.calcAutoPerformance());
             m_performanceVsInitialMapped.toScreenPos(screenPos, screenPos);
             a_imgui.addCircleFilled(screenPos, 4, blue, 6);
 
-            screenPos = new Vec2(exd.m_initialClusteringPercent, exd.calcAutoPrecision());
+            screenPos = new Vec2(exd.m_data.m_initialClusteringPercent, exd.m_data.calcAutoPrecision());
             m_precisionVsInitialMapped.toScreenPos(screenPos, screenPos);
             a_imgui.addCircleFilled(screenPos, 4, blue, 6);
 
-            screenPos = new Vec2(exd.m_initialClusteringPercent, exd.calcAutoRecall());
+            screenPos = new Vec2(exd.m_data.m_initialClusteringPercent, exd.m_data.calcAutoRecall());
             m_recallVsInitialMapped.toScreenPos(screenPos, screenPos);
             a_imgui.addCircleFilled(screenPos, 4, blue, 6);
         }
@@ -191,17 +292,18 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
 
 
         for (ScatterPlot.Data pd : selectedData) {
-            ExperimentRunData.BasicRunData exd = m_experimentData.get(pd.m_id);
+            RunData exd = m_experimentData.get(pd.m_id);
 
             if (a_imgui.beginTooltip()) {
-                a_imgui.text("System:\t" + exd.m_system.getName());
-                a_imgui.text("Metric:\t" + exd.m_metric.getName());
-                a_imgui.text("Size:\t" + exd.m_totalMapped);
-                a_imgui.text("Initial:\t" + exd.getInitialClusteringNodeCount());
-                a_imgui.text("A. Clustered:\t" + exd.getAutoClusteredNodeCount());
-                a_imgui.text("A. Failed:\t\t" + exd.m_totalAutoWrong);
-                a_imgui.text("M. Clustered:\t" + exd.m_totalManuallyClustered);
-                a_imgui.text("M. Failed:\t\t" + exd.m_totalFailedClusterings);
+                a_imgui.text("Experiment:\t" + exd.m_source.getName());
+                a_imgui.text("System:\t" + exd.m_data.m_system.getName());
+                a_imgui.text("Metric:\t" + exd.m_data.m_metric.getName());
+                a_imgui.text("Size:\t" + exd.m_data.m_totalMapped);
+                a_imgui.text("Initial:\t" + exd.m_data.getInitialClusteringNodeCount());
+                a_imgui.text("A. Clustered:\t" + exd.m_data.getAutoClusteredNodeCount());
+                a_imgui.text("A. Failed:\t\t" + exd.m_data.m_totalAutoWrong);
+                a_imgui.text("M. Clustered:\t" + exd.m_data.m_totalManuallyClustered);
+                a_imgui.text("M. Failed:\t\t" + exd.m_data.m_totalFailedClusterings);
                 a_imgui.endTooltip();
             }
 
@@ -211,38 +313,39 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
 
             if (mouseClicked) {
                 // good luck with this one :D
-             //   m_experimentData.stream().filter((d -> powerSelectionFilters[m_powerSelection].test(d, exd) && !m_selectedDataPoints.contains(d))).forEach(d->m_selectedDataPoints.add(d));
+                m_experimentData.stream().filter((d -> powerSelectionFilters[m_powerSelection].test(d, exd) && !m_selectedDataPoints.contains(d))).forEach(d->m_selectedDataPoints.add(d));
             }
 
             if (beginPopupContextItem(a_imgui, "SomePopupID", 1)) {
                 m_popupMenuData = exd;
-                doPopupMenu(a_imgui, m_popupMenuData);
+                doPopupMenu(a_imgui, m_popupMenuData, pd.m_color);
                 a_imgui.endPopup();
             } else {
                 m_popupMenuData = null;
+                m_workingColor = null;
             }
 
 
-            Vec2 screenPos = new Vec2(pd.m_point.getX(), exd.calcAutoPerformance());
+            Vec2 screenPos = new Vec2(pd.m_point.getX(), exd.m_data.calcAutoPerformance());
             m_performanceVsInitialMapped.toScreenPos(screenPos, screenPos);
             a_imgui.addCircleFilled(screenPos, 4, blue, 6);
 
-            screenPos = new Vec2(pd.m_point.getX(), exd.calcAutoPrecision());
+            screenPos = new Vec2(pd.m_point.getX(), exd.m_data.calcAutoPrecision());
             m_precisionVsInitialMapped.toScreenPos(screenPos, screenPos);
             a_imgui.addCircleFilled(screenPos, 4, blue, 6);
 
-            screenPos = new Vec2(pd.m_point.getX(), exd.calcAutoRecall());
+            screenPos = new Vec2(pd.m_point.getX(), exd.m_data.calcAutoRecall());
             m_recallVsInitialMapped.toScreenPos(screenPos, screenPos);
             a_imgui.addCircleFilled(screenPos, 4, blue, 6);
         }
 
         if (selectedData.size() == 0 && m_popupMenuData != null) {
             if (beginPopupContextItem(a_imgui, "SomePopupID", 1)) {
-                m_popupMenuData = m_popupMenuData;
-                doPopupMenu(a_imgui, m_popupMenuData);
+                doPopupMenu(a_imgui, m_popupMenuData, 0);
                 a_imgui.endPopup();
             } else {
                 m_popupMenuData = null;
+                m_workingColor = null;
             }
         }
 
@@ -264,12 +367,12 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
     }
 
 
-    public void doPopupMenu(ImGuiWrapper a_imgui, ExperimentRunData.BasicRunData a_runData) {
+    public void doPopupMenu(ImGuiWrapper a_imgui, RunData a_selected, int a_color) {
         boolean showing = false;
         ExperimentView.MappingViewWrapper foundMV = null;
 
         for (ExperimentView.MappingViewWrapper mv : m_mappingViews) {
-            if (mv.isViewFor(a_runData)) {
+            if (mv.isViewFor(a_selected.m_data)) {
                 showing = mv.isShowing();
                 foundMV = mv;
                 break;
@@ -280,9 +383,9 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
             showing = !showing;
             if (foundMV == null && showing) {
                 CGraph graph = new CGraph();
-                a_runData.m_system.load(graph);
-                ArchDef arch = a_runData.m_system.createAndMapArch(graph);
-                foundMV = new ExperimentView.MappingViewWrapper(graph, arch, a_runData);
+                a_selected.m_data.m_system.load(graph);
+                ArchDef arch = a_selected.m_data.m_system.createAndMapArch(graph);
+                foundMV = new ExperimentView.MappingViewWrapper(graph, arch, a_selected.m_data);
                 //foundMV.setInitialNBData(a_rundData, graph, arch);
                 //foundMV.setInitialClustering(a_rundData.m_initialClustering);
                 m_mappingViews.add(foundMV);
@@ -293,23 +396,26 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
             }
         }
 
-        /*{
+        {
             if (m_workingColor == null) {
-                m_workingColor = new Vec4(m_currentColor);
+                m_workingColor = a_imgui.fromColor(a_color);
             }
-            if (a_imgui.imgui().colorEdit3("Set Point Color", m_workingColor, 0)) {
+            a_imgui.imgui().colorEdit3("Set Point Color", m_workingColor, 0);
 
-                int intCol = a_imgui.toColor(m_workingColor);
-                //m_workingColor = null;
-                for (ExperimentRunData.BasicRunData brd : m_selectedDataPoints) {
-                    int ix = m_experimentData.indexOf(brd);
-
-                    m_performanceVsInitialMapped.setColor(ix, intCol);
-                    m_recallVsInitialMapped.setColor(ix, intCol);
-                    m_precisionVsInitialMapped.setColor(ix, intCol);
-                }
+            int intCol = a_imgui.toColor(m_workingColor);
+            setPlotsPointColor(a_selected, intCol);
+            for (RunData brd : m_selectedDataPoints) {
+                setPlotsPointColor(brd, intCol);
             }
-        }*/
+        }
+    }
+
+    private void setPlotsPointColor(RunData a_rd, int a_color) {
+        int ix = m_experimentData.indexOf(a_rd);
+
+        m_performanceVsInitialMapped.setColor(ix, a_color);
+        m_recallVsInitialMapped.setColor(ix, a_color);
+        m_precisionVsInitialMapped.setColor(ix, a_color);
     }
 
     static class MappingViewWrapper {

@@ -92,7 +92,7 @@ public class NBMapperTests {
         StringToWordVector filter = new StringToWordVector();
         filter.setOutputWordCounts(true);
 
-        Instances actual = sut.getTrainingData(sut.getInitiallyMappedNodes(g), arch, filter);
+        Instances actual = sut.getTrainingData(sut.getInitiallyMappedNodes(g), arch, filter, null);
 
         System.out.println(actual);
         Attribute classAttribute = actual.classAttribute();
@@ -150,18 +150,19 @@ public class NBMapperTests {
     void deCamelCaseTest() {
         NBMapper sut = new NBMapper(null);
 
-        assertEquals("test", sut.deCamelCase("test", 3, false));
-        assertEquals("test test", sut.deCamelCase("testTest", 3, false));
-        assertEquals("test", sut.deCamelCase("Test", 3, false));
-        assertEquals("test test", sut.deCamelCase("TestTest", 3, false));
-        assertEquals("test test", sut.deCamelCase("TestTEST", 3, false));
-        assertEquals("test test", sut.deCamelCase("Test_TEST", 3, false));
-        assertEquals("test test", sut.deCamelCase("test_test", 3, false));
-        assertEquals("test test", sut.deCamelCase("test-test", 3, false));
-        assertEquals("test test test", sut.deCamelCase("test-testTest", 3, false));
-        assertEquals("test", sut.deCamelCase("test-te", 3, false));
-        assertEquals("", sut.deCamelCase("teTe", 3, false));
-        assertEquals("test test test testing", sut.deCamelCase("testTest testTesting", 3, false));
-        assertEquals("test test test test", sut.deCamelCase("testTest testTesting", 3, true));
+        assertEquals("test", sut.deCamelCase("test", 3, null));
+        assertEquals("test test", sut.deCamelCase("testTest", 3, null));
+        assertEquals("test", sut.deCamelCase("Test", 3, null));
+        assertEquals("test test", sut.deCamelCase("TestTest", 3, null));
+        assertEquals("test test", sut.deCamelCase("TestTEST", 3, null));
+        assertEquals("test test", sut.deCamelCase("Test_TEST", 3, null));
+        assertEquals("test test", sut.deCamelCase("test_test", 3, null));
+        assertEquals("test test", sut.deCamelCase("test-test", 3, null));
+        assertEquals("test test test", sut.deCamelCase("test-testTest", 3, null));
+        assertEquals("test", sut.deCamelCase("test-te", 3, null));
+        assertEquals("", sut.deCamelCase("teTe", 3, null));
+        assertEquals("test test test testing", sut.deCamelCase("testTest testTesting", 3, null));
+
+        assertEquals("test test test test", sut.deCamelCase("testTest testTesting", 3, new weka.core.stemmers.SnowballStemmer()));
     }
 }

@@ -22,7 +22,40 @@ import java.util.ArrayList;
 
 public class ExperimentXMLPersistence {
 
-    public ArrayList<ExperimentRunner> loadExperiments(String a_fileName) throws Exception {
+    public Node vec4ToElement(Document a_doc, float[] a_vec4, String a_elementName) {
+        Element e = a_doc.createElement(a_elementName);
+
+        e.setAttribute("x", "" + a_vec4[0]);
+        e.setAttribute("y", "" + a_vec4[1]);
+        e.setAttribute("z", "" + a_vec4[2]);
+        e.setAttribute("w", "" + a_vec4[3]);
+
+        return e;
+    }
+
+    public float[] elementToVec4(Element a_parent, String a_tagName) {
+        float[] v = {0,0,0,0};
+
+        Element e = (Element)a_parent.getElementsByTagName(a_tagName).item(0);
+
+        try {
+            v[0] = Float.parseFloat(e.getAttribute("x"));
+            v[1] = Float.parseFloat(e.getAttribute("y"));
+            v[2] = Float.parseFloat(e.getAttribute("z"));
+            v[3] = Float.parseFloat(e.getAttribute("w"));
+        } catch (Exception ex) {
+
+        }
+
+        return v;
+    }
+
+    public interface Listener {
+        public void onLoadedExperiment(Element a_experimentElement, ExperimentRunner a_loadedExperiment);
+        public void onSavedExperiment(Document a_doc, Element a_experimentElement, ExperimentRunner a_loadedExperiment);
+    }
+
+    public ArrayList<ExperimentRunner> loadExperiments(String a_fileName, Listener a_callback) throws Exception {
         ArrayList<ExperimentRunner> ret = new ArrayList<>();
 
         File inputFile = new File(a_fileName);
@@ -35,7 +68,11 @@ public class ExperimentXMLPersistence {
         for (int nIx = 0 ; nIx < nodes.getLength(); nIx++) {
             Node n = nodes.item(nIx);
             if (n.getNodeType() == Node.ELEMENT_NODE) {
-                ret.add(elementToExperiment((Element)n));
+                ExperimentRunner exp = elementToExperiment((Element)n);
+                ret.add(exp);
+                if (a_callback != null) {
+                    a_callback.onLoadedExperiment((Element)n, exp);
+                }
             }
         }
 
@@ -43,7 +80,7 @@ public class ExperimentXMLPersistence {
     }
 
 
-    public void saveExperiments(Iterable<ExperimentRunner> a_experiments, String a_fileName) throws Exception {
+    public void saveExperiments(Iterable<ExperimentRunner> a_experiments, String a_fileName, Listener a_listener) throws Exception {
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
         Document doc = dBuilder.newDocument();
@@ -53,7 +90,9 @@ public class ExperimentXMLPersistence {
         doc.appendChild(rootElement);
 
         for (ExperimentRunner exr : a_experiments) {
-            rootElement.appendChild(experimentToElement(doc, exr));
+            Element exrElement = experimentToElement(doc, exr);
+            rootElement.appendChild(exrElement);
+            a_listener.onSavedExperiment(doc, exrElement, exr);
         }
 
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -115,8 +154,6 @@ public class ExperimentXMLPersistence {
 
         }
 
-
-
         String type = a_exr.getAttribute("type");
         if (type.equals("nbmapper")) {
             ExperimentRunner.RandomDoubleVariable threshold = elementToRandomDouble(a_exr, "threshold");
@@ -132,6 +169,8 @@ public class ExperimentXMLPersistence {
         } else {
             throw new Exception("Unknown mapping experiment: " + type);
         }
+
+        ret.setName(a_exr.getAttribute("name"));
 
 
         return ret;
@@ -167,6 +206,8 @@ public class ExperimentXMLPersistence {
 
     private Element experimentToElement(Document a_doc, ExperimentRunner a_exr) {
         Element exrNode = a_doc.createElement("experiment");
+
+        exrNode.setAttribute("name", a_exr.getName());
 
         exrNode.appendChild(randomDoubleToElement(a_doc, a_exr.getInitialSetSize(), "initialSetSize"));
         setBoolAttribute(exrNode, "useManualMapping", a_exr.doUseManualmapping());

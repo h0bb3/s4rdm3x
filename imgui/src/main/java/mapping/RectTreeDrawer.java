@@ -5,11 +5,13 @@ import glm_.vec2.Vec2;
 import glm_.vec4.Vec4;
 import gui.ImGuiWrapper;
 import hiviz.Tree;
+import imgui.Col;
 import org.jetbrains.annotations.NotNull;
 import se.lnu.siq.s4rdm3x.model.CNode;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Stack;
 
 class RectTreeDrawer implements Tree.TNodeVisitor {
     public Iterable<LeafNodeDrawData> getDrawData() {
@@ -95,6 +97,9 @@ class RectTreeDrawer implements Tree.TNodeVisitor {
     ArrayList<LeafNodeDrawData> m_drawData;
     FanType m_fanType;
 
+    Stack<Integer> m_textColors = new Stack<>();
+    Stack<Integer> m_bgColors = new Stack<>();
+
 
     RectTreeDrawer(ImGuiWrapper a_imgui, HNode.VisualsManager a_nvm, Vec2 a_topLeft, float a_width, Iterable<CNode> a_targetNodes, Align a_alignment, FanType a_fanType) {
         m_nvm = a_nvm;
@@ -106,9 +111,11 @@ class RectTreeDrawer implements Tree.TNodeVisitor {
         m_alignment = a_alignment;
         m_drawData = new ArrayList<>();
         m_fanType = a_fanType;
+        m_textColors.add(a_imgui.toColor(a_imgui.imgui().getStyleColorVec4(Col.Text)));
+        m_bgColors.add(a_imgui.toColor(a_imgui.imgui().getStyleColorVec4(Col.TitleBgActive)));
     }
 
-    private RectTreeDrawer(ImGuiWrapper a_imgui, HNode.VisualsManager a_nvm, Vec2 a_topLeft, float a_width, Iterable<CNode> a_targetNodes, Align a_alignment, ArrayList<LeafNodeDrawData> a_drawData, FanType a_fanType) {
+    private RectTreeDrawer(ImGuiWrapper a_imgui, HNode.VisualsManager a_nvm, Vec2 a_topLeft, float a_width, Iterable<CNode> a_targetNodes, Align a_alignment, ArrayList<LeafNodeDrawData> a_drawData, FanType a_fanType, Stack<Integer> a_textColors, Stack<Integer> a_bgColors) {
         m_nvm = a_nvm;
         m_imgui = a_imgui;
         m_topLeft = new Vec2(a_topLeft);
@@ -118,6 +125,8 @@ class RectTreeDrawer implements Tree.TNodeVisitor {
         m_alignment = a_alignment;
         m_drawData = a_drawData;
         m_fanType = a_fanType;
+        m_textColors = a_textColors;
+        m_bgColors = a_bgColors;
     }
 
     /*int getCoupling(CNode a_node, Iterable<CNode>a_targets) {
@@ -185,7 +194,9 @@ class RectTreeDrawer implements Tree.TNodeVisitor {
 
     @Override
     public void visit(Tree.TNode a_node) {
-        final int white = m_imgui.toColor(new Vec4(1., 1., 1., 1));
+        final int separator = m_imgui.toColor(m_imgui.imgui().getStyleColorVec4(Col.Separator));
+        boolean popTextColor = false;
+        boolean popBGColor = false;
 
         Vec2 pos = new Vec2(m_topLeft);
         Vec2 textOffset = new Vec2(0, 0);
@@ -193,15 +204,19 @@ class RectTreeDrawer implements Tree.TNodeVisitor {
         m_height = getHeight(a_node);
 
         if (m_nvm.hasBGColor(a_node.getFullName())) {
-            m_imgui.addRectFilled(m_topLeft, m_topLeft.plus(new Vec2(m_width, m_height)), m_imgui.toColor(m_nvm.getBGColor(a_node.getFullName())), 0, 0);
+            m_bgColors.push(m_imgui.toColor(m_nvm.getBGColor(a_node.getFullName())));
+            popBGColor = true;
         }
-        if (a_node.childCount() > 0 && a_node.getName() != null) {
-            m_imgui.addRect(m_topLeft, m_topLeft.plus(new Vec2(m_width, m_height)), white, 0, 0, 1);
-        }
+
+
 
         if (a_node.getName() != null) {
 
 
+            m_imgui.addRectFilled(m_topLeft, m_topLeft.plus(new Vec2(m_width, m_height)), m_bgColors.peek(), 0, 0);
+            if (a_node.childCount() > 0 && a_node.getName() != null) {
+                m_imgui.addRect(m_topLeft, m_topLeft.plus(new Vec2(m_width, m_height)), separator, 0, 0, 1);
+            }
 
             final int fan = getFan((CNode)a_node.getObject(), m_targetNodes);
             float oldScale = m_imgui.imgui().getCurrentWindow().getFontWindowScale();
@@ -246,8 +261,13 @@ class RectTreeDrawer implements Tree.TNodeVisitor {
                 }
             }
 
+            int textColor = m_imgui.toColor(m_imgui.imgui().getStyleColorVec4(Col.Text));
+            if (m_nvm.hasTextColor(a_node.getFullName())) {
+                popTextColor = true;
+                m_textColors.push(m_imgui.toColor(m_nvm.getTextColor(a_node.getFullName())));
+            }
 
-            m_imgui.addText(pos.plus(textOffset), white, a_node.getName());
+            m_imgui.addText(pos.plus(textOffset), m_textColors.peek(), a_node.getName());
             pos.setY(pos.getY() + m_imgui.getTextLineHeightWithSpacing());
             m_imgui.imgui().setWindowFontScale(oldScale);
         }
@@ -257,14 +277,21 @@ class RectTreeDrawer implements Tree.TNodeVisitor {
             final int indent = a_node.getName() != null ? 17 : 0;
             RectTreeDrawer rtd;
             if (m_alignment == Align.Right) {
-                rtd = new RectTreeDrawer(m_imgui, m_nvm, pos.plus(new Vec2(indent, 0)), m_width - indent, m_targetNodes, m_alignment, m_drawData, m_fanType);
+                rtd = new RectTreeDrawer(m_imgui, m_nvm, pos.plus(new Vec2(indent, 0)), m_width - indent, m_targetNodes, m_alignment, m_drawData, m_fanType, m_textColors, m_bgColors);
             } else if (m_alignment == Align.Center) {
-                rtd = new RectTreeDrawer(m_imgui, m_nvm, pos, m_width, m_targetNodes, m_alignment, m_drawData, m_fanType);
+                rtd = new RectTreeDrawer(m_imgui, m_nvm, pos, m_width, m_targetNodes, m_alignment, m_drawData, m_fanType, m_textColors, m_bgColors);
             } else {
-                rtd = new RectTreeDrawer(m_imgui, m_nvm, pos, m_width - indent, m_targetNodes, m_alignment, m_drawData, m_fanType);
+                rtd = new RectTreeDrawer(m_imgui, m_nvm, pos, m_width - indent, m_targetNodes, m_alignment, m_drawData, m_fanType, m_textColors, m_bgColors);
             }
             c.accept(rtd);
             pos.setY(pos.getY() + rtd.getHeight());
+        }
+
+        if (popTextColor) {
+            m_textColors.pop();
+        }
+        if (popBGColor) {
+            m_bgColors.pop();
         }
     }
 

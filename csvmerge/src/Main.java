@@ -52,7 +52,7 @@ public class Main {
         for (String line : a_rows) {
             String outline = "" + a_ix;
             a_ix++;
-            String[] parts = line.split("\t");
+            String[] parts = line.split("\t", -1);  // we may have empty cells i.e. a\t\tb -> [a][][b]
             for(int i = 0; i < global2LocalHeader.length; i++) {
 
                 outline += "\t";
