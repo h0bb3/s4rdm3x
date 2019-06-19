@@ -4,6 +4,7 @@ import archviz.HNode;
 import glm_.vec2.Vec2;
 import glm_.vec4.Vec4;
 import gui.ImGuiWrapper;
+import imgui.Col;
 import imgui.WindowFlag;
 import imgui.internal.ColumnsFlag;
 import imgui.internal.Rect;
@@ -291,7 +292,7 @@ public class NBMapperView extends MapperBaseView {
             a_imgui.imgui().beginChild("NBMapperChildTableRight", columnSize, childWindowBorder, WindowFlag.NoScrollbar.or(WindowFlag.AlwaysHorizontalScrollbar));
             Rect rightClipRect = new Rect(a_imgui.imgui().getCurrentWindow().getDrawList().getCurrentClipRect());
 
-            a_imgui.addRect(rightClipRect.getTl(), rightClipRect.getBr(), white, 0, 0, 2);
+            //a_imgui.addRect(rightClipRect.getTl(), rightClipRect.getBr(), white, 0, 0, 2);
 
             final float colWidth = a_imgui.getTextLineHeightWithSpacing() * 2;
             a_imgui.imgui().beginColumns("NBMapperTableRightColumns", rightColCount, ColumnsFlag.NoResize.getI() | ColumnsFlag.NoForceWithinWindow.getI());
@@ -340,13 +341,13 @@ public class NBMapperView extends MapperBaseView {
                maxCols = rightColCount;
             }
 
-            a_imgui.beginTooltip();
+            /*a_imgui.beginTooltip();
             a_imgui.text("Start row Ix: " + startRowIx);
             a_imgui.text("maxRows: " + maxRows);
 
             a_imgui.text("Start col Ix: " + startColIx);
             a_imgui.text("maxCols: " + maxCols);
-            a_imgui.endTooltip();
+            a_imgui.endTooltip();*/
 
             a_imgui.imgui().setCursorPosY(startRowIx * rowHeight);
 
@@ -418,6 +419,7 @@ public class NBMapperView extends MapperBaseView {
                 // we do accept some owerdraw to avoid early clipping of texts
                 final float angle = (float) (2 * Math.PI - Math.PI / 2.4);
                 Vec2 maxTo = new Vec2(Math.cos(angle) * 250, Math.sin(angle) * 250);
+                int slantedTExtColor = a_imgui.toColor(a_imgui.imgui().getStyleColorVec4(Col.Text));
 
                 for (int hIx = 0; hIx < rightColCount; hIx++) {
 
@@ -431,7 +433,7 @@ public class NBMapperView extends MapperBaseView {
                         Vec2 to = new Vec2(Math.cos(angle) * textLength, Math.sin(angle) * textLength);
                         to.plus(rightHeadlinePositions[hIx], to);
                         to.plus(5, 0, to);
-                        a_imgui.text(rigthColHeadlines[hIx], rightHeadlinePositions[hIx], white, angle);
+                        a_imgui.text(rigthColHeadlines[hIx], rightHeadlinePositions[hIx], slantedTExtColor, angle);
 
                         if (a_imgui.isInsideClipRect(a_imgui.getMousePos()) && a_imgui.isInside(rightHeadlinePositions[hIx], to, a_imgui.getTextLineHeightWithSpacing() / 2.0, a_imgui.getMousePos())) {
                             a_imgui.beginTooltip();

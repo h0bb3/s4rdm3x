@@ -126,7 +126,7 @@ public class RectsAndArrows {
                 chars[ix] = (char)bytes[ix];
             }
 
-            Font f = imgui.getIo().getFonts().addFontFromMemoryTTF(chars, 32, fc,new int[] {0x0020, 0x00FF} );
+            Font f = imgui.getIo().getFonts().addFontFromMemoryTTF(chars, 24, fc,new int[] {0x0020, 0x00FF} );
             imgui.setCurrentFont(f);
            // System.out.println("" + bytes[0]);
         } catch (Exception e) {
@@ -140,7 +140,7 @@ public class RectsAndArrows {
         sch.execute("load_arch_visuals data/slask/jabref_visuals.xml", graph).forEach(str -> guic.println(str));
         sch.execute("load_jar data/systems/JabRef/3.7/JabRef-3.7.jar net.sf.jabref.", graph).forEach(str -> guic.println(str));
         sch.execute("load_arch data/slask/jabref.txt", graph).forEach(str -> guic.println(str));
-        //sch.execute("compute_metrics", graph).forEach(str -> guic.println(str));
+  //      sch.execute("compute_metrics", graph).forEach(str -> guic.println(str));
 
 
         window.loop(() -> {

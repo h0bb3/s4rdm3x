@@ -2,12 +2,14 @@ package mapping;
 
 import gui.ImGuiWrapper;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
+import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
 import se.lnu.siq.s4rdm3x.experiments.ExperimentRunData;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class MapperBaseView {
@@ -92,6 +94,47 @@ public class MapperBaseView {
 
         return g;
     }
+
+    /*protected CGraph createGraph() {
+        CGraph g = new CGraph();
+        HashMap<dmClass, dmClass> sourceClasses = new HashMap<>();  // maps from created copy class (key) to
+
+        for (CNode n : m_selectedMappedNodes) {
+            CNode nodeCopy = g.createNode(n.getName());
+            nodeCopy.setClustering(n.getMapping(), ArchDef.Component.ClusteringType.Initial.toString());
+            for (dmClass sourceClass : n.getClasses()) {
+                dmClass c = new dmClass(sourceClass.getName());
+                nodeCopy.addClass(c);
+                sourceClasses.put(c, sourceClass);
+            }
+        }
+
+        for (CNode n : m_selectedOrphanNodes) {
+            CNode nodeCopy = g.createNode(n.getName());
+
+            for (dmClass sourceClass : n.getClasses()) {
+                dmClass c = new dmClass(sourceClass.getName());
+                nodeCopy.addClass(c);
+                sourceClasses.put(c, sourceClass);
+            }
+        }
+
+        // now we need to set up the dependencies correctly
+        for (CNode n : g.getNodes()) {
+            for (dmClass c : n.getClasses()) {
+                dmClass sourceClass = sourceClasses.get(c);
+                for (dmDependency srcDep : sourceClass.getDependencies()) {
+                    if (sourceClasses.containsValue(srcDep.getTarget()) {
+                        dmDependency newDep
+                    }
+                }
+            }
+        }
+
+
+
+        return g;
+    }*/
 
     protected void setAutoClusteredNodes(Iterable<CNode>a_clustered, Iterable<CNode> a_nodemappings) {
         m_autoClusteredOrphans.clear();

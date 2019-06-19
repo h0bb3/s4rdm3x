@@ -98,6 +98,7 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
         if (iw.button("Run Experiments", 0)) {
             m_experiments.forEach(e -> e.runExperiment(this));
         }
+        a_imgui.sameLine(0);
         if (iw.button("Stop Experiments", 0)) {
             m_experiments.forEach(e -> e.stopExperiment());
         }

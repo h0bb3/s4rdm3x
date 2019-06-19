@@ -60,7 +60,7 @@ public class CNode {
         m_tags.addAll(a_node.m_tags);
     }
 
-    public static class MetricMap extends HashMap<String, Double> {}
+        public static class MetricMap extends HashMap<String, Double> {}
 
     private MetricMap m_metrics = new MetricMap();
 

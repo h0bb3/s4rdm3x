@@ -137,7 +137,7 @@ class ExperimentViewThread extends Thread {
 
         private MetricPair[] m_metrics = { new MetricPair("Random", new Rand(), null), new MetricPair("BC. Cyclo. Cpl.", new ByteCodeCyclomaticComplexity()), new MetricPair("BC. Instr. Count", new ByteCodeInstructions()),
                 new MetricPair("Coupling In", new CouplingIn()), new MetricPair("Coupling Out", new CouplingOut()), new MetricPair("Fan In", new FanIn()), new MetricPair("Fan Out", new FanOut()),
-                new MetricPair("LCOM HS", new LCOMHS()), new MetricPair("Line Count", new LineCount(), null), new MetricPair("Methoc Count", new NumberOfMethods()), new MetricPair("Child Cound", new NumberOfChildren()),
+                new MetricPair("LCOM HS", new LCOMHS()), new MetricPair("Line Count", new LineCount(), null), new MetricPair("Method Count", new NumberOfMethods()), new MetricPair("Child Count", new NumberOfChildren()),
                 new MetricPair("Child Level Count", new NumberOfChildLevels()), new MetricPair("Child Count Lvl 0", new NumberOfChildrenLevel0()), new MetricPair("Field Count", new NumberOfFields()), new MetricPair("Parent Count", new NumberOfParents()),
                 new MetricPair("Rank", new Rank()), new MetricPair("Class Count", new NumberOfClasses())
         };
@@ -359,6 +359,9 @@ class ExperimentViewThread extends Thread {
 
             if (a_imgui.imgui().collapsingHeader("Metrics##" + m_id, 0)) {
 
+                final float boxWidth = a_imgui.imgui().getTextLineHeightWithSpacing() + 5;
+                final float colWidth = a_imgui.calcTextSize("Child Count Lvl 0", false).getX() + 10 + 2 * boxWidth;
+
                 int count = 0;
                 for (MetricPair m : m_selectedMetrics.getMetricPairs()) {
 
@@ -372,7 +375,7 @@ class ExperimentViewThread extends Thread {
                             a_imgui.endTooltip();
                         }
                         // for some reason the first column gets a wierd offset
-                        a_imgui.imgui().sameLine((count % 4) * 250 + 25, (count % 4) == 0 ? 7 : 0);
+                        a_imgui.imgui().sameLine((count % 4) * colWidth + boxWidth, (count % 4) == 0 ? 7 : 0);
                     }
 
                     boolean[] isSelected = {m_selectedMetrics.isSelected(m.m_absMetric)};
@@ -385,7 +388,7 @@ class ExperimentViewThread extends Thread {
                     }
                     count++;
                     if (count % 4 != 0) {
-                        a_imgui.imgui().sameLine((count % 4) * 250, 0);
+                        a_imgui.imgui().sameLine((count % 4) * colWidth, 0);
                     }
 
                 }
