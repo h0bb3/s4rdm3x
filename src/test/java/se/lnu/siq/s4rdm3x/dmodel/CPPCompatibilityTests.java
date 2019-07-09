@@ -160,15 +160,14 @@ public class CPPCompatibilityTests extends ASMdmProjectBuilderTest {
 
             String className = "CPPCompatibility.simple.BarParent";
             dmClass expected = new dmClass(g_classesPkg + className);
-            expected.addDependency("java.lang.Object", dmDependency.Type.Extends);
-            expected.addDependency("java.lang.Object", ConstructorCall);
+            expected.addDependency("se.lnu.siq.s4rdm3x.dmodel.classes.CPPCompatibility.simple.Foo", dmDependency.Type.Extends);
+            expected.addDependency("se.lnu.siq.s4rdm3x.dmodel.classes.CPPCompatibility.simple.Foo", ConstructorCall);
             expected.addDependency("void", dmDependency.Type.Returns);  // constructor
 
-            expected.addDependency("java.lang.Float", dmDependency.Type.Field);
-            expected.addDependency("java.util.ArrayList", dmDependency.Type.Field);
-            expected.addDependency("java.lang.Float", dmDependency.Type.Returns);
-            expected.addDependency("java.util.ArrayList", dmDependency.Type.Returns);
-            expected.addDependency("java.util.ArrayList", dmDependency.Type.OwnFieldUse);
+            expected.addDependency("float", dmDependency.Type.Field);
+            expected.addDependency("float", dmDependency.Type.Returns);
+            expected.addDependency("int", dmDependency.Type.OwnFieldUse);
+            expected.addDependency("float", dmDependency.Type.OwnFieldUse);
 
             /*expected.addDependency("int", dmDependency.Type.Returns);
             expected.addDependency("float", dmDependency.Type.Field);

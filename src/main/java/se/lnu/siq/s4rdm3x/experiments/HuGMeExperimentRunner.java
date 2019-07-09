@@ -51,7 +51,6 @@ public class HuGMeExperimentRunner extends ExperimentRunner {
 
         c.run(a_g);
 
-
         m_exData.m_totalManuallyClustered += c.m_manuallyMappedNodes;
         m_exData.m_totalAutoWrong  += c.m_autoWrong;
         m_exData.m_totalFailedClusterings  += c.m_failedMappings;

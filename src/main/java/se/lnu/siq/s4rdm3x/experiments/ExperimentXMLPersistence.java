@@ -166,6 +166,8 @@ public class ExperimentXMLPersistence {
             ExperimentRunner.RandomDoubleVariable phi = elementToRandomDouble(a_exr, "phi");
 
             ret = new HuGMeExperimentRunner(suas, metrics, useManualMapping, initialSetSize, omega, phi);
+        } else if (type.equals("irattract")) {
+            ret = new IRAttractExperimentRunner(suas, metrics, useManualMapping, initialSetSize);
         } else {
             throw new Exception("Unknown mapping experiment: " + type);
         }
@@ -242,6 +244,9 @@ public class ExperimentXMLPersistence {
             HuGMeExperimentRunner hugexr = (HuGMeExperimentRunner)a_exr;
             exrNode.appendChild(randomDoubleToElement(a_doc, hugexr.getOmega(), "omega"));
             exrNode.appendChild(randomDoubleToElement(a_doc, hugexr.getPhi(), "phi"));
+        } else if (a_exr instanceof IRAttractExperimentRunner) {
+            exrNode.setAttribute("type", "irattract");
+            HuGMeExperimentRunner hugexr = (HuGMeExperimentRunner)a_exr;
         }
 
         return exrNode;

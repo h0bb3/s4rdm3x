@@ -127,47 +127,17 @@ public class HuGMe extends MapperBase {
         //      Second set is based on > standard deviation of all attractions
 
         for (CNode n : candidates) {
-            double attractions[] = n.getAttractions();
-            double mean = stats.mean(attractions);
-            double sd = stats.stdDev(attractions, mean);
-
-            ArrayList<Integer> c1 = new ArrayList<>();
-            ArrayList<Integer> c2 = new ArrayList<>();
-
-            for(int i = 0; i < m_arch.getComponentCount(); i++) {
-                if (attractions[i] >= mean) {
-                    c2.add(i);
-                }
-                if (attractions[i] - mean > sd) {
-                    c1.add(i);
-                }
-            }
+            ArchDef.Component autoClusteredTo = HuGMe.doAutoMapping(n, m_arch);
 
 
             ArchDef.Component mappedC = m_arch.getMappedComponent(n);
 
-            if (c1.size() == 1) {
-                //au.addTag(n, clusterTags[c1.get(0)]);
-
-                //Sys.out.println("Clustered to: " + g_clusterTags[c1.get(0)]);
-                //au.addTag(n, ArchDef.Component.ClusteringType.Automatic.toString());
-                ArchDef.Component clusteredComponent = m_arch.getComponent(c1.get(0));
-                clusteredComponent.clusterToNode(n, ArchDef.Component.ClusteringType.Automatic);
+            if (autoClusteredTo != null) {
                 m_clusteredElements.add(n);
-                if (mappedC != clusteredComponent) {
+                m_automaticallyMappedNodes++;
+                if (autoClusteredTo != mappedC) {
                     m_autoWrong++;
                 }
-                m_automaticallyMappedNodes++;
-            } else if (c2.size() == 1) {
-                ArchDef.Component clusteredComponent = m_arch.getComponent(c2.get(0));
-                clusteredComponent.clusterToNode(n, ArchDef.Component.ClusteringType.Automatic);
-                //Sys.out.println("Clustered to: " + g_clusterTags[c2.get(0)]);
-                //au.addTag(n, ArchDef.Component.ClusteringType.Automatic.toString());
-                m_clusteredElements.add(n);
-                if (mappedC != clusteredComponent) {
-                    m_autoWrong++;
-                }
-                m_automaticallyMappedNodes++;
             } else if (doManualMapping()) {
 
 
@@ -234,6 +204,35 @@ public class HuGMe extends MapperBase {
                 }
             }
         }
+    }
+
+    public static ArchDef.Component doAutoMapping(CNode a_orphanNode, ArchDef a_archDef) {
+        double attractions[] = a_orphanNode.getAttractions();
+        double mean = stats.mean(attractions);
+        double sd = stats.stdDev(attractions, mean);
+
+        ArrayList<Integer> c1 = new ArrayList<>();
+        ArrayList<Integer> c2 = new ArrayList<>();
+
+        for(int i = 0; i < a_archDef.getComponentCount(); i++) {
+            if (attractions[i] >= mean) {
+                c2.add(i);
+            }
+            if (attractions[i] - mean > sd) {
+                c1.add(i);
+            }
+        }
+        if (c1.size() == 1) {
+            ArchDef.Component clusteredComponent = a_archDef.getComponent(c1.get(0));
+            clusteredComponent.clusterToNode(a_orphanNode, ArchDef.Component.ClusteringType.Automatic);
+            return clusteredComponent;
+        } else if (c2.size() == 1) {
+            ArchDef.Component clusteredComponent = a_archDef.getComponent(c2.get(0));
+            clusteredComponent.clusterToNode(a_orphanNode, ArchDef.Component.ClusteringType.Automatic);
+            return clusteredComponent;
+        }
+
+        return null;
     }
 
 

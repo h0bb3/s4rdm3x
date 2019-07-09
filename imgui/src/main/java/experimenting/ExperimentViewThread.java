@@ -34,6 +34,7 @@ class ExperimentViewThread extends Thread {
 
     static final int g_nbmapper_ex = 0;
     static final int g_hugmemapper_ex = 1;
+    static final int g_irattract_ex = 2;
     int m_experimentIx = 0;
 
     // nbmapper experiment parameters
@@ -319,7 +320,7 @@ class ExperimentViewThread extends Thread {
 
 
             {
-                String[] experiments = {"Naive Bayes Mapping", "HuGMe"};
+                String[] experiments = {"Naive Bayes Mapping", "HuGMe", "IRAttract"};
                 int[] exIx = {m_experimentIx};
                 if (a_imgui.imgui().combo("Experiment Type" + "##" + m_id, exIx, Arrays.asList(experiments), 2)) {
                     m_experimentIx = exIx[0];
@@ -336,6 +337,8 @@ class ExperimentViewThread extends Thread {
             } else if (m_experimentIx == g_hugmemapper_ex) {
                 m_omega = doRandomDoubleVariable(a_imgui, "Omega Threshold", m_omega);
                 m_phi = doRandomDoubleVariable(a_imgui, "Phi", m_phi);
+            } else if (m_experimentIx == g_irattract_ex) {
+                // add parameters here
             }
 
             a_imgui.imgui().separator();
@@ -471,12 +474,15 @@ class ExperimentViewThread extends Thread {
             m_threshold = nbexr.getThreshold();
             m_doStemming = nbexr.getStemming();
             m_doWordCount = nbexr.getWordCount();
-            m_experimentIx = 0;
+            m_experimentIx = g_nbmapper_ex;
         } else if (a_exr instanceof HuGMeExperimentRunner) {
             HuGMeExperimentRunner hugme = (HuGMeExperimentRunner)a_exr;
             m_omega = hugme.getOmega();
             m_phi = hugme.getPhi();
-            m_experimentIx = 1;
+            m_experimentIx = g_hugmemapper_ex;
+        } else if (a_exr instanceof IRAttractExperimentRunner) {
+            m_experimentIx = g_irattract_ex;
+            // initiaize experiments here
         }
 
         m_name = a_exr.getName();
@@ -495,6 +501,8 @@ class ExperimentViewThread extends Thread {
             ret = new NBMapperExperimentRunner(systems, m_selectedMetrics.getSelected(), m_useManualmapping, m_initialSetSize, m_doStemming, m_doWordCount, m_threshold);
         } else if (m_experimentIx == g_hugmemapper_ex) {
             ret = new HuGMeExperimentRunner(systems, m_selectedMetrics.getSelected(), m_useManualmapping, m_initialSetSize, m_omega, m_phi);
+        } else if (m_experimentIx == g_irattract_ex) {
+            ret = new IRAttractExperimentRunner(systems, m_selectedMetrics.getSelected(), m_useManualmapping, m_initialSetSize);
         }
 
         ret.setName(m_name);

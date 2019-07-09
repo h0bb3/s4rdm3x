@@ -14,6 +14,7 @@ import weka.classifiers.trees.RandomTree;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instances;
+import weka.core.SerializationHelper;
 import weka.core.stemmers.SnowballStemmer;
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.StringToWordVector;
@@ -23,7 +24,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-public class NBMapper extends MapperBase {
+public class NBMapper extends IRMapperBase {
 
     private boolean m_addRawArchitectureTrainingData = false;
 
@@ -59,8 +60,6 @@ public class NBMapper extends MapperBase {
     }
 
     public ArrayList<CNode> m_clusteredElements = new ArrayList<>();
-    protected ArchDef m_arch;
-
 
     public int m_consideredNodes = 0;
     public int m_automaticallyMappedNodes = 0;
@@ -73,13 +72,11 @@ public class NBMapper extends MapperBase {
     private double [] m_initialDistribution = null;
 
     public NBMapper(ArchDef a_arch) {
-        super(false);
-        m_arch = a_arch;
+        super(a_arch, false);
         ((StringToWordVector)m_filter).setOutputWordCounts(false);
     }
     public NBMapper(ArchDef a_arch, boolean a_doManualMapping, double [] a_initialDistribution) {
-        super(a_doManualMapping);
-        m_arch = a_arch;
+        super(a_arch, a_doManualMapping);
         m_initialDistribution = a_initialDistribution;
         ((StringToWordVector)m_filter).setOutputWordCounts(false);
     }
@@ -91,31 +88,6 @@ public class NBMapper extends MapperBase {
     public double getClusteringThreshold() {
         return m_clusteringThreshold;
     }
-
-    protected java.util.ArrayList<CNode> getOrphanNodes(CGraph a_g) {
-
-        java.util.ArrayList<CNode> ret = new ArrayList<>();
-        for (CNode n : a_g.getNodes()) {
-            if (m_arch.getMappedComponent(n) != null && m_arch.getClusteredComponent(n) == null) {
-                ret.add(n);
-            }
-        }
-
-        return ret;
-    }
-
-    java.util.ArrayList<CNode> getInitiallyMappedNodes(CGraph a_g) {
-        java.util.ArrayList<CNode> ret = new ArrayList<>();
-        for (CNode n : a_g.getNodes()) {
-            if (m_arch.getMappedComponent(n) != null && m_arch.getClusteredComponent(n) != null && m_arch.getClusteredComponent(n).getClusteringType(n) == ArchDef.Component.ClusteringType.Initial) {
-                ret.add(n);
-            }
-        }
-
-        return ret;
-    }
-
-
 
     public Filter getFilter() {
         return m_filter;
@@ -162,6 +134,8 @@ public class NBMapper extends MapperBase {
         try {
             nbClassifier.buildClassifier(trainingData);
 
+            //SerializationHelper sh = new SerializationHelper();
+            //SerializationHelper.write("C:\\hObbE\\projects\\coding\\research\\s4rdm3x\\testmodel", nbClassifier);
 
 
             if (m_initialDistribution != null && m_initialDistribution.length == nbClassifier.getProbabilityOfClass().length) {
@@ -273,33 +247,7 @@ public class NBMapper extends MapperBase {
         }
     }
 
-    public String deCamelCase(String a_string, int a_minLength, weka.core.stemmers.Stemmer a_stemmer) {
-        String ret = "";
-        for (int i = 0; i < 10; i++) {
-            a_string = a_string.replace("" + i, " ");
-        }
-        a_string = a_string.replace("_", " ");
-        a_string = a_string.replace("-", " ");
-        for (String p : a_string.split(" ")) {
-            // https://stackoverflow.com/questions/7593969/regex-to-split-camelcase-or-titlecase-advanced
-            for (String w : p.split("(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])")) {
-                w = w.toLowerCase();
-                if (w.length() >= a_minLength && !w.contains("$")) {
-                    if (a_stemmer != null ) {
-                        w = a_stemmer.stem(w);
-                    }
 
-                    if (w.equals("tmp")) {
-                        w = "temp";
-                    }
-
-                    ret += w + " ";
-                }
-            }
-        }
-
-        return ret.trim();
-    }
 
     private String getComponentComponentRelationString(String a_from, dmDependency.Type a_relation, String a_to) {
         return a_from.replace(".", "") + a_relation + a_to.replace(".", "");
