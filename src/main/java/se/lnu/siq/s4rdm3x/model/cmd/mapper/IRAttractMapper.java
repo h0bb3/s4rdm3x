@@ -54,6 +54,20 @@ public class IRAttractMapper extends IRMapperBase {
             }
         }
 
+        public void makeRelativeToMax() {
+            double max = 0;
+
+            for (Map.Entry<String, Double> e : m_words.entrySet()) {
+               if (e.getValue() > max) {
+                   max = e.getValue();
+               }
+            }
+
+            for (Map.Entry<String, Double> e : m_words.entrySet()) {
+                e.setValue(e.getValue() / max);
+            }
+        }
+
         public void makeRelative() {
             int wordCount = 0;
 
@@ -63,6 +77,15 @@ public class IRAttractMapper extends IRMapperBase {
 
             for (Map.Entry<String, Double> e : m_words.entrySet()) {
                 e.setValue(e.getValue() / (double)wordCount);
+            }
+
+        }
+
+        public void normalize() {
+            double len = length();
+
+            for (Map.Entry<String, Double> e : m_words.entrySet()) {
+                e.setValue(e.getValue() / len);
             }
 
         }
@@ -122,8 +145,18 @@ public class IRAttractMapper extends IRMapperBase {
 
     private Vector<WordVector> getTrainingData(ArrayList<CNode> a_nodes, ArchDef a_arch, weka.core.stemmers.Stemmer a_stemmer) {
         Vector<WordVector> ret = new Vector<>();
-        a_arch.getComponents().forEach(c -> ret.add(new WordVector()));
 
+        // add the component names to each document
+        a_arch.getComponents().forEach(c -> {
+            WordVector wv = new WordVector();
+            Vector<String> names = new Vector<>();
+            addWordsToVector(c.getName().replace(".", " "), names);
+            names.forEach(w -> wv.add(w));
+            ret.add(wv);
+
+        });
+
+        // add the node words to the mapped document of the node
         for (CNode n : a_nodes) {
             int cIx = a_arch.getComponentIx(a_arch.getMappedComponent(n));
             Vector<String> words = getWords(n, a_stemmer);
@@ -131,6 +164,7 @@ public class IRAttractMapper extends IRMapperBase {
         }
 
         ret.forEach(wv -> wv.makeRelative());
+
 
         return ret;
     }

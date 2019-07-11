@@ -208,21 +208,17 @@ public class NBMapper extends IRMapperBase {
 
         Instances data = new Instances("PredictionData", attributes, 0);
 
-        String nodeText = " ";
+        String nodeText = getNodeWords(a_node, a_stemmer);
 
-        for (dmClass c : a_node.getClasses()) {
-            for (String t : c.getTexts()) {
-                nodeText += deCamelCase(t, 3, a_stemmer) + " ";
-            }
-        }
 
-        nodeText += deCamelCase(a_node.getLogicName().replace(".", " "), 3, a_stemmer);
+        //nodeText += deCamelCase(a_node.getLogicName().replace(".", " "), 3, a_stemmer);
 
         //for (int i = 0; i < a_arch.getComponentCount(); i++) {
             double[] values = new double[data.numAttributes()];
-            values[0] = componentNames.indexOf(a_component);
-            String relations = getDependencyStringFromNode(a_node, a_component.getName(), a_mappedNodes);
-            relations += " " + getDependencyStringToNode(a_node, a_component.getName(), a_mappedNodes);
+            //values[0] = componentNames.indexOf(a_component);
+            //String relations = getDependencyStringFromNode(a_node, a_component.getName(), a_mappedNodes);
+            //relations += " " + getDependencyStringToNode(a_node, a_component.getName(), a_mappedNodes);
+            String relations = getUnmappedCDAWords(a_node, a_component, a_mappedNodes);
 
             relations += " " + nodeText;
             //String relations = nodeText;
@@ -249,7 +245,7 @@ public class NBMapper extends IRMapperBase {
 
 
 
-    private String getComponentComponentRelationString(String a_from, dmDependency.Type a_relation, String a_to) {
+   /* private String getComponentComponentRelationString(String a_from, dmDependency.Type a_relation, String a_to) {
         return a_from.replace(".", "") + a_relation + a_to.replace(".", "");
     }
 
@@ -294,7 +290,7 @@ public class NBMapper extends IRMapperBase {
 
     String getDependencyStringFromNode(CNode a_from, Iterable<CNode>a_tos) {
         return getDependencyStringFromNode(a_from, a_from.getMapping(), a_tos);
-    }
+    }*/
 
     public Instances getTrainingData(Iterable<CNode>a_nodes, ArchDef a_arch, Filter a_filter, weka.core.stemmers.Stemmer a_stemmer) {
         ArrayList<Attribute> attributes = new ArrayList<>();
@@ -308,7 +304,7 @@ public class NBMapper extends IRMapperBase {
 
         Instances data = new Instances("TrainingData", attributes, 0);
 
-        if (m_addRawArchitectureTrainingData) {
+        /*if (m_addRawArchitectureTrainingData) {
             for (ArchDef.Component from : a_arch.getComponents()) {
                 double[] values = new double[data.numAttributes()];
                 values[0] = components.indexOf(from.getName());
@@ -329,20 +325,39 @@ public class NBMapper extends IRMapperBase {
                 values[1] = data.attribute(1).addStringValue(relations);
                 data.add(new DenseInstance(1.0, values));
             }
+        }*/
+
+        // add the component names
+        for (ArchDef.Component c : a_arch.getComponents()) {
+            double[] values = new double[data.numAttributes()];
+            values[0] = components.indexOf(c.getName());
+            String relations = getArchComponentWords(c, a_stemmer);
+            if (relations.length() > 0) {
+                values[1] = data.attribute(1).addStringValue(relations);
+                data.add(new DenseInstance(1.0, values));
+            }
         }
 
+        // add the node stuff
         String relations = "";
         for (CNode n : a_arch.getMappedNodes(a_nodes)) {
             double[] values = new double[data.numAttributes()];
             values[0] = components.indexOf(n.getMapping());
-            relations = getDependencyStringFromNode(n, a_nodes) + " " +  getDependencyStringToNode(n, a_nodes) + " ";
 
-            for (dmClass c : n.getClasses()) {
+            // add the cda for the node
+            //relations = getDependencyStringFromNode(n, a_nodes) + " " +  getDependencyStringToNode(n, a_nodes) + " ";
+            relations = getMappedCDAWords(n, a_nodes);
+            relations += " ";
+
+
+            // add the identifier texts for the node
+            relations += getNodeWords(n, a_stemmer);
+            /*for (dmClass c : n.getClasses()) {
                 for (String t : c.getTexts()) {
                     relations += deCamelCase(t, 3, a_stemmer) + " ";
                 }
             }
-            relations += " " + deCamelCase(n.getLogicName().replace(".", " "), 3, a_stemmer);
+            relations += " " + deCamelCase(n.getLogicName().replace(".", " "), 3, a_stemmer);*/
 
             values[1] = data.attribute(1).addStringValue(relations);
             data.add(new DenseInstance(1.0, values));

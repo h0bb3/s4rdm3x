@@ -218,7 +218,7 @@ public class HuGMe extends MapperBase {
             if (attractions[i] >= mean) {
                 c2.add(i);
             }
-            if (attractions[i] - mean > sd) {
+            if (attractions[i] - mean > sd) {   // could also stated as > mean + sd (i.e. the same)
                 c1.add(i);
             }
         }

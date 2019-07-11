@@ -11,6 +11,7 @@ import weka.core.Instances;
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.StringToWordVector;
 
+import java.lang.reflect.Method;
 import java.util.Enumeration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -26,9 +27,29 @@ public class NBMapperTests {
         g.getNode("B").setMapping("Component1");
         g.getNode("C").setMapping("Component2");
 
-        NBMapper sut = new NBMapper(null);
+        IRMapperBase sut = new NBMapper(null);
 
-        String expected = "Component1ImplementsComponent1 Component1ImplementsComponent2";
+        try {
+            Method sutMethod = IRMapperBase.class.getDeclaredMethod("getDependencyStringFromNode", CNode.class, Iterable.class);
+            sutMethod.setAccessible(true);
+
+            String expected = "Component1ImplementsComponent1 Component1ImplementsComponent2";
+            String actual = (String)sutMethod.invoke(sut, g.getNode("A"), g.getNodes());
+            assertEquals(expected, actual);
+
+            expected = "Component1ImplementsComponent2";
+            actual = (String)sutMethod.invoke(sut, g.getNode("B"), g.getNodes());
+            assertEquals(expected, actual);
+
+            expected = "Component2ImplementsComponent1";
+            actual = (String)sutMethod.invoke(sut, g.getNode("C"), g.getNodes());
+            assertEquals(expected, actual);
+
+        } catch (Exception e) {
+            assertEquals(true, false);
+        }
+
+        /*String expected = "Component1ImplementsComponent1 Component1ImplementsComponent2";
         String actual = sut.getDependencyStringFromNode(g.getNode("A"), g.getNodes());
 
         assertEquals(expected, actual);
@@ -39,7 +60,7 @@ public class NBMapperTests {
 
         expected = "Component2ImplementsComponent1";
         actual = sut.getDependencyStringFromNode(g.getNode("C"), g.getNodes());
-        assertEquals(expected, actual);
+        assertEquals(expected, actual);*/
     }
 
     @Test
@@ -51,20 +72,27 @@ public class NBMapperTests {
         g.getNode("B").setMapping("Component1");
         g.getNode("C").setMapping("Component2");
 
-        NBMapper sut = new NBMapper(null);
+        IRMapperBase sut = new NBMapper(null);
 
-        String expected = "Component2LocalVarComponent1";
-        String actual = sut.getDependencyStringToNode(g.getNode("A"), g.getNodes());
+        try {
+            Method sutMethod = IRMapperBase.class.getDeclaredMethod("getDependencyStringToNode", CNode.class, Iterable.class);
+            sutMethod.setAccessible(true);
 
-        assertEquals(expected, actual);
+            String expected = "Component2LocalVarComponent1";
+            String actual = (String)sutMethod.invoke(sut, g.getNode("A"), g.getNodes());
+            assertEquals(expected, actual);
 
-        expected = "Component1LocalVarComponent1";
-        actual = sut.getDependencyStringToNode(g.getNode("B"), g.getNodes());
-        assertEquals(expected, actual);
+            expected = "Component1LocalVarComponent1";
+            actual = (String)sutMethod.invoke(sut, g.getNode("B"), g.getNodes());
+            assertEquals(expected, actual);
 
-        expected = "Component1LocalVarComponent2 Component1LocalVarComponent2";
-        actual = sut.getDependencyStringToNode(g.getNode("C"), g.getNodes());
-        assertEquals(expected, actual);
+            expected = "Component1LocalVarComponent2 Component1LocalVarComponent2";
+            actual = (String)sutMethod.invoke(sut, g.getNode("C"), g.getNodes());
+            assertEquals(expected, actual);
+
+        } catch (Exception e) {
+            assertEquals(true, false);
+        }
     }
 
     @Test
