@@ -78,9 +78,17 @@ public class ExperimentRunData {
         public double m_phi;    // specific for HuGMe
     }
 
-    public static class NBMapperData extends BasicRunData {
-        public double m_threshold;
+    public static class IRMapperData extends BasicRunData {
         public boolean m_doStemming;
+        public boolean m_doUseCDA;
+        public boolean m_doUseNodeText;
+        public boolean m_doUseNodeName;
+        public boolean m_doUseArchComponentName;
+        public int m_minWordSize;
+    }
+
+    public static class NBMapperData extends IRMapperData {
+        public double m_threshold;
         public boolean m_doWordCount;
     }
 

@@ -91,8 +91,8 @@ public class IRAttractMapper extends IRMapperBase {
         }
     }
 
-    public IRAttractMapper(ArchDef a_arch, boolean a_doManualMapping) {
-        super(a_arch, a_doManualMapping);
+    public IRAttractMapper(ArchDef a_arch, boolean a_doManualMapping,  boolean a_doUseCDA, boolean a_doUseNodeText, boolean a_doUseNodeName, boolean a_doUseArchComponentName, int a_minWordLength) {
+        super(a_arch, a_doManualMapping,  a_doUseCDA, a_doUseNodeText, a_doUseNodeName, a_doUseArchComponentName, a_minWordLength);
     }
 
     public void run(CGraph a_g) {
@@ -146,14 +146,14 @@ public class IRAttractMapper extends IRMapperBase {
     private Vector<WordVector> getTrainingData(ArrayList<CNode> a_nodes, ArchDef a_arch, weka.core.stemmers.Stemmer a_stemmer) {
         Vector<WordVector> ret = new Vector<>();
 
+
         // add the component names to each document
         a_arch.getComponents().forEach(c -> {
             WordVector wv = new WordVector();
             Vector<String> names = new Vector<>();
-            addWordsToVector(c.getName().replace(".", " "), names);
+            addWordsToVector(getArchComponentWords(c, a_stemmer), names);
             names.forEach(w -> wv.add(w));
             ret.add(wv);
-
         });
 
         // add the node words to the mapped document of the node
@@ -169,6 +169,7 @@ public class IRAttractMapper extends IRMapperBase {
         return ret;
     }
 
+
     private void addWordsToVector(String a_words, Vector<String>a_target) {
         if (a_words.length() > 0) {
             String[] words = a_words.split(" ");
@@ -180,19 +181,9 @@ public class IRAttractMapper extends IRMapperBase {
 
     private Vector<String> getWords(CNode a_node, weka.core.stemmers.Stemmer a_stemmer) {
         Vector<String> ret = new Vector<>();
-        for (dmClass c : a_node.getClasses()) {
-            for (String t : c.getTexts()) {
-                String deCased = deCamelCase(t, 5, a_stemmer);
-                addWordsToVector(deCased, ret);
-            }
-        }
 
-        String deCased = deCamelCase(a_node.getLogicName().replace(".", " "), 5, a_stemmer);
-        addWordsToVector(deCased, ret);
+        addWordsToVector(getNodeWords(a_node, a_stemmer), ret);
         return ret;
     }
-
-
-
-
+    
 }

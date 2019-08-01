@@ -160,14 +160,18 @@ public class ExperimentXMLPersistence {
             ExperimentRunner.RandomBoolVariable stemming = elementToRandomBool(a_exr, "stemming");
             ExperimentRunner.RandomBoolVariable wordcount = elementToRandomBool(a_exr, "wordcount");
 
-            ret = new NBMapperExperimentRunner(suas, metrics, useManualMapping, initialSetSize, stemming, wordcount, threshold);
+            // TODO: fixme
+            //ret = new NBMapperExperimentRunner(suas, metrics, useManualMapping, initialSetSize, stemming, wordcount, threshold);
+            ret = null;
         } else if (type.equals("hugme")) {
             ExperimentRunner.RandomDoubleVariable omega = elementToRandomDouble(a_exr, "omega");
             ExperimentRunner.RandomDoubleVariable phi = elementToRandomDouble(a_exr, "phi");
 
             ret = new HuGMeExperimentRunner(suas, metrics, useManualMapping, initialSetSize, omega, phi);
         } else if (type.equals("irattract")) {
-            ret = new IRAttractExperimentRunner(suas, metrics, useManualMapping, initialSetSize);
+            // TODO: fixme
+            //ret = new IRAttractExperimentRunner(suas, metrics, useManualMapping, initialSetSize);
+            ret = null;
         } else {
             throw new Exception("Unknown mapping experiment: " + type);
         }
@@ -237,7 +241,8 @@ public class ExperimentXMLPersistence {
             exrNode.setAttribute("type", "nbmapper");
             NBMapperExperimentRunner nbexr = (NBMapperExperimentRunner)a_exr;
             exrNode.appendChild(randomDoubleToElement(a_doc, nbexr.getThreshold(), "threshold"));
-            exrNode.appendChild(randomBoolToElement(a_doc, nbexr.getStemming(), "stemming"));
+            // TODO: fix me
+            //exrNode.appendChild(randomBoolToElement(a_doc, nbexr.getStemming(), "stemming"));
             exrNode.appendChild(randomBoolToElement(a_doc, nbexr.getWordCount(), "wordcount"));
         } else if (a_exr instanceof HuGMeExperimentRunner) {
             exrNode.setAttribute("type", "hugme");

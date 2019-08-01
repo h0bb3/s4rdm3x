@@ -8,7 +8,8 @@ import java.util.ArrayList;
 public class NBMapperManual extends NBMapper {
 
     public NBMapperManual(ArchDef a_arch, double [] a_initialDistribution) {
-        super(a_arch, false, a_initialDistribution);
+        // TODO: fixme by adding parameters
+        super(a_arch, false, true, true, true, true, 0, a_initialDistribution);
     }
 
 

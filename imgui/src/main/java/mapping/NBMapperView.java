@@ -43,7 +43,8 @@ public class NBMapperView extends MapperBaseView {
     void doNBMapperParamsView(ImGuiWrapper a_imgui, ArchDef a_arch, HNode.VisualsManager a_nvm, Iterable<CNode>a_system) {
 
         // first we get the data
-        NBMapper mapper = new NBMapper(null);
+        // TODO: these should be fixed based on parameters in the view...
+        NBMapper mapper = new NBMapper(null, true, true, true, false, 3);
 
         StringToWordVector filter = (StringToWordVector) mapper.getFilter();
         filter.setOutputWordCounts(m_doWordCount);

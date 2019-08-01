@@ -71,12 +71,12 @@ public class NBMapper extends IRMapperBase {
     private Filter m_filter = new StringToWordVector();
     private double [] m_initialDistribution = null;
 
-    public NBMapper(ArchDef a_arch) {
-        super(a_arch, false);
+    public NBMapper(ArchDef a_arch, boolean a_doUseCDA, boolean a_doUseNodeText, boolean a_doUseNodeName, boolean a_doUseArchComponentName, int a_minWordLength) {
+        super(a_arch, false, a_doUseCDA, a_doUseNodeText, a_doUseNodeName, a_doUseArchComponentName, a_minWordLength);
         ((StringToWordVector)m_filter).setOutputWordCounts(false);
     }
-    public NBMapper(ArchDef a_arch, boolean a_doManualMapping, double [] a_initialDistribution) {
-        super(a_arch, a_doManualMapping);
+    public NBMapper(ArchDef a_arch, boolean a_doManualMapping, boolean a_doUseCDA, boolean a_doUseNodeText, boolean a_doUseNodeName, boolean a_doUseArchComponentName, int a_minWordLength, double [] a_initialDistribution) {
+        super(a_arch, a_doManualMapping, a_doUseCDA, a_doUseNodeText, a_doUseNodeName, a_doUseArchComponentName, a_minWordLength);
         m_initialDistribution = a_initialDistribution;
         ((StringToWordVector)m_filter).setOutputWordCounts(false);
     }

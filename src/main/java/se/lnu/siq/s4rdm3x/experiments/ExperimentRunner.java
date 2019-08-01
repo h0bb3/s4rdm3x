@@ -94,6 +94,42 @@ public abstract class ExperimentRunner {
         }
     }
 
+    public static class RandomIntVariable {
+        private int m_value;
+        private int m_min;
+        private int m_max;
+
+        public RandomIntVariable(int a_min, int a_max) {
+            m_min = a_min;
+            m_max = a_max;
+            if (a_min > a_max) {
+                throw new IllegalArgumentException("Min value larger than max value");
+            }
+        }
+
+        public RandomIntVariable(RandomIntVariable a_cpy) {
+            m_value = a_cpy.m_value;
+            m_min = a_cpy.m_min;
+            m_max = a_cpy.m_max;
+        }
+
+        public RandomIntVariable(int a_base) {
+            m_min = m_max = a_base;
+        }
+
+        public int generate(Random a_rand) {
+            m_value = m_min + a_rand.nextInt(m_max - m_min + 1);
+            return m_value;
+        }
+
+        public int getMin() {
+            return m_min;
+        }
+
+        public int getMax() {
+            return m_max;
+        }
+    }
 
     public static class RandomDoubleVariable {
         double m_value;

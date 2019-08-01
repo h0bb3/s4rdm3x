@@ -27,7 +27,7 @@ public class NBMapperTests {
         g.getNode("B").setMapping("Component1");
         g.getNode("C").setMapping("Component2");
 
-        IRMapperBase sut = new NBMapper(null);
+        IRMapperBase sut = new NBMapper(null, false, false, false, false, 0);
 
         try {
             Method sutMethod = IRMapperBase.class.getDeclaredMethod("getDependencyStringFromNode", CNode.class, Iterable.class);
@@ -72,7 +72,7 @@ public class NBMapperTests {
         g.getNode("B").setMapping("Component1");
         g.getNode("C").setMapping("Component2");
 
-        IRMapperBase sut = new NBMapper(null);
+        IRMapperBase sut = new NBMapper(null,false, false, false, false, 0);
 
         try {
             Method sutMethod = IRMapperBase.class.getDeclaredMethod("getDependencyStringToNode", CNode.class, Iterable.class);
@@ -116,7 +116,7 @@ public class NBMapperTests {
 
         c2.mapToNode(d);
 
-        NBMapper sut = new NBMapper(arch);
+        NBMapper sut = new NBMapper(arch, true, true, true, false, 0);
         StringToWordVector filter = new StringToWordVector();
         filter.setOutputWordCounts(true);
 
@@ -168,7 +168,7 @@ public class NBMapperTests {
         c1.mapToNode(d);
 
 
-        NBMapper sut = new NBMapper(arch);
+        NBMapper sut = new NBMapper(arch, true, true, true, false, 0);
 
         sut.run(g);
 
@@ -176,7 +176,7 @@ public class NBMapperTests {
 
     @Test
     void deCamelCaseTest() {
-        NBMapper sut = new NBMapper(null);
+        NBMapper sut = new NBMapper(null, true, true, true, false, 0);
 
         assertEquals("test", sut.deCamelCase("test", 3, null));
         assertEquals("test test", sut.deCamelCase("testTest", 3, null));

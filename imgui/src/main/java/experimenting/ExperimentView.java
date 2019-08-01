@@ -118,8 +118,24 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
         }
 
 
+        ExperimentViewThread toBeDeleted = null;
+        ExperimentViewThread toBeCopied = null;
         for (ExperimentViewThread experiment :  m_experiments) {
-            experiment.doExperiment(iw, this);
+            ExperimentViewThread.DoExperimentAction action = experiment.doExperiment(iw, this);
+            if (action == ExperimentViewThread.DoExperimentAction.Delete) {
+                toBeDeleted = experiment;
+            }
+            if (action == ExperimentViewThread.DoExperimentAction.Copy) {
+                toBeCopied = experiment;
+            }
+        }
+
+        if (toBeDeleted != null) {
+            toBeDeleted.stopExperiment();
+            m_experiments.remove(toBeDeleted);
+        }
+        if (toBeCopied != null) {
+            m_experiments.add(new ExperimentViewThread(toBeCopied, m_experiments.size()));
         }
     }
 

@@ -6,6 +6,7 @@ import se.lnu.siq.s4rdm3x.model.CNode;
 import se.lnu.siq.s4rdm3x.experiments.metric.Metric;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -23,6 +24,74 @@ class ExperimentRunnerTest {
 
     }
 
+    @Test
+    void randomIntTest_2Values() {
+        Random rand = new Random();
+        ExperimentRunner.RandomIntVariable sut = new ExperimentRunner.RandomIntVariable(0, 1);
+        boolean found0 = false, found1 = false;
+        int count = 0;
+        while (count < 1000) {
+            if (found0 == true && found1 == true) {
+                break;
+            }
+            int value = sut.generate(rand);
+            if (value == 0) {
+                found0 = true;
+            } else if (value == 1) {
+                found1 = true;
+            } else {
+                // we found some other value?!
+                assertTrue(false);
+            }
+            count++;
+        }
+
+        assertTrue(found0);
+        assertTrue(found1);
+    }
+
+    @Test
+    void randomIntTest_2Values2() {
+        Random rand = new Random();
+        ExperimentRunner.RandomIntVariable sut = new ExperimentRunner.RandomIntVariable(-17, -16);
+        boolean found_neg17 = false, found_neg16 = false;
+        int count = 0;
+        while (count < 1000) {
+            if (found_neg17 == true && found_neg16 == true) {
+                break;
+            }
+            int value = sut.generate(rand);
+            if (value == -17) {
+                found_neg17 = true;
+            } else if (value == -16) {
+                found_neg16 = true;
+            } else {
+                // we found some other value?!
+                assertTrue(false);
+            }
+            count++;
+        }
+
+        assertTrue(found_neg17);
+        assertTrue(found_neg16);
+    }
+
+    @Test
+    void randomIntTest_1Value() {
+        Random rand = new Random();
+        ExperimentRunner.RandomIntVariable sut = new ExperimentRunner.RandomIntVariable(17);
+        int count = 0;
+        while (count < 1000) {
+            int value = sut.generate(rand);
+            if (value != 17) {
+                // we found some other value?!
+                assertTrue(false);
+            }
+            count++;
+        }
+
+        assertTrue(true);
+    }
 
     @Test
     public void getWorkingSetTest() {

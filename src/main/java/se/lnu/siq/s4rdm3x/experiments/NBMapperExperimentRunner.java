@@ -11,32 +11,33 @@ import se.lnu.siq.s4rdm3x.model.cmd.util.FanInCache;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class NBMapperExperimentRunner extends ExperimentRunner {
+public class NBMapperExperimentRunner extends IRExperimentRunnerBase {
 
     private ExperimentRunData.NBMapperData m_exData;
 
-    RandomBoolVariable m_doStemming;
     RandomBoolVariable m_doWordCount;
     RandomDoubleVariable m_threshold;
 
+    public NBMapperExperimentRunner(System a_sua, Metric a_metric, RandomDoubleVariable a_initialSetSize, IRExperimentRunnerBase.Data a_irData) {
+        super (a_sua, a_metric, false, a_initialSetSize, a_irData);
 
-    public NBMapperExperimentRunner(System a_sua, Metric a_metric, RandomDoubleVariable a_initialSetSize) {
-        super (a_sua, a_metric, false, a_initialSetSize);
-        m_doStemming = new RandomBoolVariable(false);
         m_doWordCount = new RandomBoolVariable(false);
         m_threshold = new RandomDoubleVariable(0.9, 0);
     }
 
-    public NBMapperExperimentRunner(System a_sua, Metric a_metric, boolean a_doUseManualMapping, RandomDoubleVariable a_initialSetSize, RandomBoolVariable a_doStemming, RandomBoolVariable a_doWordCount, RandomDoubleVariable a_threshold) {
-        super (a_sua, a_metric, a_doUseManualMapping, a_initialSetSize);
-        m_doStemming = new RandomBoolVariable(a_doStemming);
+    public NBMapperExperimentRunner(System a_sua, Metric a_metric, boolean a_doUseManualMapping, RandomDoubleVariable a_initialSetSize,
+                                    IRExperimentRunnerBase.Data a_irData, RandomBoolVariable a_doWordCount, RandomDoubleVariable a_threshold) {
+        super (a_sua, a_metric, a_doUseManualMapping, a_initialSetSize, a_irData);
+
+
         m_doWordCount = new RandomBoolVariable(a_doWordCount);
         m_threshold = new RandomDoubleVariable(a_threshold);
     }
 
-    public NBMapperExperimentRunner(Iterable<System> a_suas, Iterable<Metric> a_metrics, boolean a_doUseManualMapping, RandomDoubleVariable a_initialSetSize, RandomBoolVariable a_doStemming, RandomBoolVariable a_doWordCount, RandomDoubleVariable a_threshold) {
-        super (a_suas, a_metrics, a_doUseManualMapping, a_initialSetSize);
-        m_doStemming = new RandomBoolVariable(a_doStemming);
+    public NBMapperExperimentRunner(Iterable<System> a_suas, Iterable<Metric> a_metrics, boolean a_doUseManualMapping, RandomDoubleVariable a_initialSetSize,
+                                    IRExperimentRunnerBase.Data a_irData, RandomBoolVariable a_doWordCount, RandomDoubleVariable a_threshold) {
+        super(a_suas, a_metrics, a_doUseManualMapping, a_initialSetSize, a_irData);
+
         m_doWordCount = new RandomBoolVariable(a_doWordCount);
         m_threshold = new RandomDoubleVariable(a_threshold);
     }
@@ -45,14 +46,14 @@ public class NBMapperExperimentRunner extends ExperimentRunner {
     protected ExperimentRunData.BasicRunData createNewRunData(Random a_rand) {
         m_exData = new ExperimentRunData.NBMapperData();
         m_exData.m_threshold = m_threshold.generate(a_rand);
-        m_exData.m_doStemming = m_doStemming.generate(a_rand);
+        getData().setRunDataVariables(m_exData, a_rand);
         m_exData.m_doWordCount = m_doWordCount.generate(a_rand);
         return m_exData;
     }
 
     @Override
     protected boolean runClustering(CGraph a_g, FanInCache fic, ArchDef arch) {
-        NBMapper c = new NBMapper(arch, m_doUseManualmapping, null);
+        NBMapper c = new NBMapper(arch, m_doUseManualmapping, m_exData.m_doUseCDA, m_exData.m_doUseNodeText, m_exData.m_doUseNodeName, m_exData.m_doUseArchComponentName, m_exData.m_minWordSize, null);
         c.setClusteringThreshold(m_exData.m_threshold);
         c.doStemming(m_exData.m_doStemming);
         c.doWordCount(m_exData.m_doWordCount);
@@ -72,7 +73,9 @@ public class NBMapperExperimentRunner extends ExperimentRunner {
 
     @Override
     public ExperimentRunner clone() {
-        return new NBMapperExperimentRunner(getSystems(), getMetrics(), doUseManualmapping(), getInitialSetSize(), m_doStemming, m_doWordCount, m_threshold);
+        return new NBMapperExperimentRunner(getSystems(), getMetrics(), doUseManualmapping(), getInitialSetSize(),
+                getData(),
+                m_doWordCount, m_threshold);
     }
 
     public RandomDoubleVariable getThreshold() {
@@ -81,9 +84,5 @@ public class NBMapperExperimentRunner extends ExperimentRunner {
 
     public RandomBoolVariable getWordCount() {
         return m_doWordCount;
-    }
-
-    public RandomBoolVariable getStemming() {
-        return m_doStemming;
     }
 }

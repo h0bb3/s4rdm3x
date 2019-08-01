@@ -9,32 +9,33 @@ import se.lnu.siq.s4rdm3x.model.cmd.util.FanInCache;
 
 import java.util.Random;
 
-public class IRAttractExperimentRunner extends ExperimentRunner {
-    ExperimentRunData.BasicRunData m_exData;
+public class IRAttractExperimentRunner extends IRExperimentRunnerBase {
+    ExperimentRunData.IRMapperData m_exData;
 
-    public IRAttractExperimentRunner(System a_sua, Metric a_metric, boolean a_doUseManualmapping, RandomDoubleVariable a_initialSetSize) {
-        super(a_sua, a_metric, a_doUseManualmapping, a_initialSetSize);
+    public IRAttractExperimentRunner(System a_sua, Metric a_metric, boolean a_doUseManualmapping, RandomDoubleVariable a_initialSetSize, Data a_irData) {
+        super(a_sua, a_metric, a_doUseManualmapping, a_initialSetSize, a_irData);
     }
 
-    public IRAttractExperimentRunner(Iterable<System> a_suas, Iterable<Metric> a_metrics, boolean a_doUseManualmapping, RandomDoubleVariable a_initialSetSize) {
-        super(a_suas, a_metrics, a_doUseManualmapping, a_initialSetSize);
+    public IRAttractExperimentRunner(Iterable<System> a_suas, Iterable<Metric> a_metrics, boolean a_doUseManualmapping, RandomDoubleVariable a_initialSetSize, Data a_irData) {
+        super(a_suas, a_metrics, a_doUseManualmapping, a_initialSetSize, a_irData);
     }
 
     @Override
     public ExperimentRunner clone() {
-        return new IRAttractExperimentRunner(getSystems(), getMetrics(), doUseManualmapping(), getInitialSetSize());
+        return new IRAttractExperimentRunner(getSystems(), getMetrics(), doUseManualmapping(), getInitialSetSize(), getData());
     }
 
     @Override
-    protected ExperimentRunData.BasicRunData createNewRunData(Random m_rand) {
-        m_exData = new ExperimentRunData.BasicRunData();
+    protected ExperimentRunData.BasicRunData createNewRunData(Random a_rand) {
+        m_exData = new ExperimentRunData.IRMapperData();
+        getData().setRunDataVariables(m_exData, a_rand);
         return m_exData;
     }
 
     @Override
     protected boolean runClustering(CGraph a_g, FanInCache fic, ArchDef a_arch) {
 
-        IRAttractMapper iram = new IRAttractMapper(a_arch, m_doUseManualmapping);
+        IRAttractMapper iram = new IRAttractMapper(a_arch, m_doUseManualmapping, m_exData.m_doUseCDA, m_exData.m_doUseNodeText, m_exData.m_doUseNodeName, m_exData.m_doUseArchComponentName, m_exData.m_minWordSize);
 
         iram.run(a_g);
 

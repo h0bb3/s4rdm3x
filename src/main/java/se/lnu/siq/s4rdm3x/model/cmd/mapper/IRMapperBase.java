@@ -13,19 +13,42 @@ public abstract class IRMapperBase extends MapperBase {
 
     protected ArchDef m_arch;
     private boolean m_doUseCDA;
-    private boolean m_doUseNodeTexts;
+    private boolean m_doUseNodeText;
     private boolean m_doUseNodeName;
-    private boolean m_doUseArchComponentNames;
+    private boolean m_doUseArchComponentName;
     private int m_minWordLength = 3;
 
-    protected IRMapperBase(ArchDef a_arch, boolean a_doManualMapping) {
+    protected IRMapperBase(ArchDef a_arch, boolean a_doManualMapping, boolean a_doUseCDA, boolean a_doUseNodeText, boolean a_doUseNodeName, boolean a_doUseArchComponentName, int a_minWordLength) {
         super(a_doManualMapping);
+
+        m_doUseCDA = a_doUseCDA;
+        m_doUseNodeText = a_doUseNodeText;
+        m_doUseNodeName = a_doUseNodeName;
+        m_doUseArchComponentName = a_doUseArchComponentName;
+        m_minWordLength = a_minWordLength;
+
         m_arch = a_arch;
+    }
+
+    boolean doUseCDA() {
+        return m_doUseCDA;
+    }
+
+    boolean doUseNodeText() {
+        return m_doUseNodeText;
+    }
+
+    boolean doUseNodeName() {
+        return m_doUseNodeName;
+    }
+
+    boolean doUseArchComponentName() {
+        return m_doUseArchComponentName;
     }
 
     String getNodeWords(CNode a_node, Stemmer a_stemmer) {
         String ret = "";
-        if (m_doUseNodeTexts) {
+        if (m_doUseNodeText) {
             for (dmClass c : a_node.getClasses()) {
                 for (String t : c.getTexts()) {
                     ret += deCamelCase(t, m_minWordLength, a_stemmer) + " ";
@@ -44,7 +67,7 @@ public abstract class IRMapperBase extends MapperBase {
 
     protected String getArchComponentWords(ArchDef.Component a_c, Stemmer a_stemmer) {
         String ret = "";
-        if (m_doUseArchComponentNames) {
+        if (m_doUseArchComponentName) {
             ret = deCamelCase(a_c.getName(), m_minWordLength, a_stemmer);
         }
 

@@ -37,8 +37,10 @@ class ExperimentViewThread extends Thread {
     static final int g_irattract_ex = 2;
     int m_experimentIx = 0;
 
+    // ir experiment parameters
+    IRExperimentRunnerBase.Data m_irData = new IRExperimentRunnerBase.Data();
+
     // nbmapper experiment parameters
-    ExperimentRunner.RandomBoolVariable m_doStemming = new ExperimentRunner.RandomBoolVariable();
     ExperimentRunner.RandomBoolVariable m_doWordCount = new ExperimentRunner.RandomBoolVariable();
     ExperimentRunner.RandomDoubleVariable m_threshold = new ExperimentRunner.RandomDoubleVariable(0.9, 0);
 
@@ -51,11 +53,32 @@ class ExperimentViewThread extends Thread {
     SystemSelection m_selectedSystem = new SystemSelection();
     boolean m_useManualmapping = false;
 
-    public ExperimentViewThread(int a_id, ExperimentRunner a_exr) {
+    public ExperimentViewThread(ExperimentViewThread a_toBeCopied, int a_id) {
         m_id = "ExThread_" + a_id;
-        setExperiment(a_exr);
+        m_name = a_toBeCopied.m_name;
+        m_currentColor = new Vec4(a_toBeCopied.m_currentColor);
+        m_experimentIx = a_toBeCopied.m_experimentIx;
+        m_irData = new IRExperimentRunnerBase.Data(a_toBeCopied.m_irData);
+        m_doWordCount = new ExperimentRunner.RandomBoolVariable(a_toBeCopied.m_doWordCount);
+        m_threshold = new ExperimentRunner.RandomDoubleVariable(a_toBeCopied.m_threshold);
+        m_omega = new ExperimentRunner.RandomDoubleVariable(a_toBeCopied.m_omega);
+        m_phi = new ExperimentRunner.RandomDoubleVariable(a_toBeCopied.m_phi);
+        m_initialSetSize = new ExperimentRunner.RandomDoubleVariable(a_toBeCopied.m_initialSetSize);
+        m_selectedSystem = new SystemSelection(a_toBeCopied.m_selectedSystem);
+        m_useManualmapping = a_toBeCopied.m_useManualmapping;
+        for (Metric exrMetric : a_toBeCopied.m_selectedMetrics.getSelected()) {
+            m_selectedMetrics.select(exrMetric);
+        }
     }
 
+    ExperimentViewThread(int a_id) {
+        m_id = "ExThread_" + a_id;
+    }
+
+    ExperimentViewThread(int a_id, ExperimentRunner a_runner) {
+        m_id = "ExThread_" + a_id;
+        setExperiment(a_runner);
+    }
 
 
     public void runExperiment(DataListener a_newDataListener) {
@@ -202,7 +225,7 @@ class ExperimentViewThread extends Thread {
         }
     }
     static class SystemSelection {
-        SystemNameFile[] m_systems = {
+        static final SystemNameFile[] g_systems = {
                 new SystemNameFile("Ant", "data/systems/ant/ant-system_model.txt"),
                 new SystemNameFile("Argouml", "data/systems/argouml/argouml-system_model.txt"),
                 new SystemNameFile("JabRef", "data/systems/JabRef/3.7/jabref-3_7-system_model_1.txt"),
@@ -212,17 +235,25 @@ class ExperimentViewThread extends Thread {
 
         ArrayList<SystemNameFile> m_selectedSystems = new ArrayList<>();
 
+        public SystemSelection(SystemSelection a_cpy) {
+            a_cpy.m_selectedSystems.forEach(sf -> m_selectedSystems.add(sf));
+        }
+
+        public SystemSelection() {
+
+        }
+
         ArrayList<String> getSystemNames() {
             ArrayList<String> ret = new ArrayList<>();
 
-            for (SystemNameFile snf : m_systems) {
+            for (SystemNameFile snf : g_systems) {
                 ret.add(snf.m_name);
             }
             return ret;
         }
 
         Iterable<SystemNameFile> getSystems() {
-            return Arrays.asList(m_systems);
+            return Arrays.asList(g_systems);
         }
 
         Iterable<SystemNameFile> getSelectedSystems() {
@@ -243,15 +274,15 @@ class ExperimentViewThread extends Thread {
 
 
         public int getSystemCount() {
-            return m_systems.length;
+            return g_systems.length;
         }
 
         public boolean isLastSystem(SystemNameFile a_snf) {
-            return m_systems[m_systems.length - 1] == a_snf;
+            return g_systems[g_systems.length - 1] == a_snf;
         }
 
         public void selectFileName(String a_fileName) {
-            for (SystemNameFile snf : m_systems) {
+            for (SystemNameFile snf : g_systems) {
                 if (snf.m_file.equals(a_fileName)) {
                     if (!isSelected(snf)) {
                         m_selectedSystems.add(snf);
@@ -268,9 +299,7 @@ class ExperimentViewThread extends Thread {
 
 
 
-    ExperimentViewThread(int a_id) {
-        m_id = "ExThread_" + a_id;
-    }
+
 
 
 
@@ -307,7 +336,14 @@ class ExperimentViewThread extends Thread {
         void onNewData(ExperimentRunData.BasicRunData a_rd, ExperimentViewThread a_source);
     }
 
-    public void doExperiment(ImGuiWrapper a_imgui, DataListener a_newDataListener) {
+    public enum DoExperimentAction {
+        None,
+        Delete,
+        Copy
+    }
+
+    public DoExperimentAction doExperiment(ImGuiWrapper a_imgui, DataListener a_newDataListener) {
+        DoExperimentAction ret = DoExperimentAction.None;
         if (a_imgui.imgui().collapsingHeader("Experiment " + m_name + "###Header" + m_id, 0)) {
             //Vec2 size = new Vec2(a_imgui.imgui().getContentRegionAvailWidth(), a_imgui.getTextLineHeightWithSpacing() * 2 + a_imgui.imgui().getContentRegionAvailWidth() / 3);
 
@@ -329,11 +365,19 @@ class ExperimentViewThread extends Thread {
 
 
 
-            if (m_experimentIx == g_nbmapper_ex) {
+            if (m_experimentIx == g_nbmapper_ex || m_experimentIx == g_irattract_ex) {
 
-                m_doStemming = doRandomBoolVariable(a_imgui, "Use Stemming", m_doStemming);
-                m_doWordCount = doRandomBoolVariable(a_imgui, "Use Word Counts", m_doWordCount);
-                m_threshold = doRandomDoubleVariable(a_imgui, "Threshold", m_threshold);
+                m_irData.doStemming(doRandomBoolVariable(a_imgui, "Use Stemming", m_irData.doStemming()));
+                m_irData.doUseCDA(doRandomBoolVariable(a_imgui, "Use CDA", m_irData.doUseCDA()));
+                m_irData.doUseNodeText(doRandomBoolVariable(a_imgui, "Use Code Text", m_irData.doUseNodeText()));
+                m_irData.doUseNodeName(doRandomBoolVariable(a_imgui, "Use Code Name", m_irData.doUseNodeName()));
+                m_irData.doUseArchComponentName(doRandomBoolVariable(a_imgui, "Use Architecture Name", m_irData.doUseArchComponentName()));
+                m_irData.minWordSize(doRandomIntVariable(a_imgui, "Min Word Length", m_irData.minWordSize()));
+
+                if (m_experimentIx == g_nbmapper_ex) {
+                    m_doWordCount = doRandomBoolVariable(a_imgui, "Use Word Counts", m_doWordCount);
+                    m_threshold = doRandomDoubleVariable(a_imgui, "Threshold", m_threshold);
+                }
             } else if (m_experimentIx == g_hugmemapper_ex) {
                 m_omega = doRandomDoubleVariable(a_imgui, "Omega Threshold", m_omega);
                 m_phi = doRandomDoubleVariable(a_imgui, "Phi", m_phi);
@@ -416,12 +460,12 @@ class ExperimentViewThread extends Thread {
             if (m_experiment == null || m_experiment.getState() == ExperimentRunner.State.Idle) {
 
 
-                if (a_imgui.button("Run Experiment", 0)) {
+                if (a_imgui.button("Run Experiment##" + m_id, 0)) {
                     runExperiment(a_newDataListener);
                 }
 
             } else {
-                if (a_imgui.button("Stop Experiment", 0)) {
+                if (a_imgui.button("Stop Experiment##" + m_id, 0)) {
                     m_avgPerformance = 0;
                     m_avgCount = 0;
                     m_experiment.stop();
@@ -429,7 +473,14 @@ class ExperimentViewThread extends Thread {
                 }
             }
 
-
+            a_imgui.imgui().sameLine(0);
+            if (a_imgui.button("Copy Experiment##" + m_id, 0)) {
+                ret = DoExperimentAction.Copy;
+            }
+            a_imgui.imgui().sameLine(0);
+            if (a_imgui.button("Delete Experiment##" + m_id, 0)) {
+                ret = DoExperimentAction.Delete;
+            }
 
 
             a_imgui.text(String.format("Average Performance: %.2f", getAvgPerformance() * 100));
@@ -450,6 +501,8 @@ class ExperimentViewThread extends Thread {
             a_imgui.imgui().separator();
             a_imgui.imgui().separator();
         }
+
+        return ret;
     }
 
     private void setExperiment(ExperimentRunner a_exr) {
@@ -472,7 +525,7 @@ class ExperimentViewThread extends Thread {
         if (a_exr instanceof NBMapperExperimentRunner) {
             NBMapperExperimentRunner nbexr = (NBMapperExperimentRunner)a_exr;
             m_threshold = nbexr.getThreshold();
-            m_doStemming = nbexr.getStemming();
+            m_irData = nbexr.getIRDataClone();
             m_doWordCount = nbexr.getWordCount();
             m_experimentIx = g_nbmapper_ex;
         } else if (a_exr instanceof HuGMeExperimentRunner) {
@@ -482,7 +535,7 @@ class ExperimentViewThread extends Thread {
             m_experimentIx = g_hugmemapper_ex;
         } else if (a_exr instanceof IRAttractExperimentRunner) {
             m_experimentIx = g_irattract_ex;
-            // initiaize experiments here
+            // initialize experiments here
         }
 
         m_name = a_exr.getName();
@@ -498,11 +551,11 @@ class ExperimentViewThread extends Thread {
         }
 
         if (m_experimentIx == g_nbmapper_ex) {
-            ret = new NBMapperExperimentRunner(systems, m_selectedMetrics.getSelected(), m_useManualmapping, m_initialSetSize, m_doStemming, m_doWordCount, m_threshold);
+            ret = new NBMapperExperimentRunner(systems, m_selectedMetrics.getSelected(), m_useManualmapping, m_initialSetSize, m_irData, m_doWordCount, m_threshold);
         } else if (m_experimentIx == g_hugmemapper_ex) {
             ret = new HuGMeExperimentRunner(systems, m_selectedMetrics.getSelected(), m_useManualmapping, m_initialSetSize, m_omega, m_phi);
         } else if (m_experimentIx == g_irattract_ex) {
-            ret = new IRAttractExperimentRunner(systems, m_selectedMetrics.getSelected(), m_useManualmapping, m_initialSetSize);
+            ret = new IRAttractExperimentRunner(systems, m_selectedMetrics.getSelected(), m_useManualmapping, m_initialSetSize, m_irData);
         }
 
         ret.setName(m_name);
@@ -517,6 +570,16 @@ class ExperimentViewThread extends Thread {
         if (a_imgui.imgui().dragFloatRange2(a_label+"##"+m_id, new JavaProperty<>(minArray), new JavaProperty<>(maxArray), 0.01f, 0f, 1f, "%.2f", "%.2f", 1)) {
             double scale = (maxArray[0] - minArray[0]) / 2.0;
             a_threshold = new ExperimentRunner.RandomDoubleVariable(minArray[0] + scale, scale);
+        }
+        return a_threshold;
+    }
+
+    private ExperimentRunner.RandomIntVariable doRandomIntVariable(ImGuiWrapper a_imgui, String a_label, ExperimentRunner.RandomIntVariable a_threshold) {
+        Integer[] minArray = new Integer[1]; minArray[0] = a_threshold.getMin();
+        Integer[] maxArray = new Integer[1]; maxArray[0] = a_threshold.getMax();
+
+        if (a_imgui.imgui().dragIntRange2(a_label+"##"+m_id, new JavaProperty<>(minArray), new JavaProperty<>(maxArray), 1.0f, 0, 255, "min:%d", "max:%d")) {
+            a_threshold = new ExperimentRunner.RandomIntVariable(minArray[0], maxArray[0]);
         }
         return a_threshold;
     }
