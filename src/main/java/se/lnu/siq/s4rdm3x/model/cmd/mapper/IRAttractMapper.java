@@ -103,12 +103,16 @@ public class IRAttractMapper extends IRMapperBase {
         Stemmer stemmer = getStemmer();
 
         Vector<WordVector> trainingData = getTrainingData(initiallyMapped, m_arch, stemmer);
+        //trainingData.forEach(wv -> wv.makeRelative());
 
         for (CNode orphanNode : orphans) {
             double[] attraction = new double[m_arch.getComponentCount()];
 
             for (int i = 0; i < m_arch.getComponentCount(); i++) {
-                attraction[i] = getWordVector(orphanNode, stemmer).cosDistance(trainingData.get(i));
+                WordVector words = getWordVector(orphanNode, stemmer);
+                addWordsToWordVector(getUnmappedCDAWords(orphanNode, m_arch.getComponent(i), initiallyMapped), words);
+                //words.makeRelative();
+                attraction[i] = words.cosDistance(trainingData.get(i));
             }
 
             orphanNode.setAttractions(attraction);
@@ -129,7 +133,14 @@ public class IRAttractMapper extends IRMapperBase {
         }
     }
 
-
+    private void addWordsToWordVector(String a_words, WordVector a_target) {
+        if (a_words.length() > 0) {
+            String[] words = a_words.split(" ");
+            for (int i = 0; i < words.length; i++) {
+                a_target.add(words[i]);
+            }
+        }
+    }
 
 
     private WordVector getWordVector(CNode a_node, weka.core.stemmers.Stemmer a_stemmer) {
@@ -160,10 +171,14 @@ public class IRAttractMapper extends IRMapperBase {
         for (CNode n : a_nodes) {
             int cIx = a_arch.getComponentIx(a_arch.getMappedComponent(n));
             Vector<String> words = getWords(n, a_stemmer);
+
+            // add the CDA words
+            addWordsToVector(getMappedCDAWords(n, a_nodes), words);
+
+            // add each word to the corresponding document
             words.forEach(w -> ret.get(cIx).add(w));
         }
 
-        ret.forEach(wv -> wv.makeRelative());
 
 
         return ret;
@@ -185,5 +200,5 @@ public class IRAttractMapper extends IRMapperBase {
         addWordsToVector(getNodeWords(a_node, a_stemmer), ret);
         return ret;
     }
-    
+
 }

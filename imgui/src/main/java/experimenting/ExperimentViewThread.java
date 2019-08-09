@@ -347,11 +347,16 @@ class ExperimentViewThread extends Thread {
         if (a_imgui.imgui().collapsingHeader("Experiment " + m_name + "###Header" + m_id, 0)) {
             //Vec2 size = new Vec2(a_imgui.imgui().getContentRegionAvailWidth(), a_imgui.getTextLineHeightWithSpacing() * 2 + a_imgui.imgui().getContentRegionAvailWidth() / 3);
 
+            if (isRunningExperiment()) {
+                a_imgui.pushDisableWidgets();
+            }
+
             m_name = a_imgui.inputTextSingleLine("Name###Name" + m_id, m_name);
 
 
 
             //a_imgui.imgui().beginChild(m_id, size, true, 0);
+
 
 
 
@@ -404,7 +409,8 @@ class ExperimentViewThread extends Thread {
             }
             m_initialSetSize = doRandomDoubleVariable(a_imgui, "Initial Set Size", m_initialSetSize);
 
-            if (a_imgui.imgui().collapsingHeader("Metrics##" + m_id, 0)) {
+
+            if (a_imgui.collapsingHeader("Metrics##" + m_id, 0)) {
 
                 final float boxWidth = a_imgui.imgui().getTextLineHeightWithSpacing() + 5;
                 final float colWidth = a_imgui.calcTextSize("Child Count Lvl 0", false).getX() + 10 + 2 * boxWidth;
@@ -456,8 +462,12 @@ class ExperimentViewThread extends Thread {
 
             a_imgui.imgui().colorEdit3("Plot Color##" + m_id, m_currentColor, 0);
 
+            if (isRunningExperiment()) {
+                a_imgui.popDisableWidgets();
+            }
 
-            if (m_experiment == null || m_experiment.getState() == ExperimentRunner.State.Idle) {
+
+            if (!isRunningExperiment()) {
 
 
                 if (a_imgui.button("Run Experiment##" + m_id, 0)) {
@@ -503,6 +513,10 @@ class ExperimentViewThread extends Thread {
         }
 
         return ret;
+    }
+
+    private boolean isRunningExperiment() {
+        return !(m_experiment == null || m_experiment.getState() == ExperimentRunner.State.Idle);
     }
 
     private void setExperiment(ExperimentRunner a_exr) {

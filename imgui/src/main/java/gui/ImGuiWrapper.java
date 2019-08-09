@@ -16,6 +16,7 @@ public class ImGuiWrapper {
     private ImGui m_imGui;
 
     static private int g_textBufferExtraSize = 256;
+    private boolean m_isWidgetDisabled = false;
 
     public ImGui imgui() {
         return m_imGui;
@@ -100,7 +101,17 @@ public class ImGuiWrapper {
 
     }
 
+    public boolean collapsingHeader(String a_text, int a_flags) {
+        if (m_isWidgetDisabled) {
+            m_imGui.popItemFlag();
+        }
+        boolean ret = m_imGui.collapsingHeader(a_text, a_flags);
+        if (m_isWidgetDisabled) {
+            m_imGui.pushItemFlag(ItemFlag.Disabled.getI(), true);
+        }
 
+        return ret;
+    }
 
 
     protected static class DashContext {
@@ -538,6 +549,22 @@ public class ImGuiWrapper {
             s.addAll(clipRectStack);
 
             return false;
+        }
+    }
+
+    public void pushDisableWidgets() {
+        if (!m_isWidgetDisabled) {
+            m_isWidgetDisabled = true;
+            m_imGui.pushItemFlag(ItemFlag.Disabled.getI(), true);
+            m_imGui.pushStyleVar(StyleVar.Alpha, m_imGui.getStyle().getAlpha() * 0.5f);
+        }
+    }
+
+    public void popDisableWidgets() {
+        if (m_isWidgetDisabled) {
+            m_imGui.popItemFlag();
+            m_imGui.popStyleVar(1);
+            m_isWidgetDisabled = false;
         }
     }
 

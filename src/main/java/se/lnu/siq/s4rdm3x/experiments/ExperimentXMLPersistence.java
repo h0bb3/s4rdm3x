@@ -10,6 +10,7 @@ import se.lnu.siq.s4rdm3x.experiments.metric.Rand;
 import se.lnu.siq.s4rdm3x.experiments.metric.aggregated.RelativeLineCount;
 import se.lnu.siq.s4rdm3x.experiments.system.FileBased;
 import se.lnu.siq.s4rdm3x.experiments.system.System;
+import se.lnu.siq.s4rdm3x.model.cmd.mapper.IRMapperBase;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -155,22 +156,24 @@ public class ExperimentXMLPersistence {
         }
 
         String type = a_exr.getAttribute("type");
+
+
         if (type.equals("nbmapper")) {
+            IRExperimentRunnerBase.Data irData = elementToIRData(a_exr);
             ExperimentRunner.RandomDoubleVariable threshold = elementToRandomDouble(a_exr, "threshold");
             ExperimentRunner.RandomBoolVariable stemming = elementToRandomBool(a_exr, "stemming");
             ExperimentRunner.RandomBoolVariable wordcount = elementToRandomBool(a_exr, "wordcount");
 
-            // TODO: fixme
-            //ret = new NBMapperExperimentRunner(suas, metrics, useManualMapping, initialSetSize, stemming, wordcount, threshold);
-            ret = null;
+            ret = new NBMapperExperimentRunner(suas, metrics, useManualMapping, initialSetSize, irData, wordcount, threshold);
         } else if (type.equals("hugme")) {
+
             ExperimentRunner.RandomDoubleVariable omega = elementToRandomDouble(a_exr, "omega");
             ExperimentRunner.RandomDoubleVariable phi = elementToRandomDouble(a_exr, "phi");
 
             ret = new HuGMeExperimentRunner(suas, metrics, useManualMapping, initialSetSize, omega, phi);
         } else if (type.equals("irattract")) {
-            // TODO: fixme
-            //ret = new IRAttractExperimentRunner(suas, metrics, useManualMapping, initialSetSize);
+            IRExperimentRunnerBase.Data irData = elementToIRData(a_exr);
+            ret = new IRAttractExperimentRunner(suas, metrics, useManualMapping, initialSetSize, irData);
             ret = null;
         } else {
             throw new Exception("Unknown mapping experiment: " + type);
@@ -181,6 +184,8 @@ public class ExperimentXMLPersistence {
 
         return ret;
     }
+
+
 
     private boolean getBoolAttribute(Element a_parent, String a_attributeName) {
         return a_parent.getAttribute(a_attributeName).equals("yes");
@@ -241,8 +246,6 @@ public class ExperimentXMLPersistence {
             exrNode.setAttribute("type", "nbmapper");
             NBMapperExperimentRunner nbexr = (NBMapperExperimentRunner)a_exr;
             exrNode.appendChild(randomDoubleToElement(a_doc, nbexr.getThreshold(), "threshold"));
-            // TODO: fix me
-            //exrNode.appendChild(randomBoolToElement(a_doc, nbexr.getStemming(), "stemming"));
             exrNode.appendChild(randomBoolToElement(a_doc, nbexr.getWordCount(), "wordcount"));
         } else if (a_exr instanceof HuGMeExperimentRunner) {
             exrNode.setAttribute("type", "hugme");
@@ -251,7 +254,12 @@ public class ExperimentXMLPersistence {
             exrNode.appendChild(randomDoubleToElement(a_doc, hugexr.getPhi(), "phi"));
         } else if (a_exr instanceof IRAttractExperimentRunner) {
             exrNode.setAttribute("type", "irattract");
-            HuGMeExperimentRunner hugexr = (HuGMeExperimentRunner)a_exr;
+            //IRAttractExperimentRunner irexr = (IRAttractExperimentRunner)a_exr;
+        }
+
+        // Here we save the IRBase data
+        if (a_exr instanceof IRExperimentRunnerBase) {
+            exrNode.appendChild(iRBaseToElement(a_doc, (IRExperimentRunnerBase)a_exr));
         }
 
         return exrNode;
@@ -259,6 +267,58 @@ public class ExperimentXMLPersistence {
 
     private void setBoolAttribute(Element a_element, String a_attribute, boolean a_bool) {
         a_element.setAttribute(a_attribute, (a_bool ? "yes" : "no"));
+    }
+
+    private IRExperimentRunnerBase.Data elementToIRData(Element a_parent) {
+        Element irBaseDataElement = (Element)a_parent.getElementsByTagName("irbase").item(0);
+
+        IRExperimentRunnerBase.Data ret = new IRExperimentRunnerBase.Data();
+
+
+        ret.doStemming(elementToRandomBool(irBaseDataElement, "stemming"));
+        ret.doUseCDA(elementToRandomBool(irBaseDataElement, "cda"));
+        ret.doUseArchComponentName(elementToRandomBool(irBaseDataElement, "archcomponentname"));
+        ret.doUseNodeName(elementToRandomBool(irBaseDataElement, "nodename"));
+        ret.doUseNodeText(elementToRandomBool(irBaseDataElement, "nodetext"));
+        ret.minWordSize(elementToRandomInt(irBaseDataElement, "minwordlength"));
+
+        return ret;
+    }
+
+    private Element iRBaseToElement(Document a_doc, IRExperimentRunnerBase a_irbase) {
+        Element rbvNode = a_doc.createElement("irbase");
+
+        rbvNode.appendChild(randomBoolToElement(a_doc, a_irbase.getData().doStemming(), "stemming"));
+        rbvNode.appendChild(randomBoolToElement(a_doc, a_irbase.getData().doUseArchComponentName(), "archcomponentname"));
+        rbvNode.appendChild(randomBoolToElement(a_doc, a_irbase.getData().doUseCDA(), "cda"));
+        rbvNode.appendChild(randomBoolToElement(a_doc, a_irbase.getData().doUseNodeName(), "nodename"));
+        rbvNode.appendChild(randomBoolToElement(a_doc, a_irbase.getData().doUseNodeText(), "nodetext"));
+        rbvNode.appendChild(randomIntToElement(a_doc, a_irbase.getData().minWordSize(), "minwordlength"));
+
+        return rbvNode;
+    }
+
+    private ExperimentRunner.RandomIntVariable elementToRandomInt(Element a_parent, String a_tagName) {
+        int min, max;
+
+        Element e = (Element)a_parent.getElementsByTagName(a_tagName).item(0);
+
+        min = Integer.parseInt(e.getAttribute("min"));
+        max = Integer.parseInt(e.getAttribute("max"));
+        return new ExperimentRunner.RandomIntVariable(min, max);
+    }
+
+    private Node randomIntToElement(Document a_doc, ExperimentRunner.RandomIntVariable a_riv, String a_elementName) {
+        Element rbvNode = a_doc.createElement(a_elementName);
+
+        setIntAttribute(rbvNode, "min", a_riv.getMin());
+        setIntAttribute(rbvNode, "max", a_riv.getMax());
+
+        return rbvNode;
+    }
+
+    private void setIntAttribute(Element a_element, String a_attribute, int a_number) {
+        a_element.setAttribute(a_attribute, Integer.toString(a_number));
     }
 
     private Element randomBoolToElement(Document a_doc, ExperimentRunner.RandomBoolVariable a_rbv, String a_elementName) {
