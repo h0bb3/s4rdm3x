@@ -481,7 +481,7 @@ public class HNode {
                     if (m_children.size() > 0) {
                         textPos.setY(m_rect.getTl().getY() + 3);
                     }
-                    switch (a_imgui.inputTextSingleLine(textPos, textSize.getX(), "", a_nne.m_buffer)) {
+                    switch (a_imgui.inputTextSingleLine(textPos, textSize.getX(), "##mega_id", a_nne.m_buffer)) {
                         case Done: {
                             ret = new Action();
                             ret.m_renameNodeAction = new Action.RenameNode();

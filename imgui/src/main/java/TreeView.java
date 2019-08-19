@@ -1,4 +1,5 @@
 import archviz.HNode;
+import archviz.HRoot;
 import glm_.vec2.Vec2;
 import glm_.vec4.Vec4;
 import gui.ImGuiWrapper;
@@ -35,6 +36,8 @@ public class TreeView  {
     private hiviz.Circle m_selectedPackage;
     ClassTreeNodeContextMenu m_selectedPackageContextMenu = new ClassTreeNodeContextMenu("m_selectedPackageContextMenu");
     private int[] m_colorSelection = {0};
+
+    HRoot.State m_archState = new HRoot.State();
 
     private static class ClassTreeNodeContextMenu {
         private Tree.TNode m_selectedNode = null;
@@ -121,6 +124,8 @@ public class TreeView  {
         items.add("Classes");
         items.add("Files");
 
+        m_archState.m_nvm = a_nvm;
+
         ImGuiWrapper iw = new ImGuiWrapper(a_imgui);
 
         m_statColor1 = iw.toColor(new Vec4(0.75, 0.5, 0.5, 1));
@@ -137,7 +142,7 @@ public class TreeView  {
 
         // colors and mappings may have changed so we need to update them
         if (m_colorSelection[0] == 1) {
-            colorizeCircles(m_selectedPackage, iw, a_arch, a_nvm);
+            colorizeCircles(m_selectedPackage, iw, a_arch, m_archState.m_nvm);
         }
 
         treeViewRoots[m_treeViewSelection[0]] = iw.inputTextSingleLine("Root", treeViewRoots[m_treeViewSelection[0]]);
@@ -158,7 +163,7 @@ public class TreeView  {
                                 Tree.TNode tn = tree.addNode(n.getName().replace("/", ".").replace(".java", ""), n);
                                 if (component != null) {
                                     tn.setName(tn.getName());
-                                    tn.setMapping(component.getName(), a_nvm.getBGColor(component.getName()), component);
+                                    tn.setMapping(component.getName(), m_archState.m_nvm.getBGColor(component.getName()), component);
                                 }
                             }
                         } else {
@@ -183,7 +188,7 @@ public class TreeView  {
             } else {
 
                 m_selectedPackage = getPackageCircles(iw, selected, new Vec2(0, 0), primitiveMetrics[m_metricSelection[0]]);
-                colorizeCircles(m_selectedPackage, iw, a_arch, a_nvm);
+                colorizeCircles(m_selectedPackage, iw, a_arch, m_archState.m_nvm);
                 m_selectedClass = null;
             }
         }
@@ -206,7 +211,7 @@ public class TreeView  {
             if (a_imgui.combo("Metric##metricscombo", m_metricSelection, metrics, metrics.size())) {
                 if (m_selectedPackage != null) {
                     m_selectedPackage.computeLayout(m_selectedPackage.getPos(), primitiveMetrics[m_metricSelection[0]]);
-                    colorizeCircles(m_selectedPackage, iw, a_arch, a_nvm);
+                    colorizeCircles(m_selectedPackage, iw, a_arch, m_archState.m_nvm);
 
                 }
             }
@@ -216,7 +221,7 @@ public class TreeView  {
             colors.add("by MappingView");
             if (a_imgui.combo("Color##colorcombo", m_colorSelection, colors, colors.size())) {
                 m_selectedPackage.computeLayout(m_selectedPackage.getPos(), primitiveMetrics[m_metricSelection[0]]);
-                colorizeCircles(m_selectedPackage, iw, a_arch, a_nvm);
+                colorizeCircles(m_selectedPackage, iw, a_arch, m_archState.m_nvm);
             }
 
         }
@@ -225,16 +230,23 @@ public class TreeView  {
         a_imgui.nextColumn();
             if (m_treeViewSelection[0] == g_classesId) {
                 if (m_selectedClass != null) {
-                    doClassView(iw, a_g, a_arch, a_nvm, m_selectedClass);
+                    doClassView(iw, a_g, a_arch, m_archState.m_nvm, m_selectedClass);
                 } else if (m_selectedPackage != null) {
-                    Action a = doPackageView(iw, a_g, a_arch, a_nvm, m_selectedPackage, primitiveMetrics[m_metricSelection[0]]);
+                    Action a = doPackageView(iw, a_g, a_arch, m_archState.m_nvm, m_selectedPackage, primitiveMetrics[m_metricSelection[0]]);
                     if (ret == null && a != null) {
                         ret = a;
                     }
                 }
+                a_imgui.endColumns();
+            } else if (m_treeViewSelection[0] == g_archId) {
+
+                doArchStructure(a_arch, getArchRootFilter(), a_g, a_imgui, m_archState);
+            } else {
+                a_imgui.endColumns();
             }
 
-        a_imgui.endColumns();
+
+
 
         switch (m_treeViewSelection[0]) {
             case g_archId:
@@ -686,5 +698,109 @@ public class TreeView  {
             a_root.colorByMapping(a_imgui, a_arch, a_nvm);
         }
 
+    }
+
+    private void doArchStructure(ArchDef a_arch, String a_rootComponentFilter, CGraph a_g, ImGui a_imgui, HRoot.State a_vizState) {
+        if (a_arch !=  null) {
+
+            HRoot root = new HRoot();
+            for (ArchDef.Component c : a_arch.getComponents()) {
+
+                if (c.getName().startsWith(a_rootComponentFilter)) {
+                    root.add(c.getName());
+                }
+            }
+
+            for (ArchDef.Component from : a_arch.getComponents()) {
+                for (ArchDef.Component to : a_arch.getComponents()) {
+                    if (from.allowedDependency(to)) {
+                        if (from.getName().startsWith(a_rootComponentFilter) && to.getName().startsWith(a_rootComponentFilter)) {
+                            root.addDependency(from.getName(), to.getName());
+                        }
+                    }
+                }
+            }
+
+            //Arrays.sort(components, (o1, o2) -> o2.getAllowedDependencyCount() - o1.getAllowedDependencyCount());
+
+            //Rect r = a_imgui.getCurrentWindow().getContentsRegionRect();
+            //Rect r = a_imgui.getCurrentWindow().getOuterRectClipped();
+
+            Rect r = new Rect(a_imgui.getWindowPos().plus(a_imgui.getCursorPos()), a_imgui.getWindowPos().plus(a_imgui.getContentRegionMax()));
+
+            a_imgui.endColumns();
+            HRoot.Action action = root.render(r, a_imgui, a_vizState);
+
+            if (action != null && action.m_addComponent != null) {
+                a_arch.addComponent(action.m_addComponent);
+            }
+
+            if (action != null && action.m_deletedComponents != null) {
+                for (String cName : action.m_deletedComponents) {
+                    a_arch.removeComponent(a_arch.getComponent(cName));
+                }
+            }
+
+            // we need to do resorting before renaming
+            if (action != null && action.m_nodeOrder != null) {
+                ArrayList<ArchDef.Component> newOrder = new ArrayList<>();
+
+                for(String name : action.m_nodeOrder) {
+                    newOrder.add(a_arch.getComponent(name));
+                }
+                a_arch.clear();
+                for(ArchDef.Component c : newOrder) {
+                    a_arch.addComponent(c);
+                }
+            }
+
+            // add dependenices
+            if (action != null && action.m_addDependenices != null) {
+                for(HRoot.Action.NodeNamePair pair : action.m_addDependenices.getPairs()) {
+                    ArchDef.Component sC = a_arch.getComponent(pair.m_oldName);
+                    ArchDef.Component tC = a_arch.getComponent(pair.m_newName);
+                    if (tC == null) {
+                        System.out.println("Could not find component named: " + pair.m_newName);
+                    } else if (sC == null) {
+                        System.out.println("Could not find component named: " + pair.m_oldName);
+                    } else {
+                        sC.addDependencyTo(tC);
+                    }
+                }
+            }
+
+            // remove dependenices
+            if (action != null && action.m_removeDependencies != null) {
+                for(HRoot.Action.NodeNamePair pair : action.m_removeDependencies.getPairs()) {
+                    ArchDef.Component sC = a_arch.getComponent(pair.m_oldName);
+                    ArchDef.Component tC = a_arch.getComponent(pair.m_newName);
+                    if (tC == null) {
+                        System.out.println("Could not find component named: " + pair.m_newName);
+                    } else if (sC == null) {
+                        System.out.println("Could not find component named: " + pair.m_oldName);
+                    } else {
+                        sC.removeDependencyTo(tC);
+                    }
+                }
+            }
+
+            // node renaming
+            if (action != null && action.m_hiearchyMove != null) {
+                for(HRoot.Action.NodeNamePair pair : action.m_hiearchyMove.getPairs()) {
+                    ArchDef.Component c = a_arch.getComponent(pair.m_oldName);
+                    if (c == null) {
+                        System.out.println("Could not find component named: " + pair.m_oldName);
+                    } else {
+                        ArrayList<CNode> nodes = new ArrayList<>();
+                        for(CNode n : a_g.getNodes()) {
+                            if (c.isMappedTo(n)) {
+                                nodes.add(n);
+                            }
+                        }
+                        a_arch.setComponentName(c, pair.m_newName, nodes);
+                    }
+                }
+            }
+        }
     }
 }

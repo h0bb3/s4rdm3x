@@ -15,10 +15,10 @@ public class HRoot {
     public static class State {
 
 
-        public HNode.VisualsManager m_nvm = new HNode.VisualsManager();
-        HNode.NodeNameEdit m_nne = new HNode.NodeNameEdit();
-        HNode.DragNDropData m_dNd = null;
-        HNode m_underPopUp = null;
+        public HNode.VisualsManager m_nvm = new HNode.VisualsManager(); // this one is probably shared. TODO: this should not be part of this class
+        HNode.NodeNameEdit m_nne = new HNode.NodeNameEdit();            // this one must be unique per window
+        HNode.DragNDropData m_dNd = null;                               // this one must be unique per window
+        HNode m_underPopUp = null;                                      // this one must be unique per window
     }
 
     public static class Action {

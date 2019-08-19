@@ -474,7 +474,7 @@ public class ImGuiWrapper {
         m_imGui.setCursorPos(textPos);
         m_imGui.pushItemWidth(a_width + m_imGui.getStyle().getFramePadding().getX() * 1 + m_imGui.getFontSize());   // we need to be a bit wider than *2 so that imgui does not make wonky things with the text x position
 
-        boolean ret = m_imGui.inputText("", a_buffer, InputTextFlag.EnterReturnsTrue.getI());
+        boolean ret = m_imGui.inputText(a_label, a_buffer, InputTextFlag.EnterReturnsTrue.getI());
 
         // GLFW_KEY_KP_ENTER   335
         if (m_imGui.isKeyDown(335)) {
