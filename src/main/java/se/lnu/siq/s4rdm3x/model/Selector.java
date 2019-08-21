@@ -79,7 +79,7 @@ public class Selector {
         private Pattern m_cPattern;
 
         public Pat(String a_pattern) {
-            m_sPattern = a_pattern;
+            m_sPattern = "^"+a_pattern+"$";
             m_cPattern = Pattern.compile(m_sPattern);
         }
 

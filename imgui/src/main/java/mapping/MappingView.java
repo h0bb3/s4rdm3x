@@ -326,15 +326,16 @@ public class MappingView {
 
         a_imgui.imgui().nextColumn();
 
+        final float columnWidth = a_imgui.imgui().getColumnWidth(a_imgui.imgui().getColumnIndex());
 
         a_imgui.text("HuGMe Mapping Results");
-        doClusteringTable(m_hugmeView.autoClusteredOrphans(), m_hugmeView.autoClusteredOrphanCount(), a_imgui, a_g, a_arch, "HuGMEAutoClusteredOrphans");
+        doClusteringTable(m_hugmeView.autoClusteredOrphans(), m_hugmeView.autoClusteredOrphanCount(), a_imgui, a_g, a_arch, "HuGMEAutoClusteredOrphans", columnWidth);
 
         a_imgui.imgui().separator();
         a_imgui.text("NBMapper Mapping Results");
 
 
-        doClusteringTable(m_nbmapperView.autoClusteredOrphans(), m_nbmapperView.autoClusteredOrphanCount(), a_imgui, a_g, a_arch, "NBMapperAutoClusteredOrphans");
+        doClusteringTable(m_nbmapperView.autoClusteredOrphans(), m_nbmapperView.autoClusteredOrphanCount(), a_imgui, a_g, a_arch, "NBMapperAutoClusteredOrphans", columnWidth);
 
         if (a_imgui.button("Accept to Main", 0)) {
             for (CNode n : m_nbmapperView.autoClusteredOrphans()) {
@@ -365,11 +366,15 @@ public class MappingView {
         a_imgui.imgui().endColumns();
     }
 
-    private void doClusteringTable(Iterable<CNode> a_nodes, int a_nodeCount, ImGuiWrapper a_imgui, CGraph a_g, ArchDef a_arch, String a_tableId) {
+    private void doClusteringTable(Iterable<CNode> a_nodes, int a_nodeCount, ImGuiWrapper a_imgui, CGraph a_g, ArchDef a_arch, String a_tableId, float a_width) {
         // table of attraction values
         final int columnCount = a_arch.getComponentCount() + 5;
-        Vec2 columnSize = new Vec2(a_imgui.imgui().getColumnWidth(1) - 10, (a_nodeCount + 2) * a_imgui.imgui().getFrameHeightWithSpacing());
-        a_imgui.imgui().beginChild(a_tableId+"Table", columnSize, false, 0);
+        Vec2 columnSize = new Vec2( a_width - 20, (a_nodeCount) * a_imgui.imgui().getFrameHeightWithSpacing());
+
+        final float maxHeight = columnSize.getY() + 2 * a_imgui.imgui().getFrameHeightWithSpacing() < a_imgui.imgui().getContentRegionMax().getY() - a_imgui.imgui().getCursorPosY() ? columnSize.getY() + 2 * a_imgui.imgui().getFrameHeightWithSpacing() : a_imgui.imgui().getContentRegionMax().getY() - a_imgui.imgui().getCursorPosY();
+
+        // we need this to be able to handle columns in columns problems.
+        a_imgui.imgui().beginChild(a_tableId + "OuterChildWindow", new Vec2(a_width - 10, maxHeight), false, 0);
 
         // header
         a_imgui.imgui().beginColumns(a_tableId+ "TableColumns", columnCount, ColumnsFlag.NoPreserveWidths.getI());
@@ -403,8 +408,14 @@ public class MappingView {
 
 
         a_imgui.imgui().endColumns();
+
+
+
         a_imgui.imgui().separator();
         a_imgui.imgui().separator();
+
+        a_imgui.imgui().beginChild(a_tableId+"ScrollTable", new Vec2(a_width - 10, 0), false, 0);
+        //a_imgui.imgui().beginChild(a_tableId+"RowTable", new Vec2(a_width - 55, (float)columnSize.getY()), true, 0);
 
         // rows
         for (CNode n : a_nodes) {
@@ -483,6 +494,8 @@ public class MappingView {
 
             a_imgui.imgui().endColumns();
         }
+        //a_imgui.imgui().endChild();
+        a_imgui.imgui().endChild();
         a_imgui.imgui().endChild();
     }
 
