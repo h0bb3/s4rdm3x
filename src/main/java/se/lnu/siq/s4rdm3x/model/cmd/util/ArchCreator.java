@@ -81,7 +81,8 @@ public class ArchCreator {
                     SystemModelReader.Mapping m = new SystemModelReader.Mapping();
 
                     m.m_moduleName = c.getName();
-                    m.m_regexp = n.getName();
+                    //m.m_regexp = n.getName();
+                    m.m_regexp = n.getLogicName();
 
                     ret.m_mappings.add(m);
                 }

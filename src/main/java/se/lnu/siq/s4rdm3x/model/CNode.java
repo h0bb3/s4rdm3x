@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 public class CNode {
 
     private int m_index;
-    String m_name;
+    String m_name;  // TODO: Nodes should probably not have a name...
     private ArrayList<String> m_tags = new ArrayList<>();
     private ArrayList<dmClass> m_classes = new ArrayList<>();
     double[] m_attractions = null;

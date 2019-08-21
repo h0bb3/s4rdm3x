@@ -507,7 +507,7 @@ public class HRoot {
         }
 
         //if (a_imgui.isMouseDown(1)) {
-            if (a_imgui.beginPopupContextWindow("popup", 1, true)) {
+            if (a_rect.contains(a_imgui.getMousePos()) && a_imgui.beginPopupContextWindow("popup", 1, true)) {
                 a_state.m_dNd = null;
                 Action a = null;
                 if (a_state.m_underPopUp == null) {

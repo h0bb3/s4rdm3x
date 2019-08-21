@@ -13,10 +13,13 @@ import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.experiments.ExperimentRunData;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
+import se.lnu.siq.s4rdm3x.model.Selector;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
+import se.lnu.siq.s4rdm3x.model.cmd.util.SystemModelReader;
 import se.lnu.siq.s4rdm3x.stats;
 import weka.core.pmml.jaxbbindings.Cluster;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -41,6 +44,7 @@ public class MappingView {
 
 
     private CNode m_selectedClusteredNode;
+    private String m_mappingsFile = "C:\\hObbE\\projects\\coding\\research\\mappings.txt";
 
     public CNode getSelectedClusteredNode() {
         return m_selectedClusteredNode;
@@ -127,6 +131,40 @@ public class MappingView {
 
     private void doSelectMappedEntities(ImGuiWrapper a_imgui, CGraph a_g, ArchDef a_arch, HNode.VisualsManager a_nvm) {
         a_imgui.imgui().beginColumns("doSelectMappedEntitiesColumns", 2, 0);
+
+        m_mappingsFile = a_imgui.inputTextSingleLine("##SaveMappingAs", m_mappingsFile);
+        a_imgui.imgui().sameLine(0);
+        if (a_imgui.button("Save Mapping", 0)) {
+            SystemModelReader reader = new SystemModelReader();
+            for (CNode n : m_selectedMappedNodes) {
+                ArchDef.Component component = a_arch.getMappedComponent(n);
+                SystemModelReader.Mapping m = new SystemModelReader.Mapping();
+                m.m_moduleName = component.getName();
+                m.m_regexp = n.getLogicName();
+                reader.m_mappings.add(m);
+            }
+            try {
+                reader.writeFile(m_mappingsFile);
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+
+        a_imgui.imgui().sameLine(0);
+        if (a_imgui.button("Load Mapping", 0)) {
+            SystemModelReader reader = new SystemModelReader();
+
+            if (reader.readFile(m_mappingsFile)) {
+                for (SystemModelReader.Mapping m : reader.m_mappings) {
+                    for (CNode n : a_g.getNodes(new Selector.Pat(m.m_regexp))) {
+
+                        if (!containsByName(m_selectedMappedNodes, n)) {
+                            TNodeCollectionWorker.doAddNode(n, m_graph, m_selectedMappedNodes);
+                        }
+                    }
+                }
+            }
+        }
 
         hiviz.Tree tree = new hiviz.Tree();
         int nodeCount = 0;
@@ -489,15 +527,18 @@ public class MappingView {
             m_collection = a_collection;
         }
 
+        static public void doAddNode(CNode a_nodeToAdd, CGraph a_graph, Collection<CNode> a_collection) {
+            CNode cpy = a_graph.createNode(a_nodeToAdd.getName());
+            cpy.shallowCopy(a_nodeToAdd);
+            a_collection.add(cpy);
+        }
 
         static public Tree.TNodeVisitor doAdd(CGraph a_graph, Collection<CNode> a_collection) {
             return new TNodeCollectionWorker(a_graph, a_collection) {
                 @Override
                 protected void doWork(CNode a_node, CGraph a_graph, Collection a_collection) {
 
-                    CNode cpy = a_graph.createNode(a_node.getName());
-                    cpy.shallowCopy(a_node);
-                    a_collection.add(cpy);
+                    doAddNode(a_node, a_graph, a_collection);
                 }
             };
         }

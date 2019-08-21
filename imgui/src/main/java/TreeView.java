@@ -728,7 +728,9 @@ public class TreeView  {
 
             Rect r = new Rect(a_imgui.getWindowPos().plus(a_imgui.getCursorPos()), a_imgui.getWindowPos().plus(a_imgui.getContentRegionMax()));
 
-            a_imgui.endColumns();
+            a_imgui.setCursorPosY(a_imgui.getWindowContentRegionMax().getY());
+
+            a_imgui.endColumns();   // columns cause crash if popup menus are used.
             HRoot.Action action = root.render(r, a_imgui, a_vizState);
 
             if (action != null && action.m_addComponent != null) {
