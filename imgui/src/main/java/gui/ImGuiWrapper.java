@@ -630,6 +630,11 @@ public class ImGuiWrapper {
 
         return col;
     }
+
+    public static int toColor(int a_r, int a_g, int a_b, int a_a) {
+        return COL32(a_r, a_g, a_b, a_a);
+    }
+
     public static int toColor(Vec4 a_v) {
         return COL32((int)(a_v.getX() * 255), (int)(a_v.getY() * 255), (int)(a_v.getZ() * 255), (int)(a_v.getW() * 255));
     }

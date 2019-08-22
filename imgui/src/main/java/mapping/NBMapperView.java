@@ -36,6 +36,8 @@ public class NBMapperView extends MapperBaseView {
     private boolean m_doStemming;
     private boolean m_doWordCount;
 
+    private int m_selectedRowIx = -1;
+
     public NBMapperView(List<CNode>a_mappedNodes, List<CNode>a_orphanNodes) {
         super(a_mappedNodes, a_orphanNodes);
     }
@@ -196,6 +198,8 @@ public class NBMapperView extends MapperBaseView {
         final int rightColCount = td.numAttributes();
         final int heightOffset = (int)longestHeadline;
         final boolean childWindowBorder = false;
+        boolean mouseInTable;
+        Rect tableRowsClipRect = new Rect();
 
         Vec2 columnSize = new Vec2(a_imgui.imgui().getColumnWidth(-1) - 10, (float)a_imgui.imgui().getContentRegionAvail().getY());
         if (a_imgui.imgui().beginChild("NBMapperChildTableOuter", columnSize, childWindowBorder, 0)) {
@@ -228,6 +232,10 @@ public class NBMapperView extends MapperBaseView {
             final boolean scrollBar = columnSize.getY() > a_imgui.imgui().getContentRegionAvail().getY();
             a_imgui.imgui().beginChild("NBMapperChildTableLeftContents", columnSize, childWindowBorder, WindowFlag.NoScrollbar.getI());
 
+            // mouse hovering table rows stuff
+            mouseInTable = a_imgui.imgui().getCurrentWindow().getOuterRectClipped().contains(a_imgui.getMousePos());
+            tableRowsClipRect.getTl().setX(a_imgui.imgui().getCurrentWindow().getOuterRectClipped().getTl().getX());
+
             for (int i = 0; i < rows.size(); i++) {
                 DataRow row = rows.get(i);
                 a_imgui.imgui().beginColumns("NBMapperTableLeftColumns", 2, ColumnsFlag.NoResize.getI());
@@ -244,11 +252,18 @@ public class NBMapperView extends MapperBaseView {
                     }
 
                     if (i % 2 == 0) {
+                        if (m_selectedRowIx == i) {
+                            a_imgui.addRectFilled(tl, br, white15, 0, 0);
+                        }
+                        a_imgui.addRectFilled(tl, br, white15, 0, 0);
+                    } else if (m_selectedRowIx == i) {
+                        a_imgui.addRectFilled(tl, br, white15, 0, 0);
                         a_imgui.addRectFilled(tl, br, white15, 0, 0);
                     }
                 }
 
                 a_imgui.text(a_imgui.getLongestSubString(row.m_name, leftHeadlineColWidths[0] - 13, "\\."));
+                //a_imgui.imgui().selectable(a_imgui.getLongestSubString(row.m_name, leftHeadlineColWidths[0] - 13, "\\."), false, 0, new Vec2(a_imgui.imgui().getColumnWidth(a_imgui.imgui().getColumnIndex()), a_imgui.imgui().getFrameHeightWithSpacing()));
                 a_imgui.imgui().setColumnWidth(0, leftHeadlineColWidths[0]);
                 a_imgui.imgui().nextColumn();
 
@@ -263,6 +278,12 @@ public class NBMapperView extends MapperBaseView {
                     }
 
                     if (i % 2 == 0) {
+                        if (m_selectedRowIx == i) {
+                            a_imgui.addRectFilled(tl, br, white15, 0, 0);
+                        }
+                        a_imgui.addRectFilled(tl, br, white15, 0, 0);
+                    } else if (m_selectedRowIx == i) {
+                        a_imgui.addRectFilled(tl, br, white15, 0, 0);
                         a_imgui.addRectFilled(tl, br, white15, 0, 0);
                     }
                 }
@@ -314,6 +335,9 @@ public class NBMapperView extends MapperBaseView {
 
             columnSize = new Vec2(rightColCount * colWidth,rows.size() * a_imgui.getTextLineHeightWithSpacing() );
             a_imgui.imgui().beginChild("NBMapperChildTableRightBodyContents", columnSize, childWindowBorder, WindowFlag.NoScrollbar.getI());
+
+
+
             int clipped = 0;
 
             int startRowIx, maxRows;
@@ -350,7 +374,9 @@ public class NBMapperView extends MapperBaseView {
             a_imgui.text("maxCols: " + maxCols);
             a_imgui.endTooltip();*/
 
+            Vec2 wndTlScreen = a_imgui.imgui().getCurrentWindow().getPos();
             a_imgui.imgui().setCursorPosY(startRowIx * rowHeight);
+
 
 
             for (int i = startRowIx; i < maxRows; i++) {
@@ -374,12 +400,19 @@ public class NBMapperView extends MapperBaseView {
                         if (isInside) {
 
                             if (a_nvm.hasBGColor(row.m_mapping)) {
-                                a_imgui.addRectFilled(tl, br, a_imgui.toColor(a_nvm.getBGColor(row.m_mapping)), 0, 0);
+                               a_imgui.addRectFilled(tl, br, a_imgui.toColor(a_nvm.getBGColor(row.m_mapping)), 0, 0);
                             }
 
                             if (i % 2 == 0) {
+                                if (m_selectedRowIx == i) {
+                                    a_imgui.addRectFilled(tl, br, white15, 0, 0);
+                                }
+                                a_imgui.addRectFilled(tl, br, white15, 0, 0);
+                            } else if (m_selectedRowIx == i) {
+                                a_imgui.addRectFilled(tl, br, white15, 0, 0);
                                 a_imgui.addRectFilled(tl, br, white15, 0, 0);
                             }
+
                         } else {
                             clipped++;
                         }
@@ -406,6 +439,20 @@ public class NBMapperView extends MapperBaseView {
             a_imgui.endTooltip();*/
 
 
+
+
+            Window w = a_imgui.imgui().getCurrentWindow();
+            final float contentScreenY = w.getInnerClipRect().getMin().getY();
+            if (!mouseInTable) {
+
+                mouseInTable = w.getOuterRectClipped().contains(a_imgui.getMousePos());
+            }
+            tableRowsClipRect.getTl().setY(w.getOuterRectClipped().getTl().getY());
+            tableRowsClipRect.getBr().setX(w.getOuterRectClipped().getBr().getX());
+            tableRowsClipRect.getBr().setY(w.getOuterRectClipped().getBr().getY());
+
+
+
             a_imgui.imgui().endChild();
 
 
@@ -413,11 +460,57 @@ public class NBMapperView extends MapperBaseView {
 
             a_imgui.imgui().endChild();
 
+
+
             a_imgui.imgui().endChild();
+
+            if (mouseInTable) {
+                // mark the row we are on...
+
+
+                // now we need to find the row index...
+                float mouseY = a_imgui.getMousePos().getY();
+                int rowIx = (int)((mouseY - contentScreenY) / rowHeight);
+                m_selectedRowIx = rowIx;
+                a_imgui.beginTooltip();
+                a_imgui.text("Mouse Inside: " + rowIx);
+                a_imgui.endTooltip();
+
+                /*Rect r = new Rect();
+                r.setMin(new Vec2(0, rowIx * rowHeight + contentScreenY));
+                r.setMax(new Vec2(100000, rowIx * rowHeight + contentScreenY + rowHeight));
+
+
+
+                if (tableRowsClipRect.getTl().getY() > r.getTl().getY()) {
+                    r.getTl().setY(tableRowsClipRect.getTl().getY());
+                }
+
+                if (tableRowsClipRect.getBr().getY() < r.getBr().getY()) {
+                    r.getBr().setY(tableRowsClipRect.getBr().getY());
+                }
+
+                if (tableRowsClipRect.getTl().getX() > r.getTl().getX()) {
+                    r.getTl().setX(tableRowsClipRect.getTl().getX());
+                }
+
+                if (tableRowsClipRect.getBr().getX() < r.getBr().getX()) {
+                    r.getBr().setX(tableRowsClipRect.getBr().getX());
+                }*/
+
+                int overlayColor = ImGuiWrapper.toColor(255, 255, 255, 75);
+
+
+
+               // a_imgui.imgui().getOverlayDrawList().addRectFilled(r.getTl(), r.getBr(), overlayColor, 0, 0);
+
+                //a_imgui.addRectFilled(r.getTl(), r.getBr(), overlayColor, 0, 0);
+
+            }
 
             // we now draw the slanted headlines to avoid column and child window clipping
             {
-                // we do accept some owerdraw to avoid early clipping of texts
+                // we do accept some overdraw to avoid early clipping of texts
                 final float angle = (float) (2 * Math.PI - Math.PI / 2.4);
                 Vec2 maxTo = new Vec2(Math.cos(angle) * 250, Math.sin(angle) * 250);
                 int slantedTExtColor = a_imgui.toColor(a_imgui.imgui().getStyleColorVec4(Col.Text));
@@ -457,6 +550,8 @@ public class NBMapperView extends MapperBaseView {
 
             a_imgui.imgui().endChild();
             a_imgui.imgui().endChild();
+        } else {
+            m_selectedRowIx = -1;
         }
 
 

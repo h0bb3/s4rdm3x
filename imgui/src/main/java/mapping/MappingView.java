@@ -409,9 +409,6 @@ public class MappingView {
 
         a_imgui.imgui().endColumns();
 
-
-
-        a_imgui.imgui().separator();
         a_imgui.imgui().separator();
 
         a_imgui.imgui().beginChild(a_tableId+"ScrollTable", new Vec2(a_width - 10, 0), false, 0);
