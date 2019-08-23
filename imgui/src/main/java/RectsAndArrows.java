@@ -8,7 +8,6 @@ import imgui.impl.ImplGL3;
 import imgui.impl.LwjglGlfw;
 import imgui.internal.Rect;
 import kotlin.Unit;
-import mapping.HuGMeView;
 import mapping.MappingView;
 import se.lnu.siq.s4rdm3x.GUIConsole;
 import se.lnu.siq.s4rdm3x.StringCommandHandler;
@@ -269,8 +268,8 @@ public class RectsAndArrows {
 
                 imgui.end();
 
-                if (m_mappingView.getSelectedClusteredNode() != null) {
-                    m_treeView.m_selectedClass = m_mappingView.getSelectedClusteredNode();
+                if (m_mappingView.getSelectedNode() != null) {
+                    m_treeView.m_selectedClass = m_mappingView.getSelectedNode();
                 }
             }
         }

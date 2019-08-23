@@ -8,7 +8,6 @@ import imgui.ComboFlag;
 import imgui.ImGui;
 import imgui.SelectableFlag;
 import imgui.internal.ColumnsFlag;
-import org.graphstream.graph.Graph;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.experiments.ExperimentRunData;
 import se.lnu.siq.s4rdm3x.model.CGraph;
@@ -17,7 +16,6 @@ import se.lnu.siq.s4rdm3x.model.Selector;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 import se.lnu.siq.s4rdm3x.model.cmd.util.SystemModelReader;
 import se.lnu.siq.s4rdm3x.stats;
-import weka.core.pmml.jaxbbindings.Cluster;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,11 +41,11 @@ public class MappingView {
     CGraph m_graph = new CGraph();
 
 
-    private CNode m_selectedClusteredNode;
+    private CNode m_selectedNode;
     private String m_mappingsFile = "C:\\hObbE\\projects\\coding\\research\\mappings.txt";
 
-    public CNode getSelectedClusteredNode() {
-        return m_selectedClusteredNode;
+    public CNode getSelectedNode() {
+        return m_selectedNode;
     }
 
 
@@ -113,6 +111,10 @@ public class MappingView {
                 break;
             case g_nbmapperParamsId:
                 m_nbmapperView.doNBMapperParamsView(iw, a_arch, a_nvm, a_g.getNodes());
+                if (m_nbmapperView.getSelectedNodeName().length() > 0) {
+                    m_selectedNode = a_g.getNode(m_nbmapperView.getSelectedNodeName().replace(".", "/") + ".java");
+                    m_nbmapperView.resetSelectedNodeName();
+                }
                 break;
             case g_mappedEntitiesId:
                 doSelectMappedEntities(iw, a_g, a_arch, a_nvm);
@@ -427,7 +429,7 @@ public class MappingView {
             String logicName = a_imgui.getLongestSubString(n.getLogicName(), columnWidths[a_imgui.imgui().getColumnIndex()], "\\.");
             //a_imgui.text(logicName);
             if (a_imgui.imgui().selectable(logicName, false, 0, new Vec2(a_imgui.imgui().getColumnWidth(a_imgui.imgui().getColumnIndex()), a_imgui.imgui().getFrameHeightWithSpacing()))) {
-                m_selectedClusteredNode = a_g.getNode(n.getName());
+                m_selectedNode = a_g.getNode(n.getName());
             }
             a_imgui.imgui().nextColumn();
 

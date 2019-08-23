@@ -639,6 +639,10 @@ public class ImGuiWrapper {
         return COL32((int)(a_v.getX() * 255), (int)(a_v.getY() * 255), (int)(a_v.getZ() * 255), (int)(a_v.getW() * 255));
     }
 
+    public boolean isCurrentWindowInFocus() {
+        return m_imGui.isWindowFocused(FocusedFlag.RootAndChildWindows);
+    }
+
     public boolean isCurrentWindowActive() {
         return m_imGui.getCurrentWindow().isActiveAndVisible() && m_imGui.isWindowHovered(HoveredFlag.RootAndChildWindows);
     }

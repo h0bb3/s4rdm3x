@@ -37,9 +37,18 @@ public class NBMapperView extends MapperBaseView {
     private boolean m_doWordCount;
 
     private int m_selectedRowIx = -1;
+    private String m_selectedNodeName = "";
 
     public NBMapperView(List<CNode>a_mappedNodes, List<CNode>a_orphanNodes) {
         super(a_mappedNodes, a_orphanNodes);
+    }
+
+    public String getSelectedNodeName() {
+        return m_selectedNodeName;
+    }
+
+    public String resetSelectedNodeName() {
+        return m_selectedNodeName = "";
     }
 
     void doNBMapperParamsView(ImGuiWrapper a_imgui, ArchDef a_arch, HNode.VisualsManager a_nvm, Iterable<CNode>a_system) {
@@ -251,15 +260,7 @@ public class NBMapperView extends MapperBaseView {
                         a_imgui.addRectFilled(tl, br, a_imgui.toColor(a_nvm.getBGColor(row.m_mapping)), 0, 0);
                     }
 
-                    if (i % 2 == 0) {
-                        if (m_selectedRowIx == i) {
-                            a_imgui.addRectFilled(tl, br, white15, 0, 0);
-                        }
-                        a_imgui.addRectFilled(tl, br, white15, 0, 0);
-                    } else if (m_selectedRowIx == i) {
-                        a_imgui.addRectFilled(tl, br, white15, 0, 0);
-                        a_imgui.addRectFilled(tl, br, white15, 0, 0);
-                    }
+                    renderOverlay(a_imgui, white15, i, m_selectedRowIx, tl, br);
                 }
 
                 a_imgui.text(a_imgui.getLongestSubString(row.m_name, leftHeadlineColWidths[0] - 13, "\\."));
@@ -277,15 +278,7 @@ public class NBMapperView extends MapperBaseView {
                         a_imgui.addRectFilled(tl, br, a_imgui.toColor(a_nvm.getBGColor(row.m_mapping)), 0, 0);
                     }
 
-                    if (i % 2 == 0) {
-                        if (m_selectedRowIx == i) {
-                            a_imgui.addRectFilled(tl, br, white15, 0, 0);
-                        }
-                        a_imgui.addRectFilled(tl, br, white15, 0, 0);
-                    } else if (m_selectedRowIx == i) {
-                        a_imgui.addRectFilled(tl, br, white15, 0, 0);
-                        a_imgui.addRectFilled(tl, br, white15, 0, 0);
-                    }
+                    renderOverlay(a_imgui, white15, i, m_selectedRowIx, tl, br);
                 }
 
 
@@ -403,15 +396,7 @@ public class NBMapperView extends MapperBaseView {
                                a_imgui.addRectFilled(tl, br, a_imgui.toColor(a_nvm.getBGColor(row.m_mapping)), 0, 0);
                             }
 
-                            if (i % 2 == 0) {
-                                if (m_selectedRowIx == i) {
-                                    a_imgui.addRectFilled(tl, br, white15, 0, 0);
-                                }
-                                a_imgui.addRectFilled(tl, br, white15, 0, 0);
-                            } else if (m_selectedRowIx == i) {
-                                a_imgui.addRectFilled(tl, br, white15, 0, 0);
-                                a_imgui.addRectFilled(tl, br, white15, 0, 0);
-                            }
+                            renderOverlay(a_imgui, white15, i, m_selectedRowIx, tl, br);
 
                         } else {
                             clipped++;
@@ -464,48 +449,18 @@ public class NBMapperView extends MapperBaseView {
 
             a_imgui.imgui().endChild();
 
-            if (mouseInTable) {
-                // mark the row we are on...
-
+            if (mouseInTable && a_imgui.isCurrentWindowInFocus()) {
 
                 // now we need to find the row index...
                 float mouseY = a_imgui.getMousePos().getY();
                 int rowIx = (int)((mouseY - contentScreenY) / rowHeight);
                 m_selectedRowIx = rowIx;
-                a_imgui.beginTooltip();
-                a_imgui.text("Mouse Inside: " + rowIx);
-                a_imgui.endTooltip();
-
-                /*Rect r = new Rect();
-                r.setMin(new Vec2(0, rowIx * rowHeight + contentScreenY));
-                r.setMax(new Vec2(100000, rowIx * rowHeight + contentScreenY + rowHeight));
-
-
-
-                if (tableRowsClipRect.getTl().getY() > r.getTl().getY()) {
-                    r.getTl().setY(tableRowsClipRect.getTl().getY());
+                if (a_imgui.isMouseClicked(0, false)) {
+                    if (m_selectedRowIx >= 0 && m_selectedRowIx < rows.size())
+                    m_selectedNodeName = rows.get(m_selectedRowIx).m_name;
                 }
-
-                if (tableRowsClipRect.getBr().getY() < r.getBr().getY()) {
-                    r.getBr().setY(tableRowsClipRect.getBr().getY());
-                }
-
-                if (tableRowsClipRect.getTl().getX() > r.getTl().getX()) {
-                    r.getTl().setX(tableRowsClipRect.getTl().getX());
-                }
-
-                if (tableRowsClipRect.getBr().getX() < r.getBr().getX()) {
-                    r.getBr().setX(tableRowsClipRect.getBr().getX());
-                }*/
-
-                int overlayColor = ImGuiWrapper.toColor(255, 255, 255, 75);
-
-
-
-               // a_imgui.imgui().getOverlayDrawList().addRectFilled(r.getTl(), r.getBr(), overlayColor, 0, 0);
-
-                //a_imgui.addRectFilled(r.getTl(), r.getBr(), overlayColor, 0, 0);
-
+            } else {
+                m_selectedRowIx = -1;
             }
 
             // we now draw the slanted headlines to avoid column and child window clipping
@@ -557,6 +512,18 @@ public class NBMapperView extends MapperBaseView {
 
 
         a_imgui.imgui().endColumns();
+    }
+
+    private void renderOverlay(ImGuiWrapper a_imgui, int a_color, int a_rowIx, int a_selectedRowIx, Vec2 a_cellTL, Vec2 a_cellBR) {
+        if (a_rowIx % 2 == 0) {
+            if (a_selectedRowIx == a_rowIx) {
+                a_imgui.addRectFilled(a_cellTL, a_cellBR, a_color, 0, 0);
+            }
+            a_imgui.addRectFilled(a_cellTL, a_cellBR, a_color, 0, 0);
+        } else if (a_selectedRowIx == a_rowIx) {
+            a_imgui.addRectFilled(a_cellTL, a_cellBR, a_color, 0, 0);
+            a_imgui.addRectFilled(a_cellTL, a_cellBR, a_color, 0, 0);
+        }
     }
 
 
