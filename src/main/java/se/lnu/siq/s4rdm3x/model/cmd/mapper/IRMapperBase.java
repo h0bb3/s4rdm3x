@@ -165,6 +165,7 @@ public abstract class IRMapperBase extends MapperBase {
         }
         a_string = a_string.replace("_", " ");
         a_string = a_string.replace("-", " ");
+        a_string = a_string.replace(".", " ");
         for (String p : a_string.split(" ")) {
             // https://stackoverflow.com/questions/7593969/regex-to-split-camelcase-or-titlecase-advanced
             for (String w : p.split("(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])")) {

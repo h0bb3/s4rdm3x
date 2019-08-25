@@ -4,6 +4,7 @@ import archviz.HNode;
 import glm_.vec2.Vec2;
 import glm_.vec4.Vec4;
 import gui.ImGuiWrapper;
+import gui.JavaProperty;
 import imgui.Col;
 import imgui.WindowFlag;
 import imgui.internal.ColumnsFlag;
@@ -144,7 +145,10 @@ public class NBMapperView extends MapperBaseView {
         m_doUseNodeText = doCheckbox(a_imgui, "Use Code Text", m_doUseNodeText);
         m_doUseNodeName = doCheckbox(a_imgui, "Use Code Name", m_doUseNodeName);
         m_doUseArchComponentName = doCheckbox(a_imgui, "Use Architecture Name", m_doUseArchComponentName);
-
+        Integer [] minwordLength = {m_minWordLength};
+        if (a_imgui.imgui().dragInt("Min Word Length", new JavaProperty<>(minwordLength), 0.1f, 0, 256, "%d")) {
+            m_minWordLength = minwordLength[0];
+        }
         m_doWordCount = doCheckbox(a_imgui, "Use Word Counts", m_doWordCount);
 
 
