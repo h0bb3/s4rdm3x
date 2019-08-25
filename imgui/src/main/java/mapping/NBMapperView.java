@@ -35,6 +35,11 @@ public class NBMapperView extends MapperBaseView {
     private double m_threshold = 0.90;
     private boolean m_doStemming;
     private boolean m_doWordCount;
+    private boolean m_doUseCDA;
+    private boolean m_doUseNodeText;
+    private boolean m_doUseNodeName;
+    private boolean m_doUseArchComponentName;
+    private int m_minWordLength;
 
     private int m_selectedRowIx = -1;
     private String m_selectedNodeName = "";
@@ -55,7 +60,7 @@ public class NBMapperView extends MapperBaseView {
 
         // first we get the data
         // TODO: these should be fixed based on parameters in the view...
-        NBMapper mapper = new NBMapper(null, true, true, true, false, 3);
+        NBMapper mapper = new NBMapper(null, m_doUseCDA, m_doUseNodeText, m_doUseNodeName, m_doUseArchComponentName, m_minWordLength);
 
         StringToWordVector filter = (StringToWordVector) mapper.getFilter();
         filter.setOutputWordCounts(m_doWordCount);
@@ -74,15 +79,7 @@ public class NBMapperView extends MapperBaseView {
 
         Attribute classAttribute = td.classAttribute();
 
-        String[] rigthColHeadlines = new String[td.numAttributes()];
-        float longestHeadline = 0;
-        for (int attribIx = 0; attribIx < td.numAttributes(); attribIx++) {
-            rigthColHeadlines[attribIx] = td.attribute(attribIx).name();
-            Vec2 size = a_imgui.calcTextSize(rigthColHeadlines[attribIx], false);
-            if (size.getX() > longestHeadline) {
-                longestHeadline = size.getX();
-            }
-        }
+
 
 
         a_imgui.imgui().beginColumns("doNBMapperParamsView", 2, 0);
@@ -141,19 +138,14 @@ public class NBMapperView extends MapperBaseView {
             }
         }
 
-        {
-            boolean [] stemming = {m_doStemming};
-            if (a_imgui.imgui().checkbox("Use Word Stemming", stemming)) {
-                m_doStemming = stemming[0];
-            }
-        }
 
-        {
-            boolean [] wordCount = {m_doWordCount};
-            if (a_imgui.imgui().checkbox("Use Word Counts", wordCount)) {
-                m_doWordCount = wordCount[0];
-            }
-        }
+        m_doStemming = doCheckbox(a_imgui, "Use Word Stemming", m_doStemming);
+        m_doUseCDA = doCheckbox(a_imgui, "Use CDA", m_doUseCDA);
+        m_doUseNodeText = doCheckbox(a_imgui, "Use Code Text", m_doUseNodeText);
+        m_doUseNodeName = doCheckbox(a_imgui, "Use Code Name", m_doUseNodeName);
+        m_doUseArchComponentName = doCheckbox(a_imgui, "Use Architecture Name", m_doUseArchComponentName);
+
+        m_doWordCount = doCheckbox(a_imgui, "Use Word Counts", m_doWordCount);
 
 
         if (a_imgui.button("NBMap me Plz", 150)) {
@@ -170,6 +162,29 @@ public class NBMapperView extends MapperBaseView {
 
         a_imgui.imgui().nextColumn();
 
+        String[] rigthColHeadlines = new String[td.numAttributes()];
+        float longestHeadline = 0;
+        for (int attribIx = 0; attribIx < td.numAttributes(); attribIx++) {
+            rigthColHeadlines[attribIx] = td.attribute(attribIx).name();
+            Vec2 size = a_imgui.calcTextSize(rigthColHeadlines[attribIx], false);
+            if (size.getX() > longestHeadline) {
+                longestHeadline = size.getX();
+            }
+        }
+
+        doTrainingDataTable(a_imgui, a_arch, a_nvm, td, classifier, doAddRawArchitectureTrainingData, rigthColHeadlines, (int) longestHeadline);
+
+
+        a_imgui.imgui().endColumns();
+    }
+
+    private boolean doCheckbox(ImGuiWrapper a_imgui, String a_label, boolean a_isSelected) {
+        boolean [] bool = {a_isSelected};
+        a_imgui.imgui().checkbox(a_label, bool);
+        return bool[0];
+    }
+
+    private void doTrainingDataTable(ImGuiWrapper a_imgui, ArchDef a_arch, HNode.VisualsManager a_nvm, Instances td, NBMapper.Classifier classifier, boolean doAddRawArchitectureTrainingData, String[] rigthColHeadlines, int longestHeadline) {
         class DataRow {
             public String m_name;
             public String m_mapping;
@@ -205,7 +220,7 @@ public class NBMapperView extends MapperBaseView {
         final int white = a_imgui.toColor(new Vec4(1, 1, 1, 1));
         final int white15 = a_imgui.toColor(new Vec4(1, 1, 1, 0.15));
         final int rightColCount = td.numAttributes();
-        final int heightOffset = (int)longestHeadline;
+        final int heightOffset = longestHeadline;
         final boolean childWindowBorder = false;
         boolean mouseInTable;
         Rect tableRowsClipRect = new Rect();
@@ -508,10 +523,6 @@ public class NBMapperView extends MapperBaseView {
         } else {
             m_selectedRowIx = -1;
         }
-
-
-
-        a_imgui.imgui().endColumns();
     }
 
     private void renderOverlay(ImGuiWrapper a_imgui, int a_color, int a_rowIx, int a_selectedRowIx, Vec2 a_cellTL, Vec2 a_cellBR) {
@@ -531,6 +542,10 @@ public class NBMapperView extends MapperBaseView {
         m_threshold = a_data.m_threshold;
         m_doStemming = a_data.m_doStemming;
         m_doWordCount = a_data.m_doWordCount;
-
+        m_doUseCDA = a_data.m_doUseCDA;
+        m_doUseNodeText = a_data.m_doUseNodeText;
+        m_doUseNodeName = a_data.m_doUseNodeName;
+        m_doUseArchComponentName = a_data.m_doUseArchComponentName;
+        m_minWordLength = a_data.m_minWordSize;
     }
 }
