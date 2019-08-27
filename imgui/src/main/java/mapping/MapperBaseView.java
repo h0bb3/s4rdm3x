@@ -10,7 +10,10 @@ import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class MapperBaseView {
 
@@ -82,10 +85,12 @@ public class MapperBaseView {
             CNode nodeCopy = g.createNode(n.getName());
             nodeCopy.shallowCopy(n);
             nodeCopy.setClustering(n.getMapping(), ArchDef.Component.ClusteringType.Initial.toString());
+            nodeCopy.setMapping(n.getMapping());
         }
 
         for (CNode n : m_selectedOrphanNodes) {
             CNode nodeCopy = g.createNode(n.getName());
+            nodeCopy.setMapping(n.getMapping());
 
             for (dmClass c : n.getClasses()) {
                 nodeCopy.addClass(c);
@@ -135,6 +140,7 @@ public class MapperBaseView {
 
         return g;
     }*/
+
 
     protected void setAutoClusteredNodes(Iterable<CNode>a_clustered, Iterable<CNode> a_nodemappings) {
         m_autoClusteredOrphans.clear();

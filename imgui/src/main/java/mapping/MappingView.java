@@ -37,6 +37,7 @@ public class MappingView {
 
     HuGMeView m_hugmeView = new HuGMeView(Collections.unmodifiableList(m_selectedMappedNodes), Collections.unmodifiableList(m_selectedOrphanNodes));
     NBMapperView m_nbmapperView = new NBMapperView(Collections.unmodifiableList(m_selectedMappedNodes), Collections.unmodifiableList(m_selectedOrphanNodes));
+    ResultView m_results = new ResultView();
 
     CGraph m_graph = new CGraph();
 
@@ -107,10 +108,10 @@ public class MappingView {
 
         switch (m_viewSelection[0]) {
             case g_hugMeParamsId:
-                m_hugmeView.doHugMeParamsView(iw, m_graph, a_arch, a_nvm);
+                m_hugmeView.doHugMeParamsView(iw, m_graph, a_arch, a_nvm, m_results);
                 break;
             case g_nbmapperParamsId:
-                m_nbmapperView.doNBMapperParamsView(iw, a_arch, a_nvm, a_g.getNodes());
+                m_nbmapperView.doNBMapperParamsView(iw, a_arch, a_nvm, a_g.getNodes(), m_results);
                 if (m_nbmapperView.getSelectedNodeName().length() > 0) {
                     m_selectedNode = a_g.getNode(m_nbmapperView.getSelectedNodeName().replace(".", "/") + ".java");
                     m_nbmapperView.resetSelectedNodeName();
@@ -301,7 +302,7 @@ public class MappingView {
 
     private void doAcceptAutoClusteredEntities(ImGuiWrapper a_imgui, CGraph a_g, ArchDef a_arch, HNode.VisualsManager a_nvm) {
         a_imgui.imgui().beginColumns("doAcceptAutoClusteredEntities", 2, 0);
-        a_imgui.text("HugMe Auto Clustered Entities:");
+        a_imgui.text("Mapping Results:");
 
         Tree.TNode hovered = doClusteredTree(a_imgui, m_hugmeView.autoClusteredOrphans(), "notSelectedHuGMeClusteredEntitiesTree", a_arch, a_g, a_nvm);
         if (hovered != null && a_imgui.isMouseDoubleClicked(0)) {
@@ -330,16 +331,21 @@ public class MappingView {
 
         final float columnWidth = a_imgui.imgui().getColumnWidth(a_imgui.imgui().getColumnIndex());
 
-        a_imgui.text("HuGMe Mapping Results");
+
+
+
+        /*a_imgui.text("HuGMe Mapping Results");
         doClusteringTable(m_hugmeView.autoClusteredOrphans(), m_hugmeView.autoClusteredOrphanCount(), a_imgui, a_g, a_arch, "HuGMEAutoClusteredOrphans", columnWidth);
 
         a_imgui.imgui().separator();
-        a_imgui.text("NBMapper Mapping Results");
+        a_imgui.text("NBMapper Mapping Results");*/
 
 
-        doClusteringTable(m_nbmapperView.autoClusteredOrphans(), m_nbmapperView.autoClusteredOrphanCount(), a_imgui, a_g, a_arch, "NBMapperAutoClusteredOrphans", columnWidth);
+        //doClusteringTable(m_nbmapperView.autoClusteredOrphans(), m_nbmapperView.autoClusteredOrphanCount(), a_imgui, a_g, a_arch, "NBMapperAutoClusteredOrphans", columnWidth);
 
-        if (a_imgui.button("Accept to Main", 0)) {
+        m_results.doShow(a_imgui, a_g, a_arch, columnWidth);
+
+        /*if (a_imgui.button("Accept to Main", 0)) {
             for (CNode n : m_nbmapperView.autoClusteredOrphans()) {
                 CNode graphNode = a_g.getNode(n.getName());
                 a_arch.getClusteredComponent(n).mapToNode(graphNode);
@@ -363,7 +369,7 @@ public class MappingView {
 
             m_hugmeView.clearAutoClusteredOrphans();
             m_nbmapperView.clearAutoClusteredOrphans();
-        }
+        }*/
 
         a_imgui.imgui().endColumns();
     }

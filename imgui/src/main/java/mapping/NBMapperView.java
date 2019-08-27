@@ -57,7 +57,7 @@ public class NBMapperView extends MapperBaseView {
         return m_selectedNodeName = "";
     }
 
-    void doNBMapperParamsView(ImGuiWrapper a_imgui, ArchDef a_arch, HNode.VisualsManager a_nvm, Iterable<CNode>a_system) {
+    void doNBMapperParamsView(ImGuiWrapper a_imgui, ArchDef a_arch, HNode.VisualsManager a_nvm, Iterable<CNode>a_system, ResultView a_result) {
 
         // first we get the data
         // TODO: these should be fixed based on parameters in the view...
@@ -146,22 +146,22 @@ public class NBMapperView extends MapperBaseView {
         m_doUseNodeName = doCheckbox(a_imgui, "Use Code Name", m_doUseNodeName);
         m_doUseArchComponentName = doCheckbox(a_imgui, "Use Architecture Name", m_doUseArchComponentName);
         Integer [] minwordLength = {m_minWordLength};
-        if (a_imgui.imgui().dragInt("Min Word Length", new JavaProperty<>(minwordLength), 0.1f, 0, 256, "%d")) {
+        if (a_imgui.imgui().dragInt("Min Word Length", new JavaProperty<>(minwordLength), 0.1f, 1, 256, "%d")) {
             m_minWordLength = minwordLength[0];
         }
         m_doWordCount = doCheckbox(a_imgui, "Use Word Counts", m_doWordCount);
 
 
         if (a_imgui.button("NBMap me Plz", 150)) {
-            //m_nbmapper = new NBMapperManual(a_arch, m_probabilityOfClass);
-            m_nbmapper = new NBMapperManual(a_arch, null);
+            m_nbmapper = new NBMapperManual(a_arch, m_doUseCDA, m_doUseNodeText, m_doUseNodeName, m_doUseArchComponentName, m_minWordLength, m_probabilityOfClass);
+            m_nbmapper.setClusteringThreshold(m_threshold);
 
-            //m_nbmapper.setClusteringThreshold(m_threshold);
-            m_nbmapper.run(createGraph());
+            CGraph g = createGraph();
+            m_nbmapper.run(g);
 
-            setAutoClusteredNodes(m_nbmapper.m_clusteredElements, m_selectedOrphanNodes);
-
-
+            //setAutoClusteredNodes(m_nbmapper.m_clusteredElements, m_selectedOrphanNodes);
+            a_result.addResult("NBMapping", g);
+            m_autoClusteredOrphans.clear();
         }
 
         a_imgui.imgui().nextColumn();

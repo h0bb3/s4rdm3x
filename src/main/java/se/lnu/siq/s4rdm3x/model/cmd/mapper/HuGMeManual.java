@@ -15,7 +15,7 @@ public class HuGMeManual extends HuGMe {
 
 
     // in this version an orphan node does not have a mapping and no clustering
-    @Override
+    /*@Override
     protected java.util.ArrayList<CNode> getOrphanNodes(CGraph a_g) {
 
         java.util.ArrayList<CNode> ret = new ArrayList<>();
@@ -26,5 +26,5 @@ public class HuGMeManual extends HuGMe {
         }
 
         return ret;
-    }
+    }*/
 }

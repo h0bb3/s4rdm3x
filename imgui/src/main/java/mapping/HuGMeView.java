@@ -8,6 +8,7 @@ import hiviz.Tree;
 import imgui.*;
 import imgui.internal.ColumnsFlag;
 import imgui.internal.Rect;
+import org.graphstream.graph.Graph;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.model.CGraph;
@@ -52,7 +53,7 @@ public class HuGMeView extends MapperBaseView {
         DoMap m_doMapAction;
     }
 
-    void doHugMeParamsView(ImGuiWrapper a_imgui, CGraph a_g, ArchDef a_arch, HNode.VisualsManager a_nvm) {
+    void doHugMeParamsView(ImGuiWrapper a_imgui, CGraph a_g, ArchDef a_arch, HNode.VisualsManager a_nvm, ResultView a_result) {
 
         a_imgui.imgui().beginColumns("doHugMeParamsView", 2, 0);
 
@@ -78,11 +79,13 @@ public class HuGMeView extends MapperBaseView {
         tree.doTree(a_imgui.imgui(), "doHugMeParamsViewMappedEntities");
 
         if (a_imgui.button("HuGMe Plz", 150)) {
-            m_hugme = new HuGMeManual((double)m_omega[0], (double)m_phi[0], a_arch);
+            m_hugme = new HuGMe((double)m_omega[0], (double)m_phi[0], false, a_arch, null);
+            CGraph g = createGraph();
 
-            m_hugme.run(createGraph());
+            m_hugme.run(g);
 
-            setAutoClusteredNodes(m_hugme.m_clusteredElements, m_selectedOrphanNodes);
+            //setAutoClusteredNodes(m_hugme.m_clusteredElements, m_selectedOrphanNodes);
+            a_result.addResult("HuGMe", g);
         }
 
         if (m_hugme != null) {
