@@ -97,6 +97,12 @@ public class HuGMeView extends MapperBaseView {
 
         a_imgui.imgui().nextColumn();
 
+        if (m_selectedMappedNodes.size() + m_selectedOrphanNodes.size() > 17) {
+            a_imgui.text("Visualization Disabled due to performance problems. Remove some nodes.");
+            a_imgui.imgui().endColumns();
+            return;
+        }
+
         final float columnWidth = a_imgui.imgui().getColumnWidth(1);
         Vec2 columnSize = new Vec2(columnWidth - 10, (float) a_imgui.imgui().getContentRegionAvail().getY());
         a_imgui.imgui().beginChild("mappingandorphanpies", columnSize, true, 0);
