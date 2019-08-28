@@ -15,6 +15,7 @@ import org.w3c.dom.Element;
 import se.lnu.siq.s4rdm3x.experiments.*;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 
+import se.lnu.siq.s4rdm3x.model.CNode;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 
 import java.io.IOException;
@@ -37,6 +38,8 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
     private ScatterPlot m_precisionVsInitialMapped = new ScatterPlot();
     private ScatterPlot m_recallVsInitialMapped = new ScatterPlot();
 
+    FailedClusterings m_fails = new FailedClusterings();
+
     private RunData m_popupMenuData = null;
 
     public ArrayList<RunData> m_selectedDataPoints = new ArrayList<>();
@@ -54,6 +57,7 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
 
     public ArrayList<RunData> m_experimentData = new ArrayList<>();  // this one is accessed by threads so take care...
     private boolean[] m_showPlots = {true};
+    private boolean[] m_showFails = {true};
     private Vec4 m_workingColor = null;
 
     Iterable<? extends ExperimentRunData.BasicRunData> getExperimentRunData() {
@@ -112,6 +116,17 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
             if (a_imgui.begin("Experiment Plots", m_showPlots, 0)) {
 
                 doPlots(iw);
+
+                a_imgui.end();
+            }
+        }
+
+        a_imgui.sameLine(0);
+        a_imgui.checkbox("Show Fails", m_showFails);
+        if (m_showFails[0]) {
+            if (a_imgui.begin("Failed Clusterings", m_showFails, 0)) {
+
+                m_fails.doShow(iw);
 
                 a_imgui.end();
             }
@@ -235,6 +250,12 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
 
 
         m_experimentData.add(new RunData(a_rd, a_src));
+
+        for (CNode n : a_rd.getAutoClusteredNodes()) {
+            if (!n.getClusteringComponentName().equals(n.getMapping()) && !n.getClusteringType().equals("Initial")) {
+                m_fails.add(n, a_rd.m_system.getName(), a_src.getName());
+            }
+        }
     }
 
     private int m_powerSelection = 0;
