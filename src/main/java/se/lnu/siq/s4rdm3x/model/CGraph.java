@@ -60,6 +60,16 @@ public class CGraph {
         return null;
     }
 
+    public CNode getNodeByLogicName(String a_logicName) {
+        for (CNode n : m_nodes) {
+            if (n.getLogicName().contentEquals(a_logicName)) {
+                return n;
+            }
+        }
+
+        return null;
+    }
+
     public ArrayList<CNode> searchNode(String a_namePattern) {
         ArrayList<CNode> ret = new ArrayList<>();
         Pattern p = Pattern.compile(a_namePattern);

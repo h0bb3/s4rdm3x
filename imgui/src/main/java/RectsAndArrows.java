@@ -278,6 +278,10 @@ public class RectsAndArrows {
             if (imgui.begin("Experiment View", showExperimentView, 0)) {
 
                 m_experimentView.doView(imgui, a_arch, a_g, m_vizState.m_nvm);
+                String selectedNodeLogicName = m_experimentView.getSelectedNodeLogicName();
+                if (selectedNodeLogicName != null) {
+                    m_treeView.m_selectedClass = a_g.getNodeByLogicName(selectedNodeLogicName);
+                }
 
                 imgui.end();
             }

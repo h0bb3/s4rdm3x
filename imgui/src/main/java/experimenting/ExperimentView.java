@@ -45,6 +45,12 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
     public ArrayList<RunData> m_selectedDataPoints = new ArrayList<>();
     public ArrayList<ExperimentView.MappingViewWrapper> m_mappingViews = new ArrayList<>();
 
+    public String getSelectedNodeLogicName() {
+        String node = m_fails.m_selectedNodeLogicName;
+        m_fails.m_selectedNodeLogicName = null;
+        return node;
+    }
+
     private static class RunData {
         ExperimentViewThread m_source;
         ExperimentRunData.BasicRunData m_data;
@@ -252,8 +258,8 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
         m_experimentData.add(new RunData(a_rd, a_src));
 
         for (CNode n : a_rd.getAutoClusteredNodes()) {
-            if (!n.getClusteringComponentName().equals(n.getMapping()) && !n.getClusteringType().equals("Initial")) {
-                m_fails.add(n, a_rd.m_system.getName(), a_src.getName());
+            if (!n.getClusteringType().equals("Initial")) {
+                m_fails.add(n, a_rd.m_system.getName(), a_src.m_experiment.getName());
             }
         }
     }
