@@ -391,7 +391,7 @@ public class TreeView  {
         ArrayList<CNode> fanout = new ArrayList<>();
         for (CNode n : a_g.getNodes()) {
             if (n != a_selectedNode && a_selectedNode.hasDependency(n)) {
-                a_imgui.text(n.getLogicName());
+                //a_imgui.text(n.getLogicName());
                 fanout.add(n);
                 int count = a_selectedNode.getDependencyCount(n);
                 if (count > maxFanOut) {
@@ -628,27 +628,31 @@ public class TreeView  {
 
         //a_imgui.addCircleFilled(center, (float)50, black, 32);
 
-        a_imgui.text(a_selectedNode.getLogicName());
+        //a_imgui.text(a_selectedNode.getLogicName());
 
         m_totalTime += a_imgui.imgui().getIo().getDeltaTime();
-        a_imgui.addText(center.minus(a_imgui.imgui().calcTextSize(a_selectedNode.getLogicName(), false).times(0.5)), white, a_selectedNode.getLogicName());
+        String centerText = a_selectedNode.getLogicName();
+        centerText = a_imgui.getLongestSubString(centerText, (float)(2 * innerRadius) - 10, "\\.");
+        a_imgui.addText(center.minus(a_imgui.imgui().calcTextSize(centerText, false).times(0.5)), white, centerText);
         if (selectedComponent != null) {
-            a_imgui.addText(center.minus(a_imgui.imgui().calcTextSize(selectedComponent.getName(), false).times(0.5)).plus(new Vec2(0, 15)), white, selectedComponent.getName());
+            centerText = selectedComponent.getName();
+            centerText = a_imgui.getLongestSubString(centerText, (float)(2 * innerRadius) - 10, "\\.");
+            a_imgui.addText(center.minus(a_imgui.imgui().calcTextSize(centerText, false).times(0.5)).plus(new Vec2(0, 15)), white, centerText);
         }
 
-        a_imgui.text("Fan in: ");
+        /*a_imgui.text("Fan in: ");
         for (CNode n : a_g.getNodes()) {
             if (n.hasDependency(a_selectedNode)) {
                 a_imgui.text(n.getLogicName());
             }
-        }
+        }*/
 
-        a_imgui.text("Fan out: ");
+        /*a_imgui.text("Fan out: ");
         for (CNode n : a_g.getNodes()) {
             if (a_selectedNode.hasDependency(n)) {
                 a_imgui.text(n.getLogicName());
             }
-        }
+        }*/
 
         if (mouseHoverNode[0] != null) {
             a_imgui.beginTooltip();
