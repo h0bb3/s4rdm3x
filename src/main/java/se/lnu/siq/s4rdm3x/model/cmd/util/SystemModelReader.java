@@ -18,7 +18,8 @@ public class    SystemModelReader {
     }
 
     public ArrayList<Module> m_modules = new ArrayList<>();
-    public ArrayList<Mapping> m_mappings = new ArrayList<>();
+    public ArrayList<Mapping> m_mappings = new ArrayList<>();           // this is the base truth
+    public ArrayList<Mapping> m_initialMappings = new ArrayList<>();    // this is a possible initial set of clustered nodes.
     public ArrayList<Relation> m_relations = new ArrayList<>();
     public String m_name = "undefined name";
     public ArrayList<String> m_jars = new ArrayList<>();
@@ -39,6 +40,7 @@ public class    SystemModelReader {
         Roots,
         Name,
         Metrics,
+        InitialMapping,
         None
     }
 
@@ -55,6 +57,13 @@ public class    SystemModelReader {
                 m.m_moduleName = parts[0];
                 m.m_regexp = parts[1];
                 m_mappings.add(m);
+            } break;
+            case InitialMapping: {
+                String [] parts = a_line.split(" ");
+                Mapping m = new Mapping();
+                m.m_moduleName = parts[0];
+                m.m_regexp = parts[1];
+                m_initialMappings.add(m);
             } break;
             case Relation: {
                 String [] parts = a_line.split(" ");
@@ -90,6 +99,8 @@ public class    SystemModelReader {
                     context = Context.Module;
                 } else if (line.startsWith("# mapping")) {
                     context = Context.Mapping;
+                } else if (line.startsWith("# initial mapping")) {
+                    context = Context.InitialMapping;
                 } else if (line.startsWith("# relations")) {
                     context = Context.Relation;
                 } else if (line.startsWith("# jar")) {
@@ -130,6 +141,12 @@ public class    SystemModelReader {
 
         bw.write("# mapping"); bw.newLine();
         for (Mapping m : m_mappings) {
+            bw.write(m.m_moduleName + " " + m.m_regexp); bw.newLine();
+        }
+        bw.newLine();
+
+        bw.write("# initial mapping"); bw.newLine();
+        for (Mapping m : m_initialMappings) {
             bw.write(m.m_moduleName + " " + m.m_regexp); bw.newLine();
         }
         bw.newLine();

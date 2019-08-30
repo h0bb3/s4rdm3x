@@ -1,13 +1,14 @@
 package se.lnu.siq.s4rdm3x.experiments;
 
-import se.lnu.siq.s4rdm3x.experiments.metric.Rand;
+import javafx.scene.shape.Arc;
+import se.lnu.siq.s4rdm3x.model.Selector;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
-import se.lnu.siq.s4rdm3x.model.cmd.mapper.HuGMe;
 import se.lnu.siq.s4rdm3x.model.cmd.util.FanInCache;
 import se.lnu.siq.s4rdm3x.experiments.metric.Metric;
 import se.lnu.siq.s4rdm3x.experiments.system.System;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
+import se.lnu.siq.s4rdm3x.model.cmd.util.SystemModelReader;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -22,6 +23,7 @@ public abstract class ExperimentRunner {
     private State m_currentState;   // this is the actual state
     private RandomDoubleVariable m_initialSetSize;
     private String m_name;
+    private boolean m_useInitialMapping;
 
     public String getName() {
         return m_name;
@@ -47,10 +49,13 @@ public abstract class ExperimentRunner {
         return m_initialSetSize;
     }
 
+    public boolean useInitialMapping() {return m_useInitialMapping;}
+
 
     private static class GraphArchitecturePair {
         public CGraph m_g;
         public ArchDef m_a;
+        ArrayList<SystemModelReader.Mapping> m_initialMapping;
     }
 
     public enum State {
@@ -203,18 +208,20 @@ public abstract class ExperimentRunner {
         return m_currentState;
     }
 
-    public ExperimentRunner(Iterable<System> a_suas, Iterable<Metric> a_metrics, boolean a_doUseManualmapping, RandomDoubleVariable a_initialSetSize) {
+    public ExperimentRunner(Iterable<System> a_suas, Iterable<Metric> a_metrics, boolean a_doUseManualmapping, boolean a_doUseInitialMapping, RandomDoubleVariable a_initialSetSize) {
         a_suas.forEach(s -> m_suas.add(s));
         a_metrics.forEach(m -> m_metrics.add(m));
         m_initialSetSize = a_initialSetSize;
         m_doUseManualmapping = a_doUseManualmapping;
+        m_useInitialMapping = a_doUseInitialMapping;
     }
 
-    public ExperimentRunner(System a_sua, Metric a_metric, boolean a_doUseManualmapping, RandomDoubleVariable a_initialSetSize) {
+    public ExperimentRunner(System a_sua, Metric a_metric, boolean a_doUseManualmapping, boolean a_doUseInitialMapping, RandomDoubleVariable a_initialSetSize) {
         m_suas .add(a_sua);
         m_metrics.add(a_metric);
         m_initialSetSize = a_initialSetSize;
         m_doUseManualmapping = a_doUseManualmapping;
+        m_useInitialMapping = a_doUseInitialMapping;
     }
 
     public interface RunListener {
@@ -278,6 +285,12 @@ public abstract class ExperimentRunner {
                         rd.m_date = sdfDate.format(new Date());
 
                         arch.cleanNodeClusters(a_g.getNodes());
+
+
+                        if (m_useInitialMapping) {
+                            // Set the initial set an initial set from architecture
+                            sua.setInitialMapping(a_g, arch);
+                        }
                         assignInitialClusters(a_g, arch, rd.m_initialClusteringPercent, metric);
 
                         //assignInitialClustersPerComponent(a_g, arch, rd.m_initialClusteringPercent);
@@ -336,10 +349,19 @@ public abstract class ExperimentRunner {
 
     private void assignInitialClusters(CGraph a_g, ArchDef a_arch, double a_percentage, Metric a_metric) {
         ArrayList<CNode> nodes = new ArrayList<>();
-        a_arch.getMappedNodes(a_g.getNodes()).forEach(a_n -> nodes.add(a_n));
+        final int[] initialMappingCount = {0};
+        a_arch.getMappedNodes(a_g.getNodes()).forEach(a_n -> {
+            ArchDef.Component c = a_arch.getClusteredComponent(a_n);
+            // there may be initial clusterings already set here so don't use them.
+            if (c == null || c.getClusteringType(a_n) != ArchDef.Component.ClusteringType.Initial) {
+                nodes.add(a_n);
+            } else {
+                initialMappingCount[0]++;
+            }
+        });
 
         int nodeCount = (int) ((double) nodes.size() * a_percentage);
-        if (nodeCount <= 0) {
+        if (nodeCount <= 0 && initialMappingCount[0] == 0) {
             nodeCount = 1;
         }
         ArrayList<CNode> workingSet = getWorkingSet(nodes, nodeCount, a_metric);
@@ -356,7 +378,7 @@ public abstract class ExperimentRunner {
         }
     }
 
-    private void assignInitialClustersPerComponent(CGraph a_g, ArchDef a_arch, double a_percentage, Metric a_metric) {
+    /*private void assignInitialClustersPerComponent(CGraph a_g, ArchDef a_arch, double a_percentage, Metric a_metric) {
         // OBS this assigns a number of classes per component, this is not actually that realistic
         for (ArchDef.Component component : a_arch.getComponents()) {
 
@@ -378,7 +400,7 @@ public abstract class ExperimentRunner {
                 component.clusterToNode(n, ArchDef.Component.ClusteringType.Initial);
             }
         }
-    }
+    }*/
 
 
 

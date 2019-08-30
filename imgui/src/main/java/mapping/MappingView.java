@@ -144,7 +144,7 @@ public class MappingView {
                 SystemModelReader.Mapping m = new SystemModelReader.Mapping();
                 m.m_moduleName = component.getName();
                 m.m_regexp = n.getLogicName();
-                reader.m_mappings.add(m);
+                reader.m_initialMappings.add(m);
             }
             try {
                 reader.writeFile(m_mappingsFile);
@@ -158,7 +158,7 @@ public class MappingView {
             SystemModelReader reader = new SystemModelReader();
 
             if (reader.readFile(m_mappingsFile)) {
-                for (SystemModelReader.Mapping m : reader.m_mappings) {
+                for (SystemModelReader.Mapping m : reader.m_initialMappings) {
                     for (CNode n : a_g.getNodes(new Selector.Pat(m.m_regexp))) {
 
                         if (!containsByName(m_selectedMappedNodes, n)) {

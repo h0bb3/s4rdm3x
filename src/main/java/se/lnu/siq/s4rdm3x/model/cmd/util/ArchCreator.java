@@ -29,6 +29,28 @@ public class ArchCreator {
         }
     }
 
+    public void setInitialMapping(ArchDef a_arch, SystemModelReader a_model, CGraph a_g) {
+        for (SystemModelReader.Mapping mapping : a_model.m_initialMappings) {
+            ArchDef.Component c = a_arch.getComponent(mapping.m_moduleName);
+            Selector.Pat p = new Selector.Pat(mapping.m_regexp);
+
+            for (CNode n : a_g.getNodes()) {
+                if (p.isSelected(n)) {
+                    ArchDef.Component oldMapping = a_arch.getClusteredComponent(n);
+                    if (oldMapping != null && oldMapping.getClusteringType(n) == ArchDef.Component.ClusteringType.Initial) {
+                        // we already have an initial clustering
+                        if (!mapping.m_regexp.contains(".*")) {
+                            oldMapping.removeClustering(n);
+                            c.clusterToNode(n, ArchDef.Component.ClusteringType.Initial);
+                        }
+                    } else {
+                        c.clusterToNode(n, ArchDef.Component.ClusteringType.Initial);
+                    }
+                }
+            }
+        }
+    }
+
     public ArchDef createArch(SystemModelReader a_model) {
         ArchDef arch = new ArchDef();
 

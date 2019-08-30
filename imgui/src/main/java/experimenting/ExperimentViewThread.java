@@ -52,6 +52,7 @@ class ExperimentViewThread extends Thread {
     ExperimentRunner.RandomDoubleVariable m_initialSetSize = new ExperimentRunner.RandomDoubleVariable(0.1, 0.1);
     SystemSelection m_selectedSystem = new SystemSelection();
     boolean m_useManualmapping = false;
+    boolean m_useIntialMapping = false;
 
     public ExperimentViewThread(ExperimentViewThread a_toBeCopied, int a_id) {
         m_id = "ExThread_" + a_id;
@@ -407,8 +408,15 @@ class ExperimentViewThread extends Thread {
 
                 }
             }
-            m_initialSetSize = doRandomDoubleVariable(a_imgui, "Initial Set Size", m_initialSetSize);
 
+            {
+                boolean[] initialMappnig = {m_useIntialMapping};
+                if (a_imgui.imgui().checkbox("Use Initial Mapping##" + m_id, initialMappnig)) {
+                    m_useIntialMapping = initialMappnig[0];
+                }
+            }
+
+            m_initialSetSize = doRandomDoubleVariable(a_imgui, "Initial Set Size", m_initialSetSize);
 
             if (a_imgui.collapsingHeader("Metrics##" + m_id, 0)) {
 
@@ -565,11 +573,11 @@ class ExperimentViewThread extends Thread {
         }
 
         if (m_experimentIx == g_nbmapper_ex) {
-            ret = new NBMapperExperimentRunner(systems, m_selectedMetrics.getSelected(), m_useManualmapping, m_initialSetSize, m_irData, m_doWordCount, m_threshold);
+            ret = new NBMapperExperimentRunner(systems, m_selectedMetrics.getSelected(), m_useManualmapping, m_useIntialMapping, m_initialSetSize, m_irData, m_doWordCount, m_threshold);
         } else if (m_experimentIx == g_hugmemapper_ex) {
-            ret = new HuGMeExperimentRunner(systems, m_selectedMetrics.getSelected(), m_useManualmapping, m_initialSetSize, m_omega, m_phi);
+            ret = new HuGMeExperimentRunner(systems, m_selectedMetrics.getSelected(), m_useManualmapping, m_useIntialMapping, m_initialSetSize, m_omega, m_phi);
         } else if (m_experimentIx == g_irattract_ex) {
-            ret = new IRAttractExperimentRunner(systems, m_selectedMetrics.getSelected(), m_useManualmapping, m_initialSetSize, m_irData);
+            ret = new IRAttractExperimentRunner(systems, m_selectedMetrics.getSelected(), m_useManualmapping, m_useIntialMapping, m_initialSetSize, m_irData);
         }
 
         ret.setName(m_name);

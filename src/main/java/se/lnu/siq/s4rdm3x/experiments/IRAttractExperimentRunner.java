@@ -12,17 +12,17 @@ import java.util.Random;
 public class IRAttractExperimentRunner extends IRExperimentRunnerBase {
     ExperimentRunData.IRMapperData m_exData;
 
-    public IRAttractExperimentRunner(System a_sua, Metric a_metric, boolean a_doUseManualmapping, RandomDoubleVariable a_initialSetSize, Data a_irData) {
-        super(a_sua, a_metric, a_doUseManualmapping, a_initialSetSize, a_irData);
+    public IRAttractExperimentRunner(System a_sua, Metric a_metric, boolean a_doUseManualmapping, boolean a_useInitialMapping, RandomDoubleVariable a_initialSetSize, Data a_irData) {
+        super(a_sua, a_metric, a_doUseManualmapping, a_useInitialMapping, a_initialSetSize, a_irData);
     }
 
-    public IRAttractExperimentRunner(Iterable<System> a_suas, Iterable<Metric> a_metrics, boolean a_doUseManualmapping, RandomDoubleVariable a_initialSetSize, Data a_irData) {
-        super(a_suas, a_metrics, a_doUseManualmapping, a_initialSetSize, a_irData);
+    public IRAttractExperimentRunner(Iterable<System> a_suas, Iterable<Metric> a_metrics, boolean a_doUseManualmapping, boolean a_useInitialMapping, RandomDoubleVariable a_initialSetSize, Data a_irData) {
+        super(a_suas, a_metrics, a_doUseManualmapping, a_useInitialMapping, a_initialSetSize, a_irData);
     }
 
     @Override
     public ExperimentRunner clone() {
-        return new IRAttractExperimentRunner(getSystems(), getMetrics(), doUseManualmapping(), getInitialSetSize(), getData());
+        return new IRAttractExperimentRunner(getSystems(), getMetrics(), doUseManualmapping(), useInitialMapping(), getInitialSetSize(), getData());
     }
 
     @Override

@@ -107,6 +107,7 @@ public class ExperimentXMLPersistence {
         ExperimentRunner ret;
         ExperimentRunner.RandomDoubleVariable initialSetSize = elementToRandomDouble(a_exr, "initialSetSize");
         boolean useManualMapping = getBoolAttribute(a_exr, "useManualMapping");
+        boolean useInitialMapping = getBoolAttribute(a_exr, "useInitialMapping");
         ArrayList<System> suas = new ArrayList<>();
         ArrayList<Metric> metrics = new ArrayList<>();
 
@@ -161,20 +162,19 @@ public class ExperimentXMLPersistence {
         if (type.equals("nbmapper")) {
             IRExperimentRunnerBase.Data irData = elementToIRData(a_exr);
             ExperimentRunner.RandomDoubleVariable threshold = elementToRandomDouble(a_exr, "threshold");
-            ExperimentRunner.RandomBoolVariable stemming = elementToRandomBool(a_exr, "stemming");
             ExperimentRunner.RandomBoolVariable wordcount = elementToRandomBool(a_exr, "wordcount");
 
-            ret = new NBMapperExperimentRunner(suas, metrics, useManualMapping, initialSetSize, irData, wordcount, threshold);
+            ret = new NBMapperExperimentRunner(suas, metrics, useManualMapping, useInitialMapping, initialSetSize, irData, wordcount, threshold);
         } else if (type.equals("hugme")) {
 
             ExperimentRunner.RandomDoubleVariable omega = elementToRandomDouble(a_exr, "omega");
             ExperimentRunner.RandomDoubleVariable phi = elementToRandomDouble(a_exr, "phi");
 
-            ret = new HuGMeExperimentRunner(suas, metrics, useManualMapping, initialSetSize, omega, phi);
+            ret = new HuGMeExperimentRunner(suas, metrics, useManualMapping, useInitialMapping, initialSetSize, omega, phi);
         } else if (type.equals("irattract")) {
             IRExperimentRunnerBase.Data irData = elementToIRData(a_exr);
-            ret = new IRAttractExperimentRunner(suas, metrics, useManualMapping, initialSetSize, irData);
-            ret = null;
+            ret = new IRAttractExperimentRunner(suas, metrics, useManualMapping, useInitialMapping, initialSetSize, irData);
+
         } else {
             throw new Exception("Unknown mapping experiment: " + type);
         }
@@ -222,6 +222,7 @@ public class ExperimentXMLPersistence {
 
         exrNode.appendChild(randomDoubleToElement(a_doc, a_exr.getInitialSetSize(), "initialSetSize"));
         setBoolAttribute(exrNode, "useManualMapping", a_exr.doUseManualmapping());
+        setBoolAttribute(exrNode, "useInitialMapping", a_exr.doUseManualmapping());
 
         Element metricsNode = a_doc.createElement("metrics");
         exrNode.appendChild(metricsNode);

@@ -19,24 +19,24 @@ public class NBMapperExperimentRunner extends IRExperimentRunnerBase {
     RandomDoubleVariable m_threshold;
 
     public NBMapperExperimentRunner(System a_sua, Metric a_metric, RandomDoubleVariable a_initialSetSize, IRExperimentRunnerBase.Data a_irData) {
-        super (a_sua, a_metric, false, a_initialSetSize, a_irData);
+        super (a_sua, a_metric, false, false, a_initialSetSize, a_irData);
 
         m_doWordCount = new RandomBoolVariable(false);
         m_threshold = new RandomDoubleVariable(0.9, 0);
     }
 
-    public NBMapperExperimentRunner(System a_sua, Metric a_metric, boolean a_doUseManualMapping, RandomDoubleVariable a_initialSetSize,
+    public NBMapperExperimentRunner(System a_sua, Metric a_metric, boolean a_doUseManualMapping, boolean a_useInitialMapping, RandomDoubleVariable a_initialSetSize,
                                     IRExperimentRunnerBase.Data a_irData, RandomBoolVariable a_doWordCount, RandomDoubleVariable a_threshold) {
-        super (a_sua, a_metric, a_doUseManualMapping, a_initialSetSize, a_irData);
+        super (a_sua, a_metric, a_doUseManualMapping, a_useInitialMapping, a_initialSetSize, a_irData);
 
 
         m_doWordCount = new RandomBoolVariable(a_doWordCount);
         m_threshold = new RandomDoubleVariable(a_threshold);
     }
 
-    public NBMapperExperimentRunner(Iterable<System> a_suas, Iterable<Metric> a_metrics, boolean a_doUseManualMapping, RandomDoubleVariable a_initialSetSize,
+    public NBMapperExperimentRunner(Iterable<System> a_suas, Iterable<Metric> a_metrics, boolean a_doUseManualMapping, boolean a_useInitialMapping, RandomDoubleVariable a_initialSetSize,
                                     IRExperimentRunnerBase.Data a_irData, RandomBoolVariable a_doWordCount, RandomDoubleVariable a_threshold) {
-        super(a_suas, a_metrics, a_doUseManualMapping, a_initialSetSize, a_irData);
+        super(a_suas, a_metrics, a_doUseManualMapping, a_useInitialMapping, a_initialSetSize, a_irData);
 
         m_doWordCount = new RandomBoolVariable(a_doWordCount);
         m_threshold = new RandomDoubleVariable(a_threshold);
@@ -73,9 +73,7 @@ public class NBMapperExperimentRunner extends IRExperimentRunnerBase {
 
     @Override
     public ExperimentRunner clone() {
-        return new NBMapperExperimentRunner(getSystems(), getMetrics(), doUseManualmapping(), getInitialSetSize(),
-                getData(),
-                m_doWordCount, m_threshold);
+        return new NBMapperExperimentRunner(getSystems(), getMetrics(), doUseManualmapping(), useInitialMapping(), getInitialSetSize(), getData(), m_doWordCount, m_threshold);
     }
 
     public RandomDoubleVariable getThreshold() {

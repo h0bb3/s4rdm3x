@@ -9,7 +9,6 @@ import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.HuGMe;
 import se.lnu.siq.s4rdm3x.model.cmd.util.FanInCache;
 
-import java.util.ArrayList;
 import java.util.Random;
 
 public class HuGMeExperimentRunner extends ExperimentRunner {
@@ -18,21 +17,21 @@ public class HuGMeExperimentRunner extends ExperimentRunner {
     private RandomDoubleVariable m_omega;
     private RandomDoubleVariable m_phi;
 
-    public HuGMeExperimentRunner(System a_sua, Metric a_metric, boolean a_doManualMapping, RandomDoubleVariable a_initialSetSize, RandomDoubleVariable a_omega, RandomDoubleVariable a_phi) {
-        super (a_sua, a_metric, a_doManualMapping, a_initialSetSize);
+    public HuGMeExperimentRunner(System a_sua, Metric a_metric, boolean a_doManualMapping, boolean a_useInitialMapping, RandomDoubleVariable a_initialSetSize, RandomDoubleVariable a_omega, RandomDoubleVariable a_phi) {
+        super (a_sua, a_metric, a_doManualMapping, a_useInitialMapping, a_initialSetSize);
         m_omega = new RandomDoubleVariable(a_omega);
         m_phi = new RandomDoubleVariable(a_phi);
     }
 
-    public HuGMeExperimentRunner(Iterable<System> a_suas, Iterable<Metric> a_metrics, boolean a_doManualMapping, RandomDoubleVariable a_initialSetSize, RandomDoubleVariable a_omega, RandomDoubleVariable a_phi) {
-        super (a_suas, a_metrics, a_doManualMapping, a_initialSetSize);
+    public HuGMeExperimentRunner(Iterable<System> a_suas, Iterable<Metric> a_metrics, boolean a_doManualMapping, boolean a_useInitialMapping, RandomDoubleVariable a_initialSetSize, RandomDoubleVariable a_omega, RandomDoubleVariable a_phi) {
+        super (a_suas, a_metrics, a_doManualMapping, a_useInitialMapping, a_initialSetSize);
         m_omega = new RandomDoubleVariable(a_omega);
         m_phi = new RandomDoubleVariable(a_phi);
     }
 
     @Override
     public ExperimentRunner clone() {
-        return new HuGMeExperimentRunner(getSystems(), getMetrics(), doUseManualmapping(), getInitialSetSize(), m_omega, m_phi);
+        return new HuGMeExperimentRunner(getSystems(), getMetrics(), doUseManualmapping(), useInitialMapping(), getInitialSetSize(), m_omega, m_phi);
     }
 
     @Override

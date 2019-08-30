@@ -8,6 +8,7 @@ import java.nio.file.Path;
 
 public abstract class System {
     public abstract ArchDef createAndMapArch(CGraph a_g);
+    public void setInitialMapping(CGraph a_g, ArchDef a_arch) {};
     public abstract boolean load(CGraph a_g);
     public abstract String getName();
 

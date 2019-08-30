@@ -33,6 +33,12 @@ public class FileBased extends System {
         }
     }
 
+    @Override
+    public void setInitialMapping(CGraph a_g, ArchDef a_arch) {
+        ArchCreator ac = new ArchCreator();
+        ac.setInitialMapping(a_arch, m_smr, a_g);
+    }
+
     public ArchDef createAndMapArch(CGraph a_g) {
         ArchCreator ac = new ArchCreator();
         ArchDef ret = ac.createArch(m_smr);
