@@ -1,5 +1,6 @@
 package se.lnu.siq.s4rdm3x.model.cmd;
 
+import se.lnu.siq.s4rdm3x.model.Selector;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
@@ -12,6 +13,7 @@ import java.util.HashMap;
 public class CheckViolations {
 
     public ArrayList<Violation> m_divergencies = new ArrayList<>();
+    Selector.ISelector m_sourceNodes;
 
     public static class Violation {
         public static class Part {
@@ -23,13 +25,21 @@ public class CheckViolations {
         public dmDependency m_dependency;
     }
 
+    public CheckViolations() {
+        m_sourceNodes = new Selector.All();
+    }
+
+    public CheckViolations(Selector.ISelector a_nodesToCheck) {
+        m_sourceNodes = a_nodesToCheck;
+    }
+
     public void run(CGraph a_g, ArchDef a_arch) {
         HashMap<ArchDef.Component, ArrayList<CNode>> nodesPerComponent = new HashMap<>();
 
         for (ArchDef.Component c : a_arch.getComponents()) {
             nodesPerComponent.put(c, new ArrayList<>());
         }
-        for(CNode n : a_arch.getMappedNodes(a_g.getNodes())) {
+        for(CNode n : a_arch.getMappedNodes(a_g.getNodes(m_sourceNodes))) {
             ArchDef.Component c = a_arch.getMappedComponent(n);
             nodesPerComponent.get(c).add(n);
         }

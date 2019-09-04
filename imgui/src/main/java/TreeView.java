@@ -3,6 +3,7 @@ import archviz.HRoot;
 import glm_.vec2.Vec2;
 import glm_.vec4.Vec4;
 import gui.ImGuiWrapper;
+import gui.JavaProperty;
 import gui.ZoomWindow;
 import hiviz.Circle;
 import hiviz.Tree;
@@ -11,6 +12,7 @@ import imgui.internal.Rect;
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
 import se.lnu.siq.s4rdm3x.experiments.metric.Metric;
 import se.lnu.siq.s4rdm3x.experiments.metric.MetricFactory;
+import se.lnu.siq.s4rdm3x.model.cmd.CheckViolations;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.model.CGraph;
@@ -38,6 +40,7 @@ public class TreeView  {
     private int[] m_colorSelection = {0};
 
     HRoot.State m_archState = new HRoot.State();
+    private int m_metricMultiplier = 1;
 
     private static class ClassTreeNodeContextMenu {
         private Tree.TNode m_selectedNode = null;
@@ -145,7 +148,7 @@ public class TreeView  {
 
         // colors and mappings may have changed so we need to update them
         if (m_colorSelection[0] == 1) {
-            colorizeCircles(m_selectedPackage, iw, a_arch, m_archState.m_nvm);
+            colorizeCircles(a_g, m_selectedPackage, iw, a_arch, m_archState.m_nvm);
         }
 
         treeViewRoots[m_treeViewSelection[0]] = iw.inputTextSingleLine("Root", treeViewRoots[m_treeViewSelection[0]]);
@@ -190,8 +193,8 @@ public class TreeView  {
                 //m_selectedPackage = null;
             } else {
 
-                m_selectedPackage = getPackageCircles(iw, selected, new Vec2(0, 0), primitiveMetrics[m_metricSelection[0]]);
-                colorizeCircles(m_selectedPackage, iw, a_arch, m_archState.m_nvm);
+                m_selectedPackage = getPackageCircles(iw, selected, new Vec2(0, 0), primitiveMetrics[m_metricSelection[0]], m_metricMultiplier);
+                colorizeCircles(a_g, m_selectedPackage, iw, a_arch, m_archState.m_nvm);
                 m_selectedClass = null;
             }
         }
@@ -213,8 +216,8 @@ public class TreeView  {
 
             if (a_imgui.combo("Metric##metricscombo", m_metricSelection, metrics, metrics.size())) {
                 if (m_selectedPackage != null) {
-                    m_selectedPackage.computeLayout(m_selectedPackage.getPos(), primitiveMetrics[m_metricSelection[0]]);
-                    colorizeCircles(m_selectedPackage, iw, a_arch, m_archState.m_nvm);
+                    m_selectedPackage.computeLayout(m_selectedPackage.getPos(), primitiveMetrics[m_metricSelection[0]], m_metricMultiplier);
+                    colorizeCircles(a_g, m_selectedPackage, iw, a_arch, m_archState.m_nvm);
 
                 }
             }
@@ -222,11 +225,18 @@ public class TreeView  {
             ArrayList<String> colors = new ArrayList<>();
             colors.add("by Metric (mean, std dev)");
             colors.add("by MappingView");
+            colors.add("by Conformance");
             if (a_imgui.combo("Color##colorcombo", m_colorSelection, colors, colors.size())) {
                 if (m_selectedPackage != null) {
-                    m_selectedPackage.computeLayout(m_selectedPackage.getPos(), primitiveMetrics[m_metricSelection[0]]);
-                    colorizeCircles(m_selectedPackage, iw, a_arch, m_archState.m_nvm);
+                    m_selectedPackage.computeLayout(m_selectedPackage.getPos(), primitiveMetrics[m_metricSelection[0]], m_metricMultiplier);
+                    colorizeCircles(a_g, m_selectedPackage, iw, a_arch, m_archState.m_nvm);
                 }
+            }
+
+            Integer[] metricMult = {m_metricMultiplier};
+            if (a_imgui.dragInt("Metric Multiplier", new JavaProperty<>(metricMult), 0.1f, 1, 256, "%d")) {
+                m_metricMultiplier = metricMult[0];
+                m_selectedPackage.computeLayout(m_selectedPackage.getPos(), primitiveMetrics[m_metricSelection[0]], m_metricMultiplier);
             }
 
         }
@@ -237,7 +247,7 @@ public class TreeView  {
                 if (m_selectedClass != null) {
                     doClassView(iw, a_g, a_arch, m_archState.m_nvm, m_selectedClass);
                 } else if (m_selectedPackage != null) {
-                    Action a = doPackageView(iw, a_g, a_arch, m_archState.m_nvm, m_selectedPackage, primitiveMetrics[m_metricSelection[0]]);
+                    Action a = doPackageView(iw, a_g, a_arch, m_archState.m_nvm, m_selectedPackage, primitiveMetrics[m_metricSelection[0]], m_metricMultiplier);
                     if (ret == null && a != null) {
                         ret = a;
                     }
@@ -277,7 +287,7 @@ public class TreeView  {
     }
 
 
-    private Action doPackageView(ImGuiWrapper a_imgui, CGraph a_g, ArchDef a_arch, HNode.VisualsManager a_nvm, hiviz.Circle a_selectedNode, Metric a_metric) {
+    private Action doPackageView(ImGuiWrapper a_imgui, CGraph a_g, ArchDef a_arch, HNode.VisualsManager a_nvm, hiviz.Circle a_selectedNode, Metric a_metric, int a_metricMultiplier) {
 
         Action ret = null;
         Vec2 columnSize = new Vec2(a_imgui.imgui().getColumnWidth(1) - 10, (float) a_imgui.imgui().getContentRegionAvail().getY());
@@ -300,8 +310,8 @@ public class TreeView  {
         if (clicked) {
             if (selected != null) {
                 if (selected.getNode().childCount() > 0) {
-                    selected.computeLayout(m_selectedPackage.getChildPos(selected), a_metric);
-                    colorizeCircles(m_selectedPackage, a_imgui, a_arch, a_nvm);
+                    selected.computeLayout(m_selectedPackage.getChildPos(selected), a_metric, a_metricMultiplier);
+                    colorizeCircles(a_g, m_selectedPackage, a_imgui, a_arch, a_nvm);
                     m_selectedPackage = selected;
                 } else {
                     m_selectedClass = (CNode) selected.getNode().getObject();
@@ -311,8 +321,8 @@ public class TreeView  {
                 Tree.TNode parent = m_selectedPackage.getNode().getParent();
                 if (parent != null) {
                     Vec2 oldPos = m_selectedPackage.getPos();
-                    Circle newSelected = getPackageCircles(a_imgui, parent, new Vec2(0, 0), a_metric);
-                    colorizeCircles(newSelected, a_imgui, a_arch, a_nvm);
+                    Circle newSelected = getPackageCircles(a_imgui, parent, new Vec2(0, 0), a_metric, a_metricMultiplier);
+                    colorizeCircles(a_g, newSelected, a_imgui, a_arch, a_nvm);
 
                     Circle oldSelected = newSelected.getCircle(m_selectedPackage.getNode());
 
@@ -323,7 +333,12 @@ public class TreeView  {
             }
         } else if (selected != null && selected.getNode() != null && selected.getNode().getName() != null) {
             a_imgui.beginTooltip();
-            a_imgui.text(selected.getNode().getName());
+            CNode n = (CNode) selected.getNode().getObject();
+            a_imgui.text(selected.getNode().getFullName());
+            if (n != null) {
+                a_imgui.text(n.getMapping());
+            }
+
             a_imgui.endTooltip();
         }
 
@@ -343,7 +358,7 @@ public class TreeView  {
         return ret;
     }
 
-    private Circle getPackageCircles(ImGuiWrapper a_imgui, Tree.TNode a_selected, Vec2 a_initialPos, Metric a_metric) {
+    private Circle getPackageCircles(ImGuiWrapper a_imgui, Tree.TNode a_selected, Vec2 a_initialPos, Metric a_metric, int a_metricMultiplier) {
         class CircleHierarchyBuilder implements Tree.TNodeVisitor {
             hiviz.Circle m_circle;
 
@@ -364,7 +379,7 @@ public class TreeView  {
 
         CircleHierarchyBuilder rootBuilder = new CircleHierarchyBuilder();
         a_selected.accept(rootBuilder);
-        rootBuilder.m_circle.computeLayout(a_initialPos, a_metric);
+        rootBuilder.m_circle.computeLayout(a_initialPos, a_metric, a_metricMultiplier);
 
         return rootBuilder.m_circle;
     }
@@ -700,11 +715,16 @@ public class TreeView  {
         return treeViewRoots[0];
     }
 
-    private void colorizeCircles(Circle a_root, ImGuiWrapper a_imgui, ArchDef a_arch, HNode.VisualsManager a_nvm) {
+    private void colorizeCircles(CGraph a_g, Circle a_root, ImGuiWrapper a_imgui, ArchDef a_arch, HNode.VisualsManager a_nvm) {
         if (m_colorSelection[0] == 0) {
             a_root.colorByMetric(m_statColor1, m_statColor2);
-        } else {
+        } else if (m_colorSelection[0] == 1){
             a_root.colorByMapping(a_imgui, a_arch, a_nvm);
+        } else if (m_colorSelection[0] == 2) {
+            CheckViolations cv = new CheckViolations();
+            cv.run(a_g, a_arch);
+
+            a_root.colorByViolation(a_imgui, a_arch, a_nvm, cv.m_divergencies);
         }
 
     }

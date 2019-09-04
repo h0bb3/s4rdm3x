@@ -6,11 +6,15 @@ import glm_.vec4.Vec4;
 import gui.ImGuiWrapper;
 import imgui.internal.Rect;
 import se.lnu.siq.s4rdm3x.experiments.metric.Metric;
+import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
+import se.lnu.siq.s4rdm3x.model.Selector;
+import se.lnu.siq.s4rdm3x.model.cmd.CheckViolations;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 import se.lnu.siq.s4rdm3x.stats;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 public class Circle {
     Vec2 m_pos = null;
@@ -127,6 +131,34 @@ public class Circle {
         }
     }
 
+    public void colorByViolation(ImGuiWrapper a_imgui, ArchDef a_arch, HNode.VisualsManager a_nvm, Collection<CheckViolations.Violation> a_violations) {
+        ArrayList<Circle> leafs = new ArrayList<>();
+        getLeafs(leafs);
+        int red = ImGuiWrapper.toColor(255, 50, 50, 255);
+        boolean violation[] = {false};
+
+        for (Circle c : leafs) {
+            CNode n = (CNode)c.getNode().getObject();
+
+            ArchDef.Component ac = a_arch.getMappedComponent(n);
+            if (ac != null) {
+
+                violation[0] = false;
+                a_violations.forEach(v -> {if (v.m_source.m_node == n) violation[0] = true;});
+
+                if (violation[0]) {
+                    c.m_bgColor = new int[1];
+                    c.m_bgColor[0] = red;
+                } else {
+                    c.m_bgColor = new int[1];
+                    c.m_bgColor[0] = a_imgui.toColor(a_nvm.getBGColor(ac.getName()));
+                }
+            } else {
+                c.m_bgColor = null;
+            }
+        }
+    }
+
     public void colorByMapping(ImGuiWrapper a_imgui, ArchDef a_arch, HNode.VisualsManager a_nvm) {
         ArrayList<Circle> leafs = new ArrayList<>();
         getLeafs(leafs);
@@ -144,10 +176,10 @@ public class Circle {
         }
     }
 
-    public void computeLayout(Vec2 a_center, Metric a_metric) {
+    public void computeLayout(Vec2 a_center, Metric a_metric, int a_metricMuliplier) {
         NullPosition();
         m_pos = a_center;
-        computeLayout(a_metric);
+        computeLayout(a_metric, a_metricMuliplier);
 
         // get all the leafs and order them according to the metric value
         // color those that are above some threshold (one sd?)
@@ -172,20 +204,20 @@ public class Circle {
         }
     }
 
-    private void computeLayout(Metric a_metric) {
+    private void computeLayout(Metric a_metric, int a_metricMuliplier) {
         if (m_children.size() == 0) {
             //LineCount lc = new LineCount();
             //ByteCodeInstructions bc = new ByteCodeInstructions();
 
             //m_radius = 10.0f + (float)lc.compute((CNode)m_node.getObject(), bc) / 100.0f;
-            m_radius = 10.0f + (float)a_metric.getMetric((CNode)m_node.getObject()) / 100.0f;
+            m_radius = 10.0f + ((float)a_metric.getMetric((CNode)m_node.getObject()) / 100.0f ) * (float)a_metricMuliplier;
 
         } else {
             // radius can only be computed if children are laid out
             // but for this to work we need to position all children
             // and first their radii must first be computed
             for (Circle c : m_children) {
-                c.computeLayout(a_metric);
+                c.computeLayout(a_metric, a_metricMuliplier);
             }
             m_children.sort( (a, b) -> (int)b.m_radius - (int)a.m_radius);
 
