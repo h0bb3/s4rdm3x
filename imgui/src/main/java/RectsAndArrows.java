@@ -244,7 +244,7 @@ public class RectsAndArrows {
                     if (a.m_doMapAction.a_toComponentName != null) {
                         target = a_arch.getComponent(a.m_doMapAction.a_toComponentName);
                     }
-                    Selector.Pat selector = new Selector.Pat(a.m_doMapAction.a_whatNodeName.replace(".", "\\."));
+                    Selector.Pat selector = new Selector.Pat(a.m_doMapAction.a_whatNodeName.replace(".", "\\.") + (a.m_doMapAction.m_isLeaf ? "" : "\\..*"));
                     MapNode cmd = new MapNode(target, selector);
                     cmd.run(a_g);
 

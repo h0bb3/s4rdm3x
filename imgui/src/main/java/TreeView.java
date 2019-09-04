@@ -65,6 +65,8 @@ public class TreeView  {
                             ret = new Action();
                             ret.m_doMapAction = new Action.DoMap();
                             ret.m_doMapAction.a_whatNodeName = m_selectedNode.getFullName();
+                            ret.m_doMapAction.m_isLeaf = m_selectedNode.childCount() == 0;
+
                             ret.m_doMapAction.a_toComponentName = selectedNode.getFullName();
 
                             System.out.println("what: " + ret.m_doMapAction.a_whatNodeName);
@@ -105,6 +107,7 @@ public class TreeView  {
         public static class DoMap {
             public String a_whatNodeName;
             public String a_toComponentName;
+            public boolean m_isLeaf;
         }
 
         DoMap m_doMapAction;
@@ -220,8 +223,10 @@ public class TreeView  {
             colors.add("by Metric (mean, std dev)");
             colors.add("by MappingView");
             if (a_imgui.combo("Color##colorcombo", m_colorSelection, colors, colors.size())) {
-                m_selectedPackage.computeLayout(m_selectedPackage.getPos(), primitiveMetrics[m_metricSelection[0]]);
-                colorizeCircles(m_selectedPackage, iw, a_arch, m_archState.m_nvm);
+                if (m_selectedPackage != null) {
+                    m_selectedPackage.computeLayout(m_selectedPackage.getPos(), primitiveMetrics[m_metricSelection[0]]);
+                    colorizeCircles(m_selectedPackage, iw, a_arch, m_archState.m_nvm);
+                }
             }
 
         }
