@@ -139,6 +139,27 @@ public class RectsAndArrows {
         sch.execute("load_arch_visuals data/slask/jabref_visuals.xml", graph).forEach(str -> guic.println(str));
         sch.execute("load_jar data/systems/JabRef/3.7/JabRef-3.7.jar net.sf.jabref.", graph).forEach(str -> guic.println(str));
         sch.execute("load_arch data/slask/jabref.txt", graph).forEach(str -> guic.println(str));
+
+
+
+        //sch.execute("load_arch_visuals data/slask/jabref_visuals.xml", graph).forEach(str -> guic.println(str));
+        //sch.execute("load_jar data/systems/ProM6.9/Pr3.7.jar net.sf.jabref.", graph).forEach(str -> guic.println(str));
+        //sch.execute("load_arch data/slask/jabref.txt", graph).forEach(str -> guic.println(str));
+
+        /*ProM69_dist/ProM-Contexts-6.9.56.jar
+        ProM69_dist/ProM-Framework-6.9.97.jar
+        ProM69_dist/ProM-Models-6.9.32.jar
+        ProM69_dist/ProM-Models-6.9.32.jar*/
+
+       /* sch.execute("load_jar data/systems/ProM6.9/ProM69_dist/ProM-Contexts-6.9.56.jar", graph).forEach(str -> guic.println(str));
+        sch.execute("load_jar data/systems/ProM6.9/ProM69_dist/ProM-Framework-6.9.97.jar", graph).forEach(str -> guic.println(str));
+        sch.execute("load_jar data/systems/ProM6.9/ProM69_dist/ProM-Models-6.9.32.jar", graph).forEach(str -> guic.println(str));
+        sch.execute("load_jar data/systems/ProM6.9/ProM69_dist/ProM-Plugins-6.9.67.jar", graph).forEach(str -> guic.println(str));
+
+        sch.execute("load_arch_visuals data/slask/prom_visuals.xml", graph).forEach(str -> guic.println(str));
+        sch.execute("load_arch data/systems/ProM6.9/ProM_6_9.txt", graph).forEach(str -> guic.println(str));
+*/
+
         sch.execute("compute_metrics", graph).forEach(str -> guic.println(str));
 
 

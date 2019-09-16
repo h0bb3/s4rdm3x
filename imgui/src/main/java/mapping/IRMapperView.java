@@ -1,5 +1,6 @@
 package mapping;
 
+
 import archviz.HNode;
 import glm_.vec2.Vec2;
 import glm_.vec4.Vec4;
@@ -13,9 +14,7 @@ import imgui.internal.Window;
 import se.lnu.siq.s4rdm3x.experiments.ExperimentRunData;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
-import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
-import se.lnu.siq.s4rdm3x.model.cmd.mapper.NBMapper;
-import se.lnu.siq.s4rdm3x.model.cmd.mapper.NBMapperManual;
+import se.lnu.siq.s4rdm3x.model.cmd.mapper.*;
 import weka.core.Attribute;
 import weka.core.Instance;
 import weka.core.Instances;
@@ -23,9 +22,9 @@ import weka.filters.unsupervised.attribute.StringToWordVector;
 
 import java.util.*;
 
-public class NBMapperView extends MapperBaseView {
+public class IRMapperView extends MapperBaseView {
 
-    NBMapperManual m_nbmapper;
+    IRAttractMapper m_nbmapper;
 
     //private ArrayList<CNode> m_autoClusteredOrphans = new ArrayList<>();
     private double[] m_probabilityOfClass = null;
@@ -41,7 +40,7 @@ public class NBMapperView extends MapperBaseView {
     private int m_selectedRowIx = -1;
     private String m_selectedNodeName = "";
 
-    public NBMapperView(List<CNode>a_mappedNodes, List<CNode>a_orphanNodes) {
+    public IRMapperView(List<CNode>a_mappedNodes, List<CNode>a_orphanNodes) {
         super(a_mappedNodes, a_orphanNodes);
     }
 
@@ -53,79 +52,18 @@ public class NBMapperView extends MapperBaseView {
         return m_selectedNodeName = "";
     }
 
-    void doNBMapperParamsView(ImGuiWrapper a_imgui, ArchDef a_arch, HNode.VisualsManager a_nvm, Iterable<CNode>a_system, ResultView a_result) {
+    void doIRMapperParamsView(ImGuiWrapper a_imgui, ArchDef a_arch, HNode.VisualsManager a_nvm, Iterable<CNode>a_system, ResultView a_result) {
 
         // first we get the data
         // TODO: these should be fixed based on parameters in the view...
-        NBMapper mapper = new NBMapper(null, m_doUseCDA, m_doUseNodeText, m_doUseNodeName, m_doUseArchComponentName, m_minWordLength);
+        IRAttractMapper mapper = new IRAttractMapper(null, false, m_doUseCDA, m_doUseNodeText, m_doUseNodeName, m_doUseArchComponentName, m_minWordLength);
 
-        StringToWordVector filter = (StringToWordVector) mapper.getFilter();
-        filter.setOutputWordCounts(m_doWordCount);
-        Instances td = mapper.getTrainingData(m_selectedMappedNodes, a_arch, filter, m_doStemming ? new weka.core.stemmers.SnowballStemmer() : null);   // TODO: check so that this stemming stuff is correct...
+
+        Vector<IRAttractMapper.WordVector> td = mapper.getTrainingData(m_selectedMappedNodes, a_arch);
         NBMapper.Classifier classifier = new NBMapper.Classifier();
-        final boolean doAddRawArchitectureTrainingData = mapper.doAddRawArchitectureTrainingData();
 
 
-        if (m_selectedMappedNodes.size() > 0 || doAddRawArchitectureTrainingData) {
-            try {
-                classifier.buildClassifier(td);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        Attribute classAttribute = td.classAttribute();
-
-
-
-
-        a_imgui.imgui().beginColumns("doNBMapperParamsView", 2, 0);
-
-        a_imgui.imgui().beginChild("componensdistribution", new Vec2(a_imgui.imgui().getContentRegionAvailWidth(), a_imgui.imgui().getStyle().getFramePadding().getY() * 4 + (a_arch.getComponentCount() + 1) * (a_imgui.getTextLineHeightWithSpacing() + a_imgui.imgui().getStyle().getFramePadding().getY() * 2) ), true, 0);
-
-        if (classifier.getProbabilityOfClass() != null) {
-            if (a_imgui.button("Training Data", 0) || m_probabilityOfClass == null || m_probabilityOfClass.length != classifier.getProbabilityOfClass().length) {
-                m_probabilityOfClass = new double[classifier.getProbabilityOfClass().length];
-                for (int pIx = 0; pIx < classifier.getProbabilityOfClass().length; pIx++) {
-                    m_probabilityOfClass[pIx] = classifier.getProbabilityOfClass()[pIx];
-                }
-            }
-
-            a_imgui.imgui().sameLine(0);
-
-            if (a_imgui.button("Uniform", 0)) {
-                for (int pIx = 0; pIx < classifier.getProbabilityOfClass().length; pIx++) {
-                    m_probabilityOfClass[pIx] = (float) 1 / classifier.getProbabilityOfClass().length;
-                }
-            }
-
-            a_imgui.imgui().sameLine(0);
-
-            if (a_imgui.button("System", 0)) {
-                int[] nodeCounts = new int[a_arch.getComponentCount()];
-                int sum = 0;
-
-                for (CNode n : a_arch.getMappedNodes(a_system)) {
-                    nodeCounts[a_arch.getComponentIx(a_arch.getMappedComponent(n))]++;
-                    sum++;
-                }
-
-
-                for (int pIx = 0; pIx < classifier.getProbabilityOfClass().length; pIx++) {
-                    m_probabilityOfClass[pIx] = (float) nodeCounts[pIx] / (float) sum;
-                }
-            }
-
-            final float textMaxWidth = a_imgui.imgui().getContentRegionAvailWidth() / 3.0f - 5;
-            for (int pIx = 0; pIx < classifier.getProbabilityOfClass().length; pIx++) {
-                float[] prob = {(float) m_probabilityOfClass[pIx]};
-
-                if (a_imgui.imgui().sliderFloat(a_imgui.getLongestSubString(td.classAttribute().value(pIx), textMaxWidth, "\\."), prob, 0, 1, "%.2f", 1)) {
-                    m_probabilityOfClass[pIx] = prob[0];
-                }
-            }
-        }
-        a_imgui.imgui().endChild();
+        a_imgui.imgui().beginColumns("doIRMapperParamsView", 2, 0);
 
 
         {
@@ -149,8 +87,8 @@ public class NBMapperView extends MapperBaseView {
 
 
         if (a_imgui.button("NBMap me Plz", 150)) {
-            m_nbmapper = new NBMapperManual(a_arch, m_doUseCDA, m_doUseNodeText, m_doUseNodeName, m_doUseArchComponentName, m_minWordLength, m_probabilityOfClass);
-            m_nbmapper.setClusteringThreshold(m_threshold);
+            //m_irmapper = new IRAttractMapper(a_arch, false, m_doUseCDA, m_doUseNodeText, m_doUseNodeName, m_doUseArchComponentName, m_minWordLength);
+
 
             CGraph g = createGraph();
             m_nbmapper.run(g);
@@ -162,7 +100,7 @@ public class NBMapperView extends MapperBaseView {
 
         a_imgui.imgui().nextColumn();
 
-        String[] rigthColHeadlines = new String[td.numAttributes()];
+        /*String[] rigthColHeadlines = new String[td.numAttributes()];
         float longestHeadline = 0;
         for (int attribIx = 0; attribIx < td.numAttributes(); attribIx++) {
             rigthColHeadlines[attribIx] = td.attribute(attribIx).name();
@@ -172,7 +110,7 @@ public class NBMapperView extends MapperBaseView {
             }
         }
 
-        doTrainingDataTable(a_imgui, a_arch, a_nvm, td, classifier, doAddRawArchitectureTrainingData, rigthColHeadlines, (int) longestHeadline);
+        doTrainingDataTable(a_imgui, a_arch, a_nvm, td, classifier, doAddRawArchitectureTrainingData, rigthColHeadlines, (int) longestHeadline);*/
 
 
         a_imgui.imgui().endColumns();
@@ -371,7 +309,7 @@ public class NBMapperView extends MapperBaseView {
 
             maxCols = startColIx + (int)(rightClipRect.getWidth() / colWidth) + 2;
             if (maxCols > rightColCount) {
-               maxCols = rightColCount;
+                maxCols = rightColCount;
             }
 
             /*a_imgui.beginTooltip();
@@ -408,7 +346,7 @@ public class NBMapperView extends MapperBaseView {
                         if (isInside) {
 
                             if (a_nvm.hasBGColor(row.m_mapping)) {
-                               a_imgui.addRectFilled(tl, br, a_imgui.toColor(a_nvm.getBGColor(row.m_mapping)), 0, 0);
+                                a_imgui.addRectFilled(tl, br, a_imgui.toColor(a_nvm.getBGColor(row.m_mapping)), 0, 0);
                             }
 
                             renderOverlay(a_imgui, white15, i, m_selectedRowIx, tl, br);
@@ -472,7 +410,7 @@ public class NBMapperView extends MapperBaseView {
                 m_selectedRowIx = rowIx;
                 if (a_imgui.isMouseClicked(0, false)) {
                     if (m_selectedRowIx >= 0 && m_selectedRowIx < rows.size())
-                    m_selectedNodeName = rows.get(m_selectedRowIx).m_name;
+                        m_selectedNodeName = rows.get(m_selectedRowIx).m_name;
                 }
             } else {
                 m_selectedRowIx = -1;
@@ -548,4 +486,5 @@ public class NBMapperView extends MapperBaseView {
         m_doUseArchComponentName = a_data.m_doUseArchComponentName;
         m_minWordLength = a_data.m_minWordSize;
     }
+
 }

@@ -7,17 +7,14 @@ import se.lnu.siq.s4rdm3x.model.CNode;
 import se.lnu.siq.s4rdm3x.stats;
 import weka.core.stemmers.Stemmer;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Vector;
+import java.util.*;
 
 public class IRAttractMapper extends IRMapperBase {
 
     public int m_automaticallyMappedNodes = 0;
     public int m_autoWrong = 0;
 
-    private static class WordVector {
+    public static class WordVector {
 
         HashMap<String, Double> m_words = new HashMap<>();
 
@@ -154,7 +151,11 @@ public class IRAttractMapper extends IRMapperBase {
         return ret;
     }
 
-    private Vector<WordVector> getTrainingData(ArrayList<CNode> a_nodes, ArchDef a_arch, weka.core.stemmers.Stemmer a_stemmer) {
+    public Vector<WordVector> getTrainingData(List<CNode> a_nodes, ArchDef a_arch) {
+        return getTrainingData(a_nodes, a_arch, getStemmer());
+    }
+
+    private Vector<WordVector> getTrainingData(List<CNode> a_nodes, ArchDef a_arch, weka.core.stemmers.Stemmer a_stemmer) {
         Vector<WordVector> ret = new Vector<>();
 
 

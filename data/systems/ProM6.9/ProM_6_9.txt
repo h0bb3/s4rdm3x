@@ -1,0 +1,56 @@
+# name
+ProM6.9
+
+# jar
+ProM69_dist/ProM-Contexts-6.9.56.jar
+ProM69_dist/ProM-Framework-6.9.97.jar
+ProM69_dist/ProM-Models-6.9.32.jar
+ProM69_dist/ProM-Plugins-6.9.67.jar
+
+# root-packages
+org/processmining/
+
+# modules
+prom.framework
+prom.domain.contexts
+prom.domain.models
+prom.domain.plugins
+prom.packages
+log
+apacheutils
+
+# mapping: <package>.* maps all classes in <package> except for those which are explicitly listed in another mapping
+
+# relations
+# <source_module> <target_module>
+prom.domain.contexts prom.framework
+prom.domain.models prom.framework
+prom.domain.plugins prom.framework
+prom.domain.plugins prom.domain.contexts
+prom.domain.plugins prom.domain.models
+prom.packages prom.framework
+prom.packages prom.domain.plugins
+prom.packages prom.domain.contexts
+prom.packages prom.domain.models
+
+
+# mapping
+prom.framework org.processmining.framework.*
+prom.domain.contexts org.processmining.contexts.*
+prom.domain.models org.processmining.models.*
+prom.domain.plugins org.processmining.plugins.*
+
+
+# initial mapping
+prom.framework org.processmining.framework.plugin.PluginManager
+prom.framework org.processmining.framework.providedobjects.ProvidedObjectManager
+prom.framework org.processmining.framework.packages.PackageManager
+prom.framework org.processmining.framework.GenericPluginContext
+prom.domain.contexts org.processmining.contexts.uitopia.UIPluginContext
+prom.domain.contexts org.processmining.contexts.uitopia.hub.ProMResourceManager
+prom.domain.contexts org.processmining.contexts.uitopia.hub.ProMActionManager
+prom.domain.contexts org.processmining.contexts.UI
+prom.domain.models org.processmining.models.graphbased.directed.AbstractDirectedGraph
+prom.domain.plugins org.processmining.plugins.ShowPackageOverviewPlugin
+prom.packages org.processmining.framework.impl.AbstractPluginContext
+

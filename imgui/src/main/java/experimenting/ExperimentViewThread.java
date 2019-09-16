@@ -232,7 +232,8 @@ class ExperimentViewThread extends Thread {
                 new SystemNameFile("JabRef", "data/systems/JabRef/3.7/jabref-3_7-system_model_1.txt"),
                 new SystemNameFile("Lucene", "data/systems/lucene/lucene-system_model.txt"),
                 new SystemNameFile("Sweethome 3d", "data/systems/sweethome3d/sweethome3d-system_model.txt"),
-                new SystemNameFile("Teammates", "data/systems/teammates/teammates-system_model.txt")};
+                new SystemNameFile("Teammates", "data/systems/teammates/teammates-system_model.txt"),
+                new SystemNameFile("ProM", "data/systems/ProM6.9/ProM_6_9.txt")};
 
         ArrayList<SystemNameFile> m_selectedSystems = new ArrayList<>();
 
@@ -542,6 +543,7 @@ class ExperimentViewThread extends Thread {
         a_exr.getSystems().forEach(s -> m_selectedSystem.selectFileName(((FileBased)s).getFile()));
 
         m_useManualmapping = a_exr.doUseManualmapping();
+        m_useIntialMapping = a_exr.useInitialMapping();
         m_initialSetSize = a_exr.getInitialSetSize();
 
         if (a_exr instanceof NBMapperExperimentRunner) {
