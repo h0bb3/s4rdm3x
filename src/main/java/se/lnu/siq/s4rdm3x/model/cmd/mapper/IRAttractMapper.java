@@ -51,21 +51,30 @@ public class IRAttractMapper extends IRMapperBase {
             }
         }
 
-        public void makeRelativeToMax() {
+        private double getMaxTermFrequency() {
             double max = 0;
 
             for (Map.Entry<String, Double> e : m_words.entrySet()) {
-               if (e.getValue() > max) {
-                   max = e.getValue();
-               }
+                if (e.getValue() > max) {
+                    max = e.getValue();
+                }
             }
 
+            return max;
+        }
+
+        public void maximumTFNormalization(double a_smoothing) {
+            // from: https://nlp.stanford.edu/IR-book/pdf/06vect.pdf
+            // section 6.4.2
+            double max = getMaxTermFrequency();
+            final double a = a_smoothing;
+
             for (Map.Entry<String, Double> e : m_words.entrySet()) {
-                e.setValue(e.getValue() / max);
+                e.setValue(a + (1.0 - a) * e.getValue() / max);
             }
         }
 
-        public void makeRelative() {
+        public void makeRelativeToAll() {
             int wordCount = 0;
 
             for (Map.Entry<String, Double> e : m_words.entrySet()) {
@@ -86,6 +95,14 @@ public class IRAttractMapper extends IRMapperBase {
             }
 
         }
+
+        public Iterable<String> getWords() {
+            return m_words.keySet();
+        }
+
+        public double getFrequency(String a_word) {
+            return m_words.get(a_word);
+        }
     }
 
     public IRAttractMapper(ArchDef a_arch, boolean a_doManualMapping,  boolean a_doUseCDA, boolean a_doUseNodeText, boolean a_doUseNodeName, boolean a_doUseArchComponentName, int a_minWordLength) {
@@ -99,8 +116,10 @@ public class IRAttractMapper extends IRMapperBase {
 
         Stemmer stemmer = getStemmer();
 
+        final double smoothing = 0.0;
+
         Vector<WordVector> trainingData = getTrainingData(initiallyMapped, m_arch, stemmer);
-        //trainingData.forEach(wv -> wv.makeRelative());
+        trainingData.forEach(wv -> wv.maximumTFNormalization(smoothing));
 
         for (CNode orphanNode : orphans) {
             double[] attraction = new double[m_arch.getComponentCount()];
@@ -108,7 +127,7 @@ public class IRAttractMapper extends IRMapperBase {
             for (int i = 0; i < m_arch.getComponentCount(); i++) {
                 WordVector words = getWordVector(orphanNode, stemmer);
                 addWordsToWordVector(getUnmappedCDAWords(orphanNode, m_arch.getComponent(i), initiallyMapped), words);
-                //words.makeRelative();
+                words.maximumTFNormalization(smoothing);
                 attraction[i] = words.cosDistance(trainingData.get(i));
             }
 
@@ -146,7 +165,7 @@ public class IRAttractMapper extends IRMapperBase {
         Vector<String> words = getWords(a_node, a_stemmer);
         words.forEach(w -> ret.add(w));
 
-        ret.makeRelative();
+        //ret.makeRelative();
 
         return ret;
     }

@@ -57,7 +57,7 @@ public abstract class IRMapperBase extends MapperBase {
         }
 
         if (m_doUseNodeName) {
-            ret += deCamelCase(a_node.getLogicName().replace(".", " "), m_minWordLength, a_stemmer);
+            ret += deCamelCase(a_node.getLogicName().replace(".", " "), 0, a_stemmer);
         }
 
         ret = ret.trim();
@@ -68,7 +68,7 @@ public abstract class IRMapperBase extends MapperBase {
     protected String getArchComponentWords(ArchDef.Component a_c, Stemmer a_stemmer) {
         String ret = "";
         if (m_doUseArchComponentName) {
-            ret = deCamelCase(a_c.getName(), m_minWordLength, a_stemmer);
+            ret = deCamelCase(a_c.getName(), 0, a_stemmer);
         }
 
         return ret;

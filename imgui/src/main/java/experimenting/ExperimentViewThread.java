@@ -35,6 +35,7 @@ class ExperimentViewThread extends Thread {
     static final int g_nbmapper_ex = 0;
     static final int g_hugmemapper_ex = 1;
     static final int g_irattract_ex = 2;
+    static final int g_lsiattract_ex = 3;
     int m_experimentIx = 0;
 
     // ir experiment parameters
@@ -363,7 +364,7 @@ class ExperimentViewThread extends Thread {
 
 
             {
-                String[] experiments = {"Naive Bayes Mapping", "HuGMe", "IRAttract"};
+                String[] experiments = {"Naive Bayes Mapping", "HuGMe", "IRAttract", "LSIAttract"};
                 int[] exIx = {m_experimentIx};
                 if (a_imgui.imgui().combo("Experiment Type" + "##" + m_id, exIx, Arrays.asList(experiments), 2)) {
                     m_experimentIx = exIx[0];
@@ -372,28 +373,28 @@ class ExperimentViewThread extends Thread {
 
 
 
-            if (m_experimentIx == g_nbmapper_ex || m_experimentIx == g_irattract_ex) {
-
-                m_irData.doStemming(doRandomBoolVariable(a_imgui, "Use Stemming", m_irData.doStemming()));
-                m_irData.doUseCDA(doRandomBoolVariable(a_imgui, "Use CDA", m_irData.doUseCDA()));
-                m_irData.doUseNodeText(doRandomBoolVariable(a_imgui, "Use Code Text", m_irData.doUseNodeText()));
-                m_irData.doUseNodeName(doRandomBoolVariable(a_imgui, "Use Code Name", m_irData.doUseNodeName()));
-                m_irData.doUseArchComponentName(doRandomBoolVariable(a_imgui, "Use Architecture Name", m_irData.doUseArchComponentName()));
-                m_irData.minWordSize(doRandomIntVariable(a_imgui, "Min Word Length", m_irData.minWordSize()));
-
-                if (m_experimentIx == g_nbmapper_ex) {
-                    m_doWordCount = doRandomBoolVariable(a_imgui, "Use Word Counts", m_doWordCount);
-                    m_threshold = doRandomDoubleVariable(a_imgui, "Threshold", m_threshold);
-                }
-            } else if (m_experimentIx == g_hugmemapper_ex) {
-                m_omega = doRandomDoubleVariable(a_imgui, "Omega Threshold", m_omega);
-                m_phi = doRandomDoubleVariable(a_imgui, "Phi", m_phi);
-            } else if (m_experimentIx == g_irattract_ex) {
-                // add parameters here
-            }
 
             a_imgui.imgui().separator();
             {
+                if (m_experimentIx == g_nbmapper_ex || m_experimentIx == g_irattract_ex || m_experimentIx == g_lsiattract_ex) {
+
+                    m_irData.doStemming(doRandomBoolVariable(a_imgui, "Use Stemming", m_irData.doStemming()));
+                    m_irData.doUseCDA(doRandomBoolVariable(a_imgui, "Use CDA", m_irData.doUseCDA()));
+                    m_irData.doUseNodeText(doRandomBoolVariable(a_imgui, "Use Code Text", m_irData.doUseNodeText()));
+                    m_irData.doUseNodeName(doRandomBoolVariable(a_imgui, "Use Code Name", m_irData.doUseNodeName()));
+                    m_irData.doUseArchComponentName(doRandomBoolVariable(a_imgui, "Use Architecture Name", m_irData.doUseArchComponentName()));
+                    m_irData.minWordSize(doRandomIntVariable(a_imgui, "Min Word Length", m_irData.minWordSize()));
+
+                    if (m_experimentIx == g_nbmapper_ex) {
+                        m_doWordCount = doRandomBoolVariable(a_imgui, "Use Word Counts", m_doWordCount);
+                        m_threshold = doRandomDoubleVariable(a_imgui, "Threshold", m_threshold);
+                    }
+                } else if (m_experimentIx == g_hugmemapper_ex) {
+                    m_omega = doRandomDoubleVariable(a_imgui, "Omega Threshold", m_omega);
+                    m_phi = doRandomDoubleVariable(a_imgui, "Phi", m_phi);
+                } else if (m_experimentIx == g_irattract_ex) {
+                    // add parameters here
+                }
                     /*int [] currentSystem = {m_selectedSystem.getCurrentSystemIx()};
                     if (a_imgui.imgui().combo("System##" + m_id, currentSystem, m_selectedSystem.getSystemNames(), m_selectedSystem.getSystemCount())) {
                         m_selectedSystem.setCurrentSystem(currentSystem[0]);
@@ -546,10 +547,16 @@ class ExperimentViewThread extends Thread {
         m_useIntialMapping = a_exr.useInitialMapping();
         m_initialSetSize = a_exr.getInitialSetSize();
 
+        // generic experiment runners
+        if (a_exr instanceof IRExperimentRunnerBase) {
+            IRExperimentRunnerBase irexr = (IRExperimentRunnerBase)a_exr;
+            m_irData = irexr.getIRDataClone();
+        }
+
+        // specific experiment runners
         if (a_exr instanceof NBMapperExperimentRunner) {
             NBMapperExperimentRunner nbexr = (NBMapperExperimentRunner)a_exr;
             m_threshold = nbexr.getThreshold();
-            m_irData = nbexr.getIRDataClone();
             m_doWordCount = nbexr.getWordCount();
             m_experimentIx = g_nbmapper_ex;
         } else if (a_exr instanceof HuGMeExperimentRunner) {
@@ -559,7 +566,8 @@ class ExperimentViewThread extends Thread {
             m_experimentIx = g_hugmemapper_ex;
         } else if (a_exr instanceof IRAttractExperimentRunner) {
             m_experimentIx = g_irattract_ex;
-            // initialize experiments here
+        } else if (a_exr instanceof LSIAttractExperimentRunner) {
+            m_experimentIx = g_lsiattract_ex;
         }
 
         m_name = a_exr.getName();
@@ -580,6 +588,8 @@ class ExperimentViewThread extends Thread {
             ret = new HuGMeExperimentRunner(systems, m_selectedMetrics.getSelected(), m_useManualmapping, m_useIntialMapping, m_initialSetSize, m_omega, m_phi);
         } else if (m_experimentIx == g_irattract_ex) {
             ret = new IRAttractExperimentRunner(systems, m_selectedMetrics.getSelected(), m_useManualmapping, m_useIntialMapping, m_initialSetSize, m_irData);
+        } else if ( m_experimentIx == g_lsiattract_ex) {
+            ret = new LSIAttractExperimentRunner(systems, m_selectedMetrics.getSelected(), m_useManualmapping, m_useIntialMapping, m_initialSetSize, m_irData);
         }
 
         ret.setName(m_name);
