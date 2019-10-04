@@ -175,6 +175,10 @@ public class ExperimentXMLPersistence {
             IRExperimentRunnerBase.Data irData = elementToIRData(a_exr);
             ret = new IRAttractExperimentRunner(suas, metrics, useManualMapping, useInitialMapping, initialSetSize, irData);
 
+        }  else if (type.equals("lsiattract")) {
+            IRExperimentRunnerBase.Data irData = elementToIRData(a_exr);
+            ret = new LSIAttractExperimentRunner(suas, metrics, useManualMapping, useInitialMapping, initialSetSize, irData);
+
         } else {
             throw new Exception("Unknown mapping experiment: " + type);
         }
@@ -256,6 +260,8 @@ public class ExperimentXMLPersistence {
         } else if (a_exr instanceof IRAttractExperimentRunner) {
             exrNode.setAttribute("type", "irattract");
             //IRAttractExperimentRunner irexr = (IRAttractExperimentRunner)a_exr;
+        } else if (a_exr instanceof LSIAttractExperimentRunner) {
+            exrNode.setAttribute("type", "lsiattract");
         }
 
         // Here we save the IRBase data

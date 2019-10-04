@@ -2,6 +2,7 @@ package se.lnu.siq.s4rdm3x;
 
 
 import org.junit.jupiter.api.Test;
+import se.lnu.siq.s4rdm3x.model.cmd.mapper.LSIAttractMapper;
 import weka.core.matrix.Matrix;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -46,23 +47,23 @@ public class SingularValueDecompositionTest {
 
         Matrix U = sut.getU();
         Matrix S = sut.getS();
-        Matrix V = sut.getV().transpose(); // for some reason the V needs to be transposed to match the example, this seems to be a quirk of the weka implementation when rows < cols
+        Matrix V = sut.getV();
 
 
         assertTrue(equals(U, new Matrix(outU)));
         assertTrue(equals(S, new Matrix(outS)));
-        assertTrue(equals(V, new Matrix(outV)));
+        assertTrue(equals(V.transpose(), new Matrix(outV)));
 
         //U.times(S).times(V).print(5, 2);
 
         // check that the A = U * S * V (and again we need to transpose V)
-        assertTrue(equals(input, U.times(S).times(V)));
+        assertTrue(equals(input, U.times(S).times(V.transpose())));
 
 
         final int k = 2;
         Matrix Uk = new Matrix(getTopLeftMatrixCopy(U.getRowDimension(), k, U.getArray()));
         Matrix Sk = new Matrix(getTopLeftMatrixCopy(k, k, S.getArray()));
-        Matrix Vk = new Matrix(getTopLeftMatrixCopy(k, V.getColumnDimension(), V.getArray()));
+        Matrix Vk = new Matrix(getTopLeftMatrixCopy(k, V.getColumnDimension(), V.transpose().getArray()));
         Matrix Ak = Uk.times(Sk).times(Vk);
 
         //Ak.print(5, 2);
@@ -71,8 +72,172 @@ public class SingularValueDecompositionTest {
 
     }
 
+    @Test
+    public void svdTest2() {
+        double[][] inputA = new double[][] {{1, 1, 0, 1, 0, 0},
+                {1, 0, 1, 1, 0, 0},
+                {1, 1, 1, 2, 1, 1},
+                {0, 0, 0, 1, 1, 1},
+                {0, 0, 0, 1, 1, 1},
+                {0, 1, 0, 0, 3, 1},
+                {1, 1, 1, 1, 1, 1},
+                {1, 1, 1, 4, 1, 1}};
+
+
+        Matrix input = new Matrix(inputA);
+
+        weka.core.matrix.SingularValueDecomposition sut = input.svd();
+
+        Matrix U = sut.getU();
+        Matrix S = sut.getS();
+        Matrix V = sut.getV().transpose();
+
+        assertTrue(equals(input, U.times(S).times(V)));
+
+
+        final int k = 7;
+        Matrix Uk = new Matrix(getTopLeftMatrixCopy(U.getRowDimension(), k, U.getArray()));
+        Matrix Sk = new Matrix(getTopLeftMatrixCopy(k, k, S.getArray()));
+        Matrix Vk = new Matrix(getTopLeftMatrixCopy(k, V.getColumnDimension(), V.transpose().getArray()));
+        Matrix Ak = Uk.times(Sk).times(Vk);
+
+        assertTrue(!equals(Ak, input));
+    }
+
+    @Test
+    public void svdQueryTest1() {
+        double[][] inputA = new double[][] {
+                {1, 1, 0, 1, 0, 0},
+                {1, 0, 1, 1, 0, 0},
+                {1, 1, 1, 2, 1, 1},
+                {0, 0, 0, 1, 1, 1},
+                {0, 0, 0, 1, 1, 1},
+                {0, 1, 0, 0, 3, 1},
+                {1, 1, 1, 1, 1, 1},
+                {1, 1, 1, 4, 1, 1}};
+
+        double [][] inputQ = new double[][]  {
+                {1},
+                {1},
+                {1},
+                {0},
+                {0},
+                {0},
+                {1},
+                {1}};
+
+
+        Matrix input = new Matrix(inputA);
+
+        weka.core.matrix.SingularValueDecomposition sut = input.svd();
+
+        Matrix U = sut.getU();
+        Matrix S = sut.getS();
+        Matrix V = sut.getV().transpose();
+
+        assertTrue(equals(input, U.times(S).times(V)));
+
+
+        final int k = 2;
+        Matrix Uk = new Matrix(getTopLeftMatrixCopy(U.getRowDimension(), k, U.getArray()));
+        Matrix Sk = new Matrix(getTopLeftMatrixCopy(k, k, S.getArray()));
+        Matrix Vk = new Matrix(getTopLeftMatrixCopy(k, V.getColumnDimension(), V.transpose().getArray()));
+        Matrix Ak = (Uk.times(Sk)).times(Vk);
+        Matrix Akk = new Matrix(getTopLeftMatrixCopy(k, Ak.getColumnDimension(), Ak.getArray()));
+
+        assertTrue(!equals(Ak, input));
+
+        Matrix q = new Matrix(inputQ);
+
+        Matrix Ski = new Matrix(k, k);
+        for (int i = 0; i < k; i++) {
+            if (Sk.getArray()[i][i] != 0) {
+                Ski.getArray()[i][i] = 1.0 / Sk.getArray()[i][i];
+            }
+        }
+        Matrix qk1 = Ski.times(Uk.transpose()).times(q).transpose();
+        Matrix qk2 = (q.transpose().times(Uk).times(Ski));
+
+        assertTrue(equals(qk1, qk2));
+
+        Matrix r1 = qk1.times(Akk);
+        Matrix r2 = qk2.times(Akk);
+
+        assertTrue(equals(r1, r2));
+    }
+
+    @Test
+    public void svdQueryTest2() {
+        double[][] inputA = new double[][] {
+                {1, 1, 0, 1, 0, 0},
+                {1, 0, 1, 1, 0, 0},
+                {1, 1, 1, 2, 1, 1},
+                {0, 0, 0, 1, 1, 1},
+                {0, 0, 0, 1, 1, 1},
+                {0, 1, 0, 0, 3, 1},
+                {1, 1, 1, 1, 1, 1},
+                {1, 1, 1, 4, 1, 1}};
+
+        double [][] inputQ = new double[][]  {
+                {1},
+                {1},
+                {1},
+                {0},
+                {0},
+                {0},
+                {1},
+                {1}};
+
+
+        Matrix input = new Matrix(inputA);
+
+        weka.core.matrix.SingularValueDecomposition sut = input.svd();
+
+        Matrix U = sut.getU();
+        Matrix S = sut.getS();
+        Matrix V = sut.getV().transpose();
+
+        assertTrue(equals(input, U.times(S).times(V)));
+
+
+        final int k = 3;
+        Matrix Uk = new Matrix(getTopLeftMatrixCopy(U.getRowDimension(), k, U.getArray()));
+        Matrix Sk = new Matrix(getTopLeftMatrixCopy(k, k, S.getArray()));
+        Matrix Vk = new Matrix(getTopLeftMatrixCopy(k, V.getColumnDimension(), V.transpose().getArray()));
+        Matrix Ak = (Uk.times(Sk)).times(Vk);
+        Matrix Akk = new Matrix(getTopLeftMatrixCopy(Ak.getRowDimension(), Ak.getColumnDimension(), Ak.getArray()));
+
+        assertTrue(!equals(Ak, input));
+
+        Matrix q = new Matrix(inputQ);
+
+        Matrix Ski = new Matrix(Sk.getRowDimension(), Sk.getColumnDimension());
+        for (int i = 0; i < k; i++) {
+            if (Sk.getArray()[i][i] != 0) {
+                Ski.getArray()[i][i] = 1.0 / Sk.getArray()[i][i];
+            }
+        }
+
+        Matrix qk2 = (q.transpose().times(Uk).times(Ski));
+//        Matrix r2 = qk2.times(Akk);
+
+    }
+
+    @Test
+    public void testtest() {
+        //LSIAttractMapper.permute(10, new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, ' ');
+    }
+
     private double[][] getTopLeftMatrixCopy(int a_rows, int a_cols, double[][] a_m) {
         double[][] ret = new double[a_rows][a_cols];
+
+        if (a_rows > a_m.length) {
+            a_rows = a_m.length;
+        }
+
+        if (a_cols > a_m[0].length) {
+            a_cols = a_m[0].length;
+        }
 
         for (int rIx = 0; rIx < a_rows; rIx++) {
             for (int cIx = 0; cIx < a_cols; cIx++) {

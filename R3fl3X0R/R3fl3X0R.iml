@@ -8,5 +8,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="s4rdm3x" />
+    <orderEntry type="library" name="io.github.andreas-solti.matrix-toolkits-java:mtj:1.0.8" level="project" />
   </component>
 </module>

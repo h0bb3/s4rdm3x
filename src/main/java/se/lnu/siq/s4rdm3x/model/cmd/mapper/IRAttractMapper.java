@@ -40,7 +40,7 @@ public class IRAttractMapper extends IRMapperBase {
         }
 
         public double cosDistance(WordVector a_vec) {
-            return dot(a_vec)/(length() * a_vec.length());
+            return dot(a_vec) / (length() * a_vec.length());
         }
 
         public void add(String a_word) {
@@ -74,7 +74,7 @@ public class IRAttractMapper extends IRMapperBase {
             }
         }
 
-        public void makeRelativeToAll() {
+        /*public void makeRelativeToAll() {
             int wordCount = 0;
 
             for (Map.Entry<String, Double> e : m_words.entrySet()) {
@@ -94,7 +94,7 @@ public class IRAttractMapper extends IRMapperBase {
                 e.setValue(e.getValue() / len);
             }
 
-        }
+        }*/
 
         public Iterable<String> getWords() {
             return m_words.keySet();
@@ -116,7 +116,7 @@ public class IRAttractMapper extends IRMapperBase {
 
         Stemmer stemmer = getStemmer();
 
-        final double smoothing = 0.0;
+        final double smoothing = 0.1;
 
         Vector<WordVector> trainingData = getTrainingData(initiallyMapped, m_arch, stemmer);
         trainingData.forEach(wv -> wv.maximumTFNormalization(smoothing));
