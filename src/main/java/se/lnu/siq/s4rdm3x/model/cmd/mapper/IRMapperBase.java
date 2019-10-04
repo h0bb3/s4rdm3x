@@ -187,16 +187,23 @@ public abstract class IRMapperBase extends MapperBase {
         return ret.trim();
     }
 
-    protected Stemmer getStemmer() {
-        weka.core.stemmers.Stemmer stemmer = null;
+    protected synchronized Stemmer getStemmer() {
+        SnowballStemmer stemmer = null;
+
+
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {}
+
         stemmer = new weka.core.stemmers.SnowballStemmer();
+
         do {
             try {
-                Thread.sleep(100);
+                Thread.sleep(200);
             } catch (Exception e) {
 
             }
-        } while (!((SnowballStemmer) stemmer).stemmerTipText().contains("english"));  // when using multiple threads this is apparently needed...
+        } while (!stemmer.stemmerTipText().contains("english"));  // when using multiple threads this is apparently needed...
         return stemmer;
     }
 }

@@ -38,6 +38,8 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
     private ScatterPlot m_precisionVsInitialMapped = new ScatterPlot();
     private ScatterPlot m_recallVsInitialMapped = new ScatterPlot();
 
+    private BoxPlot m_performanceBP = new BoxPlot();
+
     FailedClusterings m_fails = new FailedClusterings();
 
     private RunData m_popupMenuData = null;
@@ -119,10 +121,16 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
 
         a_imgui.checkbox("Show Experiment Plots", m_showPlots);
         if (m_showPlots[0]) {
-            if (a_imgui.begin("Experiment Plots", m_showPlots, 0)) {
+            if (a_imgui.begin("Experiment Scatter Plots", m_showPlots, 0)) {
 
-                doPlots(iw);
+                doScatterPlots(iw);
 
+                a_imgui.end();
+            }
+
+            if (a_imgui.begin("Experiment Box Plots", m_showPlots, 0)) {
+
+                doBoxPlots(iw);
                 a_imgui.end();
             }
         }
@@ -158,6 +166,10 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
         if (toBeCopied != null) {
             m_experiments.add(new ExperimentViewThread(toBeCopied, m_experiments.size()));
         }
+    }
+
+    private void doBoxPlots(ImGuiWrapper a_iw) {
+        m_performanceBP.doPlot(a_iw);
     }
 
     private void doSaveButtons(ImGuiWrapper a_imgui) {
@@ -254,6 +266,8 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
         m_precisionVsInitialMapped.addData(a_rd.m_initialClusteringPercent, a_rd.calcAutoPrecision(), m_experimentData.size(), intColor);
         m_recallVsInitialMapped.addData(a_rd.m_initialClusteringPercent, a_rd.calcAutoRecall(), m_experimentData.size(), intColor);
 
+        m_performanceBP.addData(a_rd.calcAutoPerformance(), m_experimentData.size(), intColor);
+
 
         m_experimentData.add(new RunData(a_rd, a_src));
 
@@ -267,7 +281,7 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
     private int m_powerSelection = 0;
     interface PowerSelectionFilter extends BiPredicate<RunData, RunData> {}
 
-    private void doPlots(ImGuiWrapper a_imgui) {
+    private void doScatterPlots(ImGuiWrapper a_imgui) {
 
         final String[] powerSelections = {"None", "System", "Metric", "Algorithm", "Paint"};
         final int paintIx = 4;
@@ -289,7 +303,7 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
 
 
         ArrayList<ScatterPlot.Data> selectedData = new ArrayList<>();
-        a_imgui.imgui().beginColumns("plots", 3, 0);
+        a_imgui.imgui().beginColumns("scatterplots", 3, 0);
         a_imgui.text("Auto Performance vs Initial Set Size");
         m_performanceVsInitialMapped.doPlot(a_imgui, selectedData);
 

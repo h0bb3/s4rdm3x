@@ -92,7 +92,8 @@ public class LSIAttractMapper extends IRMapperBase {
     }
 
     public void run(CGraph a_g) {
-        runhObbE(a_g);
+        //runhObbE(a_g);
+        runBittenCourt(a_g);
     }
 
     public void runhObbE(CGraph a_g) {
