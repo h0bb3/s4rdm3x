@@ -39,6 +39,8 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
     private ScatterPlot m_recallVsInitialMapped = new ScatterPlot();
 
     private BoxPlot m_performanceBP = new BoxPlot();
+    private BoxPlot m_precisionBP = new BoxPlot();
+    private BoxPlot m_recallBP = new BoxPlot();
 
     FailedClusterings m_fails = new FailedClusterings();
 
@@ -64,7 +66,8 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
     }
 
     public ArrayList<RunData> m_experimentData = new ArrayList<>();  // this one is accessed by threads so take care...
-    private boolean[] m_showPlots = {true};
+    private boolean[] m_showScatterPlots = {true};
+    private boolean[] m_showBoxPlots = {true};
     private boolean[] m_showFails = {true};
     private Vec4 m_workingColor = null;
 
@@ -119,16 +122,19 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
 
         doSaveButtons(iw);
 
-        a_imgui.checkbox("Show Experiment Plots", m_showPlots);
-        if (m_showPlots[0]) {
-            if (a_imgui.begin("Experiment Scatter Plots", m_showPlots, 0)) {
+        a_imgui.checkbox("Show Scatter Plots", m_showScatterPlots);
+        if (m_showScatterPlots[0]) {
+            if (a_imgui.begin("Experiment Scatter Plots", m_showScatterPlots, 0)) {
 
                 doScatterPlots(iw);
 
                 a_imgui.end();
             }
-
-            if (a_imgui.begin("Experiment Box Plots", m_showPlots, 0)) {
+        }
+        a_imgui.sameLine(0);
+        a_imgui.checkbox("Show Box Plots", m_showBoxPlots);
+        if (m_showBoxPlots[0]) {
+            if (a_imgui.begin("Experiment Box Plots", m_showBoxPlots, 0)) {
 
                 doBoxPlots(iw);
                 a_imgui.end();
@@ -169,7 +175,21 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
     }
 
     private void doBoxPlots(ImGuiWrapper a_iw) {
+
+        a_iw.imgui().beginColumns("boxplots", 3, 0);
+        a_iw.text("Performance");
         m_performanceBP.doPlot(a_iw);
+
+        a_iw.imgui().nextColumn();
+        a_iw.text("Precision");
+        m_precisionBP.doPlot(a_iw);
+
+        a_iw.imgui().nextColumn();
+        a_iw.text("Recall");
+        m_recallBP.doPlot(a_iw);
+        a_iw.imgui().endColumns();
+
+
     }
 
     private void doSaveButtons(ImGuiWrapper a_imgui) {
@@ -253,6 +273,9 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
                 m_performanceVsInitialMapped.clearData();
                 m_precisionVsInitialMapped.clearData();
                 m_recallVsInitialMapped.clearData();
+                m_performanceBP.clearData();
+                m_precisionBP.clearData();
+                m_recallBP.clearData();
                 m_selectedDataPoints.clear();
             }
         }
@@ -267,6 +290,8 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
         m_recallVsInitialMapped.addData(a_rd.m_initialClusteringPercent, a_rd.calcAutoRecall(), m_experimentData.size(), intColor);
 
         m_performanceBP.addData(a_rd.calcAutoPerformance(), m_experimentData.size(), intColor);
+        m_precisionBP.addData(a_rd.calcAutoPrecision(), m_experimentData.size(), intColor);
+        m_recallBP.addData(a_rd.calcAutoRecall(), m_experimentData.size(), intColor);
 
 
         m_experimentData.add(new RunData(a_rd, a_src));
@@ -364,10 +389,6 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
                 a_imgui.text("M. Failed:\t\t" + exd.m_data.m_totalFailedClusterings);
                 a_imgui.endTooltip();
             }
-
-
-
-
 
             if (mouseClicked) {
                 // good luck with this one :D
