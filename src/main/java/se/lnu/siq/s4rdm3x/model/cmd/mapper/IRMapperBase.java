@@ -114,8 +114,9 @@ public abstract class IRMapperBase extends MapperBase {
 
     }
 
-    private String getComponentComponentRelationString(String a_from, dmDependency.Type a_relation, String a_to) {
+    protected String getComponentComponentRelationString(String a_from, dmDependency.Type a_relation, String a_to) {
         return a_from.replace(".", "") + a_relation + a_to.replace(".", "");
+        //return a_from.replace(".", "") + "dependson" + a_to.replace(".", "");
     }
 
     private String getDependencyStringFromNode(CNode a_from, String a_nodeComponentName, Iterable<CNode> a_tos) {

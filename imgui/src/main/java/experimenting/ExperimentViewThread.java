@@ -55,8 +55,10 @@ class ExperimentViewThread extends Thread {
     boolean m_useManualmapping = false;
     boolean m_useIntialMapping = false;
 
-    public ExperimentViewThread(ExperimentViewThread a_toBeCopied, int a_id) {
-        m_id = "ExThread_" + a_id;
+    static int g_id = 0;
+
+    public ExperimentViewThread(ExperimentViewThread a_toBeCopied) {
+        m_id = "ExThread_" + g_id; g_id++;
         m_name = a_toBeCopied.m_name;
         m_currentColor = new Vec4(a_toBeCopied.m_currentColor);
         m_experimentIx = a_toBeCopied.m_experimentIx;
@@ -73,12 +75,12 @@ class ExperimentViewThread extends Thread {
         }
     }
 
-    ExperimentViewThread(int a_id) {
-        m_id = "ExThread_" + a_id;
+    ExperimentViewThread() {
+        m_id = "ExThread_" + g_id; g_id++;
     }
 
-    ExperimentViewThread(int a_id, ExperimentRunner a_runner) {
-        m_id = "ExThread_" + a_id;
+    ExperimentViewThread(ExperimentRunner a_runner) {
+        m_id = "ExThread_" + g_id; g_id++;
         setExperiment(a_runner);
     }
 

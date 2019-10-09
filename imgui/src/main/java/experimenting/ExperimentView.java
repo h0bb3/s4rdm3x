@@ -103,7 +103,7 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
         ImGuiWrapper iw = new ImGuiWrapper(a_imgui);
 
         if (iw.button("Add Experiment", 0)) {
-            m_experiments.add(new ExperimentViewThread(m_experiments.size()));
+            m_experiments.add(new ExperimentViewThread());
         }
         a_imgui.sameLine(0);
         if (iw.button("Delete Experiments", 0)) {
@@ -170,7 +170,7 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
             m_experiments.remove(toBeDeleted);
         }
         if (toBeCopied != null) {
-            m_experiments.add(new ExperimentViewThread(toBeCopied, m_experiments.size()));
+            m_experiments.add(new ExperimentViewThread(toBeCopied));
         }
     }
 
@@ -226,7 +226,7 @@ public class ExperimentView implements ExperimentViewThread.DataListener {
                 ArrayList<ExperimentRunner> experiments = exmlp.loadExperiments(m_experimentSaveFile, new ExperimentXMLPersistence.Listener() {
                     @Override
                     public void onLoadedExperiment(Element a_experimentElement, ExperimentRunner a_loadedExperiment) {
-                        ExperimentViewThread ex = new ExperimentViewThread(m_experiments.size(), a_loadedExperiment);
+                        ExperimentViewThread ex = new ExperimentViewThread(a_loadedExperiment);
                         ex.getColor().setArray(exmlp.elementToVec4(a_experimentElement, "plot_color"));
                         m_experiments.add(ex);
                     }

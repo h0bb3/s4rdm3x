@@ -193,4 +193,21 @@ public class NBMapperTests {
 
         assertEquals("test test test test", sut.deCamelCase("testTest testTesting", 3, new weka.core.stemmers.SnowballStemmer()));
     }
+
+    @Test
+    void getMaxIndicesTest() {
+        NBMapper sut = new NBMapper(null, true, true, true, false, 0);
+
+        assertEquals(0, sut.getMaxIndices(new double[]{1, 0})[0]);
+        assertEquals(1, sut.getMaxIndices(new double[]{1, 0})[1]);
+        assertEquals(1, sut.getMaxIndices(new double[]{0, 1})[0]);
+        assertEquals(0, sut.getMaxIndices(new double[]{0, 1})[1]);
+        assertEquals(3, sut.getMaxIndices(new double[]{0, 1, 2, 4, 3})[0]);
+        assertEquals(4, sut.getMaxIndices(new double[]{0, 1, 2, 4, 3})[1]);
+        assertEquals(3, sut.getMaxIndices(new double[]{3, 1, 2, 4, 4})[0]);
+        assertEquals(0, sut.getMaxIndices(new double[]{3, 1, 2, 4})[1]);
+        assertEquals(4, sut.getMaxIndices(new double[]{3, 1, 2, 4, 4})[1]);
+        assertEquals(1, sut.getMaxIndices(new double[]{3, 5, 2, 4, 4})[0]);
+        assertEquals(3, sut.getMaxIndices(new double[]{3, 5, 2, 4, 4})[1]);
+    }
 }

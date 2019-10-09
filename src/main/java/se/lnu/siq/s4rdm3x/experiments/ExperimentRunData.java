@@ -63,7 +63,7 @@ public class ExperimentRunData {
         }
 
         public double calcAutoRecall() {
-            return m_autoClustered.size() / (double)(m_totalMapped - m_initialClustering.size());
+            return (m_autoClustered.size() - m_totalAutoWrong) / (double)(m_totalMapped - m_initialClustering.size() - m_totalManuallyClustered);
         }
 
         /*public void addInitialClusteredNodes(Iterable<? extends CNode> a_nodes) {

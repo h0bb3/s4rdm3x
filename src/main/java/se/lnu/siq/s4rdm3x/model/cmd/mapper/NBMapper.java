@@ -1,32 +1,23 @@
 package se.lnu.siq.s4rdm3x.model.cmd.mapper;
 
-import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
-import se.lnu.siq.s4rdm3x.experiments.ExperimentRunData;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
-import weka.classifiers.Classifier;
-import weka.classifiers.bayes.NaiveBayes;
-import weka.classifiers.bayes.NaiveBayesMultinomial;
-import weka.classifiers.bayes.NaiveBayesMultinomialText;
-import weka.classifiers.trees.RandomForest;
-import weka.classifiers.trees.RandomTree;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instances;
-import weka.core.SerializationHelper;
 import weka.core.stemmers.SnowballStemmer;
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.StringToWordVector;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 public class NBMapper extends IRMapperBase {
 
     private boolean m_addRawArchitectureTrainingData = false;
+
 
     public void doStemming(boolean a_doStemming) {
         m_doStemm = a_doStemming;
@@ -66,6 +57,7 @@ public class NBMapper extends IRMapperBase {
     public int m_autoWrong = 0;
 
     private double m_clusteringThreshold = 0.90;
+    private double m_thresholdMultiplier = 3.0;
 
     private boolean m_doStemm = false;
     private Filter m_filter = new StringToWordVector();
@@ -74,11 +66,15 @@ public class NBMapper extends IRMapperBase {
     public NBMapper(ArchDef a_arch, boolean a_doUseCDA, boolean a_doUseNodeText, boolean a_doUseNodeName, boolean a_doUseArchComponentName, int a_minWordLength) {
         super(a_arch, false, a_doUseCDA, a_doUseNodeText, a_doUseNodeName, a_doUseArchComponentName, a_minWordLength);
         ((StringToWordVector)m_filter).setOutputWordCounts(false);
+        ((StringToWordVector) m_filter).setTFTransform(false);
+        ((StringToWordVector) m_filter).setIDFTransform(false);
     }
     public NBMapper(ArchDef a_arch, boolean a_doManualMapping, boolean a_doUseCDA, boolean a_doUseNodeText, boolean a_doUseNodeName, boolean a_doUseArchComponentName, int a_minWordLength, double [] a_initialDistribution) {
         super(a_arch, a_doManualMapping, a_doUseCDA, a_doUseNodeText, a_doUseNodeName, a_doUseArchComponentName, a_minWordLength);
         m_initialDistribution = a_initialDistribution;
         ((StringToWordVector)m_filter).setOutputWordCounts(false);
+        ((StringToWordVector) m_filter).setTFTransform(false);
+        ((StringToWordVector) m_filter).setIDFTransform(false);
     }
 
     public void setClusteringThreshold(double a_probability) {
@@ -169,14 +165,12 @@ public class NBMapper extends IRMapperBase {
             for (CNode orphanNode : orphans) {
                 // if the attraction is above some threshold then we cluster
                 double [] attractions = orphanNode.getAttractions();
-                int maxIx = 0;
-                for (int cIx = 1; cIx < attractions.length; cIx++) {
-                    if (attractions[maxIx] < attractions[cIx]) {
-                        maxIx = cIx;
-                    }
-                }
+                int[] maxes= getMaxIndices(attractions);
+                int maxIx = maxes[0];
+                int maxIx2 = maxes[1];
 
-                if (attractions[maxIx] > m_clusteringThreshold) {
+
+                if (/*attractions[maxIx] > m_clusteringThreshold && */attractions[maxIx] > attractions[maxIx2] * m_thresholdMultiplier) {
                     m_arch.getComponent(maxIx).clusterToNode(orphanNode, ArchDef.Component.ClusteringType.Automatic);
                     m_clusteredElements.add(orphanNode);
                     m_automaticallyMappedNodes++;
@@ -188,6 +182,20 @@ public class NBMapper extends IRMapperBase {
                 } else if (doManualMapping()) {
                     manualMapping(orphanNode, m_arch);
                 }
+
+                /*ArchDef.Component autoClusteredTo = HuGMe.doAutoMapping(orphanNode, m_arch);
+                if (autoClusteredTo != null) {
+                    m_automaticallyMappedNodes++;
+                    if (autoClusteredTo != m_arch.getMappedComponent(orphanNode)) {
+                        m_autoWrong++;
+                    }
+
+                } else if (doManualMapping()) {
+                    boolean clustered = manualMapping(orphanNode, m_arch);
+                    if (clustered == false) {
+                        m_failedMappings++;
+                    }
+                }*/
             }
 
             //nbClassifier.classifyInstance();
@@ -196,6 +204,20 @@ public class NBMapper extends IRMapperBase {
             System.out.println(e.toString());
             e.printStackTrace();
         }
+    }
+
+    public  int[] getMaxIndices(double[] a_values) {
+        int[] ret = new int[] {0, 1};
+        for (int cIx = 1; cIx < a_values.length; cIx++) {
+            if (a_values[ret[0]] < a_values[cIx]) {
+                ret[1] = ret[0];
+                ret[0] = cIx;
+            } else if (a_values[ret[1]] < a_values[cIx]) {
+                ret[1] = cIx;
+            }
+        }
+
+        return ret;
     }
 
     private Instances getPredictionDataForNode(CNode a_node, Iterable<CNode> a_mappedNodes, String[] a_componentNames, ArchDef.Component a_component, Filter a_filter, weka.core.stemmers.Stemmer a_stemmer) {
@@ -304,11 +326,11 @@ public class NBMapper extends IRMapperBase {
 
         Instances data = new Instances("TrainingData", attributes, 0);
 
-        /*if (m_addRawArchitectureTrainingData) {
+        if (doUseCDA()) {
             for (ArchDef.Component from : a_arch.getComponents()) {
                 double[] values = new double[data.numAttributes()];
                 values[0] = components.indexOf(from.getName());
-                String relations = deCamelCase(from.getName(), 3, a_stemmer);
+                String relations = "";
                 for (ArchDef.Component to : a_arch.getComponents()) {
                     if (from == to || from.allowedDependency(to)) {
 
@@ -322,6 +344,21 @@ public class NBMapper extends IRMapperBase {
                         }
                     }
                 }
+                values[1] = data.attribute(1).addStringValue(relations);
+                data.add(new DenseInstance(1.0, values));
+            }
+        }
+
+        // we always allow self dependencies within the architectural components so we need to add these.
+        /*if (doUseCDA()) {
+            for (ArchDef.Component c : a_arch.getComponents()) {
+                String relations = "";
+                for (dmDependency.Type t : dmDependency.Type.values()) {
+                    relations += getComponentComponentRelationString(c.getName(), t, c.getName()) + " ";
+                }
+
+                double[] values = new double[data.numAttributes()];
+                values[0] = components.indexOf(c.getName());
                 values[1] = data.attribute(1).addStringValue(relations);
                 data.add(new DenseInstance(1.0, values));
             }
