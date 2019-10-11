@@ -220,8 +220,9 @@ public class ArchDef {
         return ret;
     }
 
-    public void cleanNodeClusters(Iterable<CNode> a_nodes) {
+    public void cleanNodeClusters(Iterable<CNode> a_nodes, boolean a_keepInitial) {
         for (CNode n : a_nodes) {
+            if (!a_keepInitial || (getClusteredComponent(n) != null && getClusteredComponent(n).getClusteringType(n) != Component.ClusteringType.Initial))
             n.setClustering("", "");
         }
     }

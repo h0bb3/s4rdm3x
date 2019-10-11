@@ -127,7 +127,7 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
         return a_rd;
     }
 
-    public void OnRunCompleted(ExperimentRunData.BasicRunData a_rd, CGraph a_g, ArchDef a_arch) {
+    public void OnRunCompleted(ExperimentRunData.BasicRunData a_rd, CGraph a_g, ArchDef a_arch, ExperimentRun a_source) {
 
         writeData(m_filePath, new RundDataCSVFileSaver(), a_rd);
 

@@ -1,19 +1,13 @@
 package se.lnu.siq.s4rdm3x.experiments;
 
-import se.lnu.siq.s4rdm3x.experiments.metric.Metric;
-import se.lnu.siq.s4rdm3x.experiments.system.System;
-
 import java.util.Random;
 
-public abstract class IRExperimentRunnerBase extends ExperimentRunner {
-    public IRExperimentRunnerBase(System a_sua, Metric a_metric, boolean a_doUseManualMapping, boolean a_useInitialMapping, RandomDoubleVariable a_initialSetSize, IRExperimentRunnerBase.Data a_irData) {
-        super(a_sua, a_metric, a_doUseManualMapping, a_useInitialMapping, a_initialSetSize);
+import static se.lnu.siq.s4rdm3x.experiments.ExperimentRunner.*;
 
-        m_data = new Data(a_irData);
-    }
+public abstract class IRExperimentRunBase extends ExperimentRun {
+    public IRExperimentRunBase(boolean a_doUseManualMapping, IRExperimentRunBase.Data a_irData) {
+        super(a_doUseManualMapping);
 
-    public IRExperimentRunnerBase(Iterable<System> a_suas, Iterable<Metric> a_metrics, boolean a_doUseManualMapping, boolean a_useInitialMapping, RandomDoubleVariable a_initialSetSize, Data a_irData) {
-        super(a_suas, a_metrics, a_doUseManualMapping, a_useInitialMapping, a_initialSetSize);
         m_data = new Data(a_irData);
     }
 

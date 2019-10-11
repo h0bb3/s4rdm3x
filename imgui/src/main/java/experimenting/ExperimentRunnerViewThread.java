@@ -1,12 +1,7 @@
 package experimenting;
 
-import glm_.vec2.Vec2;
-import glm_.vec4.Vec4;
 import gui.ImGuiWrapper;
 import gui.JavaProperty;
-import imgui.HoveredFlag;
-import imgui.WindowFlag;
-import imgui.internal.Window;
 import se.lnu.siq.s4rdm3x.experiments.*;
 import se.lnu.siq.s4rdm3x.experiments.metric.*;
 import se.lnu.siq.s4rdm3x.experiments.metric.aggregated.RelativeLineCount;
@@ -17,11 +12,8 @@ import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.function.BiPredicate;
 
-import static imgui.ImguiKt.COL32;
-
-class ExperimentViewThread extends Thread {
+class ExperimentRunnerViewThread extends Thread {
     String m_id;
     ExperimentRunner m_experiment;
 
@@ -30,56 +22,41 @@ class ExperimentViewThread extends Thread {
 
     private String m_name = "";
 
-    private Vec4 m_currentColor = new Vec4(0.75, 0.75, 0.75, 1);
-
     static final int g_nbmapper_ex = 0;
     static final int g_hugmemapper_ex = 1;
     static final int g_irattract_ex = 2;
     static final int g_lsiattract_ex = 3;
     int m_experimentIx = 0;
 
-    // ir experiment parameters
-    IRExperimentRunnerBase.Data m_irData = new IRExperimentRunnerBase.Data();
 
-    // nbmapper experiment parameters
-    ExperimentRunner.RandomBoolVariable m_doWordCount = new ExperimentRunner.RandomBoolVariable();
-    ExperimentRunner.RandomDoubleVariable m_threshold = new ExperimentRunner.RandomDoubleVariable(0.9, 0);
-
-    // hugme experiment parameters
-    ExperimentRunner.RandomDoubleVariable m_omega = new ExperimentRunner.RandomDoubleVariable(0.5, 0.5);
-    ExperimentRunner.RandomDoubleVariable m_phi = new ExperimentRunner.RandomDoubleVariable(0.5, 0.5);
 
     // generic experiment parameters
     ExperimentRunner.RandomDoubleVariable m_initialSetSize = new ExperimentRunner.RandomDoubleVariable(0.1, 0.1);
     SystemSelection m_selectedSystem = new SystemSelection();
-    boolean m_useManualmapping = false;
     boolean m_useIntialMapping = false;
 
     static int g_id = 0;
+    private ArrayList<MapperView> m_experiments = new ArrayList<>();
 
-    public ExperimentViewThread(ExperimentViewThread a_toBeCopied) {
+    public ExperimentRunnerViewThread(ExperimentRunnerViewThread a_toBeCopied) {
         m_id = "ExThread_" + g_id; g_id++;
         m_name = a_toBeCopied.m_name;
-        m_currentColor = new Vec4(a_toBeCopied.m_currentColor);
         m_experimentIx = a_toBeCopied.m_experimentIx;
-        m_irData = new IRExperimentRunnerBase.Data(a_toBeCopied.m_irData);
-        m_doWordCount = new ExperimentRunner.RandomBoolVariable(a_toBeCopied.m_doWordCount);
-        m_threshold = new ExperimentRunner.RandomDoubleVariable(a_toBeCopied.m_threshold);
-        m_omega = new ExperimentRunner.RandomDoubleVariable(a_toBeCopied.m_omega);
-        m_phi = new ExperimentRunner.RandomDoubleVariable(a_toBeCopied.m_phi);
         m_initialSetSize = new ExperimentRunner.RandomDoubleVariable(a_toBeCopied.m_initialSetSize);
         m_selectedSystem = new SystemSelection(a_toBeCopied.m_selectedSystem);
-        m_useManualmapping = a_toBeCopied.m_useManualmapping;
         for (Metric exrMetric : a_toBeCopied.m_selectedMetrics.getSelected()) {
             m_selectedMetrics.select(exrMetric);
         }
+        for (MapperView exv : a_toBeCopied.m_experiments) {
+            m_experiments.add(new MapperView(exv));
+        }
     }
 
-    ExperimentViewThread() {
+    ExperimentRunnerViewThread() {
         m_id = "ExThread_" + g_id; g_id++;
     }
 
-    ExperimentViewThread(ExperimentRunner a_runner) {
+    ExperimentRunnerViewThread(ExperimentRunner a_runner) {
         m_id = "ExThread_" + g_id; g_id++;
         setExperiment(a_runner);
     }
@@ -93,15 +70,22 @@ class ExperimentViewThread extends Thread {
 
             m_experiment = createExperiment();
 
-            ExperimentViewThread source = this;
-
             m_experiment.setRunListener(new ExperimentRunner.RunListener() {
                 public ExperimentRunData.BasicRunData OnRunInit(ExperimentRunData.BasicRunData a_rd, CGraph a_g, ArchDef a_arch) {
 
                     return a_rd;
                 }
 
-                public void OnRunCompleted(ExperimentRunData.BasicRunData a_rd, CGraph a_g, ArchDef a_arch) {
+                public void OnRunCompleted(ExperimentRunData.BasicRunData a_rd, CGraph a_g, ArchDef a_arch, ExperimentRun a_source) {
+
+                    MapperView source = null;
+
+                    for (MapperView exv : m_experiments) {
+                        if (exv.getExperimentRun() == a_source) {
+                            source = exv;
+                            break;
+                        }
+                    }
 
                     a_newDataListener.onNewData(a_rd, source);
 
@@ -133,10 +117,23 @@ class ExperimentViewThread extends Thread {
         }
     }
 
-    public Vec4 getColor() {
-        return m_currentColor;
+    public Iterable<MapperView> getMappers() {
+        return m_experiments;
     }
 
+    public void addMapper(MapperView a_mv) {
+        m_experiments.add(a_mv);
+    }
+
+    public MapperView findMapper(ExperimentRun a_er) {
+        for (MapperView mv : m_experiments) {
+            if (mv.getExperimentRun() == a_er) {
+                return mv;
+            }
+        }
+
+        return null;
+    }
 
     static class MetricPair {
 
@@ -306,39 +303,8 @@ class ExperimentViewThread extends Thread {
 
 
 
-
-
-
-
-    private ExperimentRunner.RandomBoolVariable doRandomBoolVariable(ImGuiWrapper a_imgui, String a_label, ExperimentRunner.RandomBoolVariable a_var) {
-        String [] randomBoolLabels = {"Yes", "No", "Random"};
-
-        int[] currentItem = {a_var.isRandom() ? 2 : a_var.getValue() ? 0 : 1};
-        if (a_imgui.imgui().combo(a_label + "##" + m_id, currentItem, Arrays.asList(randomBoolLabels), 3)) {
-            switch (currentItem[0]) {
-                case 0:
-                    a_var = new ExperimentRunner.RandomBoolVariable(true);
-                    break;
-                case 1:
-                    a_var = new ExperimentRunner.RandomBoolVariable(false);
-                    break;
-                case 2:
-                    a_var = new ExperimentRunner.RandomBoolVariable();
-                    break;
-                default:
-                    System.out.println("Unhandled Case in Switch: " + currentItem[0]);
-                    assert (false);
-                    break;
-            }
-        }
-
-        return a_var;
-    }
-
-
-
     interface DataListener {
-        void onNewData(ExperimentRunData.BasicRunData a_rd, ExperimentViewThread a_source);
+        void onNewData(ExperimentRunData.BasicRunData a_rd, MapperView a_source);
     }
 
     public enum DoExperimentAction {
@@ -363,44 +329,9 @@ class ExperimentViewThread extends Thread {
             //a_imgui.imgui().beginChild(m_id, size, true, 0);
 
 
-
-
-            {
-                String[] experiments = {"Naive Bayes Mapping", "HuGMe", "IRAttract", "LSIAttract"};
-                int[] exIx = {m_experimentIx};
-                if (a_imgui.imgui().combo("Experiment Type" + "##" + m_id, exIx, Arrays.asList(experiments), 2)) {
-                    m_experimentIx = exIx[0];
-                }
-            }
-
-
-
-
             a_imgui.imgui().separator();
             {
-                if (m_experimentIx == g_nbmapper_ex || m_experimentIx == g_irattract_ex || m_experimentIx == g_lsiattract_ex) {
 
-                    m_irData.doStemming(doRandomBoolVariable(a_imgui, "Use Stemming", m_irData.doStemming()));
-                    m_irData.doUseCDA(doRandomBoolVariable(a_imgui, "Use CDA", m_irData.doUseCDA()));
-                    m_irData.doUseNodeText(doRandomBoolVariable(a_imgui, "Use Code Text", m_irData.doUseNodeText()));
-                    m_irData.doUseNodeName(doRandomBoolVariable(a_imgui, "Use Code Name", m_irData.doUseNodeName()));
-                    m_irData.doUseArchComponentName(doRandomBoolVariable(a_imgui, "Use Architecture Name", m_irData.doUseArchComponentName()));
-                    m_irData.minWordSize(doRandomIntVariable(a_imgui, "Min Word Length", m_irData.minWordSize()));
-
-                    if (m_experimentIx == g_nbmapper_ex) {
-                        m_doWordCount = doRandomBoolVariable(a_imgui, "Use Word Counts", m_doWordCount);
-                        m_threshold = doRandomDoubleVariable(a_imgui, "Threshold", m_threshold);
-                    }
-                } else if (m_experimentIx == g_hugmemapper_ex) {
-                    m_omega = doRandomDoubleVariable(a_imgui, "Omega Threshold", m_omega);
-                    m_phi = doRandomDoubleVariable(a_imgui, "Phi", m_phi);
-                } else if (m_experimentIx == g_irattract_ex) {
-                    // add parameters here
-                }
-                    /*int [] currentSystem = {m_selectedSystem.getCurrentSystemIx()};
-                    if (a_imgui.imgui().combo("System##" + m_id, currentSystem, m_selectedSystem.getSystemNames(), m_selectedSystem.getSystemCount())) {
-                        m_selectedSystem.setCurrentSystem(currentSystem[0]);
-                    }*/
                 for (SystemNameFile snf : m_selectedSystem.getSystems()) {
                     boolean isSelected[] = {m_selectedSystem.isSelected(snf)};
                     if (a_imgui.imgui().checkbox(snf.m_name + "##" + m_id, isSelected)) {
@@ -464,15 +395,14 @@ class ExperimentViewThread extends Thread {
             }
 
 
-            {
-                boolean[] manualMappnig = {m_useManualmapping};
-                if (a_imgui.imgui().checkbox("Use Manual Mapping##" + m_id, manualMappnig)) {
-                    m_useManualmapping = manualMappnig[0];
-                }
+            if (a_imgui.button("Add Mapper##" + m_id, 0)) {
+                m_experiments.add(new MapperView());
             }
 
+            for (MapperView exv : m_experiments) {
+                exv.doExperiment(a_imgui, isRunningExperiment());
+            }
 
-            a_imgui.imgui().colorEdit3("Plot Color##" + m_id, m_currentColor, 0);
 
             if (isRunningExperiment()) {
                 a_imgui.popDisableWidgets();
@@ -505,7 +435,7 @@ class ExperimentViewThread extends Thread {
             }
 
 
-            a_imgui.text(String.format("Average Performance: %.2f", getAvgPerformance() * 100));
+
 
 
 
@@ -545,34 +475,19 @@ class ExperimentViewThread extends Thread {
         m_selectedSystem.clearSelection();
         a_exr.getSystems().forEach(s -> m_selectedSystem.selectFileName(((FileBased)s).getFile()));
 
-        m_useManualmapping = a_exr.doUseManualmapping();
-        m_useIntialMapping = a_exr.useInitialMapping();
+        m_useIntialMapping = a_exr.doUseInitialMapping();
         m_initialSetSize = a_exr.getInitialSetSize();
 
-        // generic experiment runners
-        if (a_exr instanceof IRExperimentRunnerBase) {
-            IRExperimentRunnerBase irexr = (IRExperimentRunnerBase)a_exr;
-            m_irData = irexr.getIRDataClone();
+        for (ExperimentRun ex : a_exr.getExperiments()) {
+            m_experiments.add(new MapperView(ex));
         }
 
-        // specific experiment runners
-        if (a_exr instanceof NBMapperExperimentRunner) {
-            NBMapperExperimentRunner nbexr = (NBMapperExperimentRunner)a_exr;
-            m_threshold = nbexr.getThreshold();
-            m_doWordCount = nbexr.getWordCount();
-            m_experimentIx = g_nbmapper_ex;
-        } else if (a_exr instanceof HuGMeExperimentRunner) {
-            HuGMeExperimentRunner hugme = (HuGMeExperimentRunner)a_exr;
-            m_omega = hugme.getOmega();
-            m_phi = hugme.getPhi();
-            m_experimentIx = g_hugmemapper_ex;
-        } else if (a_exr instanceof IRAttractExperimentRunner) {
-            m_experimentIx = g_irattract_ex;
-        } else if (a_exr instanceof LSIAttractExperimentRunner) {
-            m_experimentIx = g_lsiattract_ex;
-        }
+
 
         m_name = a_exr.getName();
+        if (m_name == null) {
+            m_name = "";
+        }
     }
 
     ExperimentRunner createExperiment() throws IOException {
@@ -584,18 +499,17 @@ class ExperimentViewThread extends Thread {
             }
         }
 
-        if (m_experimentIx == g_nbmapper_ex) {
-            ret = new NBMapperExperimentRunner(systems, m_selectedMetrics.getSelected(), m_useManualmapping, m_useIntialMapping, m_initialSetSize, m_irData, m_doWordCount, m_threshold);
-        } else if (m_experimentIx == g_hugmemapper_ex) {
-            ret = new HuGMeExperimentRunner(systems, m_selectedMetrics.getSelected(), m_useManualmapping, m_useIntialMapping, m_initialSetSize, m_omega, m_phi);
-        } else if (m_experimentIx == g_irattract_ex) {
-            ret = new IRAttractExperimentRunner(systems, m_selectedMetrics.getSelected(), m_useManualmapping, m_useIntialMapping, m_initialSetSize, m_irData);
-        } else if ( m_experimentIx == g_lsiattract_ex) {
-            ret = new LSIAttractExperimentRunner(systems, m_selectedMetrics.getSelected(), m_useManualmapping, m_useIntialMapping, m_initialSetSize, m_irData);
-        }
-
+        ret = new ExperimentRunner(systems, m_selectedMetrics.getSelected(), getExperiments(), m_useIntialMapping, m_initialSetSize);
         ret.setName(m_name);
 
+        return ret;
+    }
+
+    private Iterable<ExperimentRun> getExperiments() {
+        ArrayList<ExperimentRun> ret = new ArrayList<>();
+        for (MapperView exv : m_experiments) {
+            ret.add(exv.createExperiment());
+        }
         return ret;
     }
 
@@ -606,16 +520,6 @@ class ExperimentViewThread extends Thread {
         if (a_imgui.imgui().dragFloatRange2(a_label+"##"+m_id, new JavaProperty<>(minArray), new JavaProperty<>(maxArray), 0.01f, 0f, 1f, "%.2f", "%.2f", 1)) {
             double scale = (maxArray[0] - minArray[0]) / 2.0;
             a_threshold = new ExperimentRunner.RandomDoubleVariable(minArray[0] + scale, scale);
-        }
-        return a_threshold;
-    }
-
-    private ExperimentRunner.RandomIntVariable doRandomIntVariable(ImGuiWrapper a_imgui, String a_label, ExperimentRunner.RandomIntVariable a_threshold) {
-        Integer[] minArray = new Integer[1]; minArray[0] = a_threshold.getMin();
-        Integer[] maxArray = new Integer[1]; maxArray[0] = a_threshold.getMax();
-
-        if (a_imgui.imgui().dragIntRange2(a_label+"##"+m_id, new JavaProperty<>(minArray), new JavaProperty<>(maxArray), 1.0f, 0, 255, "min:%d", "max:%d")) {
-            a_threshold = new ExperimentRunner.RandomIntVariable(minArray[0], maxArray[0]);
         }
         return a_threshold;
     }

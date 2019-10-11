@@ -13,10 +13,10 @@ import se.lnu.siq.s4rdm3x.model.cmd.util.SystemModelReader;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-public abstract class ExperimentRunner {
-    protected boolean m_doUseManualmapping;
+public class ExperimentRunner {
     protected Random m_rand = new Random();
     private RunListener m_listener = null;
+    private ArrayList<ExperimentRun> m_experiments = new ArrayList<>();
     private ArrayList<System> m_suas = new ArrayList<>();
     private ArrayList<Metric> m_metrics = new ArrayList<>();
     private State m_state;  // this is the desired state
@@ -41,15 +41,15 @@ public abstract class ExperimentRunner {
         return m_metrics;
     }
 
-    public boolean doUseManualmapping() {
-        return m_doUseManualmapping;
-    }
-
     public RandomDoubleVariable getInitialSetSize() {
         return m_initialSetSize;
     }
 
-    public boolean useInitialMapping() {return m_useInitialMapping;}
+    public boolean doUseInitialMapping() {return m_useInitialMapping;}
+
+    public Iterable<? extends ExperimentRun> getExperiments() {
+        return m_experiments;
+    }
 
 
     private static class GraphArchitecturePair {
@@ -208,28 +208,18 @@ public abstract class ExperimentRunner {
         return m_currentState;
     }
 
-    public ExperimentRunner(Iterable<System> a_suas, Iterable<Metric> a_metrics, boolean a_doUseManualmapping, boolean a_doUseInitialMapping, RandomDoubleVariable a_initialSetSize) {
+    public ExperimentRunner(Iterable<System> a_suas, Iterable<Metric> a_metrics, Iterable<ExperimentRun> a_experiments, boolean a_doUseInitialMapping, RandomDoubleVariable a_initialSetSize) {
         a_suas.forEach(s -> m_suas.add(s));
         a_metrics.forEach(m -> m_metrics.add(m));
+        a_experiments.forEach(e -> m_experiments.add(e));
         m_initialSetSize = a_initialSetSize;
-        m_doUseManualmapping = a_doUseManualmapping;
-        m_useInitialMapping = a_doUseInitialMapping;
-    }
-
-    public ExperimentRunner(System a_sua, Metric a_metric, boolean a_doUseManualmapping, boolean a_doUseInitialMapping, RandomDoubleVariable a_initialSetSize) {
-        m_suas .add(a_sua);
-        m_metrics.add(a_metric);
-        m_initialSetSize = a_initialSetSize;
-        m_doUseManualmapping = a_doUseManualmapping;
         m_useInitialMapping = a_doUseInitialMapping;
     }
 
     public interface RunListener {
         public ExperimentRunData.BasicRunData OnRunInit(ExperimentRunData.BasicRunData a_rd, CGraph a_g, ArchDef a_arch);
-        public void OnRunCompleted(ExperimentRunData.BasicRunData a_rd, CGraph a_g, ArchDef a_arch);
+        public void OnRunCompleted(ExperimentRunData.BasicRunData a_rd, CGraph a_g, ArchDef a_arch, ExperimentRun a_source);
     }
-
-    public abstract ExperimentRunner clone();
 
     public void setRunListener(RunListener a_listener) {
         m_listener = a_listener;
@@ -277,51 +267,56 @@ public abstract class ExperimentRunner {
                             metric.assignMetric(arch.getMappedNodes(a_g.getNodes()));
                         }
 
-                        final ExperimentRunData.BasicRunData rd = createNewRunData(m_rand);
-                        rd.m_metric = metric;
-                        rd.m_system = sua;
-                        rd.m_initialClusteringPercent = initialClustering.generate(m_rand);
-                        rd.m_totalMapped = arch.getMappedNodeCount(a_g.getNodes());
-
-                        rd.m_date = sdfDate.format(new Date());
-
-                        arch.cleanNodeClusters(a_g.getNodes());
-
 
                         if (m_useInitialMapping) {
                             // Set the initial set an initial set from architecture
                             sua.setInitialMapping(a_g, arch);
                         }
-                        setGenerator.assignInitialClusters(a_g, arch, rd.m_initialClusteringPercent, metric, m_rand);
+                        arch.cleanNodeClusters(a_g.getNodes(), false);
+                        setGenerator.assignInitialClusters(a_g, arch, initialClustering.generate(m_rand), metric, m_rand);
 
-                        //assignInitialClustersPerComponent(a_g, arch, rd.m_initialClusteringPercent);
+                        for (ExperimentRun experiment : m_experiments) {
 
-                        arch.getClusteredNodes(a_g.getNodes()).forEach(n -> rd.addInitialClusteredNode(n));
-                        rd.m_totalMapped = arch.getMappedNodeCount(a_g.getNodes());
+                            final ExperimentRunData.BasicRunData rd = experiment.createNewRunData(m_rand);
+                            rd.m_metric = metric;
+                            rd.m_system = sua;
+                            rd.m_initialClusteringPercent = initialClustering.getValue();
+                            rd.m_totalMapped = arch.getMappedNodeCount(a_g.getNodes());
+
+                            rd.m_date = sdfDate.format(new Date());
+
+                            arch.cleanNodeClusters(a_g.getNodes(), true);
+
+                            //assignInitialClustersPerComponent(a_g, arch, rd.m_initialClusteringPercent);
+
+                            arch.getClusteredNodes(a_g.getNodes()).forEach(n -> rd.addInitialClusteredNode(n));
+                            rd.m_totalMapped = arch.getMappedNodeCount(a_g.getNodes());
 
 
-                        //rd.m_totalMapped = 0;
-                        rd.m_totalManuallyClustered = 0;
-                        rd.m_totalAutoWrong = 0;
-                        rd.m_iterations = 0;
-                        rd.m_totalFailedClusterings = 0;
-                        rd.m_id = i;
+                            //rd.m_totalMapped = 0;
+                            rd.m_totalManuallyClustered = 0;
+                            rd.m_totalAutoWrong = 0;
+                            rd.m_iterations = 0;
+                            rd.m_totalFailedClusterings = 0;
+                            rd.m_id = i;
 
-                        if (fic == null) {
-                            fic = new FanInCache(arch.getMappedNodes(a_g.getNodes()));
-                        }
+                            if (fic == null) {
+                                fic = new FanInCache(arch.getMappedNodes(a_g.getNodes()));
+                            }
 
-                        if (m_listener != null) {
-                            m_listener.OnRunInit(rd, a_g, arch);
-                        }
-                        long start = java.lang.System.nanoTime();
-                        while (!runClustering(a_g, fic, arch));  // we always run until we are finished even if we are stopped to avoid partial data sets.
-                        rd.m_time = java.lang.System.nanoTime() - start;
+                            if (m_listener != null) {
+                                m_listener.OnRunInit(rd, a_g, arch);
+                            }
+                            long start = java.lang.System.nanoTime();
+                            while (!experiment.runClustering(a_g, fic, arch))
+                                ;  // we always run until we are finished even if we are stopped to avoid partial data sets.
+                            rd.m_time = java.lang.System.nanoTime() - start;
 
-                        arch.getClusteredNodes(a_g.getNodes(), ArchDef.Component.ClusteringType.Automatic).forEach(n -> rd.addAutoClusteredNode(n));
+                            arch.getClusteredNodes(a_g.getNodes(), ArchDef.Component.ClusteringType.Automatic).forEach(n -> rd.addAutoClusteredNode(n));
 
-                        if (m_listener != null) {
-                            m_listener.OnRunCompleted(rd, a_g, arch);
+                            if (m_listener != null) {
+                                m_listener.OnRunCompleted(rd, a_g, arch, experiment);
+                            }
                         }
 
                         i++;
@@ -342,11 +337,6 @@ public abstract class ExperimentRunner {
 
         m_currentState = State.Idle;
     }
-
-    protected abstract ExperimentRunData.BasicRunData createNewRunData(Random m_rand);
-
-    protected abstract boolean runClustering(CGraph a_g, FanInCache fic, ArchDef arch);
-
 
         /*private void assignInitialClustersPerComponent(CGraph a_g, ArchDef a_arch, double a_percentage, Metric a_metric) {
         // OBS this assigns a number of classes per component, this is not actually that realistic
@@ -371,10 +361,4 @@ public abstract class ExperimentRunner {
             }
         }
     }*/
-
-
-
-
-
-
 }

@@ -97,7 +97,6 @@ class ExperimentRunnerTest {
     public void getWorkingSetTest() {
         CGraph g = new CGraph();
         MetricSetter ms = new MetricSetter();
-        ExperimentRunner er = new HuGMeExperimentRunner(null, ms, false, false, new ExperimentRunner.RandomDoubleVariable(0.1, 0.1), new ExperimentRunner.RandomDoubleVariable(0.5, 0.5), new ExperimentRunner.RandomDoubleVariable(0.5, 0.5));
 
                            //1  1  2  4  6  6  6  7  7
                            //0  1  2  3  4  5  6  7  8
@@ -110,11 +109,13 @@ class ExperimentRunnerTest {
             nodes.add(n);
         }
 
-        ArrayList<CNode> ws = er.getWorkingSetTestHelper(nodes, 1, ms);
+        InitialSetGenerator sut = new InitialSetGenerator();
+
+        ArrayList<CNode> ws = sut.getWorkingSetTestHelper(nodes, 1, ms);
         assertTrue(ws.get(0) == nodes.get(6) || ws.get(0) == nodes.get(8));
         assertEquals(ms.getMetric(ws.get(0)), 7);
 
-        ws = er.getWorkingSetTestHelper(nodes, 3, ms);
+        ws = sut.getWorkingSetTestHelper(nodes, 3, ms);
         assertTrue(ws.get(0) == nodes.get(4) || ws.get(0) == nodes.get(5) || ws.get(0) == nodes.get(7));
         assertTrue(ws.get(1) == nodes.get(6) || ws.get(1) == nodes.get(8));
         assertTrue(ws.get(2) == nodes.get(6) || ws.get(2) == nodes.get(8));
@@ -122,7 +123,7 @@ class ExperimentRunnerTest {
         assertEquals(ms.getMetric(ws.get(1)), 7);
         assertEquals(ms.getMetric(ws.get(2)), 7);
 
-        ws = er.getWorkingSetTestHelper(nodes, 6, ms);
+        ws = sut.getWorkingSetTestHelper(nodes, 6, ms);
         assertTrue(ws.get(0) == nodes.get(3));
         assertTrue(ws.get(1) == nodes.get(4));
         assertTrue(ws.get(2) == nodes.get(5));
@@ -131,7 +132,7 @@ class ExperimentRunnerTest {
         assertTrue(ws.get(5) == nodes.get(8));
         assertEquals(ms.getMetric(ws.get(0)), 4);
 
-        ws = er.getWorkingSetTestHelper(nodes, 9, ms);
+        ws = sut.getWorkingSetTestHelper(nodes, 9, ms);
         assertTrue(ws.get(0) == nodes.get(0));
         assertTrue(ws.get(1) == nodes.get(1));
         assertTrue(ws.get(2) == nodes.get(2));
@@ -148,8 +149,6 @@ class ExperimentRunnerTest {
     public void getWorkingSetTest2() {
         CGraph g = new CGraph();
         MetricSetter ms = new MetricSetter();
-        ExperimentRunner er = new HuGMeExperimentRunner(null, ms, false, false, new ExperimentRunner.RandomDoubleVariable(0.1, 0.1), new ExperimentRunner.RandomDoubleVariable(0.5, 0.5), new ExperimentRunner.RandomDoubleVariable(0.5, 0.5));
-
 
                            //0  1  2  3  4  5  6  7  8
         double [] metrics = {7, 4, 6, 6, 7, 7, 1};
@@ -161,11 +160,13 @@ class ExperimentRunnerTest {
             nodes.add(n);
         }
 
-        ArrayList<CNode> ws = er.getWorkingSetTestHelper(nodes, 1, ms);
+        InitialSetGenerator sut = new InitialSetGenerator();
+
+        ArrayList<CNode> ws = sut.getWorkingSetTestHelper(nodes, 1, ms);
         assertTrue(ws.get(0) == nodes.get(0) || ws.get(0) == nodes.get(4) || ws.get(0) == nodes.get(5));
         assertEquals(ms.getMetric(ws.get(0)), 7);
 
-        ws = er.getWorkingSetTestHelper(nodes, 3, ms);
+        ws = sut.getWorkingSetTestHelper(nodes, 3, ms);
         assertTrue(ws.get(0) == nodes.get(0));
         assertTrue(ws.get(1) == nodes.get(4));
         assertTrue(ws.get(2) == nodes.get(5));
@@ -173,7 +174,7 @@ class ExperimentRunnerTest {
         assertEquals(ms.getMetric(ws.get(1)), 7);
         assertEquals(ms.getMetric(ws.get(2)), 7);
 
-        ws = er.getWorkingSetTestHelper(nodes, 4, ms);
+        ws = sut.getWorkingSetTestHelper(nodes, 4, ms);
         assertTrue(ws.get(0) == nodes.get(2) || ws.get(0) == nodes.get(3));
         assertTrue(ws.get(1) == nodes.get(0));
         assertTrue(ws.get(2) == nodes.get(4));

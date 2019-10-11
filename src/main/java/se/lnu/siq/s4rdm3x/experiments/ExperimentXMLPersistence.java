@@ -10,7 +10,6 @@ import se.lnu.siq.s4rdm3x.experiments.metric.Rand;
 import se.lnu.siq.s4rdm3x.experiments.metric.aggregated.RelativeLineCount;
 import se.lnu.siq.s4rdm3x.experiments.system.FileBased;
 import se.lnu.siq.s4rdm3x.experiments.system.System;
-import se.lnu.siq.s4rdm3x.model.cmd.mapper.IRMapperBase;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -20,6 +19,8 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class ExperimentXMLPersistence {
 
@@ -51,12 +52,12 @@ public class ExperimentXMLPersistence {
         return v;
     }
 
-    public interface Listener {
-        public void onLoadedExperiment(Element a_experimentElement, ExperimentRunner a_loadedExperiment);
-        public void onSavedExperiment(Document a_doc, Element a_experimentElement, ExperimentRunner a_loadedExperiment);
+    public interface ListenerB {
+        public void onLoadedExperiment(Element a_experimentElement, ExperimentRunner a_runner, ExperimentRun a_loadedExperiment);
+        public void onSavedExperiment(Document a_doc, Element a_experimentElement, ExperimentRun a_savedExperiment);
     }
 
-    public ArrayList<ExperimentRunner> loadExperiments(String a_fileName, Listener a_callback) throws Exception {
+    public ArrayList<ExperimentRunner> loadExperimentRunners(String a_fileName, ListenerB a_callback) throws Exception {
         ArrayList<ExperimentRunner> ret = new ArrayList<>();
 
         File inputFile = new File(a_fileName);
@@ -65,15 +66,13 @@ public class ExperimentXMLPersistence {
         Document doc = dBuilder.parse(inputFile);
         doc.getDocumentElement().normalize();
 
-        NodeList nodes = doc.getElementsByTagName("experiment");
+
+        NodeList nodes = doc.getElementsByTagName("runner");
         for (int nIx = 0 ; nIx < nodes.getLength(); nIx++) {
             Node n = nodes.item(nIx);
             if (n.getNodeType() == Node.ELEMENT_NODE) {
-                ExperimentRunner exp = elementToExperiment((Element)n);
+                ExperimentRunner exp = elementToRunner((Element)n, a_callback);
                 ret.add(exp);
-                if (a_callback != null) {
-                    a_callback.onLoadedExperiment((Element)n, exp);
-                }
             }
         }
 
@@ -81,7 +80,7 @@ public class ExperimentXMLPersistence {
     }
 
 
-    public void saveExperiments(Iterable<ExperimentRunner> a_experiments, String a_fileName, Listener a_listener) throws Exception {
+    public void saveExperiments(Iterable<ExperimentRunner> a_runners, String a_fileName, ListenerB a_listener) throws Exception {
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
         Document doc = dBuilder.newDocument();
@@ -90,10 +89,10 @@ public class ExperimentXMLPersistence {
         Element rootElement = doc.createElement("experiments");
         doc.appendChild(rootElement);
 
-        for (ExperimentRunner exr : a_experiments) {
-            Element exrElement = experimentToElement(doc, exr);
+        for (ExperimentRunner runner : a_runners) {
+            Element exrElement = runnerToElement(doc, runner, a_listener);
             rootElement.appendChild(exrElement);
-            a_listener.onSavedExperiment(doc, exrElement, exr);
+
         }
 
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -103,17 +102,16 @@ public class ExperimentXMLPersistence {
         transformer.transform(source, result);
     }
 
-    private ExperimentRunner elementToExperiment(Element a_exr) throws Exception {
-        ExperimentRunner ret;
-        ExperimentRunner.RandomDoubleVariable initialSetSize = elementToRandomDouble(a_exr, "initialSetSize");
-        boolean useManualMapping = getBoolAttribute(a_exr, "useManualMapping");
-        boolean useInitialMapping = getBoolAttribute(a_exr, "useInitialMapping");
+    private ExperimentRunner elementToRunner(Element a_runner, ListenerB a_listener) throws Exception {
+        ExperimentRunner.RandomDoubleVariable initialSetSize = elementToRandomDouble(a_runner, "initialSetSize");
+        boolean useInitialMapping = getBoolAttribute(a_runner, "useInitialMapping");
         ArrayList<System> suas = new ArrayList<>();
         ArrayList<Metric> metrics = new ArrayList<>();
+        ArrayList<ExperimentRun> experiments = new ArrayList<>();
 
         {
             MetricFactory mf = new MetricFactory();
-            NodeList metricNodes = a_exr.getElementsByTagName("metric");
+            NodeList metricNodes = a_runner.getElementsByTagName("metric");
             for (int mIx = 0; mIx < metricNodes.getLength(); mIx++) {
                 Element m = (Element) metricNodes.item(mIx);
 
@@ -141,10 +139,9 @@ public class ExperimentXMLPersistence {
         }
 
         {
-            NodeList systemNodes = a_exr.getElementsByTagName("system");
+            NodeList systemNodes = a_runner.getElementsByTagName("system");
             for (int sIx = 0; sIx < systemNodes.getLength(); sIx++) {
                 Element s = (Element)systemNodes.item(sIx);
-                String name = s.getAttribute("name");
                 String file = s.hasAttribute("file") ? s.getAttribute("file") : "";
 
                 if (file.length() > 0) {
@@ -156,28 +153,69 @@ public class ExperimentXMLPersistence {
 
         }
 
+
+        NodeList nodes = a_runner.getElementsByTagName("experiment");
+        class Pair {
+            Pair(Element a_e, ExperimentRun a_exp) {
+                m_element = a_e;
+                m_exp = a_exp;
+            }
+            Element m_element;
+            ExperimentRun m_exp;
+        };
+        ArrayList<Pair> createdExperimentsForCallback = new ArrayList<>();
+        for (int nIx = 0 ; nIx < nodes.getLength(); nIx++) {
+            Node n = nodes.item(nIx);
+            if (n.getNodeType() == Node.ELEMENT_NODE) {
+                ExperimentRun exp = elementToExperiment((Element)n);
+                experiments.add(exp);
+
+                if (a_listener != null) {
+                    createdExperimentsForCallback.add(new Pair((Element)n, exp));
+                }
+            }
+        }
+
+
+
+        ExperimentRunner ret = new ExperimentRunner(suas, metrics, experiments, useInitialMapping, initialSetSize);
+        ret.setName(a_runner.getAttribute("name"));
+        for (Pair p : createdExperimentsForCallback) {
+            a_listener.onLoadedExperiment(p.m_element, ret, p.m_exp);
+        }
+
+
+        return ret;
+    }
+
+    private ExperimentRun elementToExperiment(Element a_exr) throws Exception {
+        ExperimentRun ret;
+
+        boolean useManualMapping = getBoolAttribute(a_exr, "useManualMapping");
+
+
         String type = a_exr.getAttribute("type");
 
 
         if (type.equals("nbmapper")) {
-            IRExperimentRunnerBase.Data irData = elementToIRData(a_exr);
+            IRExperimentRunBase.Data irData = elementToIRData(a_exr);
             ExperimentRunner.RandomDoubleVariable threshold = elementToRandomDouble(a_exr, "threshold");
             ExperimentRunner.RandomBoolVariable wordcount = elementToRandomBool(a_exr, "wordcount");
 
-            ret = new NBMapperExperimentRunner(suas, metrics, useManualMapping, useInitialMapping, initialSetSize, irData, wordcount, threshold);
+            ret = new NBMapperExperimentRun(useManualMapping, irData, wordcount, threshold);
         } else if (type.equals("hugme")) {
 
             ExperimentRunner.RandomDoubleVariable omega = elementToRandomDouble(a_exr, "omega");
             ExperimentRunner.RandomDoubleVariable phi = elementToRandomDouble(a_exr, "phi");
 
-            ret = new HuGMeExperimentRunner(suas, metrics, useManualMapping, useInitialMapping, initialSetSize, omega, phi);
+            ret = new HuGMeExperimentRun(useManualMapping, omega, phi);
         } else if (type.equals("irattract")) {
-            IRExperimentRunnerBase.Data irData = elementToIRData(a_exr);
-            ret = new IRAttractExperimentRunner(suas, metrics, useManualMapping, useInitialMapping, initialSetSize, irData);
+            IRExperimentRunBase.Data irData = elementToIRData(a_exr);
+            ret = new IRAttractExperimentRun(useManualMapping, irData);
 
         }  else if (type.equals("lsiattract")) {
-            IRExperimentRunnerBase.Data irData = elementToIRData(a_exr);
-            ret = new LSIAttractExperimentRunner(suas, metrics, useManualMapping, useInitialMapping, initialSetSize, irData);
+            IRExperimentRunBase.Data irData = elementToIRData(a_exr);
+            ret = new LSIAttractExperimentRun(useManualMapping, irData);
 
         } else {
             throw new Exception("Unknown mapping experiment: " + type);
@@ -219,26 +257,24 @@ public class ExperimentXMLPersistence {
         return new ExperimentRunner.RandomDoubleVariable(base, scale);
     }
 
-    private Element experimentToElement(Document a_doc, ExperimentRunner a_exr) {
-        Element exrNode = a_doc.createElement("experiment");
+    private Element runnerToElement(Document a_doc, ExperimentRunner a_runner, ListenerB a_listener) {
+        Element runnerNode = a_doc.createElement("runner");
 
-        exrNode.setAttribute("name", a_exr.getName());
+        runnerNode.appendChild(randomDoubleToElement(a_doc, a_runner.getInitialSetSize(), "initialSetSize"));
 
-        exrNode.appendChild(randomDoubleToElement(a_doc, a_exr.getInitialSetSize(), "initialSetSize"));
-        setBoolAttribute(exrNode, "useManualMapping", a_exr.doUseManualmapping());
-        setBoolAttribute(exrNode, "useInitialMapping", a_exr.doUseManualmapping());
+        setBoolAttribute(runnerNode, "useInitialMapping", a_runner.doUseInitialMapping());
 
         Element metricsNode = a_doc.createElement("metrics");
-        exrNode.appendChild(metricsNode);
-        for (Metric m : a_exr.getMetrics()) {
+        runnerNode.appendChild(metricsNode);
+        for (Metric m : a_runner.getMetrics()) {
             Element metricNode = a_doc.createElement("metric");
             metricsNode.appendChild(metricNode);
             metricNode.setAttribute("name", m.getName());
         }
 
         Element systemsNode = a_doc.createElement("systems");
-        exrNode.appendChild(systemsNode);
-        for (System s : a_exr.getSystems()) {
+        runnerNode.appendChild(systemsNode);
+        for (System s : a_runner.getSystems()) {
             Element systemNode = a_doc.createElement("system");
             systemsNode.appendChild(systemNode);
             systemNode.setAttribute("name", s.getName());
@@ -247,26 +283,48 @@ public class ExperimentXMLPersistence {
             }
         }
 
-        if (a_exr instanceof  NBMapperExperimentRunner) {
+        Element experimentsNode = a_doc.createElement("experiments");
+        runnerNode.appendChild(experimentsNode);
+        for (ExperimentRun ex : a_runner.getExperiments()) {
+            Element exNode = experimentToElement(a_doc, ex);
+            experimentsNode.appendChild(exNode);
+            if (a_listener != null) {
+                a_listener.onSavedExperiment(a_doc, exNode, ex);
+            }
+        }
+
+        runnerNode.setAttribute("name", a_runner.getName());
+
+        return runnerNode;
+    }
+
+    private Element experimentToElement(Document a_doc, ExperimentRun a_exr) {
+        Element exrNode = a_doc.createElement("experiment");
+
+        exrNode.setAttribute("name", a_exr.getName());
+
+        setBoolAttribute(exrNode, "useManualMapping", a_exr.doUseManualMapping());
+
+        if (a_exr instanceof NBMapperExperimentRun) {
             exrNode.setAttribute("type", "nbmapper");
-            NBMapperExperimentRunner nbexr = (NBMapperExperimentRunner)a_exr;
+            NBMapperExperimentRun nbexr = (NBMapperExperimentRun)a_exr;
             exrNode.appendChild(randomDoubleToElement(a_doc, nbexr.getThreshold(), "threshold"));
             exrNode.appendChild(randomBoolToElement(a_doc, nbexr.getWordCount(), "wordcount"));
-        } else if (a_exr instanceof HuGMeExperimentRunner) {
+        } else if (a_exr instanceof HuGMeExperimentRun) {
             exrNode.setAttribute("type", "hugme");
-            HuGMeExperimentRunner hugexr = (HuGMeExperimentRunner)a_exr;
+            HuGMeExperimentRun hugexr = (HuGMeExperimentRun)a_exr;
             exrNode.appendChild(randomDoubleToElement(a_doc, hugexr.getOmega(), "omega"));
             exrNode.appendChild(randomDoubleToElement(a_doc, hugexr.getPhi(), "phi"));
-        } else if (a_exr instanceof IRAttractExperimentRunner) {
+        } else if (a_exr instanceof IRAttractExperimentRun) {
             exrNode.setAttribute("type", "irattract");
-            //IRAttractExperimentRunner irexr = (IRAttractExperimentRunner)a_exr;
-        } else if (a_exr instanceof LSIAttractExperimentRunner) {
+            //IRAttractExperimentRun irexr = (IRAttractExperimentRun)a_exr;
+        } else if (a_exr instanceof LSIAttractExperimentRun) {
             exrNode.setAttribute("type", "lsiattract");
         }
 
         // Here we save the IRBase data
-        if (a_exr instanceof IRExperimentRunnerBase) {
-            exrNode.appendChild(iRBaseToElement(a_doc, (IRExperimentRunnerBase)a_exr));
+        if (a_exr instanceof IRExperimentRunBase) {
+            exrNode.appendChild(iRBaseToElement(a_doc, (IRExperimentRunBase)a_exr));
         }
 
         return exrNode;
@@ -276,10 +334,10 @@ public class ExperimentXMLPersistence {
         a_element.setAttribute(a_attribute, (a_bool ? "yes" : "no"));
     }
 
-    private IRExperimentRunnerBase.Data elementToIRData(Element a_parent) {
+    private IRExperimentRunBase.Data elementToIRData(Element a_parent) {
         Element irBaseDataElement = (Element)a_parent.getElementsByTagName("irbase").item(0);
 
-        IRExperimentRunnerBase.Data ret = new IRExperimentRunnerBase.Data();
+        IRExperimentRunBase.Data ret = new IRExperimentRunBase.Data();
 
 
         ret.doStemming(elementToRandomBool(irBaseDataElement, "stemming"));
@@ -292,7 +350,7 @@ public class ExperimentXMLPersistence {
         return ret;
     }
 
-    private Element iRBaseToElement(Document a_doc, IRExperimentRunnerBase a_irbase) {
+    private Element iRBaseToElement(Document a_doc, IRExperimentRunBase a_irbase) {
         Element rbvNode = a_doc.createElement("irbase");
 
         rbvNode.appendChild(randomBoolToElement(a_doc, a_irbase.getData().doStemming(), "stemming"));

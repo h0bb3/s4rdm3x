@@ -1,8 +1,9 @@
 import archviz.HRoot;
-import experimenting.ExperimentView;
+import experimenting.ExperimentsView;
 import glm_.vec2.Vec2;
 import glm_.vec2.Vec2i;
 import glm_.vec4.Vec4;
+import gui.ImGuiWrapper;
 import imgui.*;
 import imgui.impl.ImplGL3;
 import imgui.impl.LwjglGlfw;
@@ -160,7 +161,7 @@ public class RectsAndArrows {
         sch.execute("load_arch data/systems/ProM6.9/ProM_6_9.txt", graph).forEach(str -> guic.println(str));
 */
 
-        sch.execute("compute_metrics", graph).forEach(str -> guic.println(str));
+        //sch.execute("compute_metrics", graph).forEach(str -> guic.println(str));
 
 
         window.loop(() -> {
@@ -196,7 +197,7 @@ public class RectsAndArrows {
     private TreeView m_treeView = new TreeView();
     private GraphView m_graphView = new GraphView();
     private MappingView m_mappingView = new MappingView();
-    private ExperimentView m_experimentView = new ExperimentView();
+    private ExperimentsView m_experimentsView = new ExperimentsView();
 
 
 
@@ -298,8 +299,8 @@ public class RectsAndArrows {
         if (showExperimentView[0]) {
             if (imgui.begin("Experiment View", showExperimentView, 0)) {
 
-                m_experimentView.doView(imgui, a_arch, a_g, m_vizState.m_nvm);
-                String selectedNodeLogicName = m_experimentView.getSelectedNodeLogicName();
+                m_experimentsView.doView(new ImGuiWrapper(imgui));
+                String selectedNodeLogicName = m_experimentsView.getSelectedNodeLogicName();
                 if (selectedNodeLogicName != null) {
                     m_treeView.m_selectedClass = a_g.getNodeByLogicName(selectedNodeLogicName);
                 }
