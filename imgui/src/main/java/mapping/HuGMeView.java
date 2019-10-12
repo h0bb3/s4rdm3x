@@ -89,7 +89,7 @@ public class HuGMeView extends MapperBaseView {
         }
 
         if (m_hugme != null) {
-            a_imgui.text("HuGMe automatically mapped nodes: " + m_hugme.m_automaticallyMappedNodes);
+            a_imgui.text("HuGMe automatically mapped nodes: " + m_hugme.getAutoClusteredOrphanCount());
             a_imgui.text("HuGMe considered nodes: " + m_hugme.m_consideredNodes);
             a_imgui.text("HuGMe mapped nodes from start: " + m_hugme.m_mappedNodesFromStart);
             a_imgui.text("HuGMe unmapped nodes from start: " + m_hugme.m_unmappedNodesFromStart);

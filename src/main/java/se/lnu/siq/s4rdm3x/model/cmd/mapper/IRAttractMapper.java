@@ -11,7 +11,6 @@ import java.util.*;
 
 public class IRAttractMapper extends IRMapperBase {
 
-    public int m_automaticallyMappedNodes = 0;
     public int m_autoWrong = 0;
 
     public static class WordVector {
@@ -135,7 +134,7 @@ public class IRAttractMapper extends IRMapperBase {
 
             ArchDef.Component autoClusteredTo = HuGMe.doAutoMapping(orphanNode, m_arch);
             if (autoClusteredTo != null) {
-                m_automaticallyMappedNodes++;
+                addAutoClusteredOrphan(orphanNode);
                 if (autoClusteredTo != m_arch.getMappedComponent(orphanNode)) {
                     m_autoWrong++;
                 }

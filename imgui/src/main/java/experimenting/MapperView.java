@@ -47,6 +47,9 @@ public class MapperView {
         m_omega = new ExperimentRunner.RandomDoubleVariable(a_toBeCopied.m_omega);
         m_phi = new ExperimentRunner.RandomDoubleVariable(a_toBeCopied.m_phi);
         m_currentColor = new Vec4(a_toBeCopied.m_currentColor);
+        m_name = new String(a_toBeCopied.m_name);
+        m_experimentIx = a_toBeCopied.m_experimentIx;
+        m_useManualmapping = a_toBeCopied.m_useManualmapping;
     }
 
     void setExperiment(ExperimentRun a_exr) {
@@ -83,7 +86,7 @@ public class MapperView {
 
     public ExperimentRunnerViewThread.DoExperimentAction doExperiment(ImGuiWrapper a_imgui, boolean a_isRunning) {
         DoExperimentAction ret = DoExperimentAction.None;
-        if (a_imgui.imgui().collapsingHeader("Mapper " + m_name + "###Header" + m_id, 0)) {
+        if (a_imgui.imgui().collapsingHeader("Mapper: " + m_name + "###Header" + m_id, 0)) {
             //Vec2 size = new Vec2(a_imgui.imgui().getContentRegionAvailWidth(), a_imgui.getTextLineHeightWithSpacing() * 2 + a_imgui.imgui().getContentRegionAvailWidth() / 3);
 
             if (a_isRunning) {
@@ -91,26 +94,26 @@ public class MapperView {
             }
 
             m_name = a_imgui.inputTextSingleLine("Name###Name" + m_id, m_name);
+            {
+                boolean[] manualMappnig = {m_useManualmapping};
+                if (a_imgui.imgui().checkbox("Use Manual Mapping##" + m_id, manualMappnig)) {
+                    m_useManualmapping = manualMappnig[0];
+                }
+            }
 
 
-
-            //a_imgui.imgui().beginChild(m_id, size, true, 0);
-
-
+            a_imgui.imgui().colorEdit3("Plot Color##" + m_id, m_currentColor, 0);
 
 
             {
                 String[] experiments = {"Naive Bayes Mapping", "HuGMe", "IRAttract", "LSIAttract"};
                 int[] exIx = {m_experimentIx};
-                if (a_imgui.imgui().combo("Experiment Type" + "##" + m_id, exIx, Arrays.asList(experiments), 2)) {
+                if (a_imgui.imgui().combo("Experiment Type" + "##" + m_id, exIx, Arrays.asList(experiments), experiments.length)) {
                     m_experimentIx = exIx[0];
                 }
             }
 
-
-
-
-            a_imgui.imgui().separator();
+            a_imgui.imgui().indent(3);
             {
                 if (m_experimentIx == g_nbmapper_ex || m_experimentIx == g_irattract_ex || m_experimentIx == g_lsiattract_ex) {
 
@@ -132,40 +135,7 @@ public class MapperView {
                     // add parameters here
                 }
             }
-
-
-
-
-            {
-                boolean[] manualMappnig = {m_useManualmapping};
-                if (a_imgui.imgui().checkbox("Use Manual Mapping##" + m_id, manualMappnig)) {
-                    m_useManualmapping = manualMappnig[0];
-                }
-            }
-
-
-            a_imgui.imgui().colorEdit3("Plot Color##" + m_id, m_currentColor, 0);
-
-            if (a_isRunning) {
-                a_imgui.popDisableWidgets();
-            }
-
-
-            /*if (!a_isRunning) {
-
-
-                if (a_imgui.button("Run Experiment##" + m_id, 0)) {
-                    runExperiment(a_newDataListener);
-                }
-
-            } else {
-                if (a_imgui.button("Stop Experiment##" + m_id, 0)) {
-                    m_avgPerformance = 0;
-                    m_avgCount = 0;
-                    m_experiment.stop();
-                    halt();
-                }
-            }*/
+            a_imgui.imgui().indent(-3);
 
             if (a_imgui.button("Copy Mapper##" + m_id, 0)) {
                 ret = ExperimentRunnerViewThread.DoExperimentAction.Copy;
@@ -175,24 +145,9 @@ public class MapperView {
                 ret = ExperimentRunnerViewThread.DoExperimentAction.Delete;
             }
 
-
-            //a_imgui.text(String.format("Average Performance: %.2f", getAvgPerformance() * 100));
-
-
-
-                /*for (ExperimentRunData.BasicRunData exd : m_selectedDataPoints) {
-                    a_imgui.text(exd.m_system.getName());
-                }*/
-
-                /*if (beginPopupContextItem(a_imgui,"test_popup", 1)) {
-                    a_imgui.menuItem("test_item", "", false, true);
-                    a_imgui.endPopup();
-                }*/
-
-
-            //a_imgui.imgui().endChild();
-            a_imgui.imgui().separator();
-            a_imgui.imgui().separator();
+            if (a_isRunning) {
+                a_imgui.popDisableWidgets();
+            }
         }
 
         return ret;

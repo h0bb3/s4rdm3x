@@ -40,7 +40,9 @@ public class LSIAttractExperimentRun extends IRExperimentRunBase {
         m_exData.m_totalAutoWrong  += lsiam.m_autoWrong;
         m_exData.m_totalFailedClusterings  += lsiam.m_failedMappings;
 
-        if (lsiam.m_automaticallyMappedNodes + lsiam.m_manuallyMappedNodes == 0) {
+        lsiam.getAutoClusteredNodes().forEach(n -> m_exData.addAutoClusteredNode(n));
+
+        if (lsiam.getAutoClusteredOrphanCount() + lsiam.m_manuallyMappedNodes == 0) {
             return true;
         }
 

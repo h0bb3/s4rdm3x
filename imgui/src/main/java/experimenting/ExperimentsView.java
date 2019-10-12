@@ -398,8 +398,9 @@ public class ExperimentsView implements ExperimentRunnerViewThread.DataListener 
             RunData exd = m_experimentData.get(pd.m_id);
 
             if (a_imgui.beginTooltip()) {
-                //a_imgui.text("Experiment:\t" + exd.m_source.getName());
-                a_imgui.text("Experiment:\t" + "farre");
+                a_imgui.text("Experiment:\t" + exd.m_source.getName());
+                //a_imgui.text("Mapper:\t" + exd.m_source.getMapper());
+                //a_imgui.text("Experiment:\t" + "farre");
                 a_imgui.text("System:\t" + exd.m_data.m_system.getName());
                 a_imgui.text("Metric:\t" + exd.m_data.m_metric.getName());
                 a_imgui.text("Size:\t" + exd.m_data.m_totalMapped);

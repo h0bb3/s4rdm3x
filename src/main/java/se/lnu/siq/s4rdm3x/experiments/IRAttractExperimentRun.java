@@ -37,7 +37,9 @@ public class IRAttractExperimentRun extends IRExperimentRunBase {
         m_exData.m_totalAutoWrong  += iram.m_autoWrong;
         m_exData.m_totalFailedClusterings  += iram.m_failedMappings;
 
-        if (iram.m_automaticallyMappedNodes + iram.m_manuallyMappedNodes == 0) {
+        iram.getAutoClusteredNodes().forEach(n -> m_exData.addAutoClusteredNode(n));
+
+        if (iram.getAutoClusteredOrphanCount() + iram.m_manuallyMappedNodes == 0) {
             return true;
         }
 

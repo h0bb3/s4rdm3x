@@ -285,11 +285,9 @@ public class ExperimentRunner {
 
                             rd.m_date = sdfDate.format(new Date());
 
-                            arch.cleanNodeClusters(a_g.getNodes(), true);
-
                             //assignInitialClustersPerComponent(a_g, arch, rd.m_initialClusteringPercent);
 
-                            arch.getClusteredNodes(a_g.getNodes()).forEach(n -> rd.addInitialClusteredNode(n));
+                            arch.getClusteredNodes(a_g.getNodes(), ArchDef.Component.ClusteringType.Initial).forEach(n -> rd.addInitialClusteredNode(n));
                             rd.m_totalMapped = arch.getMappedNodeCount(a_g.getNodes());
 
 
@@ -308,11 +306,29 @@ public class ExperimentRunner {
                                 m_listener.OnRunInit(rd, a_g, arch);
                             }
                             long start = java.lang.System.nanoTime();
-                            while (!experiment.runClustering(a_g, fic, arch))
-                                ;  // we always run until we are finished even if we are stopped to avoid partial data sets.
-                            rd.m_time = java.lang.System.nanoTime() - start;
 
-                            arch.getClusteredNodes(a_g.getNodes(), ArchDef.Component.ClusteringType.Automatic).forEach(n -> rd.addAutoClusteredNode(n));
+                            // we always run until we are finished even if we are stopped to avoid partial data sets.
+                            ArrayList<CNode> clusteredNode = new ArrayList<>();
+                            while (!experiment.runClustering(a_g, fic, arch)) {
+
+                                // we now move the clustered nodes from autom/manual to initial
+                                // this reflects an iterative mapping approach.
+                                for (CNode a_n : arch.getMappedNodes(a_g.getNodes())) {
+                                    ArchDef.Component c = arch.getClusteredComponent(a_n);
+                                    if (c != null && c.getClusteringType(a_n) != ArchDef.Component.ClusteringType.Initial) {
+                                        // TODO: this component could be wrong and should maye be corrected
+                                        c.clusterToNode(a_n, ArchDef.Component.ClusteringType.Initial);
+                                        clusteredNode.add(a_n);
+                                    }
+                                }
+                            }
+
+                            // we now need to reset the initial clustering
+                            for (CNode n : clusteredNode) {
+                                arch.getClusteredComponent(n).removeClustering(n);
+                            }
+
+                            rd.m_time = java.lang.System.nanoTime() - start;
 
                             if (m_listener != null) {
                                 m_listener.OnRunCompleted(rd, a_g, arch, experiment);

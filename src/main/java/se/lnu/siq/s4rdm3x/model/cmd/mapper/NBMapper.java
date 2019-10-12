@@ -50,10 +50,9 @@ public class NBMapper extends IRMapperBase {
         return m_addRawArchitectureTrainingData;
     }
 
-    public ArrayList<CNode> m_clusteredElements = new ArrayList<>();
+
 
     public int m_consideredNodes = 0;
-    public int m_automaticallyMappedNodes = 0;
     public int m_autoWrong = 0;
 
     private double m_clusteringThreshold = 0.90;
@@ -100,7 +99,6 @@ public class NBMapper extends IRMapperBase {
 
         ArrayList<CNode> orphans = getOrphanNodes(a_g);
         ArrayList<CNode> initiallyMapped = getInitiallyMappedNodes(a_g);
-        m_clusteredElements.clear();
 
         weka.core.stemmers.Stemmer stemmer = null;
         if (m_doStemm) {
@@ -172,8 +170,7 @@ public class NBMapper extends IRMapperBase {
 
                 if (/*attractions[maxIx] > m_clusteringThreshold && */attractions[maxIx] > attractions[maxIx2] * m_thresholdMultiplier) {
                     m_arch.getComponent(maxIx).clusterToNode(orphanNode, ArchDef.Component.ClusteringType.Automatic);
-                    m_clusteredElements.add(orphanNode);
-                    m_automaticallyMappedNodes++;
+                    addAutoClusteredOrphan(orphanNode);
                     //System.out.println("Clustered to: " + orphanNode.getClusteringComponentName() +" mapped to: " + orphanNode.getMapping());
 
                     if (m_arch.getComponent(orphanNode.getMapping()) != m_arch.getComponent(maxIx)) {

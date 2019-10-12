@@ -315,7 +315,7 @@ class ExperimentRunnerViewThread extends Thread {
 
     public DoExperimentAction doExperiment(ImGuiWrapper a_imgui, DataListener a_newDataListener) {
         DoExperimentAction ret = DoExperimentAction.None;
-        if (a_imgui.imgui().collapsingHeader("Experiment " + m_name + "###Header" + m_id, 0)) {
+        if (a_imgui.imgui().collapsingHeader("Experiment: " + m_name + "###Header" + m_id, 0)) {
             //Vec2 size = new Vec2(a_imgui.imgui().getContentRegionAvailWidth(), a_imgui.getTextLineHeightWithSpacing() * 2 + a_imgui.imgui().getContentRegionAvailWidth() / 3);
 
             if (isRunningExperiment()) {
@@ -324,12 +324,8 @@ class ExperimentRunnerViewThread extends Thread {
 
             m_name = a_imgui.inputTextSingleLine("Name###Name" + m_id, m_name);
 
-
-
             //a_imgui.imgui().beginChild(m_id, size, true, 0);
 
-
-            a_imgui.imgui().separator();
             {
 
                 for (SystemNameFile snf : m_selectedSystem.getSystems()) {
@@ -353,10 +349,11 @@ class ExperimentRunnerViewThread extends Thread {
 
             m_initialSetSize = doRandomDoubleVariable(a_imgui, "Initial Set Size", m_initialSetSize);
 
+            a_imgui.imgui().indent(3);
             if (a_imgui.collapsingHeader("Metrics##" + m_id, 0)) {
 
                 final float boxWidth = a_imgui.imgui().getTextLineHeightWithSpacing() + 5;
-                final float colWidth = a_imgui.calcTextSize("Child Count Lvl 0", false).getX() + 10 + 2 * boxWidth;
+                final float colWidth = a_imgui.calcTextSize("Child Count Lvl 0", false).getX() + 13 + 2 * boxWidth;
 
                 int count = 0;
                 for (MetricPair m : m_selectedMetrics.getMetricPairs()) {
@@ -371,7 +368,7 @@ class ExperimentRunnerViewThread extends Thread {
                             a_imgui.endTooltip();
                         }
                         // for some reason the first column gets a wierd offset
-                        a_imgui.imgui().sameLine((count % 4) * colWidth + boxWidth, (count % 4) == 0 ? 7 : 0);
+                        a_imgui.imgui().sameLine((count % 4) * colWidth + boxWidth, (count % 4) == 0 ? 11 : 0);
                     }
 
                     boolean[] isSelected = {m_selectedMetrics.isSelected(m.m_absMetric)};
@@ -391,21 +388,42 @@ class ExperimentRunnerViewThread extends Thread {
                 if (count % 4 != 0) {
                     a_imgui.imgui().newLine();
                 }
-                a_imgui.imgui().separator();
             }
+            a_imgui.imgui().indent(-3);
 
 
             if (a_imgui.button("Add Mapper##" + m_id, 0)) {
                 m_experiments.add(new MapperView());
             }
-
-            for (MapperView exv : m_experiments) {
-                exv.doExperiment(a_imgui, isRunningExperiment());
+            a_imgui.imgui().sameLine(0);
+            if (a_imgui.button("Delete Mappers##" + m_id, 0)) {
+                m_experiments.add(new MapperView());
             }
-
 
             if (isRunningExperiment()) {
                 a_imgui.popDisableWidgets();
+            }
+
+            class ActionPair {
+                ActionPair(DoExperimentAction a_action, MapperView a_mapper) {
+                    m_action = a_action;
+                    m_mapper = a_mapper;
+                }
+                DoExperimentAction m_action;
+                MapperView m_mapper;
+            }
+            ArrayList<ActionPair> actions = new ArrayList<>();
+            for (MapperView exv : m_experiments) {
+                a_imgui.imgui().indent(3);
+                actions.add(new ActionPair(exv.doExperiment(a_imgui, isRunningExperiment()), exv));
+                a_imgui.imgui().indent(-3);
+            }
+            for (ActionPair ap : actions) {
+                if (ap.m_action == DoExperimentAction.Delete) {
+                    m_experiments.remove(ap.m_mapper);
+                } else if (ap.m_action == DoExperimentAction.Copy) {
+                    m_experiments.add(new MapperView(ap.m_mapper));
+                }
             }
 
 
@@ -435,10 +453,6 @@ class ExperimentRunnerViewThread extends Thread {
             }
 
 
-
-
-
-
                 /*for (ExperimentRunData.BasicRunData exd : m_selectedDataPoints) {
                     a_imgui.text(exd.m_system.getName());
                 }*/
@@ -447,11 +461,6 @@ class ExperimentRunnerViewThread extends Thread {
                     a_imgui.menuItem("test_item", "", false, true);
                     a_imgui.endPopup();
                 }*/
-
-
-            //a_imgui.imgui().endChild();
-            a_imgui.imgui().separator();
-            a_imgui.imgui().separator();
         }
 
         return ret;

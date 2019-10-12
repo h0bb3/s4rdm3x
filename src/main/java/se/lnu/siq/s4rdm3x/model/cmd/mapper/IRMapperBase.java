@@ -11,7 +11,6 @@ import java.util.ArrayList;
 
 public abstract class IRMapperBase extends MapperBase {
 
-    protected ArchDef m_arch;
     private boolean m_doUseCDA;
     private boolean m_doUseNodeText;
     private boolean m_doUseNodeName;
@@ -19,15 +18,13 @@ public abstract class IRMapperBase extends MapperBase {
     private int m_minWordLength = 3;
 
     protected IRMapperBase(ArchDef a_arch, boolean a_doManualMapping, boolean a_doUseCDA, boolean a_doUseNodeText, boolean a_doUseNodeName, boolean a_doUseArchComponentName, int a_minWordLength) {
-        super(a_doManualMapping);
+        super(a_doManualMapping, a_arch);
 
         m_doUseCDA = a_doUseCDA;
         m_doUseNodeText = a_doUseNodeText;
         m_doUseNodeName = a_doUseNodeName;
         m_doUseArchComponentName = a_doUseArchComponentName;
         m_minWordLength = a_minWordLength;
-
-        m_arch = a_arch;
     }
 
     boolean doUseCDA() {
@@ -136,28 +133,6 @@ public abstract class IRMapperBase extends MapperBase {
         return relations;
     }
 
-    protected java.util.ArrayList<CNode> getOrphanNodes(CGraph a_g) {
-
-        java.util.ArrayList<CNode> ret = new ArrayList<>();
-        for (CNode n : a_g.getNodes()) {
-            if (m_arch.getMappedComponent(n) != null && m_arch.getClusteredComponent(n) == null) {
-                ret.add(n);
-            }
-        }
-
-        return ret;
-    }
-
-    protected java.util.ArrayList<CNode> getInitiallyMappedNodes(CGraph a_g) {
-        java.util.ArrayList<CNode> ret = new ArrayList<>();
-        for (CNode n : a_g.getNodes()) {
-            if (m_arch.getMappedComponent(n) != null && m_arch.getClusteredComponent(n) != null && m_arch.getClusteredComponent(n).getClusteringType(n) == ArchDef.Component.ClusteringType.Initial) {
-                ret.add(n);
-            }
-        }
-
-        return ret;
-    }
 
     public String deCamelCase(String a_string, int a_minLength, weka.core.stemmers.Stemmer a_stemmer) {
         String ret = "";

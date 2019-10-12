@@ -13,22 +13,14 @@ public class HuGMe extends MapperBase {
     private double m_violationWeight;   // psi in paper
     //private FanInCache m_fic;
 
-
-
-    protected ArchDef m_arch;
-
-    public ArrayList<CNode> m_clusteredElements;
-
     public int m_consideredNodes = 0;           // all nodes that pass the filter
-    public int m_automaticallyMappedNodes = 0;
-
 
     public int m_autoWrong = 0;
     public int m_unmappedNodesFromStart = 0;
     public int m_mappedNodesFromStart = 0;
 
     public HuGMe(double a_filterThreshold, double a_violationWeight, boolean a_doManualMapping, ArchDef a_arch, FanInCache a_fic) {
-        super(a_doManualMapping);
+        super(a_doManualMapping, a_arch);
         m_violationWeight = a_violationWeight;
         m_filterThreshold = a_filterThreshold;
         m_arch = a_arch;
@@ -36,24 +28,8 @@ public class HuGMe extends MapperBase {
     }
 
 
-    // in this version all a considered node has a mapping but not a clustering as we are using this in experiments (also needed for "automatic" manual mapping)
-    protected java.util.ArrayList<CNode> getOrphanNodes(CGraph a_g) {
-
-        java.util.ArrayList<CNode> ret = new ArrayList<>();
-        for (CNode n : a_g.getNodes()) {
-            if (m_arch.getMappedComponent(n) != null && m_arch.getClusteredComponent(n) == null) {
-                ret.add(n);
-            }
-        }
-
-        return ret;
-    }
-
-
     public void run(CGraph a_g) {
         final String [] originalMappingTags = m_arch.getComponentNames();
-
-        m_clusteredElements = new ArrayList<>();
 
         java.util.ArrayList<CNode> unmapped = getOrphanNodes(a_g);
 
@@ -64,7 +40,7 @@ public class HuGMe extends MapperBase {
             clusters.add(c);
             ArchDef.Component targetComponent = m_arch.getComponent(i);
 
-            for(CNode n : a_g.getNodes()) {
+            for(CNode n : getInitiallyMappedNodes(a_g)) {
                 if (m_arch.getClusteredComponent(n) == targetComponent) {
                     c.add(n);
                 }
@@ -133,8 +109,7 @@ public class HuGMe extends MapperBase {
             ArchDef.Component mappedC = m_arch.getMappedComponent(n);
 
             if (autoClusteredTo != null) {
-                m_clusteredElements.add(n);
-                m_automaticallyMappedNodes++;
+                addAutoClusteredOrphan(n);
                 if (autoClusteredTo != mappedC) {
                     m_autoWrong++;
                 }

@@ -10,7 +10,6 @@ import java.util.*;
 import java.util.Vector;
 
 public class LSIAttractMapper extends IRMapperBase {
-    public int m_automaticallyMappedNodes = 0;
     public int m_autoWrong = 0;
 
     public static class WordMatrix {
@@ -244,7 +243,7 @@ public class LSIAttractMapper extends IRMapperBase {
 
             ArchDef.Component autoClusteredTo = HuGMe.doAutoMapping(orphanNode, m_arch);
             if (autoClusteredTo != null) {
-                m_automaticallyMappedNodes++;
+                addAutoClusteredOrphan(orphanNode);
                 if (autoClusteredTo != m_arch.getMappedComponent(orphanNode)) {
                     m_autoWrong++;
                 }
@@ -338,7 +337,7 @@ public class LSIAttractMapper extends IRMapperBase {
 
             ArchDef.Component autoClusteredTo = HuGMe.doAutoMapping(orphanNode, m_arch);
             if (autoClusteredTo != null) {
-                m_automaticallyMappedNodes++;
+                addAutoClusteredOrphan(orphanNode);
                 if (autoClusteredTo != m_arch.getMappedComponent(orphanNode)) {
                     m_autoWrong++;
                 }

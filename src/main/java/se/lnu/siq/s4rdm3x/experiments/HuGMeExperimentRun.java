@@ -44,7 +44,9 @@ public class HuGMeExperimentRun extends ExperimentRun {
         m_exData.m_totalAutoWrong  += c.m_autoWrong;
         m_exData.m_totalFailedClusterings  += c.m_failedMappings;
 
-        if (c.m_automaticallyMappedNodes + c.m_manuallyMappedNodes == 0) {
+        c.getAutoClusteredNodes().forEach(n -> m_exData.addAutoClusteredNode(n));
+
+        if (c.getAutoClusteredOrphanCount() + c.m_manuallyMappedNodes == 0) {
             return true;
         }
 
