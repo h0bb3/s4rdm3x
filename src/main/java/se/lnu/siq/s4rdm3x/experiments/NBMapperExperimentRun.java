@@ -33,7 +33,7 @@ public class NBMapperExperimentRun extends IRExperimentRunBase {
     }
 
     @Override
-    public boolean runClustering(CGraph a_g, FanInCache fic, ArchDef arch) {
+    public boolean runClustering(CGraph a_g, ArchDef arch) {
         NBMapper c = new NBMapper(arch, doUseManualMapping(), m_exData.m_doUseCDA, m_exData.m_doUseNodeText, m_exData.m_doUseNodeName, m_exData.m_doUseArchComponentName, m_exData.m_minWordSize, null);
         c.setClusteringThreshold(m_exData.m_threshold);
         c.doStemming(m_exData.m_doStemming);

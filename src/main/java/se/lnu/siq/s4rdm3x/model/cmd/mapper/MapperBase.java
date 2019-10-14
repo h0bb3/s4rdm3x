@@ -53,7 +53,8 @@ public class MapperBase {
     protected java.util.ArrayList<CNode> getInitiallyMappedNodes(CGraph a_g) {
         java.util.ArrayList<CNode> ret = new ArrayList<>();
         for (CNode n : m_arch.getMappedNodes(a_g.getNodes())) {
-            if (m_arch.getClusteredComponent(n) != null && m_arch.getClusteredComponent(n).getClusteringType(n) == ArchDef.Component.ClusteringType.Initial) {
+            if (m_arch.getClusteredComponent(n) != null) {
+            //if (m_arch.getClusteredComponent(n) != null && m_arch.getClusteredComponent(n).getClusteringType(n) == ArchDef.Component.ClusteringType.Initial) {
                 ret.add(n);
             }
         }

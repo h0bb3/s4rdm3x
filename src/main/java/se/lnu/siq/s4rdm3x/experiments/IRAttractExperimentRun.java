@@ -27,7 +27,7 @@ public class IRAttractExperimentRun extends IRExperimentRunBase {
     }
 
     @Override
-    public boolean runClustering(CGraph a_g, FanInCache fic, ArchDef a_arch) {
+    public boolean runClustering(CGraph a_g, ArchDef a_arch) {
 
         IRAttractMapper iram = new IRAttractMapper(a_arch, doUseManualMapping(), m_exData.m_doUseCDA, m_exData.m_doUseNodeText, m_exData.m_doUseNodeName, m_exData.m_doUseArchComponentName, m_exData.m_minWordSize);
 

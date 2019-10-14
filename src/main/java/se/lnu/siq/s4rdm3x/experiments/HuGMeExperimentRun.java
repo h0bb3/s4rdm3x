@@ -34,9 +34,9 @@ public class HuGMeExperimentRun extends ExperimentRun {
 
 
     @Override
-    public boolean runClustering(CGraph a_g, FanInCache fic, ArchDef arch) {
+    public boolean runClustering(CGraph a_g, ArchDef arch) {
 
-        HuGMe c = new HuGMe(m_exData.m_omega, m_exData.m_phi, doUseManualMapping(), arch, fic);
+        HuGMe c = new HuGMe(m_exData.m_omega, m_exData.m_phi, doUseManualMapping(), arch);
 
         c.run(a_g);
 

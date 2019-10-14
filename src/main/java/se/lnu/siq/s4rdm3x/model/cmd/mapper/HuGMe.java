@@ -19,12 +19,11 @@ public class HuGMe extends MapperBase {
     public int m_unmappedNodesFromStart = 0;
     public int m_mappedNodesFromStart = 0;
 
-    public HuGMe(double a_filterThreshold, double a_violationWeight, boolean a_doManualMapping, ArchDef a_arch, FanInCache a_fic) {
+    public HuGMe(double a_filterThreshold, double a_violationWeight, boolean a_doManualMapping, ArchDef a_arch) {
         super(a_doManualMapping, a_arch);
         m_violationWeight = a_violationWeight;
         m_filterThreshold = a_filterThreshold;
         m_arch = a_arch;
-       // m_fic = a_fic;
     }
 
 

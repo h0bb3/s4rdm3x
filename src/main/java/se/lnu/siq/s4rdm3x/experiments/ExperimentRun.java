@@ -21,7 +21,7 @@ public abstract class ExperimentRun {
 
     public abstract ExperimentRunData.BasicRunData createNewRunData(Random m_rand);
 
-    public abstract boolean runClustering(CGraph a_g, FanInCache fic, ArchDef arch);
+    public abstract boolean runClustering(CGraph a_g, ArchDef arch);
 
     public String getName() {
         return m_name;
