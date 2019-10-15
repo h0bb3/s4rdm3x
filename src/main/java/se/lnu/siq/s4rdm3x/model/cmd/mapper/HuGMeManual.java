@@ -9,7 +9,7 @@ public class HuGMeManual extends HuGMe {
 
 
     public HuGMeManual(double a_filterThreshold, double a_violationWeight, ArchDef a_arch) {
-        super(a_filterThreshold, a_violationWeight, false, a_arch, null);
+        super(a_filterThreshold, a_violationWeight, false, a_arch);
     }
 
 

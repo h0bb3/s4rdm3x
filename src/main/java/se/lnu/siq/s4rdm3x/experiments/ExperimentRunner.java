@@ -216,6 +216,14 @@ public class ExperimentRunner {
         m_useInitialMapping = a_doUseInitialMapping;
     }
 
+    public ExperimentRunner(ExperimentRunner a_toCopy) {
+        a_toCopy.m_suas.forEach(s -> m_suas.add(s));
+        a_toCopy.m_metrics.forEach(m -> m_metrics.add(m));
+        a_toCopy.m_experiments.forEach(e -> m_experiments.add(e.clone()));
+        m_initialSetSize = new RandomDoubleVariable(a_toCopy.m_initialSetSize);
+        m_useInitialMapping = a_toCopy.m_useInitialMapping;
+    }
+
     public interface RunListener {
         public ExperimentRunData.BasicRunData OnRunInit(ExperimentRunData.BasicRunData a_rd, CGraph a_g, ArchDef a_arch);
         public void OnRunCompleted(ExperimentRunData.BasicRunData a_rd, CGraph a_g, ArchDef a_arch, ExperimentRun a_source);

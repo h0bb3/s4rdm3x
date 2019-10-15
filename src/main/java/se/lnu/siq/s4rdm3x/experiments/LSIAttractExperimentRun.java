@@ -1,11 +1,8 @@
 package se.lnu.siq.s4rdm3x.experiments;
 
-import se.lnu.siq.s4rdm3x.experiments.metric.Metric;
-import se.lnu.siq.s4rdm3x.experiments.system.System;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.LSIAttractMapper;
-import se.lnu.siq.s4rdm3x.model.cmd.util.FanInCache;
 
 import java.util.Random;
 
@@ -18,7 +15,7 @@ public class LSIAttractExperimentRun extends IRExperimentRunBase {
 
 
     @Override
-    public ExperimentRun clone() {
+    public ExperimentRun subClone() {
         return new LSIAttractExperimentRun(doUseManualMapping(), getData());
     }
 

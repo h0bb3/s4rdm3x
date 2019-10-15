@@ -15,7 +15,7 @@ public class MapperView {
 
     // nbmapper experiment parameters
     ExperimentRunner.RandomBoolVariable m_doWordCount = new ExperimentRunner.RandomBoolVariable();
-    ExperimentRunner.RandomDoubleVariable m_threshold = new ExperimentRunner.RandomDoubleVariable(0.9, 0);
+    ExperimentRunner.RandomDoubleVariable m_threshold = new ExperimentRunner.RandomDoubleVariable(2.0, 0);
 
     // hugme experiment parameters
     ExperimentRunner.RandomDoubleVariable m_omega = new ExperimentRunner.RandomDoubleVariable(0.5, 0.5);
@@ -126,7 +126,7 @@ public class MapperView {
 
                     if (m_experimentIx == g_nbmapper_ex) {
                         m_doWordCount = doRandomBoolVariable(a_imgui, "Use Word Counts", m_doWordCount);
-                        m_threshold = doRandomDoubleVariable(a_imgui, "Threshold", m_threshold);
+                        m_threshold = doRandomDoubleVariable(a_imgui, "Threshold", m_threshold, 1, 25);
                     }
                 } else if (m_experimentIx == g_hugmemapper_ex) {
                     m_omega = doRandomDoubleVariable(a_imgui, "Omega Threshold", m_omega);
@@ -177,6 +177,17 @@ public class MapperView {
         }
 
         return a_var;
+    }
+
+    private ExperimentRunner.RandomDoubleVariable doRandomDoubleVariable(ImGuiWrapper a_imgui, String a_label, ExperimentRunner.RandomDoubleVariable a_threshold, float a_min, float a_max) {
+        Float[] minArray = new Float[1]; minArray[0] = (float)a_threshold.getMin();
+        Float[] maxArray = new Float[1]; maxArray[0] = (float)a_threshold.getMax();
+
+        if (a_imgui.imgui().dragFloatRange2(a_label+"##"+m_id, new JavaProperty<>(minArray), new JavaProperty<>(maxArray), 0.01f, a_min, a_max, "%.2f", "%.2f", 1)) {
+            double scale = (maxArray[0] - minArray[0]) / 2.0;
+            a_threshold = new ExperimentRunner.RandomDoubleVariable(minArray[0] + scale, scale);
+        }
+        return a_threshold;
     }
 
 

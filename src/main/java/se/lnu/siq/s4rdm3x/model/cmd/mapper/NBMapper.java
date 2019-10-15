@@ -55,8 +55,7 @@ public class NBMapper extends IRMapperBase {
     public int m_consideredNodes = 0;
     public int m_autoWrong = 0;
 
-    private double m_clusteringThreshold = 0.90;
-    private double m_thresholdMultiplier = 3.0;
+    private double m_clusteringThreshold = 2.0;
 
     private boolean m_doStemm = false;
     private Filter m_filter = new StringToWordVector();
@@ -76,8 +75,11 @@ public class NBMapper extends IRMapperBase {
         ((StringToWordVector) m_filter).setIDFTransform(false);
     }
 
-    public void setClusteringThreshold(double a_probability) {
-        m_clusteringThreshold = a_probability;
+    public void setClusteringThreshold(double a_thresholdMultiplier) {
+        m_clusteringThreshold = a_thresholdMultiplier;
+        if (m_clusteringThreshold < 1) {
+            m_clusteringThreshold = 1;
+        }
     }
 
     public double getClusteringThreshold() {
@@ -168,7 +170,7 @@ public class NBMapper extends IRMapperBase {
                 int maxIx2 = maxes[1];
 
 
-                if (/*attractions[maxIx] > m_clusteringThreshold && */attractions[maxIx] > attractions[maxIx2] * m_thresholdMultiplier) {
+                if (attractions[maxIx] > attractions[maxIx2] * m_clusteringThreshold) {
                     m_arch.getComponent(maxIx).clusterToNode(orphanNode, ArchDef.Component.ClusteringType.Automatic);
                     addAutoClusteredOrphan(orphanNode);
                     //System.out.println("Clustered to: " + orphanNode.getClusteringComponentName() +" mapped to: " + orphanNode.getMapping());

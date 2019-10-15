@@ -30,4 +30,15 @@ public abstract class ExperimentRun {
     public void setName(String a_name) {
         m_name = a_name;
     }
+
+    public ExperimentRun clone() {
+        ExperimentRun clone = subClone();
+
+        clone.setName(getName());
+        clone.m_doUseManualMapping = m_doUseManualMapping;
+
+        return clone;
+    }
+
+    public abstract ExperimentRun subClone();
 }

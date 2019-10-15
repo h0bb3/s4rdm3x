@@ -407,8 +407,9 @@ public class ExperimentsView implements ExperimentRunnerViewThread.DataListener 
                 a_imgui.text("Initial:\t" + exd.m_data.getInitialClusteringNodeCount());
                 a_imgui.text("A. Clustered:\t" + exd.m_data.getAutoClusteredNodeCount());
                 a_imgui.text("A. Failed:\t\t" + exd.m_data.m_totalAutoWrong);
-                a_imgui.text("M. Clustered:\t" + exd.m_data.m_totalManuallyClustered);
-                a_imgui.text("M. Failed:\t\t" + exd.m_data.m_totalFailedClusterings);
+                a_imgui.text("Iterations:\t\t" + exd.m_data.m_iterations);
+//                a_imgui.text("M. Clustered:\t" + exd.m_data.m_totalManuallyClustered);
+//                a_imgui.text("M. Failed:\t\t" + exd.m_data.m_totalFailedClusterings);
                 a_imgui.endTooltip();
             }
 

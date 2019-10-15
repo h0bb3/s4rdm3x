@@ -20,7 +20,7 @@ public class HuGMeExperimentRun extends ExperimentRun {
     }
 
     @Override
-    public ExperimentRun clone() {
+    public ExperimentRun subClone() {
         return new HuGMeExperimentRun(doUseManualMapping(), m_omega, m_phi);
     }
 

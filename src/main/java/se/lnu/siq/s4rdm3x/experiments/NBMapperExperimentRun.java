@@ -51,11 +51,11 @@ public class NBMapperExperimentRun extends IRExperimentRunBase {
         }
 
         m_exData.m_iterations++;
-        return true;
+        return false;
     }
 
     @Override
-    public ExperimentRun clone() {
+    public ExperimentRun subClone() {
         return new NBMapperExperimentRun(doUseManualMapping(), getData(), m_doWordCount, m_threshold);
     }
 

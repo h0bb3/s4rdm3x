@@ -75,7 +75,7 @@ public class Main {
         for(int i = 0; i < a_threadCount; i++) {
             final int ix = i;
 
-            ExThread r = new ExThread(a_exp.clone(), a_file, ix, a_doSaveMappings);
+            ExThread r = new ExThread(new ExperimentRunner(a_exp), a_file, ix, a_doSaveMappings);
             ret.add(r);
             Thread t = new Thread(r);
             t.start();
@@ -136,7 +136,7 @@ public class Main {
         ArrayList<ExperimentRunner> expRunners;
 
         try {
-            expRunners = exp.loadExperiments(experiment);
+            expRunners = exp.loadExperimentRunners(experiment, null);
 
             int exCount = 0;
 

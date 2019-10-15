@@ -1,8 +1,5 @@
 import se.lnu.siq.metrics.CSVRow;
-import se.lnu.siq.s4rdm3x.experiments.ExperimentRunner;
-import se.lnu.siq.s4rdm3x.experiments.HuGMeExperimentRun;
-import se.lnu.siq.s4rdm3x.experiments.NBMapperExperimentRun;
-import se.lnu.siq.s4rdm3x.experiments.RunFileSaver;
+import se.lnu.siq.s4rdm3x.experiments.*;
 import se.lnu.siq.s4rdm3x.experiments.metric.*;
 import se.lnu.siq.s4rdm3x.experiments.metric.aggregated.*;
 import se.lnu.siq.s4rdm3x.experiments.system.FileBased;
@@ -179,11 +176,18 @@ public class OriginalRunner {
             java.lang.System.out.print("" + m_ix + ", ");
             CGraph graph = new CGraph();
             m_fs = new RunFileSaver(m_sua.getName(), m_metric.getName(), m_doSaveMappings);
+            ArrayList<ExperimentRun> experiments = new ArrayList<>();
+            ArrayList<Metric> metrics = new ArrayList<>();
+            metrics.add(m_metric);
+            ArrayList<System> suas = new ArrayList<>();
+            suas.add(m_sua);
             if (m_et == ExperimentType.HuGMe) {
-                m_exr = new HuGMeExperimentRun(m_sua, m_metric, false, new ExperimentRunner.RandomDoubleVariable(0.1, 0.1), new ExperimentRunner.RandomDoubleVariable(0.5, 0.5), new ExperimentRunner.RandomDoubleVariable(0.5, 0.5));
+
+                experiments.add(new HuGMeExperimentRun(false, new ExperimentRunner.RandomDoubleVariable(0.5, 0.5), new ExperimentRunner.RandomDoubleVariable(0.5, 0.5)));
             } else {
-                m_exr = new NBMapperExperimentRun(m_sua, m_metric, new ExperimentRunner.RandomDoubleVariable(0.1, 0.1));
+                experiments.add(new NBMapperExperimentRun(false, new IRExperimentRunBase.Data(), new ExperimentRunner.RandomBoolVariable(false), new ExperimentRunner.RandomDoubleVariable(2.0)));
             }
+            m_exr = new ExperimentRunner(suas, metrics, experiments, false, new ExperimentRunner.RandomDoubleVariable(0.1, 0.1) );
             m_exr.setRunListener(m_fs);
             m_exr.run(graph);
         }

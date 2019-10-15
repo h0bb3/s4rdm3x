@@ -14,10 +14,10 @@ public class RundDataCSVFileSaver {
         ArrayList<String> row = new ArrayList<>();
         row.add("date");
         row.add("time");
-        row.add("localId");
+        row.add("mappingId");
         row.add("initialClustered");
         row.add("totalMapped");
-        row.add("initialDistribution");
+        //row.add("initialDistribution");
         row.add("iterations");
         row.add("totalManuallyClustered");
         row.add("totalAutoClustered");
@@ -32,9 +32,11 @@ public class RundDataCSVFileSaver {
         row.add("omega");
         row.add("phi");
 
+        // parameters for all IR mappers
+        row.add("stemming");
+
         // parameters for NBMapper
         row.add("threshold");
-        row.add("stemming");
         row.add("wordcount");
 
 
@@ -54,7 +56,7 @@ public class RundDataCSVFileSaver {
         row.add("" + a_rd.m_id);
         row.add("" + a_rd.getInitialClusteringNodeCount());
         row.add("" + a_rd.m_totalMapped);
-        row.add(a_rd.m_initialDistribution);
+        //row.add(a_rd.m_initialDistribution);
         row.add("" + a_rd.m_iterations);
         row.add("" + a_rd.m_totalManuallyClustered);
         row.add("" + a_rd.getAutoClusteredNodeCount());

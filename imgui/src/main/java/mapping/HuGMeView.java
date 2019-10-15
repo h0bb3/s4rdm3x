@@ -79,7 +79,7 @@ public class HuGMeView extends MapperBaseView {
         tree.doTree(a_imgui.imgui(), "doHugMeParamsViewMappedEntities");
 
         if (a_imgui.button("HuGMe Plz", 150)) {
-            m_hugme = new HuGMe((double)m_omega[0], (double)m_phi[0], false, a_arch, null);
+            m_hugme = new HuGMe((double)m_omega[0], (double)m_phi[0], false, a_arch);
             CGraph g = createGraph();
 
             m_hugme.run(g);

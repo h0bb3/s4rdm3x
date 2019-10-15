@@ -15,7 +15,7 @@ public class IRAttractExperimentRun extends IRExperimentRunBase {
     }
 
     @Override
-    public ExperimentRun clone() {
+    public ExperimentRun subClone() {
         return new IRAttractExperimentRun(doUseManualMapping(), getData());
     }
 

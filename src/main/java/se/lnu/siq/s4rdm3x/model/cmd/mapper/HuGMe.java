@@ -11,7 +11,6 @@ public class HuGMe extends MapperBase {
 
     private double m_filterThreshold;   // omega in paper
     private double m_violationWeight;   // psi in paper
-    //private FanInCache m_fic;
 
     public int m_consideredNodes = 0;           // all nodes that pass the filter
 
