@@ -34,6 +34,11 @@ public class RundDataCSVFileSaver {
 
         // parameters for all IR mappers
         row.add("stemming");
+        row.add("cda");
+        row.add("nodeText");
+        row.add("nodeName");
+        row.add("archName");
+        row.add("minWordSize");
 
         // parameters for NBMapper
         row.add("threshold");
@@ -69,7 +74,7 @@ public class RundDataCSVFileSaver {
         if (a_rd instanceof ExperimentRunData.HuGMEData){
             ExperimentRunData.HuGMEData rd = (ExperimentRunData.HuGMEData)a_rd;
 
-            row.add("HuGMe");
+            row.add("HuGMe:" + rd.m_mapperName);
             row.add("" + rd.m_omega);
             row.add("" + rd.m_phi);
         } else {
@@ -78,15 +83,32 @@ public class RundDataCSVFileSaver {
 
         if (a_rd instanceof ExperimentRunData.NBMapperData){
             ExperimentRunData.NBMapperData rd = (ExperimentRunData.NBMapperData)a_rd;
-            row.add("NaiveBayes");
+            row.add("NaiveBayes:" + rd.m_mapperName);
+            addIRMapperData(row, rd);
             row.add("" + rd.m_threshold);
-            row.add("" + (rd.m_doStemming ? "Y" : "N"));
             row.add("" + (rd.m_doWordCount ? "Y" : "N"));
+        } else if (a_rd instanceof ExperimentRunData.IRMapperData) {
+            ExperimentRunData.IRMapperData rd = (ExperimentRunData.IRMapperData)a_rd;
+            row.add("LSI_IR:" + rd.m_mapperName);
+            addIRMapperData(row, rd);
+
+            row.add("");row.add("");
         } else {
-            row.add("");row.add("");row.add("");
+            row.add("");row.add("");row.add("");row.add("");row.add("");row.add("");    // ir data
+            row.add("");row.add(""); // nb data
         }
 
         writeRow(a_filePath, row);
+    }
+
+    private void addIRMapperData(ArrayList<String> a_row, ExperimentRunData.IRMapperData a_ird) {
+        a_row.add("" + (a_ird.m_doStemming ? "Y" : "N"));
+        a_row.add("" + (a_ird.m_doUseCDA ? "Y" : "N"));
+        a_row.add("" + (a_ird.m_doUseNodeText ? "Y" : "N"));
+        a_row.add("" + (a_ird.m_doUseNodeName ? "Y" : "N"));
+        a_row.add("" + (a_ird.m_doUseArchComponentName ? "Y" : "N"));
+        a_row.add("" + (a_ird.m_minWordSize));
+
     }
 
     private void writeRow(Path a_filePath, Iterable<String> m_strings) throws IOException {

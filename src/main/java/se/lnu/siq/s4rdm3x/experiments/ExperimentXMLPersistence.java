@@ -105,6 +105,7 @@ public class ExperimentXMLPersistence {
     private ExperimentRunner elementToRunner(Element a_runner, ListenerB a_listener) throws Exception {
         ExperimentRunner.RandomDoubleVariable initialSetSize = elementToRandomDouble(a_runner, "initialSetSize");
         boolean useInitialMapping = getBoolAttribute(a_runner, "useInitialMapping");
+        boolean initialSetPerComponent = getBoolAttribute(a_runner, "initialSetPerComponent");
         ArrayList<System> suas = new ArrayList<>();
         ArrayList<Metric> metrics = new ArrayList<>();
         ArrayList<ExperimentRun> experiments = new ArrayList<>();
@@ -178,7 +179,7 @@ public class ExperimentXMLPersistence {
 
 
 
-        ExperimentRunner ret = new ExperimentRunner(suas, metrics, experiments, useInitialMapping, initialSetSize);
+        ExperimentRunner ret = new ExperimentRunner(suas, metrics, experiments, useInitialMapping, initialSetSize, initialSetPerComponent);
         ret.setName(a_runner.getAttribute("name"));
         for (Pair p : createdExperimentsForCallback) {
             a_listener.onLoadedExperiment(p.m_element, ret, p.m_exp);
@@ -263,6 +264,7 @@ public class ExperimentXMLPersistence {
         runnerNode.appendChild(randomDoubleToElement(a_doc, a_runner.getInitialSetSize(), "initialSetSize"));
 
         setBoolAttribute(runnerNode, "useInitialMapping", a_runner.doUseInitialMapping());
+        setBoolAttribute(runnerNode, "initialSetPerComponent", a_runner.initialSetPerComponent());
 
         Element metricsNode = a_doc.createElement("metrics");
         runnerNode.appendChild(metricsNode);

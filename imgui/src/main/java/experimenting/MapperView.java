@@ -82,6 +82,8 @@ public class MapperView {
         if (m_name == null) {
             m_name = "";
         }
+
+        m_useManualmapping = a_exr.doUseManualMapping();
     }
 
     public ExperimentRunnerViewThread.DoExperimentAction doExperiment(ImGuiWrapper a_imgui, boolean a_isRunning) {

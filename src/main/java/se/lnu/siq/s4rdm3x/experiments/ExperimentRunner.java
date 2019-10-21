@@ -21,9 +21,13 @@ public class ExperimentRunner {
     private ArrayList<Metric> m_metrics = new ArrayList<>();
     private State m_state;  // this is the desired state
     private State m_currentState;   // this is the actual state
+
     private RandomDoubleVariable m_initialSetSize;
+    private boolean m_initialSetPerComponent = false;
+
     private String m_name;
     private boolean m_useInitialMapping;
+
 
     public String getName() {
         return m_name;
@@ -49,6 +53,10 @@ public class ExperimentRunner {
 
     public Iterable<? extends ExperimentRun> getExperiments() {
         return m_experiments;
+    }
+
+    public boolean initialSetPerComponent() {
+        return m_initialSetPerComponent;
     }
 
 
@@ -208,12 +216,13 @@ public class ExperimentRunner {
         return m_currentState;
     }
 
-    public ExperimentRunner(Iterable<System> a_suas, Iterable<Metric> a_metrics, Iterable<ExperimentRun> a_experiments, boolean a_doUseInitialMapping, RandomDoubleVariable a_initialSetSize) {
+    public ExperimentRunner(Iterable<System> a_suas, Iterable<Metric> a_metrics, Iterable<ExperimentRun> a_experiments, boolean a_doUseInitialMapping, RandomDoubleVariable a_initialSetSize, boolean a_initialSetPerComponent) {
         a_suas.forEach(s -> m_suas.add(s));
         a_metrics.forEach(m -> m_metrics.add(m));
         a_experiments.forEach(e -> m_experiments.add(e));
         m_initialSetSize = a_initialSetSize;
         m_useInitialMapping = a_doUseInitialMapping;
+        m_initialSetPerComponent = a_initialSetPerComponent;
     }
 
     public ExperimentRunner(ExperimentRunner a_toCopy) {
@@ -222,6 +231,7 @@ public class ExperimentRunner {
         a_toCopy.m_experiments.forEach(e -> m_experiments.add(e.clone()));
         m_initialSetSize = new RandomDoubleVariable(a_toCopy.m_initialSetSize);
         m_useInitialMapping = a_toCopy.m_useInitialMapping;
+        m_initialSetPerComponent = a_toCopy.m_initialSetPerComponent;
     }
 
     public interface RunListener {
@@ -278,21 +288,27 @@ public class ExperimentRunner {
                             sua.setInitialMapping(a_g, arch);
                         }
                         arch.cleanNodeClusters(a_g.getNodes(), false);
-                        setGenerator.assignInitialClusters(a_g, arch, initialClustering.generate(m_rand), metric, m_rand);
+                        if (m_initialSetPerComponent) {
+                            setGenerator.assignInitialClustersPerComponent(a_g, arch, initialClustering.generate(m_rand), metric, m_rand);
+                        } else {
+                            setGenerator.assignInitialClusters(a_g, arch, initialClustering.generate(m_rand), metric, m_rand);
+                        }
+
 
                         for (ExperimentRun experiment : m_experiments) {
 
                             final ExperimentRunData.BasicRunData rd = experiment.createNewRunData(m_rand);
                             rd.m_metric = metric;
                             rd.m_system = sua;
-                            rd.m_initialClusteringPercent = initialClustering.getValue();
                             rd.m_totalMapped = arch.getMappedNodeCount(a_g.getNodes());
+
 
                             rd.m_date = sdfDate.format(new Date());
+                            rd.m_mapperName = experiment.getName();
 
                             arch.getClusteredNodes(a_g.getNodes(), ArchDef.Component.ClusteringType.Initial).forEach(n -> rd.addInitialClusteredNode(n));
-                            rd.m_totalMapped = arch.getMappedNodeCount(a_g.getNodes());
 
+                            rd.m_initialClusteringPercent = (double)rd.getInitialClusteringNodeCount() / (double)rd.m_totalMapped;
 
                             //rd.m_totalMapped = 0;
                             rd.m_totalManuallyClustered = 0;
@@ -349,27 +365,5 @@ public class ExperimentRunner {
         m_currentState = State.Idle;
     }
 
-        /*private void assignInitialClustersPerComponent(CGraph a_g, ArchDef a_arch, double a_percentage, Metric a_metric) {
-        // OBS this assigns a number of classes per component, this is not actually that realistic
-        for (ArchDef.Component component : a_arch.getComponents()) {
 
-            ArrayList<CNode> nodes = new ArrayList<>();
-            for (CNode n : a_g.getNodes()) {
-                if (component.isMappedTo(n)) {
-                    nodes.add(n);
-                }
-            }
-
-            int nodeCount = (int) ((double) nodes.size() * a_percentage);
-            if (nodeCount <= 0) {
-                nodeCount = 1;
-            }
-
-            ArrayList<CNode> workingSet = getWorkingSet(nodes, nodeCount, a_metric);
-
-            for (CNode n : workingSet) {
-                component.clusterToNode(n, ArchDef.Component.ClusteringType.Initial);
-            }
-        }
-    }*/
 }

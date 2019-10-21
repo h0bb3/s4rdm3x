@@ -162,6 +162,18 @@ public class NBMapper extends IRMapperBase {
                 orphanNode.setAttractions(attraction);
             }
 
+            class MappingNode {
+                CNode m_node;
+                ArchDef.Component m_clusterTo;
+                double m_attractionDiff;
+
+                MappingNode(CNode a_node, ArchDef.Component a_clusterTo, double a_attractionDiff) {
+                    m_node = a_node;
+                    m_clusterTo = a_clusterTo;
+                    m_attractionDiff = a_attractionDiff;
+                }
+            }
+            ArrayList<MappingNode> mappingCandidates = new ArrayList<>();
             for (CNode orphanNode : orphans) {
                 // if the attraction is above some threshold then we cluster
                 double [] attractions = orphanNode.getAttractions();
@@ -171,14 +183,15 @@ public class NBMapper extends IRMapperBase {
 
 
                 if (attractions[maxIx] > attractions[maxIx2] * m_clusteringThreshold) {
-                    m_arch.getComponent(maxIx).clusterToNode(orphanNode, ArchDef.Component.ClusteringType.Automatic);
-                    addAutoClusteredOrphan(orphanNode);
+                    mappingCandidates.add(new MappingNode(orphanNode, m_arch.getComponent(maxIx), attractions[maxIx]- attractions[maxIx2]));
+                    //m_arch.getComponent(maxIx).clusterToNode(orphanNode, ArchDef.Component.ClusteringType.Automatic);
+                    //addAutoClusteredOrphan(orphanNode);
                     //System.out.println("Clustered to: " + orphanNode.getClusteringComponentName() +" mapped to: " + orphanNode.getMapping());
 
-                    if (m_arch.getComponent(orphanNode.getMapping()) != m_arch.getComponent(maxIx)) {
-                        m_autoWrong++;
-                    }
-                } else if (doManualMapping()) {
+                    //if (m_arch.getComponent(orphanNode.getMapping()) != m_arch.getComponent(maxIx)) {
+                    //    m_autoWrong++;
+                    //}
+                } else if (false && doManualMapping()) {
                     manualMapping(orphanNode, m_arch);
                 }
 
@@ -195,6 +208,34 @@ public class NBMapper extends IRMapperBase {
                         m_failedMappings++;
                     }
                 }*/
+            }
+
+            mappingCandidates.sort((n1, n2) -> {return Double.compare(n2.m_attractionDiff, n1.m_attractionDiff);});
+
+            int maxMappings;
+            if (doManualMapping()) {
+                maxMappings = (int)(0.1 * mappingCandidates.size());
+                if (maxMappings > 10) {
+                    maxMappings = 10;
+                } else if (maxMappings <= 0) {
+                    maxMappings = 1;
+                }
+            } else {
+                maxMappings = mappingCandidates.size();
+            }
+            for (MappingNode n : mappingCandidates) {
+                if (maxMappings <= 0) {
+                    break;
+                } else {
+                    maxMappings--;
+                    n.m_clusterTo.clusterToNode(n.m_node, ArchDef.Component.ClusteringType.Automatic);
+                    addAutoClusteredOrphan(n.m_node);
+                    //System.out.println("Clustered to: " + orphanNode.getClusteringComponentName() +" mapped to: " + orphanNode.getMapping());
+
+                    if (m_arch.getComponent(n.m_node.getMapping()) != n.m_clusterTo) {
+                        m_autoWrong++;
+                    }
+                }
             }
 
             //nbClassifier.classifyInstance();

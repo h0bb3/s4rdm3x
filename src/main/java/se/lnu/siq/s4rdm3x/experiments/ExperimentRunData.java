@@ -20,6 +20,7 @@ public class ExperimentRunData {
         public int m_totalFailedClusterings;
 
         public String m_date;
+        public String m_mapperName;
         public int m_totalMapped;
         public String m_initialDistribution;
         private ArrayList<CNode> m_initialClustering = new ArrayList<>();

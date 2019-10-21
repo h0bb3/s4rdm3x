@@ -32,11 +32,13 @@ class ExperimentRunnerViewThread extends Thread {
 
     // generic experiment parameters
     ExperimentRunner.RandomDoubleVariable m_initialSetSize = new ExperimentRunner.RandomDoubleVariable(0.1, 0.1);
+    private boolean m_initialSetPerComponent = false;
     SystemSelection m_selectedSystem = new SystemSelection();
     boolean m_useIntialMapping = false;
 
     static int g_id = 0;
     private ArrayList<MapperView> m_experiments = new ArrayList<>();
+
 
     public ExperimentRunnerViewThread(ExperimentRunnerViewThread a_toBeCopied) {
         m_id = "ExThread_" + g_id; g_id++;
@@ -54,6 +56,7 @@ class ExperimentRunnerViewThread extends Thread {
 
     ExperimentRunnerViewThread() {
         m_id = "ExThread_" + g_id; g_id++;
+        m_selectedMetrics.select(new Rand());
     }
 
     ExperimentRunnerViewThread(ExperimentRunner a_runner) {
@@ -347,6 +350,14 @@ class ExperimentRunnerViewThread extends Thread {
                 }
             }
 
+            {
+                a_imgui.imgui().sameLine(0);
+                boolean[] initialSetPerComponent = {m_initialSetPerComponent};
+                if (a_imgui.imgui().checkbox("Initial Set Per Component##" + m_id, initialSetPerComponent)) {
+                    m_initialSetPerComponent = initialSetPerComponent[0];
+                }
+            }
+
             m_initialSetSize = doRandomDoubleVariable(a_imgui, "Initial Set Size", m_initialSetSize);
 
             a_imgui.imgui().indent(3);
@@ -486,6 +497,8 @@ class ExperimentRunnerViewThread extends Thread {
 
         m_useIntialMapping = a_exr.doUseInitialMapping();
         m_initialSetSize = a_exr.getInitialSetSize();
+        m_initialSetPerComponent = a_exr.initialSetPerComponent();
+
 
         for (ExperimentRun ex : a_exr.getExperiments()) {
             m_experiments.add(new MapperView(ex));
@@ -508,7 +521,7 @@ class ExperimentRunnerViewThread extends Thread {
             }
         }
 
-        ret = new ExperimentRunner(systems, m_selectedMetrics.getSelected(), getExperiments(), m_useIntialMapping, m_initialSetSize);
+        ret = new ExperimentRunner(systems, m_selectedMetrics.getSelected(), getExperiments(), m_useIntialMapping, m_initialSetSize, m_initialSetPerComponent);
         ret.setName(m_name);
 
         return ret;
