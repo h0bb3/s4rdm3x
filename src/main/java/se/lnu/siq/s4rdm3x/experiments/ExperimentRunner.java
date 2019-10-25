@@ -1,14 +1,9 @@
 package se.lnu.siq.s4rdm3x.experiments;
 
-import javafx.scene.shape.Arc;
-import se.lnu.siq.s4rdm3x.model.Selector;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
-import se.lnu.siq.s4rdm3x.model.cmd.util.FanInCache;
 import se.lnu.siq.s4rdm3x.experiments.metric.Metric;
 import se.lnu.siq.s4rdm3x.experiments.system.System;
 import se.lnu.siq.s4rdm3x.model.CGraph;
-import se.lnu.siq.s4rdm3x.model.CNode;
-import se.lnu.siq.s4rdm3x.model.cmd.util.SystemModelReader;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -59,12 +54,10 @@ public class ExperimentRunner {
         return m_initialSetPerComponent;
     }
 
-
-    private static class GraphArchitecturePair {
-        public CGraph m_g;
-        public ArchDef m_a;
-        ArrayList<SystemModelReader.Mapping> m_initialMapping;
+    public int getSystemCount() {
+        return m_suas.size();
     }
+
 
     public enum State {
       Running,
@@ -199,6 +192,11 @@ public class ExperimentRunner {
         public double getScale() {
             return m_scale;
         }
+
+        public void setMinMax(double a_min, double a_max) {
+            m_scale = (a_max - a_min)  / 2.0;
+            m_base = a_min + m_scale;
+        }
     }
 
     public void stop() {
@@ -225,6 +223,16 @@ public class ExperimentRunner {
         m_initialSetPerComponent = a_initialSetPerComponent;
     }
 
+    public ExperimentRunner(ExperimentRunner a_toCopy, System a_singleSystem) {
+        m_suas.add(a_singleSystem);
+        a_toCopy.m_metrics.forEach(m -> m_metrics.add(m));
+        a_toCopy.m_experiments.forEach(e -> m_experiments.add(e.clone()));
+        m_initialSetSize = new RandomDoubleVariable(a_toCopy.m_initialSetSize);
+        m_useInitialMapping = a_toCopy.m_useInitialMapping;
+        m_initialSetPerComponent = a_toCopy.m_initialSetPerComponent;
+        m_name = a_toCopy.getName();
+    }
+
     public ExperimentRunner(ExperimentRunner a_toCopy) {
         a_toCopy.m_suas.forEach(s -> m_suas.add(s));
         a_toCopy.m_metrics.forEach(m -> m_metrics.add(m));
@@ -232,6 +240,7 @@ public class ExperimentRunner {
         m_initialSetSize = new RandomDoubleVariable(a_toCopy.m_initialSetSize);
         m_useInitialMapping = a_toCopy.m_useInitialMapping;
         m_initialSetPerComponent = a_toCopy.m_initialSetPerComponent;
+        m_name = a_toCopy.getName();
     }
 
     public interface RunListener {
@@ -245,6 +254,13 @@ public class ExperimentRunner {
 
     public void run(CGraph a_g) {
 
+        class GraphArchitecturePair {
+            public CGraph m_g;
+            public ArchDef m_a;
+
+            RandomDoubleVariable m_initialSetRatio;
+        }
+
         HashMap<System, GraphArchitecturePair> loadedSystems = new HashMap<>();
         int i = 0;
 
@@ -253,6 +269,7 @@ public class ExperimentRunner {
         RandomDoubleVariable initialClustering = m_initialSetSize;
         SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         InitialSetGenerator setGenerator = new InitialSetGenerator();
+        RandomDoubleVariable initialSetRatio;
         while(m_state == State.Running) {
 
             for (System sua : m_suas) {
@@ -271,10 +288,32 @@ public class ExperimentRunner {
                             a_g = gap.m_g;
                             arch = gap.m_a;
 
+                            // we need to adjust the initial set generation so that we do not get a skewed distribution at the extremes
+                            // e.g. if we have many arch components possibly many initial set ratios will generate this amount of nodes
+                            gap.m_initialSetRatio = new RandomDoubleVariable(m_initialSetSize);
+                            final int minInitialSet = m_initialSetPerComponent ? arch.getComponentCount() : 1;
+
+                            int mappedNodeCount = arch.getMappedNodeCount(a_g.getNodes());
+                            double min = (double)minInitialSet / (double)mappedNodeCount;
+                            double max = (double)(mappedNodeCount) / (double)mappedNodeCount - 0.000000001;
+
+                            if (gap.m_initialSetRatio.getMin() > min) {
+                                min = gap.m_initialSetRatio.getMin();
+                            }
+
+                            if (gap.m_initialSetRatio.getMax() < max ) {
+                                max = gap.m_initialSetRatio.getMax();
+                            }
+
+                            gap.m_initialSetRatio.setMinMax(min, max);
+
+                            initialSetRatio = gap.m_initialSetRatio;
+
                         } else {
                             GraphArchitecturePair gap = loadedSystems.get(sua);
                             a_g = gap.m_g;
                             arch = gap.m_a;
+                            initialSetRatio = gap.m_initialSetRatio;
                         }
 
                         // this is an optimization if we only have one metric we do not need to reassign it
@@ -289,9 +328,9 @@ public class ExperimentRunner {
                         }
                         arch.cleanNodeClusters(a_g.getNodes(), false);
                         if (m_initialSetPerComponent) {
-                            setGenerator.assignInitialClustersPerComponent(a_g, arch, initialClustering.generate(m_rand), metric, m_rand);
+                            setGenerator.assignInitialClustersPerComponent(a_g, arch, initialSetRatio.generate(m_rand), metric, m_rand);
                         } else {
-                            setGenerator.assignInitialClusters(a_g, arch, initialClustering.generate(m_rand), metric, m_rand);
+                            setGenerator.assignInitialClusters(a_g, arch, initialSetRatio.generate(m_rand), metric, m_rand);
                         }
 
 

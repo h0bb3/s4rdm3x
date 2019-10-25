@@ -163,13 +163,15 @@ public class OriginalRunner {
         ExperimentType m_et;
         ExperimentRunner m_exr;
         boolean m_doSaveMappings;
+        boolean m_initialSetPerComponent;
 
-        public ExThread(ExperimentType a_et, System a_sua, Metric a_metric, int a_index, boolean a_doSaveMappings) {
+        public ExThread(ExperimentType a_et, System a_sua, Metric a_metric, int a_index, boolean a_doSaveMappings, boolean a_initialSetPerComponent) {
             m_ix = a_index;
             m_metric = a_metric;
             m_sua = a_sua;
             m_doSaveMappings = a_doSaveMappings;
             m_et = a_et;
+            m_initialSetPerComponent = a_initialSetPerComponent;
         }
 
         public void run() {
@@ -187,7 +189,7 @@ public class OriginalRunner {
             } else {
                 experiments.add(new NBMapperExperimentRun(false, new IRExperimentRunBase.Data(), new ExperimentRunner.RandomBoolVariable(false), new ExperimentRunner.RandomDoubleVariable(2.0)));
             }
-            m_exr = new ExperimentRunner(suas, metrics, experiments, false, new ExperimentRunner.RandomDoubleVariable(0.1, 0.1) );
+            m_exr = new ExperimentRunner(suas, metrics, experiments, false, new ExperimentRunner.RandomDoubleVariable(0.1, 0.1), m_initialSetPerComponent);
             m_exr.setRunListener(m_fs);
             m_exr.run(graph);
         }
@@ -216,14 +218,14 @@ public class OriginalRunner {
 
     }
 
-    private static ArrayList<ExThread> startThreads(ExThread.ExperimentType a_et, int a_threadCount, System a_sua, Metric a_metric, boolean a_doSaveMappings) {
+    private static ArrayList<ExThread> startThreads(ExThread.ExperimentType a_et, int a_threadCount, System a_sua, Metric a_metric, boolean a_doSaveMappings, boolean a_initialSetPerComponent) {
         ArrayList<ExThread> ret = new ArrayList<>();
         java.lang.System.out.print("Running experiments: ");
         for(int i = 0; i < a_threadCount; i++) {
             final int ix = i;
 
             // need to make a class of this so we can check te no rows
-            ExThread r = new ExThread(a_et, a_sua, a_metric, ix, a_doSaveMappings);
+            ExThread r = new ExThread(a_et, a_sua, a_metric, ix, a_doSaveMappings, a_initialSetPerComponent);
             ret.add(r);
             Thread t = new Thread(r);
             t.start();
@@ -307,7 +309,7 @@ public class OriginalRunner {
                 // could not find any metric with that name
             } else if (m != null) {
                 int initialRows = getInitialRows(sua.getName(), m.getName());
-                run(et, threadCount, rowLimit - initialRows, sua, m, saveMappings);
+                run(et, threadCount, rowLimit - initialRows, sua, m, saveMappings, false);
             } else {
 
                 ArrayList<String> metricNames = new ArrayList<>();
@@ -356,7 +358,7 @@ public class OriginalRunner {
                     if (m != null) {
 
                         int initialRows = getInitialRows(sua.getName(), m.getName());
-                        run(et, threadCount, rowLimit - initialRows, sua, m, saveMappings);
+                        run(et, threadCount, rowLimit - initialRows, sua, m, saveMappings, false);
                     }
                 }
             }
@@ -367,13 +369,13 @@ public class OriginalRunner {
 
     }
 
-    public static void run(ExThread.ExperimentType a_et, int a_threadCount, int a_rows, System a_sua, Metric a_m, boolean a_doSaveMappings) {
+    public static void run(ExThread.ExperimentType a_et, int a_threadCount, int a_rows, System a_sua, Metric a_m, boolean a_doSaveMappings, boolean a_initialSetPerComponent) {
         if (a_rows > 0) {
             java.lang.System.out.println("Running " + a_threadCount + " experiment threads on: " +a_sua.getName() + ":" +  a_m.getName() + " for " + a_rows + " additional rows.");
             if (a_doSaveMappings) {
                 java.lang.System.out.println("Also saving experiment mappings.");
             }
-            ArrayList<ExThread> threads = startThreads(a_et, a_threadCount, a_sua, a_m, a_doSaveMappings);
+            ArrayList<ExThread> threads = startThreads(a_et, a_threadCount, a_sua, a_m, a_doSaveMappings, a_initialSetPerComponent);
             java.lang.System.out.println("\nAll experiment threads Started!");
 
             while (sumRows(threads) < a_rows) {

@@ -210,10 +210,14 @@ public class NBMapper extends IRMapperBase {
                 }*/
             }
 
-            mappingCandidates.sort((n1, n2) -> {return Double.compare(n2.m_attractionDiff, n1.m_attractionDiff);});
+
 
             int maxMappings;
-            if (doManualMapping()) {
+
+            // This is the code that maps 10% of the best candidates (max 10, min 1)
+            // this basically creates a lot of iterations
+            if (false && doManualMapping()) {
+                mappingCandidates.sort((n1, n2) -> {return Double.compare(n2.m_attractionDiff, n1.m_attractionDiff);});
                 maxMappings = (int)(0.1 * mappingCandidates.size());
                 if (maxMappings > 10) {
                     maxMappings = 10;
@@ -223,6 +227,7 @@ public class NBMapper extends IRMapperBase {
             } else {
                 maxMappings = mappingCandidates.size();
             }
+
             for (MappingNode n : mappingCandidates) {
                 if (maxMappings <= 0) {
                     break;
@@ -371,16 +376,19 @@ public class NBMapper extends IRMapperBase {
                 double[] values = new double[data.numAttributes()];
                 values[0] = components.indexOf(from.getName());
                 String relations = "";
-                for (ArchDef.Component to : a_arch.getComponents()) {
-                    if (from == to || from.allowedDependency(to)) {
 
-
-                        for (dmDependency.Type t : dmDependency.Type.values()) {
-                             relations +=  getComponentComponentRelationString(from.getName(), t, to.getName()) + " ";
-                        }
-                    } else if (to.allowedDependency(from)) {
-                        for (dmDependency.Type t : dmDependency.Type.values()) {
-                            relations +=  getComponentComponentRelationString(to.getName(), t, from.getName()) + " ";
+                // this adds all the allowed dependencies from the architectural definition to the training data
+                // this does not seem to increase the accuracy of the model so we don't use it.
+                if (false && doManualMapping()) {
+                    for (ArchDef.Component to : a_arch.getComponents()) {
+                        if (from == to || from.allowedDependency(to)) {
+                            for (dmDependency.Type t : dmDependency.Type.values()) {
+                                relations += getComponentComponentRelationString(from.getName(), t, to.getName()) + " ";
+                            }
+                        } else if (to.allowedDependency(from)) {
+                            for (dmDependency.Type t : dmDependency.Type.values()) {
+                                relations += getComponentComponentRelationString(to.getName(), t, from.getName()) + " ";
+                            }
                         }
                     }
                 }

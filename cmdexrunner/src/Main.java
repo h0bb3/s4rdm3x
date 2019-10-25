@@ -136,7 +136,19 @@ public class Main {
         ArrayList<ExperimentRunner> expRunners;
 
         try {
-            expRunners = exp.loadExperimentRunners(experiment, null);
+            ArrayList<ExperimentRunner> expRunnersWithOnlyOneSystem = new ArrayList<>();
+            {
+                expRunners = exp.loadExperimentRunners(experiment, null);
+
+                // if the runners have more than one system we should divide them into different threads
+                for (ExperimentRunner exr : expRunners) {
+                    for (System sua : exr.getSystems()) {
+                        ExperimentRunner newExr = new ExperimentRunner(exr, sua);
+                        expRunnersWithOnlyOneSystem.add(newExr);
+                    }
+                }
+            }
+
 
             int exCount = 0;
 
@@ -164,13 +176,14 @@ public class Main {
             ArrayList<Exp> allRunningExperiments = new ArrayList<>();
 
             // start the experiments
-            for (ExperimentRunner exr : expRunners) {
+            for (ExperimentRunner exr : expRunnersWithOnlyOneSystem) {
                 Exp e = new Exp();
-                String dir = outDir + File.separator + exr.getName() + "_" + exCount;
+                String dir = outDir + File.separator + exr.getSystems().iterator().next().getName() + "_" + exCount;
                 int initialRows = getInitialRows(dir);
-                e.m_threads = run(exr, threadCount, dir, saveMappings);
+                //e.m_threads = run(exr, threadCount, dir, saveMappings);
+                e.m_threads = run(exr, threadCount / expRunnersWithOnlyOneSystem.size(), dir, saveMappings);
                 e.m_runner = exr;
-                e.m_rowLimit = rowLimit - initialRows;
+                e.m_rowLimit = (rowLimit * exr.getSystemCount())- initialRows;
                 e.m_dir = dir;
 
                 allRunningExperiments.add(e);
@@ -221,7 +234,10 @@ public class Main {
     }
 
     public static ArrayList<ExThread>  run(ExperimentRunner a_experiment, int a_threadCount, String a_dir, boolean a_doSaveMappings) {
-        java.lang.System.out.println("Running " + a_threadCount + "threads. Saving data in: " + a_dir);
+        if (a_threadCount < 1) {
+            a_threadCount = 1;
+        }
+        java.lang.System.out.println("Running " + a_threadCount + " threads. Saving data in: " + a_dir);
         if (a_doSaveMappings) {
             java.lang.System.out.println("Also saving experiment mappings.");
         }
