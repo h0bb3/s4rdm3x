@@ -39,7 +39,7 @@ public class FileBased extends System {
         ac.setInitialMapping(a_arch, m_smr, a_g);
     }
 
-    public ArchDef createAndMapArch(CGraph a_g) {
+    public ArchDef createAndMapArch(CGraph a_g) throws System.NoMappedNodesException {
         ArchCreator ac = new ArchCreator();
         ArchDef ret = ac.createArch(m_smr);
 

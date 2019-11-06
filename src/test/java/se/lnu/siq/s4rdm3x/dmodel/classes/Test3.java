@@ -11,7 +11,7 @@ public class Test3 implements InterfaceTest {
     private List<Object> m_list;
 
     public final static String A_FINAL_STRING = "dret";
-    public static String A_NONFINAL_STRING = "dret"; // line
+    public static String A_NONFINAL_STRING = "dreta"; // line
 
     static {
         Double d = 3.1415;  // line
@@ -20,7 +20,7 @@ public class Test3 implements InterfaceTest {
 
     public Test3(Integer anInt) {  // line (call to super?)
         m_list.add(anInt);  // line count
-        m_list.add(new Float(17));
+        m_list.add(new Float(17.0));
     }   // line count (return created object)
 
     public void doSomething() {

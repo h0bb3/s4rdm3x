@@ -111,6 +111,9 @@ public class ASMdmProjectBuilder extends ClassVisitor {
 
             m_currentClass.incFieldCount();
             m_currentClass.addText(name);
+            if (value != null) {
+                m_currentClass.addText(value.toString());
+            }
 
             if ((access & Opcodes.ACC_STATIC) > 0 && (access & Opcodes.ACC_FINAL) > 0) {
                 println("Constant Field");
@@ -278,6 +281,7 @@ public class ASMdmProjectBuilder extends ClassVisitor {
                         println("\ttextifier: " + sw.toString());
                     }
                     m_project.addConstantDependency(cst, m_currentClass, m_currentLine);
+                    m_currentClass.addText(cst.toString());
                 }
 
                 @Override
@@ -298,6 +302,7 @@ public class ASMdmProjectBuilder extends ClassVisitor {
                                     addLocalVar(name, index);
                                 }
                             });
+                            m_currentClass.addText(name);
                         } else {
 
                             println("Type.getType: " + Type.getType(desc).getClassName());
@@ -380,6 +385,16 @@ public class ASMdmProjectBuilder extends ClassVisitor {
                 @Override
                 public void visitIntInsn(int var1, int var2) {
                     m.incInstructionCount();
+                    println("visitIntInsn: " + var1 + " " + var2);
+                    Textifier t = new Textifier();
+                    StringWriter sw = new StringWriter();
+
+                    t.visitIntInsn(var1, var2);
+
+                    t.print(new PrintWriter(sw));
+
+                    println("\ttextifier: " + sw.toString());
+                    m_currentClass.addText("" + var2);
                 }
 
                 @Override

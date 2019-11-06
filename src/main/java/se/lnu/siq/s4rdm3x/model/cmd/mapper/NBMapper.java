@@ -160,9 +160,23 @@ public class NBMapper extends IRMapperBase {
                 }
 
                 orphanNode.setAttractions(attraction);
+
+                ArchDef.Component autoClusteredTo = HuGMe.doAutoMapping(orphanNode, m_arch);
+                if (autoClusteredTo != null) {
+                    addAutoClusteredOrphan(orphanNode);
+                    if (autoClusteredTo != m_arch.getMappedComponent(orphanNode)) {
+                        m_autoWrong++;
+                    }
+
+                } else if (doManualMapping()) {
+                    boolean clustered = manualMapping(orphanNode, m_arch);
+                    if (clustered == false) {
+                        m_failedMappings++;
+                    }
+                }
             }
 
-            class MappingNode {
+            /*class MappingNode {
                 CNode m_node;
                 ArchDef.Component m_clusterTo;
                 double m_attractionDiff;
@@ -184,30 +198,9 @@ public class NBMapper extends IRMapperBase {
 
                 if (attractions[maxIx] > attractions[maxIx2] * m_clusteringThreshold) {
                     mappingCandidates.add(new MappingNode(orphanNode, m_arch.getComponent(maxIx), attractions[maxIx]- attractions[maxIx2]));
-                    //m_arch.getComponent(maxIx).clusterToNode(orphanNode, ArchDef.Component.ClusteringType.Automatic);
-                    //addAutoClusteredOrphan(orphanNode);
-                    //System.out.println("Clustered to: " + orphanNode.getClusteringComponentName() +" mapped to: " + orphanNode.getMapping());
-
-                    //if (m_arch.getComponent(orphanNode.getMapping()) != m_arch.getComponent(maxIx)) {
-                    //    m_autoWrong++;
-                    //}
                 } else if (false && doManualMapping()) {
                     manualMapping(orphanNode, m_arch);
                 }
-
-                /*ArchDef.Component autoClusteredTo = HuGMe.doAutoMapping(orphanNode, m_arch);
-                if (autoClusteredTo != null) {
-                    m_automaticallyMappedNodes++;
-                    if (autoClusteredTo != m_arch.getMappedComponent(orphanNode)) {
-                        m_autoWrong++;
-                    }
-
-                } else if (doManualMapping()) {
-                    boolean clustered = manualMapping(orphanNode, m_arch);
-                    if (clustered == false) {
-                        m_failedMappings++;
-                    }
-                }*/
             }
 
 
@@ -241,7 +234,7 @@ public class NBMapper extends IRMapperBase {
                         m_autoWrong++;
                     }
                 }
-            }
+            }*/
 
             //nbClassifier.classifyInstance();
 
@@ -270,30 +263,21 @@ public class NBMapper extends IRMapperBase {
 
         // first we have the architectural components
         List<String> componentNames = Arrays.asList(a_componentNames);
-        attributes.add(new Attribute("component_blarg17", componentNames));
-        attributes.add(new Attribute("relations_blarg17", (ArrayList<String>) null));
+        attributes.add(new Attribute("hypothetical_component", componentNames));
+        attributes.add(new Attribute("model_features", (ArrayList<String>) null));
 
         Instances data = new Instances("PredictionData", attributes, 0);
 
         String nodeText = getNodeWords(a_node, a_stemmer);
 
+        double[] values = new double[data.numAttributes()];
+        String relations = getUnmappedCDAWords(a_node, a_component, a_mappedNodes);
 
-        //nodeText += deCamelCase(a_node.getLogicName().replace(".", " "), 3, a_stemmer);
+        relations += " " + nodeText;
 
-        //for (int i = 0; i < a_arch.getComponentCount(); i++) {
-            double[] values = new double[data.numAttributes()];
-            //values[0] = componentNames.indexOf(a_component);
-            //String relations = getDependencyStringFromNode(a_node, a_component.getName(), a_mappedNodes);
-            //relations += " " + getDependencyStringToNode(a_node, a_component.getName(), a_mappedNodes);
-            String relations = getUnmappedCDAWords(a_node, a_component, a_mappedNodes);
-
-            relations += " " + nodeText;
-            //String relations = nodeText;
-
-            values[0] = data.attribute(1).addStringValue(relations);
-            data.add(new DenseInstance(1.0, values));
-        //}
-
+        values[0] = componentNames.indexOf(a_node.getMapping());
+        values[1] = data.attribute(1).addStringValue(relations);
+        data.add(new DenseInstance(1.0, values));
 
         data.setClassIndex(0);
 
@@ -366,12 +350,12 @@ public class NBMapper extends IRMapperBase {
         List<String> components = Arrays.asList(a_arch.getComponentNames());
 
 
-        attributes.add(new Attribute("component_blarg17", components));
-        attributes.add(new Attribute("relations_blarg17", (ArrayList<String>) null));
+        attributes.add(new Attribute("hypothetical_component", components));
+        attributes.add(new Attribute("model_features", (ArrayList<String>) null));
 
         Instances data = new Instances("TrainingData", attributes, 0);
 
-        if (doUseCDA()) {
+        /*if (doUseCDA()) {
             for (ArchDef.Component from : a_arch.getComponents()) {
                 double[] values = new double[data.numAttributes()];
                 values[0] = components.indexOf(from.getName());
@@ -379,7 +363,7 @@ public class NBMapper extends IRMapperBase {
 
                 // this adds all the allowed dependencies from the architectural definition to the training data
                 // this does not seem to increase the accuracy of the model so we don't use it.
-                if (false && doManualMapping()) {
+                if (doManualMapping()) {
                     for (ArchDef.Component to : a_arch.getComponents()) {
                         if (from == to || from.allowedDependency(to)) {
                             for (dmDependency.Type t : dmDependency.Type.values()) {
@@ -395,7 +379,7 @@ public class NBMapper extends IRMapperBase {
                 values[1] = data.attribute(1).addStringValue(relations);
                 data.add(new DenseInstance(1.0, values));
             }
-        }
+        }*/
 
         // we always allow self dependencies within the architectural components so we need to add these.
         /*if (doUseCDA()) {
@@ -413,13 +397,15 @@ public class NBMapper extends IRMapperBase {
         }*/
 
         // add the component names
-        for (ArchDef.Component c : a_arch.getComponents()) {
-            double[] values = new double[data.numAttributes()];
-            values[0] = components.indexOf(c.getName());
-            String relations = getArchComponentWords(c, a_stemmer);
-            if (relations.length() > 0) {
-                values[1] = data.attribute(1).addStringValue(relations);
-                data.add(new DenseInstance(1.0, values));
+        if (doUseArchComponentName()) {
+            for (ArchDef.Component c : a_arch.getComponents()) {
+                double[] values = new double[data.numAttributes()];
+                values[0] = components.indexOf(c.getName());
+                String relations = getArchComponentWords(c, a_stemmer);
+                if (relations.length() > 0) {
+                    values[1] = data.attribute(1).addStringValue(relations);
+                    data.add(new DenseInstance(1.0, values));
+                }
             }
         }
 
@@ -437,12 +423,6 @@ public class NBMapper extends IRMapperBase {
 
             // add the identifier texts for the node
             relations += getNodeWords(n, a_stemmer);
-            /*for (dmClass c : n.getClasses()) {
-                for (String t : c.getTexts()) {
-                    relations += deCamelCase(t, 3, a_stemmer) + " ";
-                }
-            }
-            relations += " " + deCamelCase(n.getLogicName().replace(".", " "), 3, a_stemmer);*/
 
             values[1] = data.attribute(1).addStringValue(relations);
             data.add(new DenseInstance(1.0, values));

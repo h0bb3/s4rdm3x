@@ -9,7 +9,7 @@ import java.util.List;
 public class Test1 {    // line count default constructor returns Test1 object?
 
     public void AMetod() {
-        String name = "nisse";  // line count
+            String name = "nisse";  // line count
 
         // ifblock
         if (name.compareToIgnoreCase("NISSE") == 0) {   // line count

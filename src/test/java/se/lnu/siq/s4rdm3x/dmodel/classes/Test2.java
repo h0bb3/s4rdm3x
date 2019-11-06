@@ -13,7 +13,7 @@ public class Test2 {
         return new Test3(null); // line
     }
 
-    public void a3Arguments(String a_arg1, Integer a_arg2, Float a_arg3) {
+        public void a3Arguments(String a_arg1, Integer a_arg2, Float a_arg3) {
     }   // line
 
     public void aGenericArgument(List<String> a_listOStrings) {

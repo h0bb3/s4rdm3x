@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import se.lnu.siq.s4rdm3x.experiments.*;
+import se.lnu.siq.s4rdm3x.experiments.system.System;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 
 import se.lnu.siq.s4rdm3x.model.CNode;
@@ -215,7 +216,7 @@ public class ExperimentsView implements ExperimentRunnerViewThread.DataListener 
                     }
                 });
             } catch (Exception e) {
-                System.out.println(e);
+                java.lang.System.out.println(e);
                 e.printStackTrace();
             }
         }
@@ -256,7 +257,7 @@ public class ExperimentsView implements ExperimentRunnerViewThread.DataListener 
 
 
             } catch (Exception e) {
-                System.out.println(e);
+                java.lang.System.out.println(e);
                 e.printStackTrace();
             }
         }
@@ -273,18 +274,18 @@ public class ExperimentsView implements ExperimentRunnerViewThread.DataListener 
                         try {
                             saver.writeHeader(filePath);
                         } catch (IOException e) {
-                            System.out.println("Could not write to file");
+                            java.lang.System.out.println("Could not write to file");
                         }
                     }
 
                     try {
                         saver.writeData(filePath, getExperimentRunData());
                     } catch (IOException e) {
-                        System.out.println("Could not write to file");
+                        java.lang.System.out.println("Could not write to file");
                     }
 
                 } catch (IOException e) {
-                    System.out.println("Could not create file");
+                    java.lang.System.out.println("Could not create file");
                 }
             }
             a_imgui.imgui().sameLine(0);
@@ -304,11 +305,13 @@ public class ExperimentsView implements ExperimentRunnerViewThread.DataListener 
     public synchronized void onNewData(ExperimentRunData.BasicRunData a_rd, MapperView a_src) {
 
         int intColor = ImGuiWrapper.toColor(a_src.getColor());
-        m_performanceVsInitialMapped.addData(a_rd.m_initialClusteringPercent, a_rd.calcAutoPerformance(), m_experimentData.size(), intColor);
+        //m_performanceVsInitialMapped.addData(a_rd.m_initialClusteringPercent, a_rd.calcAutoPerformance(), m_experimentData.size(), intColor);
+        m_performanceVsInitialMapped.addData(a_rd.m_initialClusteringPercent, a_rd.calcF1Score(), m_experimentData.size(), intColor);
         m_precisionVsInitialMapped.addData(a_rd.m_initialClusteringPercent, a_rd.calcAutoPrecision(), m_experimentData.size(), intColor);
         m_recallVsInitialMapped.addData(a_rd.m_initialClusteringPercent, a_rd.calcAutoRecall(), m_experimentData.size(), intColor);
 
-        m_performanceBP.addData(a_rd.calcAutoPerformance(), m_experimentData.size(), intColor);
+        //m_performanceBP.addData(a_rd.calcAutoPerformance(), m_experimentData.size(), intColor);
+        m_performanceBP.addData(a_rd.calcF1Score(), m_experimentData.size(), intColor);
         m_precisionBP.addData(a_rd.calcAutoPrecision(), m_experimentData.size(), intColor);
         m_recallBP.addData(a_rd.calcAutoRecall(), m_experimentData.size(), intColor);
 
@@ -486,7 +489,15 @@ public class ExperimentsView implements ExperimentRunnerViewThread.DataListener 
             if (foundMV == null && showing) {
                 CGraph graph = new CGraph();
                 a_selected.m_data.m_system.load(graph);
-                ArchDef arch = a_selected.m_data.m_system.createAndMapArch(graph);
+
+                ArchDef arch = null;
+                try {
+                    arch = a_selected.m_data.m_system.createAndMapArch(graph);
+                } catch (System.NoMappedNodesException e) {
+                    // do nothing...
+                    arch = e.m_arch;
+                }
+
                 foundMV = new ExperimentsView.MappingViewWrapper(graph, arch, a_selected.m_data);
                 //foundMV.setInitialNBData(a_rundData, graph, arch);
                 //foundMV.setInitialClustering(a_rundData.m_initialClustering);

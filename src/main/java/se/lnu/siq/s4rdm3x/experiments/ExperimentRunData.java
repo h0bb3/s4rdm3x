@@ -55,9 +55,15 @@ public class ExperimentRunData {
             return (m_autoClustered.size() - m_totalAutoWrong) / (double)m_totalMapped;
         }
 
+        public double calcF1Score() {
+            final double p = calcAutoPrecision();
+            final double r = calcAutoRecall();
+            return 2 * (p * r) / (p + r);
+        }
+
         public double calcAutoPrecision() {
             if (m_autoClustered.size() > 0) {
-                return 1 - (m_totalAutoWrong / (double) m_autoClustered.size());
+                return (m_autoClustered.size() - m_totalAutoWrong) / (double) m_autoClustered.size();
             } else {
                 return 0;
             }

@@ -1,5 +1,6 @@
 package se.lnu.siq.s4rdm3x.model.cmd.util;
 
+import se.lnu.siq.s4rdm3x.experiments.system.System;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
@@ -7,7 +8,7 @@ import se.lnu.siq.s4rdm3x.model.Selector;
 
 public class ArchCreator {
 
-    public void mapArch(ArchDef a_arch, SystemModelReader a_model, CGraph a_g) {
+    public void mapArch(ArchDef a_arch, SystemModelReader a_model, CGraph a_g) throws System.NoMappedNodesException{
         for (SystemModelReader.Mapping mapping : a_model.m_mappings) {
             ArchDef.Component c = a_arch.getComponent(mapping.m_moduleName);
             Selector.Pat p = new Selector.Pat(mapping.m_regexp);
@@ -26,6 +27,18 @@ public class ArchCreator {
                     }
                 }
             }
+        }
+
+        // check that all components actually have some nodes mapped
+        System.NoMappedNodesException exception = new System.NoMappedNodesException(a_arch);
+        for (ArchDef.Component c : a_arch.getComponents()) {
+            if (a_arch.getMappedNodeCount(a_g.getNodes(), c) == 0) {
+                exception.m_components.add(c);
+            }
+        }
+
+        if (exception.m_components.size() > 0) {
+            throw exception;
         }
     }
 

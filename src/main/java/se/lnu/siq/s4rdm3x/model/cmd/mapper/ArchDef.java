@@ -154,10 +154,14 @@ public class ArchDef {
             }
         }
 
-        public void mapToNodes(CGraph a_g, Selector.ISelector a_selector) {
+        public int mapToNodes(CGraph a_g, Selector.ISelector a_selector) {
+            int mapped = 0;
             for (CNode n : a_g.getNodes(a_selector)) {
+                mapped++;
                 mapToNode(n);
             }
+
+            return mapped;
         }
     }
 
@@ -249,6 +253,16 @@ public class ArchDef {
         int count = 0;
         for (CNode n : a_nodes) {
             if (getMappedComponent(n) != null) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public int getMappedNodeCount(Iterable<CNode> a_nodes, Component a_to) {
+        int count = 0;
+        for (CNode n : a_nodes) {
+            if (getMappedComponent(n) == a_to) {
                 count++;
             }
         }

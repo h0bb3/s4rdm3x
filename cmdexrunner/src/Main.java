@@ -181,7 +181,7 @@ public class Main {
                 String dir = outDir + File.separator + exr.getSystems().iterator().next().getName() + "_" + exCount;
                 int initialRows = getInitialRows(dir);
                 //e.m_threads = run(exr, threadCount, dir, saveMappings);
-                e.m_threads = run(exr, threadCount / expRunnersWithOnlyOneSystem.size(), dir, saveMappings);
+                e.m_threads = run(exr, threadCount, dir, saveMappings);
                 e.m_runner = exr;
                 e.m_rowLimit = (rowLimit * exr.getSystemCount())- initialRows;
                 e.m_dir = dir;

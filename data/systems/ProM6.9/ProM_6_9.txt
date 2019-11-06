@@ -15,9 +15,9 @@ prom.framework
 prom.domain.contexts
 prom.domain.models
 prom.domain.plugins
-prom.packages
-log
-apacheutils
+#prom.packages
+#log
+#apacheutils
 
 # mapping: <package>.* maps all classes in <package> except for those which are explicitly listed in another mapping
 
@@ -28,10 +28,10 @@ prom.domain.models prom.framework
 prom.domain.plugins prom.framework
 prom.domain.plugins prom.domain.contexts
 prom.domain.plugins prom.domain.models
-prom.packages prom.framework
-prom.packages prom.domain.plugins
-prom.packages prom.domain.contexts
-prom.packages prom.domain.models
+#prom.packages prom.framework
+#prom.packages prom.domain.plugins
+#prom.packages prom.domain.contexts
+#prom.packages prom.domain.models
 
 
 # mapping
@@ -52,5 +52,5 @@ prom.domain.contexts org.processmining.contexts.uitopia.hub.ProMActionManager
 prom.domain.contexts org.processmining.contexts.UI
 prom.domain.models org.processmining.models.graphbased.directed.AbstractDirectedGraph
 prom.domain.plugins org.processmining.plugins.ShowPackageOverviewPlugin
-prom.packages org.processmining.framework.impl.AbstractPluginContext
+#prom.packages org.processmining.framework.impl.AbstractPluginContext
 

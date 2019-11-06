@@ -1,5 +1,6 @@
 package se.lnu.siq.s4rdm3x.model.cmd;
 
+import se.lnu.siq.s4rdm3x.experiments.system.System;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 import se.lnu.siq.s4rdm3x.model.cmd.util.ArchCreator;
 import se.lnu.siq.s4rdm3x.model.cmd.util.SystemModelReader;
@@ -13,7 +14,7 @@ public class LoadArch {
         m_file = a_file;
     }
 
-    public void run(CGraph a_g) {
+    public void run(CGraph a_g) throws System.NoMappedNodesException {
         SystemModelReader smr = new SystemModelReader();
         if (smr.readFile(m_file)) {
             ArchCreator ac = new ArchCreator();

@@ -1,5 +1,6 @@
 package se.lnu.siq.s4rdm3x.experiments;
 
+import javafx.scene.shape.Arc;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 import se.lnu.siq.s4rdm3x.experiments.metric.Metric;
 import se.lnu.siq.s4rdm3x.experiments.system.System;
@@ -283,7 +284,17 @@ public class ExperimentRunner {
                             GraphArchitecturePair gap = new GraphArchitecturePair();
                             gap.m_g = new CGraph();
                             sua.load(gap.m_g);
-                            gap.m_a = sua.createAndMapArch(gap.m_g);
+                            try {
+                                gap.m_a = sua.createAndMapArch(gap.m_g);
+                            } catch (System.NoMappedNodesException ex) {
+                                // we just print some warnings and remove the offending components
+                                for (ArchDef.Component c : ex.m_components) {
+                                    java.lang.System.out.println("Warning: No nodes mapped to component: " + c.getName() + " in system: " + sua.getName() + " - removing component from analysis.");
+                                    ex.m_arch.removeComponent(c);
+                                }
+                                gap.m_a = ex.m_arch;
+                            }
+
                             loadedSystems.put(sua, gap);
                             a_g = gap.m_g;
                             arch = gap.m_a;

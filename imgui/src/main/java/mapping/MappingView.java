@@ -315,7 +315,7 @@ public class MappingView {
 
         ExperimentRunData.BasicRunData rd = new ExperimentRunData.BasicRunData();
         m_nbmapperView.fillRunData(rd, a_arch, a_g);
-        a_imgui.text(String.format("Performance %.2f, Precision: %.2f, Recall: %.2f", rd.calcAutoPerformance(), rd.calcAutoPrecision(), rd.calcAutoRecall()));
+        //a_imgui.text(String.format("Performance %.2f, Precision: %.2f, Recall: %.2f", rd.calcAutoPerformance(), rd.calcAutoPrecision(), rd.calcAutoRecall()));
 
         a_imgui.text("NBMapper Auto Clustered Entities: " + m_nbmapperView.autoClusteredOrphanCount());
         hovered = doClusteredTree(a_imgui, m_nbmapperView.autoClusteredOrphans(), "notSelectedNBMapperClusteredEntitiesTree", a_arch, a_g, a_nvm);
