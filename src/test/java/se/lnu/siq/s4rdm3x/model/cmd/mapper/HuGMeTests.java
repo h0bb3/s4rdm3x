@@ -17,13 +17,15 @@ public class HuGMeTests {
     void testCountAttractP() {
         NodeGenerator ng = new NodeGenerator();
         CGraph g = ng.generateGraph(dmDependency.Type.Returns, new String [] {"AB", "AB", "AB", "AB", "AB", "AB", "AB", "AB"});
-        CNode a = g.getNode("A");   // a is the orphan
-        CNode b = g.getNode("B");   // b is the mapped node
-        ArrayList<ArrayList<CNode>> clusters = new ArrayList<>();
+        ArrayList<ArrayList<MapperBase.ClusteredNode>> clusters = new ArrayList<>();
         ArchDef arch = new ArchDef();
         ArchDef.Component cA = arch.addComponent("A");
         ArchDef.Component cB = arch.addComponent("B");
         ArchDef.Component cC = arch.addComponent("C");
+
+        MapperBase.OrphanNode a = new MapperBase.OrphanNode(g.getNode("A"), arch);   // a is the orphan
+        MapperBase.ClusteredNode b = new MapperBase.ClusteredNode(g.getNode("B"), arch);   // b is the mapped node
+
         cB.addDependencyTo(cA);
         cA.addDependencyTo(cC);
 
@@ -44,15 +46,16 @@ public class HuGMeTests {
     void testCountAttractP2() {
         NodeGenerator ng = new NodeGenerator();
         CGraph g = ng.generateGraph(dmDependency.Type.Returns, new String [] {"AB", "AB", "AB", "AB", "BA", "BA", "BA", "BA"});
-        CNode a = g.getNode("A");   // a is the orphan
-        CNode b = g.getNode("B");   // b is the mapped node
-        ArrayList<ArrayList<CNode>> clusters = new ArrayList<>();
+        ArrayList<ArrayList<MapperBase.ClusteredNode>> clusters = new ArrayList<>();
         ArchDef arch = new ArchDef();
         ArchDef.Component cA = arch.addComponent("A");
         ArchDef.Component cB = arch.addComponent("B");
         ArchDef.Component cC = arch.addComponent("C");
         cB.addDependencyTo(cA);
         cA.addDependencyTo(cC);
+
+        MapperBase.OrphanNode a = new MapperBase.OrphanNode(g.getNode("A"), arch);   // a is the orphan
+        MapperBase.ClusteredNode b = new MapperBase.ClusteredNode(g.getNode("B"), arch);   // b is the mapped node
 
         clusters.add(new ArrayList<>());
         clusters.add(new ArrayList<>());
@@ -71,16 +74,18 @@ public class HuGMeTests {
     void testProbabilities() {
         NodeGenerator ng = new NodeGenerator();
         CGraph g = ng.generateGraph(dmDependency.Type.Returns, new String [] {"AB", "CD", "OB"});
-        CNode a1 = g.getNode("A");
-        CNode a2 = g.getNode("B");
-        CNode b1 = g.getNode("C");
-        CNode b2 = g.getNode("D");
-        CNode o = g.getNode("O");
-        ArrayList<ArrayList<CNode>> clusters = new ArrayList<>();
+
+        ArrayList<ArrayList<MapperBase.ClusteredNode>> clusters = new ArrayList<>();
         ArchDef arch = new ArchDef();
         ArchDef.Component cA = arch.addComponent("A");
         ArchDef.Component cB = arch.addComponent("B");
         cB.addDependencyTo(cA);
+
+        MapperBase.ClusteredNode a1 = new MapperBase.ClusteredNode(g.getNode("A"), arch);
+        MapperBase.ClusteredNode a2 = new MapperBase.ClusteredNode(g.getNode("B"), arch);
+        MapperBase.ClusteredNode b1 = new MapperBase.ClusteredNode(g.getNode("C"), arch);
+        MapperBase.ClusteredNode b2 = new MapperBase.ClusteredNode(g.getNode("D"), arch);
+        MapperBase.OrphanNode o = new MapperBase.OrphanNode(g.getNode("O"), arch);
 
         clusters.add(new ArrayList<>());
         clusters.add(new ArrayList<>());
@@ -92,21 +97,21 @@ public class HuGMeTests {
         assertEquals(1.0, sut.CountAttractP(o, 0, clusters));
         assertEquals(0.25, sut.CountAttractP(o, 1, clusters));
 
-        double [] oAttractions = {sut.CountAttractP(o, 0, clusters), sut.CountAttractP(o, 1, clusters)};
+        /*double [] oAttractions = {sut.CountAttractP(o, 0, clusters), sut.CountAttractP(o, 1, clusters)};
         clusters.get(0).remove(a1);
-        double [] a1Attractions = {sut.CountAttractP(a1, 0, clusters), sut.CountAttractP(a1, 1, clusters)};
+        double [] a1Attractions = {sut.CountAttractP(oa1, 0, clusters), sut.CountAttractP(oa1, 1, clusters)};
         clusters.get(0).add(a1);
 
         clusters.get(0).remove(a2);
-        double [] a2Attractions = {sut.CountAttractP(a2, 0, clusters), sut.CountAttractP(a2, 1, clusters)};
+        double [] a2Attractions = {sut.CountAttractP(oa2, 0, clusters), sut.CountAttractP(oa2, 1, clusters)};
         clusters.get(0).add(a2);
 
         clusters.get(0).remove(b1);
-        double [] b1Attractions = {sut.CountAttractP(b1, 0, clusters), sut.CountAttractP(b1, 1, clusters)};
+        double [] b1Attractions = {sut.CountAttractP(ob1, 0, clusters), sut.CountAttractP(ob1, 1, clusters)};
         clusters.get(0).add(b1);
 
         clusters.get(0).remove(b2);
-        double [] b2Attractions = {sut.CountAttractP(b2, 0, clusters), sut.CountAttractP(b2, 1, clusters)};
+        double [] b2Attractions = {sut.CountAttractP(ob2, 0, clusters), sut.CountAttractP(ob2, 1, clusters)};
         clusters.get(0).add(b2);
 
 
@@ -129,5 +134,6 @@ public class HuGMeTests {
         double probFraction = stats.getNormalProbability(AattractionFractions[0], 1.0, attractionsMean, atractionsSD);
 
         double probability = (prob * (1/2.0)) / probFraction;
+        */
     }
 }

@@ -40,6 +40,9 @@ public class IRMapperView extends MapperBaseView {
     private int m_selectedRowIx = -1;
     private String m_selectedNodeName = "";
 
+    ArrayList<MapperBase.ClusteredNode> m_clusteredNodes = new ArrayList<>();
+    int m_mappedNodesCount = -1;    // this is a weak cache thingamajig but as we are doing imgui chances are that we will get an update before the thing fails...
+
     public IRMapperView(List<CNode>a_mappedNodes, List<CNode>a_orphanNodes) {
         super(a_mappedNodes, a_orphanNodes);
     }
@@ -59,7 +62,13 @@ public class IRMapperView extends MapperBaseView {
         IRAttractMapper mapper = new IRAttractMapper(null, false, m_doUseCDA, m_doUseNodeText, m_doUseNodeName, m_doUseArchComponentName, m_minWordLength);
 
 
-        Vector<IRAttractMapper.WordVector> td = mapper.getTrainingData(m_selectedMappedNodes, a_arch);
+        if (m_mappedNodesCount != m_selectedMappedNodes.size()) {
+            m_clusteredNodes = new ArrayList<>();
+            m_selectedMappedNodes.forEach(n -> m_clusteredNodes.add(new MapperBase.ClusteredNode(n, a_arch)));
+            m_mappedNodesCount = m_selectedMappedNodes.size();
+        }
+
+        Vector<IRAttractMapper.WordVector> td = mapper.getTrainingData(m_clusteredNodes, a_arch);
         NBMapper.Classifier classifier = new NBMapper.Classifier();
 
 

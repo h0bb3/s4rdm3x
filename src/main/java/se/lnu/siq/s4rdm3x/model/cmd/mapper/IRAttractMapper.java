@@ -2,6 +2,7 @@ package se.lnu.siq.s4rdm3x.model.cmd.mapper;
 
 import javafx.scene.shape.Arc;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
+import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
 import se.lnu.siq.s4rdm3x.stats;
@@ -12,10 +13,13 @@ import java.util.*;
 public class IRAttractMapper extends IRMapperBase {
 
     public int m_autoWrong = 0;
+    private double m_cdaWeight = 1.0;
 
     public static class WordVector {
 
         HashMap<String, Double> m_words = new HashMap<>();
+        private double m_wordCount = 0;
+
 
 
         public double dot(WordVector a_vec) {
@@ -43,10 +47,19 @@ public class IRAttractMapper extends IRMapperBase {
         }
 
         public void add(String a_word) {
-            if (m_words.containsKey(a_word)) {
-                m_words.replace(a_word, m_words.get(a_word) + 1.0);
-            } else {
-                m_words.put(a_word, 1.0);
+            if (a_word.length() > 0) {
+                m_wordCount += 1.0;
+                if (m_words.containsKey(a_word)) {
+                    m_words.replace(a_word, m_words.get(a_word) + 1.0);
+                } else {
+                    m_words.put(a_word, 1.0);
+                }
+            }
+        }
+
+        private void applyWeight(double a_weight) {
+            for (Map.Entry<String, Double> e : m_words.entrySet()) {
+                e.setValue(e.getValue() * a_weight);
             }
         }
 
@@ -60,6 +73,20 @@ public class IRAttractMapper extends IRMapperBase {
             }
 
             return max;
+        }
+
+        public void binaryTFNormalization() {
+            for (Map.Entry<String, Double> e : m_words.entrySet()) {
+                e.setValue(1.0);
+            }
+        }
+
+        public void wordCountTFNormalization() {
+
+            for (Map.Entry<String, Double> e : m_words.entrySet()) {
+                //e.setValue(a_smoothing + (1.0 - a_smoothing) * e.getValue() / m_wordCount);
+                e.setValue(e.getValue() / m_wordCount);
+            }
         }
 
         public void maximumTFNormalization(double a_smoothing) {
@@ -100,7 +127,24 @@ public class IRAttractMapper extends IRMapperBase {
         }
 
         public double getFrequency(String a_word) {
-            return m_words.get(a_word);
+            if (m_words.containsKey(a_word)) {
+                return m_words.get(a_word);
+            } else {
+                return 0;
+            }
+        }
+
+        public void iDF(int a_docCount, HashMap<String, Double> a_wordDocumentFrequency) {
+            for (Map.Entry<String, Double> e : m_words.entrySet()) {
+                double f = 1;
+                if (a_wordDocumentFrequency.containsKey(e.getKey())) {
+                    f = a_wordDocumentFrequency.get(e.getKey());
+                }
+
+                f = Math.log(a_docCount / f);
+
+                e.setValue(e.getValue() * f);
+            }
         }
     }
 
@@ -108,34 +152,71 @@ public class IRAttractMapper extends IRMapperBase {
         super(a_arch, a_doManualMapping,  a_doUseCDA, a_doUseNodeText, a_doUseNodeName, a_doUseArchComponentName, a_minWordLength);
     }
 
+    public double getDocumentFrequency(String a_word, Vector<WordVector> a_documents) {
+        double ret = 0;
+        for (WordVector wv : a_documents) {
+            if (wv.getFrequency(a_word) > 0) {
+                ret += 1;
+            }
+        }
+
+        return ret;
+    }
+
     public void run(CGraph a_g) {
 
-        ArrayList<CNode> orphans = getOrphanNodes(a_g);
-        ArrayList<CNode> initiallyMapped = getInitiallyMappedNodes(a_g);
+        ArrayList<OrphanNode> orphans = getOrphanNodes(a_g);
+        ArrayList<ClusteredNode> initiallyMapped = getInitiallyMappedNodes(a_g);
+        HashMap<String, Double> wordDocumentFrequency = new HashMap<>();
 
         Stemmer stemmer = getStemmer();
 
         final double smoothing = 0.1;
 
         Vector<WordVector> trainingData = getTrainingData(initiallyMapped, m_arch, stemmer);
+        for (WordVector wv : trainingData) {
+            for (String word : wv.getWords()) {
+                if (!wordDocumentFrequency.containsKey(word)) {
+                    Double f = getDocumentFrequency(word, trainingData);
+                    wordDocumentFrequency.put(word, f);
+                }
+            }
+        }
         trainingData.forEach(wv -> wv.maximumTFNormalization(smoothing));
+        //trainingData.forEach(wv -> wv.binaryTFNormalization());
+        //trainingData.forEach(wv -> wv.wordCountTFNormalization());
+        //trainingData.forEach(wv->wv.iDF(m_arch.getComponentCount(), wordDocumentFrequency));
 
-        for (CNode orphanNode : orphans) {
+
+
+        for (OrphanNode orphanNode : orphans) {
             double[] attraction = new double[m_arch.getComponentCount()];
 
             for (int i = 0; i < m_arch.getComponentCount(); i++) {
                 WordVector words = getWordVector(orphanNode, stemmer);
                 addWordsToWordVector(getUnmappedCDAWords(orphanNode, m_arch.getComponent(i), initiallyMapped), words);
+                words.applyWeight(m_cdaWeight);
+
+                // add the component names to each document
+                m_arch.getComponents().forEach(c -> {
+                    Vector<String> names = new Vector<>();
+                    addWordsToVector(getArchComponentWords(c, stemmer), names);
+                    names.forEach(w -> words.add(w));
+                });
+
                 words.maximumTFNormalization(smoothing);
+                //words.binaryTFNormalization();
+                //words.wordCountTFNormalization();
+                //words.iDF(m_arch.getComponentCount(), wordDocumentFrequency);
                 attraction[i] = words.cosDistance(trainingData.get(i));
             }
 
             orphanNode.setAttractions(attraction);
 
-            ArchDef.Component autoClusteredTo = HuGMe.doAutoMapping(orphanNode, m_arch);
+            ArchDef.Component autoClusteredTo = doAutoMapping(orphanNode, m_arch);
             if (autoClusteredTo != null) {
                 addAutoClusteredOrphan(orphanNode);
-                if (autoClusteredTo != m_arch.getMappedComponent(orphanNode)) {
+                if (autoClusteredTo != m_arch.getMappedComponent(orphanNode.get())) {
                     m_autoWrong++;
                 }
 
@@ -158,10 +239,10 @@ public class IRAttractMapper extends IRMapperBase {
     }
 
 
-    private WordVector getWordVector(CNode a_node, weka.core.stemmers.Stemmer a_stemmer) {
+    private WordVector getWordVector(OrphanNode a_node, weka.core.stemmers.Stemmer a_stemmer) {
         WordVector ret = new WordVector();
 
-        Vector<String> words = getWords(a_node, a_stemmer);
+        Vector<String> words = getWords(a_node.get(), a_stemmer);
         words.forEach(w -> ret.add(w));
 
         //ret.makeRelative();
@@ -169,30 +250,39 @@ public class IRAttractMapper extends IRMapperBase {
         return ret;
     }
 
-    public Vector<WordVector> getTrainingData(List<CNode> a_nodes, ArchDef a_arch) {
+    public Vector<WordVector> getTrainingData(List<ClusteredNode> a_nodes, ArchDef a_arch) {
         return getTrainingData(a_nodes, a_arch, getStemmer());
     }
 
-    private Vector<WordVector> getTrainingData(List<CNode> a_nodes, ArchDef a_arch, weka.core.stemmers.Stemmer a_stemmer) {
+    private Vector<WordVector> getTrainingData(List<ClusteredNode> a_nodes, ArchDef a_arch, weka.core.stemmers.Stemmer a_stemmer) {
         Vector<WordVector> ret = new Vector<>();
-
 
         // add the component names to each document
         a_arch.getComponents().forEach(c -> {
-            WordVector wv = new WordVector();
-            Vector<String> names = new Vector<>();
-            addWordsToVector(getArchComponentWords(c, a_stemmer), names);
-            names.forEach(w -> wv.add(w));
-            ret.add(wv);
-        });
+                    WordVector wv = new WordVector();
+                    ret.add(wv);
+                });
 
-        // add the node words to the mapped document of the node
-        for (CNode n : a_nodes) {
-            int cIx = a_arch.getComponentIx(a_arch.getMappedComponent(n));
-            Vector<String> words = getWords(n, a_stemmer);
-
+        // Add the cda stuff
+        for (ClusteredNode n : a_nodes) {
+            int cIx = a_arch.getComponentIx(n.getClusteredComponent());
+            Vector<String> words = new Vector<>();
             // add the CDA words
             addWordsToVector(getMappedCDAWords(n, a_nodes), words);
+
+            // add each word to the corresponding document
+            words.forEach(w -> ret.get(cIx).add(w));
+        }
+        ret.forEach(wordVector -> wordVector.applyWeight(m_cdaWeight));
+
+
+        // add the node words and component nams to the mapped document of the node
+        for (ClusteredNode n : a_nodes) {
+            int cIx = a_arch.getComponentIx(n.getClusteredComponent());
+            Vector<String> words = getWords(n.get(), a_stemmer);
+
+            // component names
+            addWordsToVector(getArchComponentWords(a_arch.getComponent(cIx), a_stemmer), words);
 
             // add each word to the corresponding document
             words.forEach(w -> ret.get(cIx).add(w));
@@ -201,6 +291,10 @@ public class IRAttractMapper extends IRMapperBase {
 
 
         return ret;
+    }
+
+    protected String getRelationType(dmDependency.Type a_relationType) {
+        return a_relationType.toString();
     }
 
 

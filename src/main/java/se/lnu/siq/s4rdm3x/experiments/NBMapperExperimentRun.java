@@ -5,6 +5,7 @@ import se.lnu.siq.s4rdm3x.experiments.ExperimentRunner.RandomDoubleVariable;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.NBMapper;
+import se.lnu.siq.s4rdm3x.model.cmd.mapper.NBMapperEx;
 import se.lnu.siq.s4rdm3x.model.cmd.util.FanInCache;
 
 import java.util.Random;
@@ -15,6 +16,7 @@ public class NBMapperExperimentRun extends IRExperimentRunBase {
 
     RandomBoolVariable m_doWordCount;
     ExperimentRunner.RandomDoubleVariable m_threshold;
+    double m_thresholdValue;
 
 
     public NBMapperExperimentRun(boolean a_doUseManualMapping, IRExperimentRunBase.Data a_irData, RandomBoolVariable a_doWordCount, RandomDoubleVariable a_threshold) {
@@ -26,7 +28,7 @@ public class NBMapperExperimentRun extends IRExperimentRunBase {
     @Override
     public ExperimentRunData.BasicRunData createNewRunData(Random a_rand) {
         m_exData = new ExperimentRunData.NBMapperData();
-        m_exData.m_threshold = m_threshold.generate(a_rand);
+        m_exData.m_threshold = m_thresholdValue = m_threshold.generate(a_rand);
         getData().setRunDataVariables(m_exData, a_rand);
         m_exData.m_doWordCount = m_doWordCount.generate(a_rand);
         return m_exData;
@@ -35,7 +37,7 @@ public class NBMapperExperimentRun extends IRExperimentRunBase {
     @Override
     public boolean runClustering(CGraph a_g, ArchDef arch) {
         NBMapper c = new NBMapper(arch, doUseManualMapping(), m_exData.m_doUseCDA, m_exData.m_doUseNodeText, m_exData.m_doUseNodeName, m_exData.m_doUseArchComponentName, m_exData.m_minWordSize, null);
-        c.setClusteringThreshold(m_exData.m_threshold);
+        c.setClusteringThreshold(m_thresholdValue);
         c.doStemming(m_exData.m_doStemming);
         c.doWordCount(m_exData.m_doWordCount);
         c.run(a_g);
@@ -47,6 +49,15 @@ public class NBMapperExperimentRun extends IRExperimentRunBase {
         c.getAutoClusteredNodes().forEach(n -> m_exData.addAutoClusteredNode(n));
 
         if (c.getAutoClusteredOrphanCount() + c.m_manuallyMappedNodes == 0) {
+            // if possible lower the threshold and try again...
+            /*if (m_thresholdValue > 1) {
+                m_thresholdValue -= 0.05;
+                if (m_thresholdValue < 1) {
+                    m_thresholdValue = 1;
+                }
+                m_exData.m_iterations++;
+                return false;
+            }*/
             return true;
         }
 

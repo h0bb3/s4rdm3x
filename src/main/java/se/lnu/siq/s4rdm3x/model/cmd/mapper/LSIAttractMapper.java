@@ -31,7 +31,26 @@ public class LSIAttractMapper extends IRMapperBase {
                 double[] freqs = new double[m_docCount];
                 freqs[a_docIx] = 1;
                 m_wordToIndex.put(a_word, m_words.size());
-                m_words.put(a_word, new double[m_docCount]);
+                m_words.put(a_word, freqs);
+            }
+        }
+
+        public void iDF() {
+            for (Map.Entry<String, double[]> e : m_words.entrySet()) {
+                double dfreq = 0;
+                for (double d : e.getValue()) {
+                    if (d > 0) {
+                        dfreq += 1;
+                    }
+                }
+
+                dfreq = Math.log(m_docCount / dfreq);
+                for (int dIx = 0; dIx < m_docCount; dIx++) {
+                    if (e.getValue()[dIx] > 0) {
+                        double v = e.getValue()[dIx];
+                        e.getValue()[dIx] = v * dfreq;
+                    }
+                }
             }
         }
 
@@ -84,6 +103,23 @@ public class LSIAttractMapper extends IRMapperBase {
 
             return -1;
         }
+
+        public HashMap<String, Double> getWordDocFrequencies() {
+            HashMap<String, Double> wordDocumentFrequency = new HashMap<>();
+
+            for (Map.Entry<String, double[]> e : m_words.entrySet()) {
+                double dfreq = 0;
+                for (double d : e.getValue()) {
+                    if (d > 0) {
+                        dfreq += 1;
+                    }
+                }
+
+                wordDocumentFrequency.put(e.getKey(), dfreq);
+            }
+
+            return wordDocumentFrequency;
+        }
     }
 
     public LSIAttractMapper(ArchDef a_arch, boolean a_doManualMapping, boolean a_doUseCDA, boolean a_doUseNodeText, boolean a_doUseNodeName, boolean a_doUseArchComponentName, int a_minWordLength) {
@@ -101,8 +137,8 @@ public class LSIAttractMapper extends IRMapperBase {
         // in this way we hypothesize that each architectural component will be a "clearly" defined concept.
         // we then use the Vk matrix to check the mapping of each document to each architectural component and find the best match
 
-        ArrayList<CNode> orphans = getOrphanNodes(a_g);
-        ArrayList<CNode> initiallyMapped = getInitiallyMappedNodes(a_g);
+        ArrayList<OrphanNode> orphans = getOrphanNodes(a_g);
+        ArrayList<ClusteredNode> initiallyMapped = getInitiallyMappedNodes(a_g);
 
         Stemmer stemmer = getStemmer();
 
@@ -164,8 +200,8 @@ public class LSIAttractMapper extends IRMapperBase {
 
         // this is just for debugging (know how many nodes are mapped to each component)
         int nodeComponentCount[] = new int[m_arch.getComponentCount()];
-        for (CNode n : initiallyMapped) {
-            nodeComponentCount[m_arch.getComponentIx(m_arch.getMappedComponent(n))]++;
+        for (ClusteredNode n : initiallyMapped) {
+            nodeComponentCount[m_arch.getComponentIx(m_arch.getMappedComponent(n.get()))]++;
         }
 
         // it seems as things are flipped in this matrix lib
@@ -180,7 +216,7 @@ public class LSIAttractMapper extends IRMapperBase {
 
         for (int catIx = 0; catIx < Vk.numRows(); catIx++) {
             for (int dIx = 0; dIx < Vk.numColumns(); dIx++) {
-                int componentIx = m_arch.getComponentIx(m_arch.getMappedComponent(initiallyMapped.get(dIx)));   // this now depends on the order in the list and the training data generation beware...
+                int componentIx = m_arch.getComponentIx(initiallyMapped.get(dIx).getClusteredComponent());   // this now depends on the order in the list and the training data generation beware...
 
                 scores[componentIx][catIx] += Vk.get(catIx, dIx);
             }
@@ -201,14 +237,14 @@ public class LSIAttractMapper extends IRMapperBase {
 
         // we can now find the best concept for each orphan and as we have a mapping from architecture to concept
         // will probably be a bit tricky to find the correct attraction as this is not "inline" with the architectural components just yes
-        for (CNode orphanNode : orphans) {
+        for (OrphanNode orphanNode : orphans) {
             double[] attraction = new double[m_arch.getComponentCount()];
 
 
             for (int i = 0; i < m_arch.getComponentCount(); i++) {
                 double [][] wordVector = new double[tm.numRows()][1];
 
-                IRAttractMapper.WordVector words = getWordVector(orphanNode, stemmer);
+                IRAttractMapper.WordVector words = getWordVector(orphanNode.get(), stemmer);
                 addWordsToWordVector(getUnmappedCDAWords(orphanNode, m_arch.getComponent(i), initiallyMapped), words);
 
                 words.maximumTFNormalization(smoothing);
@@ -241,10 +277,10 @@ public class LSIAttractMapper extends IRMapperBase {
 
             orphanNode.setAttractions(attraction);
 
-            ArchDef.Component autoClusteredTo = HuGMe.doAutoMapping(orphanNode, m_arch);
+            ArchDef.Component autoClusteredTo = doAutoMapping(orphanNode, m_arch);
             if (autoClusteredTo != null) {
                 addAutoClusteredOrphan(orphanNode);
-                if (autoClusteredTo != m_arch.getMappedComponent(orphanNode)) {
+                if (autoClusteredTo != m_arch.getMappedComponent(orphanNode.get())) {
                     m_autoWrong++;
                 }
 
@@ -271,24 +307,40 @@ public class LSIAttractMapper extends IRMapperBase {
         //
         // it is also unclear if the cosine distance is then used to determine the final attraction
 
-        ArrayList<CNode> orphans = getOrphanNodes(a_g);
-        ArrayList<CNode> initiallyMapped = getInitiallyMappedNodes(a_g);
+        ArrayList<OrphanNode> orphans = getOrphanNodes(a_g);
+        ArrayList<ClusteredNode> initiallyMapped = getInitiallyMappedNodes(a_g);
 
         Stemmer stemmer = getStemmer();
 
         final double smoothing = 0.1;
 
         WordMatrix trainingData = getTrainingData(initiallyMapped, m_arch, stemmer);
-        trainingData.maximumTFNormalization(smoothing);
+        //trainingData.maximumTFNormalization(smoothing);
+        //trainingData.iDF();
         weka.core.matrix.Matrix tm = new weka.core.matrix.Matrix(trainingData.getMatrix());
+        //no.uib.cipr.matrix.Matrix tm = new no.uib.cipr.matrix.DenseMatrix(trainingData.getMatrix());
 
-        weka.core.matrix.SingularValueDecomposition sut = tm.svd();
+        weka.core.matrix.SingularValueDecomposition svd = tm.svd();
+        /*SVD svd = null;
+        try {
+            svd = SVD.factorize(tm);
+        } catch (NotConvergedException e) {
+            e.printStackTrace();
+        }*/
 
-        Matrix U = sut.getU();
-        Matrix S = sut.getS();
-        Matrix V = sut.getV();
+
+        Matrix U = svd.getU();
+        Matrix S = svd.getS();
+        Matrix V = svd.getV();
+
+        /*no.uib.cipr.matrix.Matrix U = svd.getU();
+        double[] S = svd.getS();
+        no.uib.cipr.matrix.Matrix V = svd.getVt();
+        V = V.transpose(new DenseMatrix(V.numColumns(), V.numRows()));*/
+
 
         final int t = U.getRowDimension();  // number of terms
+        //final int t = U.numRows();  // number of terms
         //final int k = t > 100 ? 100 : t;  // this does not make sense as the number of documents (i.e. modules in the architecture is def < 100)
         final int k = t > m_arch.getComponentCount() ? m_arch.getComponentCount() : t;
 
@@ -298,22 +350,59 @@ public class LSIAttractMapper extends IRMapperBase {
         Matrix Vk = new Matrix(getTopLeftMatrixCopy(k, t, V.transpose().getArray()));
         Matrix Ak = Uk.times(Sk).times(Vk);
 
+        /*int[] rowsToKeep = new int[U.numRows()];
+        int[] columnsToKeep = new int[k];
+        for (int i = 0; i < rowsToKeep.length; i++) {
+            rowsToKeep[i] = i;
+        }
+        for (int i = 0; i < columnsToKeep.length; i++) {
+            columnsToKeep[i] = i;
+        }
+        no.uib.cipr.matrix.Matrix Uk = Matrices.getSubMatrix(U, rowsToKeep, columnsToKeep).copy();
+        double[] Ska = Arrays.copyOf(S, k);
+        no.uib.cipr.matrix.Matrix Sk = new UpperSymmDenseMatrix(k);
+        for (int i = 0; i < Ska.length; i++) {
+            Sk.set(i, i, Ska[i]);
+        }
+        rowsToKeep = new int[V.numRows()];
+        for (int i = 0; i < rowsToKeep.length; i++) {
+            rowsToKeep[i] = i;
+        }
+        no.uib.cipr.matrix.Matrix Vk = Matrices.getSubMatrix(V, rowsToKeep, columnsToKeep).copy();
+
+        no.uib.cipr.matrix.Matrix Ak = Uk.mult(Sk, new DenseMatrix(Uk.numRows(), Sk.numColumns()));
+        Ak.mult(Vk, new DenseMatrix(Ak.numRows(), Vk.numColumns()));*/
+
+
         double lengths[] = new double[Ak.getColumnDimension()];
+        //double lengths[] = new double[Ak.numColumns()];
 
         for (int i = 0; i < Ak.getColumnDimension(); i++) {
             lengths[i] = getColumnLength(Ak.getArray(), i);
         }
+        /*for (int cIx = 0; cIx < Ak.numColumns(); cIx++) {
+            for (int rIx = 0; rIx < Ak.numRows(); rIx++) {
+                double v = Ak.get(rIx, cIx);
+                lengths[cIx] +=  v * v;
+            }
 
-        for (CNode orphanNode : orphans) {
+            lengths[cIx] = Math.sqrt(lengths[cIx]);
+        }*/
+
+        HashMap<String, Double> wordDocFrequencies = trainingData.getWordDocFrequencies();
+
+        for (OrphanNode orphanNode : orphans) {
             double[] attraction = new double[m_arch.getComponentCount()];
 
             for (int i = 0; i < m_arch.getComponentCount(); i++) {
                 double [][] wordVector = new double[tm.getRowDimension()][1];
+                //double [][] wordVector = new double[tm.numRows()][1];
 
-                IRAttractMapper.WordVector words = getWordVector(orphanNode, stemmer);
+                IRAttractMapper.WordVector words = getWordVector(orphanNode.get(), stemmer);
                 addWordsToWordVector(getUnmappedCDAWords(orphanNode, m_arch.getComponent(i), initiallyMapped), words);
 
-                words.maximumTFNormalization(smoothing);
+                //words.maximumTFNormalization(smoothing);
+                //words.iDF(m_arch.getComponentCount(), wordDocFrequencies);
 
                 for (String w : words.getWords()) {
                     int ix = trainingData.getWordIndex(w);
@@ -323,8 +412,11 @@ public class LSIAttractMapper extends IRMapperBase {
                 }
 
                 weka.core.matrix.Matrix qm = new weka.core.matrix.Matrix(wordVector);
+                //no.uib.cipr.matrix.Matrix qm = new no.uib.cipr.matrix.DenseMatrix(wordVector);
+                //no.uib.cipr.matrix.Matrix qmt = qm.transpose(new DenseMatrix(qm.numColumns(), qm.numRows()));
 
                 attraction[i] = qm.transpose().times(Ak).get(0, i); // this should now be the  non normalized cos distances
+                //attraction[i] = qmt.mult(Ak, new DenseMatrix(qmt.numRows(), Ak.numColumns())).get(0, i); // this should now be the  non normalized cos distances
                 if (lengths[i] != 0) {
                     attraction[i] = attraction[i] / (words.length() * lengths[i]);  // there may be stuff with length 0 as some components may have no initially mapped nodes
                 } else {
@@ -335,10 +427,10 @@ public class LSIAttractMapper extends IRMapperBase {
 
             orphanNode.setAttractions(attraction);
 
-            ArchDef.Component autoClusteredTo = HuGMe.doAutoMapping(orphanNode, m_arch);
+            ArchDef.Component autoClusteredTo = doAutoMapping(orphanNode, m_arch);
             if (autoClusteredTo != null) {
                 addAutoClusteredOrphan(orphanNode);
-                if (autoClusteredTo != m_arch.getMappedComponent(orphanNode)) {
+                if (autoClusteredTo != m_arch.getMappedComponent(orphanNode.get())) {
                     m_autoWrong++;
                 }
 
@@ -382,11 +474,11 @@ public class LSIAttractMapper extends IRMapperBase {
         return ret;
     }
 
-    public WordMatrix getTrainingData(List<CNode> a_nodes, ArchDef a_arch) {
+    public WordMatrix getTrainingData(List<ClusteredNode> a_nodes, ArchDef a_arch) {
         return getTrainingData(a_nodes, a_arch, getStemmer());
     }
 
-    private WordMatrix getTrainingData(List<CNode> a_nodes, ArchDef a_arch, weka.core.stemmers.Stemmer a_stemmer) {
+    private WordMatrix getTrainingData(List<ClusteredNode> a_nodes, ArchDef a_arch, weka.core.stemmers.Stemmer a_stemmer) {
         WordMatrix ret = new WordMatrix(a_arch.getComponentCount());
 
 
@@ -398,9 +490,9 @@ public class LSIAttractMapper extends IRMapperBase {
         });
 
         // add the node words to the mapped document of the node
-        for (CNode n : a_nodes) {
-            int cIx = a_arch.getComponentIx(a_arch.getMappedComponent(n));
-            Vector<String> words = getWords(n, a_stemmer);
+        for (ClusteredNode n : a_nodes) {
+            int cIx = a_arch.getComponentIx(a_arch.getMappedComponent(n.get()));
+            Vector<String> words = getWords(n.get(), a_stemmer);
 
             // add the CDA words
             addWordsToVector(getMappedCDAWords(n, a_nodes), words);
@@ -413,23 +505,23 @@ public class LSIAttractMapper extends IRMapperBase {
     }
 
 
-    private WordMatrix getTrainingDatByNode(List<CNode> a_nodes, ArchDef a_arch, weka.core.stemmers.Stemmer a_stemmer) {
+    private WordMatrix getTrainingDatByNode(List<ClusteredNode> a_nodes, ArchDef a_arch, weka.core.stemmers.Stemmer a_stemmer) {
         // one document per node
         WordMatrix ret = new WordMatrix(a_nodes.size());
 
         // add the node words to the mapped document of the node
         int i = 0;
-        for (CNode n : a_nodes) {
+        for (ClusteredNode n : a_nodes) {
 
             final int cIx = i;
 
             // add the component names to the document
             Vector<String> names = new Vector<>();
-            addWordsToVector(getArchComponentWords(a_arch.getMappedComponent(n), a_stemmer), names);
+            addWordsToVector(getArchComponentWords(a_arch.getMappedComponent(n.get()), a_stemmer), names);
             names.forEach(w -> ret.add(w, cIx));
 
 
-            Vector<String> words = getWords(n, a_stemmer);
+            Vector<String> words = getWords(n.get(), a_stemmer);
 
             // add the CDA words
             addWordsToVector(getMappedCDAWords(n, a_nodes), words);

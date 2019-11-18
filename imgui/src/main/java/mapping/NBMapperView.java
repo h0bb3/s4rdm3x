@@ -14,6 +14,7 @@ import se.lnu.siq.s4rdm3x.experiments.ExperimentRunData;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
+import se.lnu.siq.s4rdm3x.model.cmd.mapper.MapperBase;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.NBMapper;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.NBMapperManual;
 import weka.core.Attribute;
@@ -41,8 +42,13 @@ public class NBMapperView extends MapperBaseView {
     private int m_selectedRowIx = -1;
     private String m_selectedNodeName = "";
 
+    ArrayList<MapperBase.ClusteredNode> m_clusteredNodes = new ArrayList<>();
+    int m_mappedNodesCount = -1;    // this is a weak cache thingamajig but as we are doing imgui chances are that we will get an update before the thing fails...
+
     public NBMapperView(List<CNode>a_mappedNodes, List<CNode>a_orphanNodes) {
         super(a_mappedNodes, a_orphanNodes);
+
+
     }
 
     public String getSelectedNodeName() {
@@ -59,9 +65,15 @@ public class NBMapperView extends MapperBaseView {
         // TODO: these should be fixed based on parameters in the view...
         NBMapper mapper = new NBMapper(null, m_doUseCDA, m_doUseNodeText, m_doUseNodeName, m_doUseArchComponentName, m_minWordLength);
 
+        if (m_mappedNodesCount != m_selectedMappedNodes.size()) {
+            m_clusteredNodes = new ArrayList<>();
+            m_selectedMappedNodes.forEach(n -> m_clusteredNodes.add(new MapperBase.ClusteredNode(n, a_arch)));
+            m_mappedNodesCount = m_selectedMappedNodes.size();
+        }
+
         StringToWordVector filter = (StringToWordVector) mapper.getFilter();
         filter.setOutputWordCounts(m_doWordCount);
-        Instances td = mapper.getTrainingData(m_selectedMappedNodes, a_arch, filter, m_doStemming ? new weka.core.stemmers.SnowballStemmer() : null);   // TODO: check so that this stemming stuff is correct...
+        Instances td = mapper.getTrainingData(m_clusteredNodes, a_arch, filter, m_doStemming ? new weka.core.stemmers.SnowballStemmer() : null);   // TODO: check so that this stemming stuff is correct...
         NBMapper.Classifier classifier = new NBMapper.Classifier();
         final boolean doAddRawArchitectureTrainingData = mapper.doAddRawArchitectureTrainingData();
 

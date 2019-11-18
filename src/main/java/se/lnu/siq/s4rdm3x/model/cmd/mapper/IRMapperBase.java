@@ -43,12 +43,24 @@ public abstract class IRMapperBase extends MapperBase {
         return m_doUseArchComponentName;
     }
 
+    boolean isStopWord(String a_word) {
+        final String[] stopWords = {"<init>", "<clinit>", "tmp", "temp"};
+        for (String stopWord : stopWords) {
+            if (a_word.equalsIgnoreCase(stopWord)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     String getNodeWords(CNode a_node, Stemmer a_stemmer) {
         String ret = "";
         if (m_doUseNodeText) {
             for (dmClass c : a_node.getClasses()) {
                 for (String t : c.getTexts()) {
-                    ret += deCamelCase(t, m_minWordLength, a_stemmer) + " ";
+                    if (!isStopWord(t)) {
+                        ret += deCamelCase(t, m_minWordLength, a_stemmer) + " ";
+                    }
                 }
             }
         }
@@ -71,35 +83,35 @@ public abstract class IRMapperBase extends MapperBase {
         return ret;
     }
 
-    protected String getUnmappedCDAWords(CNode a_orphan, ArchDef.Component a_component, Iterable<CNode> a_mappedTargets) {
+    protected String getUnmappedCDAWords(OrphanNode a_orphan, ArchDef.Component a_component, Iterable<ClusteredNode> a_mappedTargets) {
         if (m_doUseCDA) {
-            return getDependencyStringFromNode(a_orphan, a_component.getName(), a_mappedTargets) + " " + getDependencyStringToNode(a_orphan, a_component.getName(), a_mappedTargets);
+            return getDependencyStringFromNode(a_orphan.get(), a_component.getName(), a_mappedTargets) + " " + getDependencyStringToNode(a_orphan.get(), a_component.getName(), a_mappedTargets);
         }
         return "";
     }
 
-    protected String getMappedCDAWords(CNode a_source, Iterable<CNode>a_targets) {
+    protected String getMappedCDAWords(ClusteredNode a_source, Iterable<ClusteredNode>a_targets) {
         if (m_doUseCDA) {
-            return getDependencyStringFromNode(a_source, a_targets) + " " + getDependencyStringToNode(a_source, a_targets);
+            return getDependencyStringFromNode(a_source.get(), a_targets) + " " + getDependencyStringToNode(a_source.get(), a_targets);
         }
         return "";
     }
 
-    private String getDependencyStringToNode(CNode a_to, Iterable<CNode> a_froms) {
-        return getDependencyStringToNode(a_to, a_to.getMapping(), a_froms);
+    private String getDependencyStringToNode(CNode a_to, Iterable<ClusteredNode> a_froms) {
+        return getDependencyStringToNode(a_to, a_to.getClusteringComponentName(), a_froms);
     }
 
-    private String getDependencyStringFromNode(CNode a_from, Iterable<CNode>a_tos) {
-        return getDependencyStringFromNode(a_from, a_from.getMapping(), a_tos);
+    private String getDependencyStringFromNode(CNode a_from, Iterable<ClusteredNode>a_tos) {
+        return getDependencyStringFromNode(a_from, a_from.getClusteringComponentName(), a_tos);
     }
 
-    private String getDependencyStringToNode(CNode a_to, String a_nodeComponentName, Iterable<CNode> a_froms) {
+    private String getDependencyStringToNode(CNode a_to, String a_nodeComponentName, Iterable<ClusteredNode> a_froms) {
         String relations = "";
-        for (CNode from : a_froms) {
-            if (a_to != from) {
+        for (ClusteredNode from : a_froms) {
+            if (a_to != from.get()) {
                 for (dmDependency d : from.getDependencies(a_to)) {
                     for (int i = 0; i < d.getCount(); i++) {
-                        relations += getComponentComponentRelationString(from.getMapping(), d.getType(), a_nodeComponentName) + " ";//from.getMapping().replace(".", "") + d.getType() + a_nodeComponentName.replace(".", "") + " ";
+                        relations += getComponentComponentRelationString(from.getClusteringComponentName(), d.getType(), a_nodeComponentName) + " ";//from.getMapping().replace(".", "") + d.getType() + a_nodeComponentName.replace(".", "") + " ";
                     }
                 }
             }
@@ -111,18 +123,26 @@ public abstract class IRMapperBase extends MapperBase {
 
     }
 
-    protected String getComponentComponentRelationString(String a_from, dmDependency.Type a_relation, String a_to) {
-        return a_from.replace(".", "") + a_relation + a_to.replace(".", "");
-        //return a_from.replace(".", "") + "dependson" + a_to.replace(".", "");
+    protected String getRelationType(dmDependency.Type a_relationType) {
+        if (a_relationType == dmDependency.Type.Field) {
+            return a_relationType.toString();
+        } else if (a_relationType == dmDependency.Type.Extends || a_relationType == dmDependency.Type.Implements) {
+            return "InheritsRealizes";
+        }
+        return "DependsOn";
     }
 
-    private String getDependencyStringFromNode(CNode a_from, String a_nodeComponentName, Iterable<CNode> a_tos) {
+    protected String getComponentComponentRelationString(String a_from, dmDependency.Type a_relation, String a_to) {
+        return a_from.replace(".", "") + getRelationType(a_relation) + a_to.replace(".", "");
+    }
+
+    private String getDependencyStringFromNode(CNode a_from, String a_nodeComponentName, Iterable<ClusteredNode> a_tos) {
         String relations = "";
-        for (CNode to : a_tos) {
-            if (to != a_from) {
-                for (dmDependency d : a_from.getDependencies(to)) {
+        for (ClusteredNode to : a_tos) {
+            if (!to.equals(a_from)) {
+                for (dmDependency d : a_from.getDependencies(to.get())) {
                     for (int i = 0; i < d.getCount(); i++) {
-                        relations += getComponentComponentRelationString(a_nodeComponentName, d.getType(), to.getMapping()) + " ";
+                        relations += getComponentComponentRelationString(a_nodeComponentName, d.getType(), to.getClusteringComponentName()) + " ";
                     }
                 }
             }
@@ -149,10 +169,6 @@ public abstract class IRMapperBase extends MapperBase {
                 if (w.length() >= a_minLength && !w.contains("$")) {
                     if (a_stemmer != null ) {
                         w = a_stemmer.stem(w);
-                    }
-
-                    if (w.equals("tmp")) {
-                        w = "temp";
                     }
 
                     ret += w + " ";

@@ -4,9 +4,10 @@ import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
 import weka.attributeSelection.*;
-import weka.classifiers.bayes.net.search.local.GeneticSearch;
-import weka.core.*;
-import weka.core.pmml.jaxbbindings.Cluster;
+import weka.core.Attribute;
+import weka.core.DenseInstance;
+import weka.core.Instances;
+import weka.core.SelectedTag;
 import weka.core.stemmers.SnowballStemmer;
 import weka.filters.Filter;
 import weka.filters.supervised.attribute.AttributeSelection;
@@ -16,7 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class NBMapper extends IRMapperBase {
+public class NBMapperEx extends IRMapperBase {
 
     private boolean m_addRawArchitectureTrainingData = false;
 
@@ -63,13 +64,13 @@ public class NBMapper extends IRMapperBase {
     private Filter m_filter = new StringToWordVector();
     private double [] m_initialDistribution = null;
 
-    public NBMapper(ArchDef a_arch, boolean a_doUseCDA, boolean a_doUseNodeText, boolean a_doUseNodeName, boolean a_doUseArchComponentName, int a_minWordLength) {
+    public NBMapperEx(ArchDef a_arch, boolean a_doUseCDA, boolean a_doUseNodeText, boolean a_doUseNodeName, boolean a_doUseArchComponentName, int a_minWordLength) {
         super(a_arch, false, a_doUseCDA, a_doUseNodeText, a_doUseNodeName, a_doUseArchComponentName, a_minWordLength);
         ((StringToWordVector)m_filter).setOutputWordCounts(false);
         ((StringToWordVector) m_filter).setTFTransform(false);
         ((StringToWordVector) m_filter).setIDFTransform(false);
     }
-    public NBMapper(ArchDef a_arch, boolean a_doManualMapping, boolean a_doUseCDA, boolean a_doUseNodeText, boolean a_doUseNodeName, boolean a_doUseArchComponentName, int a_minWordLength, double [] a_initialDistribution) {
+    public NBMapperEx(ArchDef a_arch, boolean a_doManualMapping, boolean a_doUseCDA, boolean a_doUseNodeText, boolean a_doUseNodeName, boolean a_doUseArchComponentName, int a_minWordLength, double [] a_initialDistribution) {
         super(a_arch, a_doManualMapping, a_doUseCDA, a_doUseNodeText, a_doUseNodeName, a_doUseArchComponentName, a_minWordLength);
         m_initialDistribution = a_initialDistribution;
         ((StringToWordVector)m_filter).setOutputWordCounts(false);
@@ -116,7 +117,7 @@ public class NBMapper extends IRMapperBase {
             } while (!((SnowballStemmer) stemmer).stemmerTipText().contains("english"));  // when using multiple threads this is apparently needed...
         }
 
-        weka.core.Instances trainingData = getTrainingData(initiallyMapped, m_arch, getFilter(), stemmer);
+        //weka.core.Instances trainingData = getTrainingData(initiallyMapped, m_arch, getFilter(), stemmer);
         //weka.core.Instances predictionData = getPredictionData(a_g);
 
         m_consideredNodes = orphans.size();
@@ -131,17 +132,69 @@ public class NBMapper extends IRMapperBase {
 
         try {
 
-            nbClassifier.buildClassifier(trainingData);
+            //ASEvaluation eval = new GainRatioAttributeEval();
+            /* Create a Weka's AS Search algorithm */
+            //ASSearch search = new Ranker();
+            /* Wrap WEKAs' Algorithms in bridge */
+            //WekaAttributeSelection wekaattrsel = new WekaAttributeSelection(eval, search);
+            /* Apply the algorithm to the data set */
+            //wekaattrsel.build(data);
+            /* Print out the score and rank  of each attribute */
+            //for (int i = 0; i < wekaattrsel.noAttributes(); i++)
+            //System [2].out.println("Attribute  " +  i +  "  Ranks  " + wekaattrsel.rank(i) + " and Scores " + wekaattrsel.score(i) );
+
+            // This is some code that can use filters to remove attributes
+            // remember to use the same filter on the prediction data
+            AttributeSelection attrSel = new AttributeSelection();
+            Ranker r = new Ranker();
+            //r.setThreshold(0.01);
+            //r.setNumToSelect(trainingData.numAttributes() / 100);
+            r.setNumToSelect(1 + m_arch.getComponentCount() * m_arch.getComponentCount());
+
+            GreedyStepwise gs = new GreedyStepwise();
+            gs.setSearchBackwards(true);
+            gs.setNumToSelect(1 + m_arch.getComponentCount() * m_arch.getComponentCount());
+
+            BestFirst bf = new BestFirst();
+            bf.setDirection(new SelectedTag(BestFirst.TAGS_SELECTION[2].getID(), BestFirst.TAGS_SELECTION));
+            bf.setSearchTermination(100);
+
+            ClassifierAttributeEval cae = new ClassifierAttributeEval();
+            cae.setClassifier(new NBMapper.Classifier());
+
+
+            //attrSel.setEvaluator(cae);
+            //attrSel.setEvaluator(new GainRatioAttributeEval());
+            //attrSel.setEvaluator(new SymmetricalUncertAttributeEval());
+            //attrSel.setEvaluator(new OneRAttributeEval());
+            //attrSel.setEvaluator(new ReliefFAttributeEval());
+            attrSel.setEvaluator(new InfoGainAttributeEval());
+            //attrSel.setEvaluator(new CorrelationAttributeEval());
+            //attrSel.setEvaluator(new CfsSubsetEval());
+            //attrSel.setEvaluator(new PrincipalComponents()); // This one takes ages
+            attrSel.setSearch(r);
+            //attrSel.setInputFormat(trainingData);
+
+
+            //System.out.print("Attribute Count: " + trainingData.numAttributes());
+            //trainingData = Filter.useFilter(trainingData, attrSel);
+            //trainingData.setClassIndex(trainingData.numAttributes() - 1);
+            //System.out.println(" vs : " + trainingData.numAttributes());
+
+           //nbClassifier.buildClassifier(trainingData);
 
             //SerializationHelper sh = new SerializationHelper();
             //SerializationHelper.write("C:\\hObbE\\projects\\coding\\research\\s4rdm3x\\testmodel", nbClassifier);
 
 
-            if (m_initialDistribution != null && m_initialDistribution.length == nbClassifier.getProbabilityOfClass().length) {
+            /*if (m_initialDistribution != null && m_initialDistribution.length == nbClassifier.getProbabilityOfClass().length) {
                 for (int dIx = 0; dIx < nbClassifier.getProbabilityOfClass().length; dIx++) {
                     nbClassifier.getProbabilityOfClass()[dIx] = m_initialDistribution[dIx];
                 }
-            }
+            }*/
+
+            // data = Filter.useFilter(data, attrSel);
+            //  data.setClassIndex(data.numAttributes() - 1);
 
             //System.out.print(" the expression for the input data as per algorithm is ");
             //System.out.println(nbClassifier);
@@ -149,12 +202,12 @@ public class NBMapper extends IRMapperBase {
             for (OrphanNode orphanNode : orphans) {
                 double [] attraction = new double[m_arch.getComponentCount()];
 
+                weka.core.Instances trainingData = getTrainingData(initiallyMapped, orphans, orphanNode, m_arch, getFilter(), stemmer);
+                nbClassifier.buildClassifier(trainingData);
+
                 for (int i = 0; i < m_arch.getComponentCount(); i++) {
 //                    double index = nbClassifier.classifyInstance(data.instance(i));
                     Instances data = getPredictionDataForNode(orphanNode, initiallyMapped, m_arch.getComponentNames(), m_arch.getComponent(i), getFilter(), stemmer);
-
-
-
                     double [] distribution = nbClassifier.distributionForInstance(data.instance(0));
                     /*System.out.print("[");
                     for (int dIx = 0; dIx < distribution.length; dIx++) {
@@ -165,9 +218,15 @@ public class NBMapper extends IRMapperBase {
                     attraction[i] = distribution[i];
                 }
 
+                // calculate the orphans training data
+                // something is needed here...
+                //Instances data = getPredictionDataForNode(orphanNode, orphans, m_arch.getComponentNames(), "unknown", getFilter(), stemmer);
+                //double [] distribution = nbClassifier.distributionForInstance(data.instance(0));
+
+
                 orphanNode.setAttractions(attraction);
 
-                ArchDef.Component autoClusteredTo = doAutoMappingAbsThreshold(orphanNode, m_arch, 0.9);
+                ArchDef.Component autoClusteredTo = doAutoMapping(orphanNode, m_arch);
                 if (autoClusteredTo != null) {
                     addAutoClusteredOrphan(orphanNode);
                     if (autoClusteredTo != m_arch.getMappedComponent(orphanNode.get())) {
@@ -250,10 +309,18 @@ public class NBMapper extends IRMapperBase {
         }
     }
 
+    public  int[] getMaxIndices(double[] a_values) {
+        int[] ret = new int[] {0, 1};
+        for (int cIx = 1; cIx < a_values.length; cIx++) {
+            if (a_values[ret[0]] < a_values[cIx]) {
+                ret[1] = ret[0];
+                ret[0] = cIx;
+            } else if (a_values[ret[1]] < a_values[cIx]) {
+                ret[1] = cIx;
+            }
+        }
 
-
-    protected String getRelationType(dmDependency.Type a_relationType) {
-        return a_relationType.toString();
+        return ret;
     }
 
     private Instances getPredictionDataForNode(OrphanNode a_node, Iterable<ClusteredNode> a_mappedNodes, String[] a_componentNames, ArchDef.Component a_component, Filter a_filter, weka.core.stemmers.Stemmer a_stemmer) {
@@ -282,20 +349,6 @@ public class NBMapper extends IRMapperBase {
         try {
             //filter.setInputFormat(data);
             data = Filter.useFilter(data, a_filter);
-
-
- /*           StringToWordVector s2wv = (StringToWordVector)a_filter;
-            Instance i = data.get(0);
-
-            for (int aIx = 0; aIx < i.numAttributes(); aIx++) {
-                Attribute a = i.attribute(aIx);
-                if (i.value(a) > 0) {
-                    System.out.print(a.name() + " ");
-                }
-            }
-            System.out.println();*/
-
-
             return data;
         } catch (Exception e) {
 
@@ -307,106 +360,18 @@ public class NBMapper extends IRMapperBase {
     }
 
 
-
-   /* private String getComponentComponentRelationString(String a_from, dmDependency.Type a_relation, String a_to) {
-        return a_from.replace(".", "") + a_relation + a_to.replace(".", "");
-    }
-
-    private String getDependencyStringFromNode(CNode a_from, String a_nodeComponentName, Iterable<CNode> a_tos) {
-        String relations = "";
-        for (CNode to : a_tos) {
-            if (to != a_from) {
-                for (dmDependency d : a_from.getDependencies(to)) {
-                    for (int i = 0; i < d.getCount(); i++) {
-                        relations += getComponentComponentRelationString(a_nodeComponentName, d.getType(), to.getMapping()) + " ";
-                    }
-                }
-            }
-        }
-
-        relations = relations.trim();
-
-        return relations;
-    }
-
-    private String getDependencyStringToNode(CNode a_to, String a_nodeComponentName, Iterable<CNode> a_froms) {
-        String relations = "";
-        for (CNode from : a_froms) {
-            if (a_to != from) {
-                for (dmDependency d : from.getDependencies(a_to)) {
-                    for (int i = 0; i < d.getCount(); i++) {
-                        relations += getComponentComponentRelationString(from.getMapping(), d.getType(), a_nodeComponentName) + " ";//from.getMapping().replace(".", "") + d.getType() + a_nodeComponentName.replace(".", "") + " ";
-                    }
-                }
-            }
-        }
-
-        relations = relations.trim();
-
-        return relations;
-
-    }
-
-    String getDependencyStringToNode(CNode a_to, Iterable<CNode> a_froms) {
-        return getDependencyStringToNode(a_to, a_to.getMapping(), a_froms);
-    }
-
-    String getDependencyStringFromNode(CNode a_from, Iterable<CNode>a_tos) {
-        return getDependencyStringFromNode(a_from, a_from.getMapping(), a_tos);
-    }*/
-
-    public Instances getTrainingData(Iterable<ClusteredNode> a_nodes, ArchDef a_arch, Filter a_filter, weka.core.stemmers.Stemmer a_stemmer) {
+    public Instances getTrainingData(Iterable<ClusteredNode>a_initiallyMapped, Iterable<OrphanNode>a_orphans, OrphanNode a_currentOrphan, ArchDef a_arch, Filter a_filter, weka.core.stemmers.Stemmer a_stemmer) {
         ArrayList<Attribute> attributes = new ArrayList<>();
 
         // first we have the architectural components
-        List<String> components = Arrays.asList(a_arch.getComponentNames());
+        List<String> components = new ArrayList<>(Arrays.asList(a_arch.getComponentNames()));
+        components.add("unmapped");
 
 
         attributes.add(new Attribute("hypothetical_component", components));
         attributes.add(new Attribute("model_features", (ArrayList<String>) null));
 
         Instances data = new Instances("TrainingData", attributes, 0);
-
-        /*if (doUseCDA()) {
-            for (ArchDef.Component from : a_arch.getComponents()) {
-                double[] values = new double[data.numAttributes()];
-                values[0] = components.indexOf(from.getName());
-                String relations = "";
-
-                // this adds all the allowed dependencies from the architectural definition to the training data
-                // this does not seem to increase the accuracy of the model so we don't use it.
-                if (doManualMapping()) {
-                    for (ArchDef.Component to : a_arch.getComponents()) {
-                        if (from == to || from.allowedDependency(to)) {
-                            for (dmDependency.Type t : dmDependency.Type.values()) {
-                                relations += getComponentComponentRelationString(from.getName(), t, to.getName()) + " ";
-                            }
-                        } else if (to.allowedDependency(from)) {
-                            for (dmDependency.Type t : dmDependency.Type.values()) {
-                                relations += getComponentComponentRelationString(to.getName(), t, from.getName()) + " ";
-                            }
-                        }
-                    }
-                }
-                values[1] = data.attribute(1).addStringValue(relations);
-                data.add(new DenseInstance(1.0, values));
-            }
-        }*/
-
-        // we always allow self dependencies within the architectural components so we need to add these.
-        /*if (doUseCDA()) {
-            for (ArchDef.Component c : a_arch.getComponents()) {
-                String relations = "";
-                for (dmDependency.Type t : dmDependency.Type.values()) {
-                    relations += getComponentComponentRelationString(c.getName(), t, c.getName()) + " ";
-                }
-
-                double[] values = new double[data.numAttributes()];
-                values[0] = components.indexOf(c.getName());
-                values[1] = data.attribute(1).addStringValue(relations);
-                data.add(new DenseInstance(1.0, values));
-            }
-        }*/
 
         // add the component names
         if (doUseArchComponentName()) {
@@ -421,15 +386,14 @@ public class NBMapper extends IRMapperBase {
             }
         }
 
-        // add the node stuff
+        // add the mapped node stuff
         String relations = "";
-        for (ClusteredNode n : a_nodes) {
+        for (ClusteredNode n : a_initiallyMapped) {
             double[] values = new double[data.numAttributes()];
-            values[0] = components.indexOf(n.getClusteringComponentName());
+            values[0] = components.indexOf(n.getClusteredComponent().getName());
 
             // add the cda for the node
-            //relations = getDependencyStringFromNode(n, a_nodes) + " " +  getDependencyStringToNode(n, a_nodes) + " ";
-            relations = getMappedCDAWords(n, a_nodes);
+            relations = getMappedCDAWords(n, a_initiallyMapped);
             relations += " ";
 
 
@@ -439,6 +403,27 @@ public class NBMapper extends IRMapperBase {
             values[1] = data.attribute(1).addStringValue(relations);
             data.add(new DenseInstance(1.0, values));
         }
+
+        // add the orphan node stuff
+        relations = "";
+        for (OrphanNode o : a_orphans) {
+            if (o != a_currentOrphan) {
+                double[] values = new double[data.numAttributes()];
+                values[0] = components.indexOf("unmapped");
+
+                // add the cda for the node
+                //relations = getMappedCDAWords(o, a_orphans);
+                relations += " ";
+
+
+                // add the identifier texts for the node
+                relations += getNodeWords(o.get(), a_stemmer);
+
+                values[1] = data.attribute(1).addStringValue(relations);
+                data.add(new DenseInstance(1.0, values));
+            }
+        }
+
 
         data.setClassIndex(0);
 
@@ -456,3 +441,4 @@ public class NBMapper extends IRMapperBase {
         }
     }
 }
+

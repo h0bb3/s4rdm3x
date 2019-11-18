@@ -1,9 +1,7 @@
 package se.lnu.siq.s4rdm3x.model.cmd.mapper;
 
-import se.lnu.siq.s4rdm3x.model.cmd.util.FanInCache;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
-import se.lnu.siq.s4rdm3x.stats;
 
 import java.util.ArrayList;
 
@@ -29,17 +27,17 @@ public class HuGMe extends MapperBase {
     public void run(CGraph a_g) {
         final String [] originalMappingTags = m_arch.getComponentNames();
 
-        java.util.ArrayList<CNode> unmapped = getOrphanNodes(a_g);
+        java.util.ArrayList<OrphanNode> unmapped = getOrphanNodes(a_g);
 
         // create the current clusters
-        java.util.ArrayList<java.util.ArrayList<CNode>> clusters = new ArrayList<>();
+        java.util.ArrayList<java.util.ArrayList<ClusteredNode>> clusters = new ArrayList<>();
         for(int i = 0; i < m_arch.getComponentCount(); i++) {
-            ArrayList<CNode> c = new ArrayList<>();
+            ArrayList<ClusteredNode> c = new ArrayList<>();
             clusters.add(c);
             ArchDef.Component targetComponent = m_arch.getComponent(i);
 
-            for(CNode n : getInitiallyMappedNodes(a_g)) {
-                if (m_arch.getClusteredComponent(n) == targetComponent) {
+            for(ClusteredNode n : getInitiallyMappedNodes(a_g)) {
+                if (n.getClusteredComponent() == targetComponent) {
                     c.add(n);
                 }
             }
@@ -48,19 +46,19 @@ public class HuGMe extends MapperBase {
 
         m_unmappedNodesFromStart = unmapped.size();
 
-        java.util.ArrayList<CNode> candidates = new ArrayList<>(unmapped);
-        for (CNode n : unmapped) {
+        java.util.ArrayList<OrphanNode> candidates = new ArrayList<>(unmapped);
+        for (OrphanNode n : unmapped) {
             // count all dependencies to this class from all other unmapped classes
             int toMappedCountC = 0, totalCountC = 0;
-            for (CNode otherNode : unmapped) {
+            for (OrphanNode otherNode : unmapped) {
                 if (n != otherNode) {
                     totalCountC += n.getDependencyCount(otherNode); //m_fic.getFanIn(n, otherNode);
                     totalCountC += otherNode.getDependencyCount(n); //m_fic.getFanIn(otherNode, n);
                 }
             }
 
-            for (ArrayList<CNode> cluster : clusters) {
-                for (CNode nMapped : cluster) {
+            for (ArrayList<ClusteredNode> cluster : clusters) {
+                for (ClusteredNode nMapped : cluster) {
 
                     double fromClustered = nMapped.getDependencyCount(n);//m_fic.getFanIn(nMapped, n);
                     double toClustered = n.getDependencyCount(nMapped);//m_fic.getFanIn(n, nMapped);
@@ -86,7 +84,7 @@ public class HuGMe extends MapperBase {
         m_consideredNodes = candidates.size();
 
         // 3 Count the attraction to the clusters, there will be one sum for each cluster
-        for (CNode n : candidates) {
+        for (OrphanNode n : candidates) {
             double attractions[] = new double[m_arch.getComponentCount()];
             for (int i = 0; i < m_arch.getComponentCount(); i++) {
                 // TODO: Implement weights for different types of relations
@@ -100,11 +98,11 @@ public class HuGMe extends MapperBase {
         //      First set is based on >= mean of all attractions
         //      Second set is based on > standard deviation of all attractions
 
-        for (CNode n : candidates) {
-            ArchDef.Component autoClusteredTo = HuGMe.doAutoMapping(n, m_arch);
+        for (OrphanNode n : candidates) {
+            ArchDef.Component autoClusteredTo = doAutoMapping(n, m_arch);
 
 
-            ArchDef.Component mappedC = m_arch.getMappedComponent(n);
+            ArchDef.Component mappedC = m_arch.getMappedComponent(n.get());
 
             if (autoClusteredTo != null) {
                 addAutoClusteredOrphan(n);
@@ -179,37 +177,10 @@ public class HuGMe extends MapperBase {
         }
     }
 
-    public static ArchDef.Component doAutoMapping(CNode a_orphanNode, ArchDef a_archDef) {
-        double attractions[] = a_orphanNode.getAttractions();
-        double mean = stats.mean(attractions);
-        double sd = stats.stdDev(attractions, mean);
-
-        ArrayList<Integer> c1 = new ArrayList<>();
-        ArrayList<Integer> c2 = new ArrayList<>();
-
-        for(int i = 0; i < a_archDef.getComponentCount(); i++) {
-            if (attractions[i] >= mean) {
-                c2.add(i);
-            }
-            if (attractions[i] - mean > sd) {   // could also stated as > mean + sd (i.e. the same)
-                c1.add(i);
-            }
-        }
-        if (c1.size() == 1) {
-            ArchDef.Component clusteredComponent = a_archDef.getComponent(c1.get(0));
-            clusteredComponent.clusterToNode(a_orphanNode, ArchDef.Component.ClusteringType.Automatic);
-            return clusteredComponent;
-        } else if (c2.size() == 1) {
-            ArchDef.Component clusteredComponent = a_archDef.getComponent(c2.get(0));
-            clusteredComponent.clusterToNode(a_orphanNode, ArchDef.Component.ClusteringType.Automatic);
-            return clusteredComponent;
-        }
-
-        return null;
-    }
 
 
-    double CountAttractP(CNode a_node, int a_cluster, ArrayList<ArrayList<CNode>> a_clusters) {
+
+    double CountAttractP(OrphanNode a_node, int a_cluster, ArrayList<ArrayList<ClusteredNode>> a_clusters) {
         double overall = 0;
         double toOthers = 0;
 
@@ -254,11 +225,11 @@ public class HuGMe extends MapperBase {
         return overall - toOthers;
     }
 
-    private double CountAttract(CNode a_node, Iterable<CNode> a_cluster, double a_weightFromNode, double a_weightFromCluster) {
+    private double CountAttract(OrphanNode a_node, Iterable<ClusteredNode> a_cluster, double a_weightFromNode, double a_weightFromCluster) {
         double count = 0;
 
         double cCount = 0;
-        for (CNode nTo : a_cluster) {
+        for (ClusteredNode nTo : a_cluster) {
             cCount += a_node.getDependencyCount(nTo) * a_weightFromNode; //m_fic.getFanIn(nTo, a_node) * a_weightFromNode;
             cCount += nTo.getDependencyCount(a_node) * a_weightFromCluster;//m_fic.getFanIn(a_node, nTo) * a_weightFromCluster;
         }

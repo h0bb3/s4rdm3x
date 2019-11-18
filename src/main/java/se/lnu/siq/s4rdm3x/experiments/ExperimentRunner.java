@@ -1,6 +1,7 @@
 package se.lnu.siq.s4rdm3x.experiments;
 
 import javafx.scene.shape.Arc;
+import se.lnu.siq.s4rdm3x.model.CNode;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 import se.lnu.siq.s4rdm3x.experiments.metric.Metric;
 import se.lnu.siq.s4rdm3x.experiments.system.System;
@@ -267,8 +268,7 @@ public class ExperimentRunner {
 
         m_currentState = State.Running;
         m_state = State.Running;
-        RandomDoubleVariable initialClustering = m_initialSetSize;
-        SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+         SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         InitialSetGenerator setGenerator = new InitialSetGenerator();
         RandomDoubleVariable initialSetRatio;
         while(m_state == State.Running) {
@@ -375,13 +375,14 @@ public class ExperimentRunner {
                             // we always run until we are finished even if we are stopped to avoid partial data sets.
                             while (!experiment.runClustering(a_g, arch)) {
 
-                                // we now move the clustered nodes from autom/manual to initial
-                                // this reflects an iterative mapping approach.
+
+                                // TODO: this component could be wrong and should maye be corrected
                                 /*for (CNode a_n : arch.getMappedNodes(a_g.getNodes())) {
                                     ArchDef.Component c = arch.getClusteredComponent(a_n);
-                                    if (c != null && c.getClusteringType(a_n) != ArchDef.Component.ClusteringType.Initial) {
-                                        // TODO: this component could be wrong and should maye be corrected
-                                        c.clusterToNode(a_n, ArchDef.Component.ClusteringType.Initial);
+                                    ArchDef.Component m = arch.getMappedComponent(a_n);
+                                    if (c != null && c != m && c.getClusteringType(a_n) == ArchDef.Component.ClusteringType.Automatic) {
+
+                                        m.clusterToNode(a_n, ArchDef.Component.ClusteringType.Automatic);
                                     }
                                 }*/
                             }
