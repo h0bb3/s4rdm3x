@@ -6,6 +6,7 @@ import se.lnu.siq.s4rdm3x.model.CNode;
 import se.lnu.siq.s4rdm3x.stats;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class MapperBase {
 
@@ -133,6 +134,8 @@ public class MapperBase {
             }
         }
 
+        Collections.shuffle(ret);
+
         return ret;
     }
 
@@ -144,6 +147,8 @@ public class MapperBase {
                 ret.add(new OrphanNode(n, m_arch));
             }
         }
+
+        Collections.shuffle(ret);
 
         return ret;
     }

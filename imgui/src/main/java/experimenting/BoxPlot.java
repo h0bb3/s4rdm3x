@@ -51,7 +51,7 @@ public class BoxPlot {
 
         final double spacing = 5.0;
         double xOffset = spacing;
-        double width = size.getX() / datas.size() - spacing * (datas.size() + 1);
+        double width = size.getX() / datas.size() - spacing;
         for (Map.Entry<Integer, ArrayList<Double>> es : datas) {
 
             ArrayList<Double> data = es.getValue();

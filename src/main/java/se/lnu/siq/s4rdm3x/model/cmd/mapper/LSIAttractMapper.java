@@ -120,6 +120,17 @@ public class LSIAttractMapper extends IRMapperBase {
 
             return wordDocumentFrequency;
         }
+
+        public void binaryTFNormalization() {
+
+            for (Map.Entry<String, double[]> e : m_words.entrySet()) {
+                for (int dIx = 0; dIx < m_docCount; dIx++) {
+                    if (e.getValue()[dIx] > 0) {
+                        e.getValue()[dIx] = 1;
+                    }
+                }
+            }
+        }
     }
 
     public LSIAttractMapper(ArchDef a_arch, boolean a_doManualMapping, boolean a_doUseCDA, boolean a_doUseNodeText, boolean a_doUseNodeName, boolean a_doUseArchComponentName, int a_minWordLength) {
@@ -316,6 +327,7 @@ public class LSIAttractMapper extends IRMapperBase {
 
         WordMatrix trainingData = getTrainingData(initiallyMapped, m_arch, stemmer);
         //trainingData.maximumTFNormalization(smoothing);
+        //trainingData.binaryTFNormalization();
         //trainingData.iDF();
         weka.core.matrix.Matrix tm = new weka.core.matrix.Matrix(trainingData.getMatrix());
         //no.uib.cipr.matrix.Matrix tm = new no.uib.cipr.matrix.DenseMatrix(trainingData.getMatrix());
@@ -402,6 +414,7 @@ public class LSIAttractMapper extends IRMapperBase {
                 addWordsToWordVector(getUnmappedCDAWords(orphanNode, m_arch.getComponent(i), initiallyMapped), words);
 
                 //words.maximumTFNormalization(smoothing);
+                //words.binaryTFNormalization();
                 //words.iDF(m_arch.getComponentCount(), wordDocFrequencies);
 
                 for (String w : words.getWords()) {
