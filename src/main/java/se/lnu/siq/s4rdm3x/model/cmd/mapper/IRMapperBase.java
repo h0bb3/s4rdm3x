@@ -123,13 +123,14 @@ public abstract class IRMapperBase extends MapperBase {
 
     }
 
-    protected String getRelationType(dmDependency.Type a_relationType) {
-        if (a_relationType == dmDependency.Type.Field) {
+    private String getRelationType(dmDependency.Type a_relationType) {
+        return a_relationType.toString();
+        /*if (a_relationType == dmDependency.Type.Field) {
             return a_relationType.toString();
         } else if (a_relationType == dmDependency.Type.Extends || a_relationType == dmDependency.Type.Implements) {
             return "InheritsRealizes";
         }
-        return "DependsOn";
+        return "DependsOn";*/
     }
 
     protected String getComponentComponentRelationString(String a_from, dmDependency.Type a_relation, String a_to) {

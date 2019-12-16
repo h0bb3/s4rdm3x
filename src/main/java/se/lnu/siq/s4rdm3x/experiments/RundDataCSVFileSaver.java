@@ -77,25 +77,25 @@ public class RundDataCSVFileSaver {
             row.add("HuGMe:" + rd.m_mapperName);
             row.add("" + rd.m_omega);
             row.add("" + rd.m_phi);
-        } else {
-            row.add("");row.add("");
         }
 
         if (a_rd instanceof ExperimentRunData.NBMapperData){
             ExperimentRunData.NBMapperData rd = (ExperimentRunData.NBMapperData)a_rd;
             row.add("NaiveBayes:" + rd.m_mapperName);
+            row.add("-1");row.add("-1");    //hugme params
             addIRMapperData(row, rd);
             row.add("" + rd.m_threshold);
             row.add("" + (rd.m_doWordCount ? "Y" : "N"));
         } else if (a_rd instanceof ExperimentRunData.IRMapperData) {
             ExperimentRunData.IRMapperData rd = (ExperimentRunData.IRMapperData)a_rd;
             row.add("LSI_IR:" + rd.m_mapperName);
+            row.add("-1");row.add("-1");    // hugme params
             addIRMapperData(row, rd);
 
-            row.add("");row.add("");
+            row.add("-1");row.add("X");    // threshold wordcount
         } else {
-            row.add("");row.add("");row.add("");row.add("");row.add("");row.add("");    // ir data
-            row.add("");row.add(""); // nb data
+            row.add("X");row.add("X");row.add("X");row.add("X");row.add("X");row.add("-1");    // ir data
+            row.add("-1");row.add("X"); // nb data
         }
 
         writeRow(a_filePath, row);

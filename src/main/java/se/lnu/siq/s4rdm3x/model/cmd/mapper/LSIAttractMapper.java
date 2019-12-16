@@ -1,6 +1,7 @@
 package se.lnu.siq.s4rdm3x.model.cmd.mapper;
 
-import no.uib.cipr.matrix.*;
+//import no.uib.cipr.matrix.*;
+import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
 import weka.core.matrix.Matrix;
@@ -142,7 +143,7 @@ public class LSIAttractMapper extends IRMapperBase {
         runBittenCourt(a_g);
     }
 
-    public void runhObbE(CGraph a_g) {
+    /*public void runhObbE(CGraph a_g) {
 
         // in this version we add all the nodes as a document and then we transform it to concept space with rank = the number of architectural components
         // in this way we hypothesize that each architectural component will be a "clearly" defined concept.
@@ -278,11 +279,11 @@ public class LSIAttractMapper extends IRMapperBase {
                 int bestCategory = bestCombo[i];
 
                 attraction[i] = qmtk.mult(Vk, new DenseMatrix(qmtk.numRows(), Vk.numColumns())).get(0, bestCategory); // this should now be the  non normalized cos distances
-                /*if (lengths[i] != 0) {
-                    attraction[i] = attraction[i] / (words.length() * lengths[i]);  // there may be stuff with length 0 as some components may have no initially mapped nodes
-                } else {
-                    attraction[i] = 0;
-                }*/
+                //if (lengths[i] != 0) {
+                //    attraction[i] = attraction[i] / (words.length() * lengths[i]);  // there may be stuff with length 0 as some components may have no initially mapped nodes
+                //} else {
+                //    attraction[i] = 0;
+                //}
 
             }
 
@@ -304,7 +305,7 @@ public class LSIAttractMapper extends IRMapperBase {
 
         }
 
-    }
+    }*/
 
     public void runBittenCourt(CGraph a_g) {
 

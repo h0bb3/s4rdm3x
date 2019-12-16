@@ -251,11 +251,6 @@ public class NBMapper extends IRMapperBase {
     }
 
 
-
-    protected String getRelationType(dmDependency.Type a_relationType) {
-        return a_relationType.toString();
-    }
-
     private Instances getPredictionDataForNode(OrphanNode a_node, Iterable<ClusteredNode> a_mappedNodes, String[] a_componentNames, ArchDef.Component a_component, Filter a_filter, weka.core.stemmers.Stemmer a_stemmer) {
         ArrayList<Attribute> attributes = new ArrayList<>();
 

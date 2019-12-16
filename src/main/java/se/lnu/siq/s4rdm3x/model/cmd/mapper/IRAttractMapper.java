@@ -171,7 +171,7 @@ public class IRAttractMapper extends IRMapperBase {
 
         Stemmer stemmer = getStemmer();
 
-        final double smoothing = 0.1;
+        final double smoothing = 0.0;
 
         Vector<WordVector> trainingData = getTrainingData(initiallyMapped, m_arch, stemmer);
         for (WordVector wv : trainingData) {
@@ -291,10 +291,6 @@ public class IRAttractMapper extends IRMapperBase {
 
 
         return ret;
-    }
-
-    protected String getRelationType(dmDependency.Type a_relationType) {
-        return a_relationType.toString();
     }
 
 
