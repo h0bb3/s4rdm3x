@@ -1,7 +1,5 @@
 package se.lnu.siq.s4rdm3x.experiments.metric.aggregated;
 
-import org.graphstream.graph.Node;
-import se.lnu.siq.s4rdm3x.experiments.metric.FanHelper;
 import se.lnu.siq.s4rdm3x.experiments.metric.FanIn;
 import se.lnu.siq.s4rdm3x.experiments.metric.FanOut;
 import se.lnu.siq.s4rdm3x.experiments.metric.Metric;

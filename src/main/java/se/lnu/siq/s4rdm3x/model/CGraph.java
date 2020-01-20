@@ -1,8 +1,5 @@
 package se.lnu.siq.s4rdm3x.model;
 
-import org.graphstream.graph.Node;
-import org.graphstream.graph.implementations.MultiGraph;
-
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 

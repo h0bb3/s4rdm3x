@@ -1,8 +1,7 @@
 package se.lnu.siq.s4rdm3x.experiments.metric;
 
-import org.graphstream.algorithm.PageRank;
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.implementations.MultiGraph;
+
+import jdk.jshell.spi.ExecutionControl;
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
 import se.lnu.siq.s4rdm3x.model.CNode;
 
@@ -13,8 +12,14 @@ public class Rank extends Metric {
         return "Rank";
     }
     public void assignMetric(Iterable<CNode> a_nodes) {
+        System.out.println("Rank: PageRank is not yet implemented, setting metric to zero");
+        for (CNode n : a_nodes) {
+            double rank = 0;
 
-        Graph ranks = new MultiGraph("rank_graph");
+            n.setMetric(getName(), rank);
+        }
+
+        /*Graph ranks = new MultiGraph("rank_graph");
 
 
         for (CNode n : a_nodes) {
@@ -47,7 +52,7 @@ public class Rank extends Metric {
             double rank = pageRank.getRank(ranks.getNode(n.getFileName()));
 
             n.setMetric(getName(), rank);
-        }
+        }*/
     }
 
     public void reassignMetric(Iterable<CNode> a_nodes) {

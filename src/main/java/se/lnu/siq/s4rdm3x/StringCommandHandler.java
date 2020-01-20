@@ -58,28 +58,7 @@ public class StringCommandHandler {
         ArrayList<String> ret = new ArrayList<>();
         try {
 
-            if (in.startsWith("set_spring_weight")) {
-                String[] cargs = in.split(" ");
-
-                ret.add("Command Deprecated");
-                //SetSpringWeight c = new SetSpringWeight(Arrays.copyOfRange(cargs, 1, cargs.length - 1), Float.parseFloat(cargs[cargs.length - 1]));
-                //c.run(graph);
-            } else if (in.startsWith("show") || in.startsWith("hide")) {
-                //String[] cargs = in.split(" ");
-                SelectorBuilder bs = new SelectorBuilder();
-                Selector.ISelector s = bs.buildFromString(in.substring(in.indexOf(" ")));
-                //ShowNode c = new ShowNode(s, in.startsWith("show"));
-                //c.run(graph);
-                ret.add("Command Deprecated");
-            } else if (in.startsWith("add_edges")) {
-                String[] cargs = in.split(" ");
-                SelectorBuilder bs = new SelectorBuilder();
-                Selector.ISelector s = bs.buildFromString(join(cargs, 3, " "));
-                AddEdges c = new AddEdges(cargs[1], Float.parseFloat(cargs[2]), s);
-                //c.run(graph);
-
-                ret.add("Command Deprecated");
-            } else if (in.startsWith("load_jar")) {
+            if (in.startsWith("load_jar")) {
                 String[] cargs = in.split(" ");
                 String rootPkg = "";
                 if (cargs.length > 2) {
@@ -90,47 +69,6 @@ public class StringCommandHandler {
             } else if (in.compareTo("clear_graph") == 0) {
 
                 graph.clear();
-                //view.getGraphicGraph().clear();
-
-                //graph.addAttribute("ui.antialias");
-                //graph.addAttribute("ui.quality", 4);
-                //graph.setAttribute("ui.stylesheet", "url(data/style.css);");
-                //graph.addAttribute("ui.title", "Graph");
-                //graph.addAttribute("layout.stabilization-limit", 1.0);
-                //graph.setAttribute("view", view);
-
-
-                //vp.addSink(graph);
-
-
-
-                            /*graph = new MultiGraph("main");
-
-                            graph.addAttribute("ui.antialias");
-                            graph.addAttribute("ui.quality");
-                            graph.setAttribute("ui.stylesheet", "url(data/style.css);");
-                            graph.addAttribute("ui.title", "Graph");
-
-
-                            view = graph.display();
-                            graph.setAttribute("view", view);
-
-                            vp = view.newViewerPipe();
-                            vp.addViewerListener(new ClickListener(graph));
-                            vp.addSink(graph);*/
-
-            } else if (in.startsWith("add_relations")) {
-                String[] cargs = in.split(" ");
-                String selection = join(cargs, 3, " ");
-                String[] selections = selection.split("\\|");
-
-                SelectorBuilder bs = new SelectorBuilder();
-                Selector.ISelector from = bs.buildFromString(selections[0]);
-                Selector.ISelector to = bs.buildFromString(selections[1]);
-
-                //AddRelationEdges c = new AddRelationEdges(cargs[1], Float.parseFloat(cargs[2]), from, to);
-                //c.run(graph);
-                ret.add("Command Deprecated");
 
             } else if (in.startsWith("add_node_tag_rnd")) {
                 String[] cargs = in.split(" ");
@@ -157,38 +95,6 @@ public class StringCommandHandler {
                 DeleteNode c = new DeleteNode(s);
                 c.run(graph);
                 ret.add("Command does nothing...");
-            } else if (in.startsWith("contract")) {
-                SelectorBuilder bs = new SelectorBuilder();
-                Selector.ISelector s = bs.buildFromString(in.substring(in.indexOf(" ")));
-                //ContractNode c = new ContractNode(true, s);
-                //c.run(graph);
-                ret.add("Command Deprecated");
-            } else if (in.startsWith("expand")) {
-                SelectorBuilder bs = new SelectorBuilder();
-                Selector.ISelector s = bs.buildFromString(in.substring(in.indexOf(" ")));
-                ContractNode c = new ContractNode(false, s);
-                //c.run(graph);
-                ret.add("Command Deprecated");
-            } else if (in.startsWith("set_edge_attr")) {
-                String[] cargs = in.split(" ");
-                SetEdgeAttr c;
-                if (cargs.length == 3) {
-                //    c = new SetEdgeAttr(cargs[1], null, cargs[2]);
-                } else {
-                //    c = new SetEdgeAttr(cargs[1], cargs[2], cargs[3]);
-                }
-               // c.run(graph);
-                ret.add("Command Deprecated");
-            } else if (in.startsWith("cluster_1")) {
-                String[] cargs = in.split(" ");
-                Cluster1 c = new Cluster1(Double.parseDouble(cargs[1]), Double.parseDouble(cargs[2]), true);
-                //c.run(graph);
-                //ret.add("Considered Nodes: " + c.m_consideredNodes);
-                //ret.add("Automatically Mapped Nodes: " + c.m_automaticallyMappedNodes);
-                //ret.add("Manually Mapped Nodes: " + c.m_manuallyMappedNodes);
-                //ret.add("Nodes with wrong suggestions: " + c.m_failedMappings);
-
-                ret.add("Command Deprecated");
 
             } else if (in.startsWith("count_n")) {
                 SelectorBuilder bs = new SelectorBuilder();

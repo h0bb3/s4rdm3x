@@ -10,15 +10,15 @@ import java.util.regex.Pattern;
 public class CNode {
 
     private int m_index;
-    String m_name;  // TODO: Nodes should probably not have a name...
+    String m_name;
     private ArrayList<String> m_tags = new ArrayList<>();
     private ArrayList<dmClass> m_classes = new ArrayList<>();
     double[] m_attractions = null;
 
-    // TODO: This mapping and clusteringstuff is really bad...
-    private String m_mappedToComponent = "";
-    private String m_clusteredToComponent = "";
-    private String m_clusteringType = "";
+
+    private String m_mappedToComponent = ""; // This is the mapping (i.e. done by expert)
+    private String m_clusteredToComponent = ""; // This is the clustering (e.g. done by technique)
+    private String m_clusteringType = ""; // This is the type of clustering done, (automatic, initial or maual)
 
     public CNode(CNode a_node) {
         shallowCopy(a_node);
