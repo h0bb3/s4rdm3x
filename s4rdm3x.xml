@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="s4rdm3x" default="all">
+  
+  
+  <property file="s4rdm3x.properties"/>
+  <!-- Uncomment the following property if no tests compilation is needed -->
+  <!-- 
+  <property name="skip.tests" value="true"/>
+   -->
+  
+  <!-- Compiler options -->
+  
+  <property name="compiler.debug" value="on"/>
+  <property name="compiler.generate.no.warnings" value="off"/>
+  <property name="compiler.args" value=""/>
+  <property name="compiler.max.memory" value="700m"/>
+  <patternset id="ignored.files">
+    <exclude name="**/*.hprof/**"/>
+    <exclude name="**/*.pyc/**"/>
+    <exclude name="**/*.pyo/**"/>
+    <exclude name="**/*.rbc/**"/>
+    <exclude name="**/*.yarb/**"/>
+    <exclude name="**/*~/**"/>
+    <exclude name="**/.DS_Store/**"/>
+    <exclude name="**/.git/**"/>
+    <exclude name="**/.hg/**"/>
+    <exclude name="**/.svn/**"/>
+    <exclude name="**/CVS/**"/>
+    <exclude name="**/__pycache__/**"/>
+    <exclude name="**/_svn/**"/>
+    <exclude name="**/vssver.scc/**"/>
+    <exclude name="**/vssver2.scc/**"/>
+  </patternset>
+  <patternset id="library.patterns">
+    <include name="*.war"/>
+    <include name="*.swc"/>
+    <include name="*.zip"/>
+    <include name="*.egg"/>
+    <include name="*.ane"/>
+    <include name="*.jar"/>
+    <include name="*.ear"/>
+  </patternset>
+  <patternset id="compiler.resources">
+    <exclude name="**/?*.java"/>
+    <exclude name="**/?*.form"/>
+    <exclude name="**/?*.class"/>
+    <exclude name="**/?*.groovy"/>
+    <exclude name="**/?*.scala"/>
+    <exclude name="**/?*.flex"/>
+    <exclude name="**/?*.kt"/>
+    <exclude name="**/?*.clj"/>
+    <exclude name="**/?*.aj"/>
+  </patternset>
+  
+  <!-- JDK definitions -->
+  
+  <property name="jdk.bin.10" value="${jdk.home.10}/bin"/>
+  <path id="jdk.classpath.10">
+    <fileset dir="${jdk.home.10}">
+      <include name="../jdk-10.0.2!/java.activation"/>
+      <include name="../jdk-10.0.2!/java.base"/>
+      <include name="../jdk-10.0.2!/java.compiler"/>
+      <include name="../jdk-10.0.2!/java.corba"/>
+      <include name="../jdk-10.0.2!/java.datatransfer"/>
+      <include name="../jdk-10.0.2!/java.desktop"/>
+      <include name="../jdk-10.0.2!/java.instrument"/>
+      <include name="../jdk-10.0.2!/java.jnlp"/>
+      <include name="../jdk-10.0.2!/java.logging"/>
+      <include name="../jdk-10.0.2!/java.management"/>
+      <include name="../jdk-10.0.2!/java.management.rmi"/>
+      <include name="../jdk-10.0.2!/java.naming"/>
+      <include name="../jdk-10.0.2!/java.prefs"/>
+      <include name="../jdk-10.0.2!/java.rmi"/>
+      <include name="../jdk-10.0.2!/java.scripting"/>
+      <include name="../jdk-10.0.2!/java.se"/>
+      <include name="../jdk-10.0.2!/java.se.ee"/>
+      <include name="../jdk-10.0.2!/java.security.jgss"/>
+      <include name="../jdk-10.0.2!/java.security.sasl"/>
+      <include name="../jdk-10.0.2!/java.smartcardio"/>
+      <include name="../jdk-10.0.2!/java.sql"/>
+      <include name="../jdk-10.0.2!/java.sql.rowset"/>
+      <include name="../jdk-10.0.2!/java.transaction"/>
+      <include name="../jdk-10.0.2!/java.xml"/>
+      <include name="../jdk-10.0.2!/java.xml.bind"/>
+      <include name="../jdk-10.0.2!/java.xml.crypto"/>
+      <include name="../jdk-10.0.2!/java.xml.ws"/>
+      <include name="../jdk-10.0.2!/java.xml.ws.annotation"/>
+      <include name="../jdk-10.0.2!/javafx.base"/>
+      <include name="../jdk-10.0.2!/javafx.controls"/>
+      <include name="../jdk-10.0.2!/javafx.deploy"/>
+      <include name="../jdk-10.0.2!/javafx.fxml"/>
+      <include name="../jdk-10.0.2!/javafx.graphics"/>
+      <include name="../jdk-10.0.2!/javafx.media"/>
+      <include name="../jdk-10.0.2!/javafx.swing"/>
+      <include name="../jdk-10.0.2!/javafx.web"/>
+      <include name="../jdk-10.0.2!/jdk.accessibility"/>
+      <include name="../jdk-10.0.2!/jdk.aot"/>
+      <include name="../jdk-10.0.2!/jdk.attach"/>
+      <include name="../jdk-10.0.2!/jdk.charsets"/>
+      <include name="../jdk-10.0.2!/jdk.compiler"/>
+      <include name="../jdk-10.0.2!/jdk.crypto.cryptoki"/>
+      <include name="../jdk-10.0.2!/jdk.crypto.ec"/>
+      <include name="../jdk-10.0.2!/jdk.crypto.mscapi"/>
+      <include name="../jdk-10.0.2!/jdk.deploy"/>
+      <include name="../jdk-10.0.2!/jdk.deploy.controlpanel"/>
+      <include name="../jdk-10.0.2!/jdk.dynalink"/>
+      <include name="../jdk-10.0.2!/jdk.editpad"/>
+      <include name="../jdk-10.0.2!/jdk.hotspot.agent"/>
+      <include name="../jdk-10.0.2!/jdk.httpserver"/>
+      <include name="../jdk-10.0.2!/jdk.incubator.httpclient"/>
+      <include name="../jdk-10.0.2!/jdk.internal.ed"/>
+      <include name="../jdk-10.0.2!/jdk.internal.jvmstat"/>
+      <include name="../jdk-10.0.2!/jdk.internal.le"/>
+      <include name="../jdk-10.0.2!/jdk.internal.opt"/>
+      <include name="../jdk-10.0.2!/jdk.internal.vm.ci"/>
+      <include name="../jdk-10.0.2!/jdk.internal.vm.compiler"/>
+      <include name="../jdk-10.0.2!/jdk.internal.vm.compiler.management"/>
+      <include name="../jdk-10.0.2!/jdk.jartool"/>
+      <include name="../jdk-10.0.2!/jdk.javadoc"/>
+      <include name="../jdk-10.0.2!/jdk.javaws"/>
+      <include name="../jdk-10.0.2!/jdk.jcmd"/>
+      <include name="../jdk-10.0.2!/jdk.jconsole"/>
+      <include name="../jdk-10.0.2!/jdk.jdeps"/>
+      <include name="../jdk-10.0.2!/jdk.jdi"/>
+      <include name="../jdk-10.0.2!/jdk.jdwp.agent"/>
+      <include name="../jdk-10.0.2!/jdk.jfr"/>
+      <include name="../jdk-10.0.2!/jdk.jlink"/>
+      <include name="../jdk-10.0.2!/jdk.jshell"/>
+      <include name="../jdk-10.0.2!/jdk.jsobject"/>
+      <include name="../jdk-10.0.2!/jdk.jstatd"/>
+      <include name="../jdk-10.0.2!/jdk.localedata"/>
+      <include name="../jdk-10.0.2!/jdk.management"/>
+      <include name="../jdk-10.0.2!/jdk.management.agent"/>
+      <include name="../jdk-10.0.2!/jdk.management.cmm"/>
+      <include name="../jdk-10.0.2!/jdk.management.jfr"/>
+      <include name="../jdk-10.0.2!/jdk.management.resource"/>
+      <include name="../jdk-10.0.2!/jdk.naming.dns"/>
+      <include name="../jdk-10.0.2!/jdk.naming.rmi"/>
+      <include name="../jdk-10.0.2!/jdk.net"/>
+      <include name="../jdk-10.0.2!/jdk.pack"/>
+      <include name="../jdk-10.0.2!/jdk.packager"/>
+      <include name="../jdk-10.0.2!/jdk.packager.services"/>
+      <include name="../jdk-10.0.2!/jdk.plugin"/>
+      <include name="../jdk-10.0.2!/jdk.plugin.server"/>
+      <include name="../jdk-10.0.2!/jdk.rmic"/>
+      <include name="../jdk-10.0.2!/jdk.scripting.nashorn"/>
+      <include name="../jdk-10.0.2!/jdk.scripting.nashorn.shell"/>
+      <include name="../jdk-10.0.2!/jdk.sctp"/>
+      <include name="../jdk-10.0.2!/jdk.security.auth"/>
+      <include name="../jdk-10.0.2!/jdk.security.jgss"/>
+      <include name="../jdk-10.0.2!/jdk.snmp"/>
+      <include name="../jdk-10.0.2!/jdk.unsupported"/>
+      <include name="../jdk-10.0.2!/jdk.xml.bind"/>
+      <include name="../jdk-10.0.2!/jdk.xml.dom"/>
+      <include name="../jdk-10.0.2!/jdk.xml.ws"/>
+      <include name="../jdk-10.0.2!/jdk.zipfs"/>
+      <include name="../jdk-10.0.2!/oracle.desktop"/>
+      <include name="../jdk-10.0.2!/oracle.net"/>
+    </fileset>
+  </path>
+  
+  <property name="project.jdk.home" value="${jdk.home.10}"/>
+  <property name="project.jdk.bin" value="${jdk.bin.10}"/>
+  <property name="project.jdk.classpath" value="jdk.classpath.10"/>
+  
+  
+  <!-- Project Libraries -->
+  
+  <path id="library.asm-6.2.1.classpath">
+    <pathelement location="${basedir}/lib/asm-6.2.1.jar"/>
+    <pathelement location="${basedir}/lib/asm-util-6.2.1.jar"/>
+  </path>
+  
+  <path id="library.weka-stable-3.8.3.classpath">
+    <pathelement location="${basedir}/lib/weka-stable-3.8.3.jar"/>
+  </path>
+  
+  <!-- Modules -->
+  
+  
+  <!-- Module s4rdm3x -->
+  
+  <dirname property="module.s4rdm3x.basedir" file="${ant.file}"/>
+  
+  
+  <property name="module.jdk.home.s4rdm3x" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.s4rdm3x" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.s4rdm3x" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.s4rdm3x" value="-encoding UTF-8 -source 10 -target 10 ${compiler.args}"/>
+  
+  <property name="s4rdm3x.output.dir" value="${module.s4rdm3x.basedir}/out/production/s4rdm3x"/>
+  <property name="s4rdm3x.testoutput.dir" value="${module.s4rdm3x.basedir}/out/test/s4rdm3x"/>
+  
+  <path id="s4rdm3x.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="s4rdm3x.module.production.classpath">
+    <path refid="${module.jdk.classpath.s4rdm3x}"/>
+    <path refid="library.asm-6.2.1.classpath"/>
+    <pathelement location="${basedir}/lib/weka-stable-3.8.3.jar"/>
+    <path refid="library.weka-stable-3.8.3.classpath"/>
+  </path>
+  
+  <path id="s4rdm3x.runtime.production.module.classpath">
+    <pathelement location="${s4rdm3x.output.dir}"/>
+    <path refid="library.asm-6.2.1.classpath"/>
+    <pathelement location="${basedir}/lib/weka-stable-3.8.3.jar"/>
+    <path refid="library.weka-stable-3.8.3.classpath"/>
+  </path>
+  
+  <path id="s4rdm3x.module.classpath">
+    <path refid="${module.jdk.classpath.s4rdm3x}"/>
+    <pathelement location="${s4rdm3x.output.dir}"/>
+    <path refid="library.asm-6.2.1.classpath"/>
+    <pathelement location="${basedir}/lib/weka-stable-3.8.3.jar"/>
+    <path refid="library.weka-stable-3.8.3.classpath"/>
+  </path>
+  
+  <path id="s4rdm3x.runtime.module.classpath">
+    <pathelement location="${s4rdm3x.testoutput.dir}"/>
+    <pathelement location="${s4rdm3x.output.dir}"/>
+    <path refid="library.asm-6.2.1.classpath"/>
+    <pathelement location="${basedir}/lib/weka-stable-3.8.3.jar"/>
+    <path refid="library.weka-stable-3.8.3.classpath"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.s4rdm3x">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.s4rdm3x">
+    <patternset refid="excluded.from.module.s4rdm3x"/>
+  </patternset>
+  
+  <path id="s4rdm3x.module.sourcepath">
+    <dirset dir="${module.s4rdm3x.basedir}">
+      <include name="src/main/java"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.s4rdm3x" depends="compile.module.s4rdm3x.production,compile.module.s4rdm3x.tests" description="Compile module s4rdm3x"/>
+  
+  <target name="compile.module.s4rdm3x.production" description="Compile module s4rdm3x; production classes">
+    <mkdir dir="${s4rdm3x.output.dir}"/>
+    <javac destdir="${s4rdm3x.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.s4rdm3x}/javac">
+      <compilerarg line="${compiler.args.s4rdm3x}"/>
+      <bootclasspath refid="s4rdm3x.module.bootclasspath"/>
+      <classpath refid="s4rdm3x.module.production.classpath"/>
+      <src refid="s4rdm3x.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.s4rdm3x"/>
+    </javac>
+    
+    <copy todir="${s4rdm3x.output.dir}">
+      <fileset dir="${module.s4rdm3x.basedir}/src/main/java">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.s4rdm3x.tests" depends="compile.module.s4rdm3x.production" description="compile module s4rdm3x; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.s4rdm3x" description="cleanup module">
+    <delete dir="${s4rdm3x.output.dir}"/>
+    <delete dir="${s4rdm3x.testoutput.dir}"/>
+  </target>
+  
+  <target name="init" description="Build initialization">
+    <!-- Perform any build initialization in this target -->
+  </target>
+  
+  <target name="clean" depends="clean.module.s4rdm3x" description="cleanup all"/>
+  
+  <target name="build.modules" depends="init, clean, compile.module.s4rdm3x" description="build all modules"/>
+  
+  <target name="all" depends="build.modules" description="build all"/>
+</project>
