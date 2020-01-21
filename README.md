@@ -52,3 +52,6 @@ Dear JVM ImGui is licensed under the MIT License
 
 ## Lightweight Java Game Library (only the Visual Experiment Tool)
 LWJGL is available under a BSD license
+
+## JUnit 5
+Automatic tests use JUnit5: https://junit.org/junit5
