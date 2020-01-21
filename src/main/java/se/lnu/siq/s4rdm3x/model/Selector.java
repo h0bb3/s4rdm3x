@@ -1,14 +1,11 @@
 package se.lnu.siq.s4rdm3x.model;
 
-import se.lnu.siq.s4rdm3x.model.AttributeUtil;
-import se.lnu.siq.s4rdm3x.model.CNode;
 
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
 public class Selector {
 
-    private static AttributeUtil g_au = new AttributeUtil();
     private Selector() {};
 
     public interface ISelector {
