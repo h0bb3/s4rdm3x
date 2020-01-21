@@ -58,6 +58,7 @@ LWJGL is available under a BSD license
 Automatic tests use JUnit5: https://junit.org/junit5
 
 # Runtime-Dependencies
+## Bounce 0.18
 Weka uses the Bounce library (0.18) available under a BSD Licence:
 
 Copyright (c) 2002 - 2007, Edwin Dankert, All rights reserved.
