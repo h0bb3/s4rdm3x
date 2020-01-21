@@ -1,6 +1,5 @@
 package se.lnu.siq.s4rdm3x.experiments.metric;
 
-import org.graphstream.graph.Node;
 import org.junit.jupiter.api.Test;
 import se.lnu.siq.s4rdm3x.dmodel.NodeGenerator;
 import se.lnu.siq.s4rdm3x.model.CNode;
