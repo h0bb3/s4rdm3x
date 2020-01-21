@@ -12,6 +12,7 @@ import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.StringToWordVector;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Enumeration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -21,28 +22,45 @@ public class NBMapperTests {
     @Test
     public void getDependencyStringFromNode() {
         NodeGenerator ng = new NodeGenerator();
+        ArchDef a = new ArchDef();
+        ArchDef.Component c1, c2;
 
+        c1 = a.addComponent("Component1");
+        c2 = a.addComponent("Component2");
         CGraph g = ng.generateGraph(dmDependency.Type.Implements, new String [] {"AB", "BC", "CA", "DC", "AC"});
-        g.getNode("A").setMapping("Component1");
-        g.getNode("B").setMapping("Component1");
-        g.getNode("C").setMapping("Component2");
+        c1.mapToNode(g.getNode("A"));
+        c1.clusterToNode(g.getNode("A"), ArchDef.Component.ClusteringType.Initial);
+
+        c1.mapToNode(g.getNode("B"));
+        c1.clusterToNode(g.getNode("B"), ArchDef.Component.ClusteringType.Initial);
+
+        c1.mapToNode(g.getNode("C"));   // this should be component 1 for the mapping and component 2 for the clustering
+        c2.clusterToNode(g.getNode("C"), ArchDef.Component.ClusteringType.Automatic);
+
 
         IRMapperBase sut = new NBMapper(null, false, false, false, false, 0);
+
+        ArrayList<MapperBase.ClusteredNode> nodes = new ArrayList<>();
+
+        nodes.add(new MapperBase.ClusteredNode(g.getNode("A"), a));
+        nodes.add(new MapperBase.ClusteredNode(g.getNode("B"), a));
+        nodes.add(new MapperBase.ClusteredNode(g.getNode("C"), a));
+
 
         try {
             Method sutMethod = IRMapperBase.class.getDeclaredMethod("getDependencyStringFromNode", CNode.class, Iterable.class);
             sutMethod.setAccessible(true);
 
             String expected = "Component1ImplementsComponent1 Component1ImplementsComponent2";
-            String actual = (String)sutMethod.invoke(sut, g.getNode("A"), g.getNodes());
+            String actual = (String)sutMethod.invoke(sut, g.getNode("A"), nodes);
             assertEquals(expected, actual);
 
             expected = "Component1ImplementsComponent2";
-            actual = (String)sutMethod.invoke(sut, g.getNode("B"), g.getNodes());
+            actual = (String)sutMethod.invoke(sut, g.getNode("B"), nodes);
             assertEquals(expected, actual);
 
             expected = "Component2ImplementsComponent1";
-            actual = (String)sutMethod.invoke(sut, g.getNode("C"), g.getNodes());
+            actual = (String)sutMethod.invoke(sut, g.getNode("C"), nodes);
             assertEquals(expected, actual);
 
         } catch (Exception e) {
@@ -66,28 +84,44 @@ public class NBMapperTests {
     @Test
     public void getDependencyStringToNode() {
         NodeGenerator ng = new NodeGenerator();
+        ArchDef a = new ArchDef();
+        ArchDef.Component c1, c2;
 
-        CGraph g = ng.generateGraph(dmDependency.Type.LocalVar, new String [] {"AB", "BC", "CA", "AC"});
-        g.getNode("A").setMapping("Component1");
-        g.getNode("B").setMapping("Component1");
-        g.getNode("C").setMapping("Component2");
+        c1 = a.addComponent("Component1");
+        c2 = a.addComponent("Component2");
+        CGraph g = ng.generateGraph(dmDependency.Type.LocalVar, new String [] {"AB", "BC", "CA", "DC", "AC"});
+        c1.mapToNode(g.getNode("A"));
+        c1.clusterToNode(g.getNode("A"), ArchDef.Component.ClusteringType.Initial);
 
-        IRMapperBase sut = new NBMapper(null,false, false, false, false, 0);
+        c1.mapToNode(g.getNode("B"));
+        c1.clusterToNode(g.getNode("B"), ArchDef.Component.ClusteringType.Initial);
+
+        c1.mapToNode(g.getNode("C"));   // this should be component 1 for the mapping and component 2 for the clustering
+        c2.clusterToNode(g.getNode("C"), ArchDef.Component.ClusteringType.Automatic);
+
+
+        IRMapperBase sut = new NBMapper(null, false, false, false, false, 0);
+
+        ArrayList<MapperBase.ClusteredNode> nodes = new ArrayList<>();
+
+        nodes.add(new MapperBase.ClusteredNode(g.getNode("A"), a));
+        nodes.add(new MapperBase.ClusteredNode(g.getNode("B"), a));
+        nodes.add(new MapperBase.ClusteredNode(g.getNode("C"), a));
 
         try {
             Method sutMethod = IRMapperBase.class.getDeclaredMethod("getDependencyStringToNode", CNode.class, Iterable.class);
             sutMethod.setAccessible(true);
 
             String expected = "Component2LocalVarComponent1";
-            String actual = (String)sutMethod.invoke(sut, g.getNode("A"), g.getNodes());
+            String actual = (String)sutMethod.invoke(sut, g.getNode("A"), nodes);
             assertEquals(expected, actual);
 
             expected = "Component1LocalVarComponent1";
-            actual = (String)sutMethod.invoke(sut, g.getNode("B"), g.getNodes());
+            actual = (String)sutMethod.invoke(sut, g.getNode("B"), nodes);
             assertEquals(expected, actual);
 
             expected = "Component1LocalVarComponent2 Component1LocalVarComponent2";
-            actual = (String)sutMethod.invoke(sut, g.getNode("C"), g.getNodes());
+            actual = (String)sutMethod.invoke(sut, g.getNode("C"), nodes);
             assertEquals(expected, actual);
 
         } catch (Exception e) {
