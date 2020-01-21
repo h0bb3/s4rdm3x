@@ -1,21 +1,13 @@
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.implementations.MultiGraph;
-import se.lnu.siq.metrics.CSVRow;
 import se.lnu.siq.s4rdm3x.experiments.*;
-import se.lnu.siq.s4rdm3x.experiments.metric.*;
-import se.lnu.siq.s4rdm3x.experiments.metric.aggregated.*;
 import se.lnu.siq.s4rdm3x.experiments.system.System;
-import se.lnu.siq.s4rdm3x.experiments.system.*;
+
 import se.lnu.siq.s4rdm3x.model.CGraph;
-import se.lnu.siq.s4rdm3x.model.cmd.mapper.HuGMe;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
