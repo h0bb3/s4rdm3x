@@ -13,7 +13,7 @@ A command line tool for executing experiments in parrallell. It reads an experim
 # Licence
 S4rdm3x is released under a MIT License.
 
-# Compile Time Dependencies
+# Compile-Time Dependencies
 ## WEKA
 GNUv3 License
 
@@ -57,7 +57,7 @@ LWJGL is available under a BSD license. This is a platform dependent library and
 ### JUnit 5
 Automatic tests use JUnit5: https://junit.org/junit5
 
-# Runtime-Dependencies
+# Run-Time Dependencies
 ## Bounce 0.18
 Weka uses the Bounce library (0.18) available under a BSD Licence:
 
