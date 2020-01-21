@@ -51,7 +51,7 @@ https://github.com/kotlin-graphics/imgui
 Dear JVM ImGui is licensed under the MIT License
 
 ## Lightweight Java Game Library (only the Visual Experiment Tool)
-LWJGL is available under a BSD license
+LWJGL is available under a BSD license. This is a platform dependent library and not included in the s4rdm3x distribution. If you follow the instructions for including Dear JVM IMGui as a gradle module you will also get the LWJGL.
 
 ## Unit Test Dependencies
 ### JUnit 5
