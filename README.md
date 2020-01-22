@@ -112,3 +112,33 @@ Redistribution and use in source and binary forms, with or without modification,
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+# IntelliJ Development Environment
+This section describes how to setup a development environment using IntelliJ IDEA 2018.2 Community Edition.
+
+## s4rdm3x core
+1. Download or checkout the repository.
+2. Create a new Java project with the s4rdm3x directory as root.
+3. Mark the src/main/java directory as the Sources Root
+4. Mark the src/test/java directory as the Test Root
+5. Open the project settings.
+6. Add the lib/asm-6.2.1.jar and linb/asm-util-6.2.1.jar as a library
+7. Add the lib/weka-stable-3.8.3.jar as a library
+8. Add compile time dependencies from the s4rdm3x module to these two libraries
+9. Add the JUnit5 to the classpath (easiest is to fix a failed import-statement in a test and let IntelliJ figure it out)
+10. The project should now build
+
+## cmdexrunner
+1. create a new Java module with cmdexrunner as root
+2. Mark the cmdexrunner/src directory as the Sources Root
+3. Add a module dependency from cmdexrunner to the s4rdm3x module
+4. The project should now build
+
+## v3xt
+1. Add this module by Opening the gradle.build file (File -> Open... ) this creates a new v3xt module and imports the needed imgui and lwjgl libraries.
+2. Mark the v3xt/src/main/java directory as the Sources Root
+3. Mark the v3xt/src/test/java directory as the Test Root
+4. Add a module dependency from cmdexrunner to the s4rdm3x module
+5. Add the lib/asm-6.2.1.jar and linb/asm-util-6.2.1.jar as a library
+6. Add the lib/weka-stable-3.8.3.jar as a library 
+7. Add the JUnit5 to the classpath (easiest is to fix a failed import-statement in a test and let IntelliJ figure it out)
+8. The project should now build
