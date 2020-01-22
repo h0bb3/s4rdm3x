@@ -137,9 +137,9 @@ public class RectsAndArrows {
        sch.addCommand(c);
 
 
-        sch.execute("load_arch_visuals data/slask/jabref_visuals.xml", graph).forEach(str -> guic.println(str));
-        sch.execute("load_jar data/systems/JabRef/3.7/JabRef-3.7.jar net.sf.jabref.", graph).forEach(str -> guic.println(str));
-        sch.execute("load_arch data/slask/jabref.txt", graph).forEach(str -> guic.println(str));
+        //sch.execute("load_arch_visuals data/slask/jabref_visuals.xml", graph).forEach(str -> guic.println(str));
+        //sch.execute("load_jar data/systems/JabRef/3.7/JabRef-3.7.jar net.sf.jabref.", graph).forEach(str -> guic.println(str));
+        //sch.execute("load_arch data/slask/jabref.txt", graph).forEach(str -> guic.println(str));
 
 
 

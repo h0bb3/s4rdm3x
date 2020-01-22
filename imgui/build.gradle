@@ -1,0 +1,52 @@
+import org.gradle.internal.os.*
+
+plugins {
+    id 'java'
+}
+
+group 'imgui_try'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+    jcenter()
+}
+
+allprojects {
+    apply plugin: 'idea'
+    idea {
+        module {
+            inheritOutputDirs = true
+        }
+    }
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '5.2'
+    testCompile "org.mockito:mockito-core:2.+"
+    testCompile 'org.mockito:mockito-inline:2.+'
+    implementation 'com.github.kotlin-graphics:imgui:v1.63-beta-01'
+    compile 'com.github.kotlin-graphics:imgui:v1.63-beta-01'
+
+    switch (OperatingSystem.current()) {
+        case OperatingSystem.WINDOWS:
+            ext.lwjglNatives = "natives-windows"
+            break
+        case OperatingSystem.LINUX:
+            ext.lwjglNatives = "natives-linux"
+            break
+        case OperatingSystem.MAC_OS:
+            ext.lwjglNatives = "natives-macos"
+            break
+    }
+
+    // Look up which modules and versions of LWJGL are required and add setup the approriate natives.
+    configurations.compile.resolvedConfiguration.getResolvedArtifacts().forEach {
+        if (it.moduleVersion.id.group == "org.lwjgl") {
+            runtime "org.lwjgl:${it.moduleVersion.id.name}:${it.moduleVersion.id.version}:${lwjglNatives}"
+        }
+    }
+}

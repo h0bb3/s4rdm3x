@@ -8,7 +8,6 @@ import hiviz.Tree;
 import imgui.*;
 import imgui.internal.ColumnsFlag;
 import imgui.internal.Rect;
-import org.graphstream.graph.Graph;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.model.CGraph;
