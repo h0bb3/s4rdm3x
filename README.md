@@ -142,3 +142,8 @@ This section describes how to setup a development environment using IntelliJ IDE
 6. Add the lib/weka-stable-3.8.3.jar as a library 
 7. Add the JUnit5 to the classpath (easiest is to fix a failed import-statement in a test and let IntelliJ figure it out)
 8. The project should now build
+
+# Data Systems
+S4rdm3x is distributed with architectural models and source code to implementation mappings for a number of systems (see the data/systems directory). Models and mappings are based on work during the SAEroCon workshop (https://saerocon.wordpress.com/) and a replication package provided by Joao Brunet et. al. [On the Evolutionary Nature of Architectural Violations] (https://code.google.com/archive/p/on-the-nature-dataset/wikis/ReplicabilityOfTheStudy.wiki)
+
+To complement the models and mappings, the actual compiled systems are also needed. These are not included in this distribution as this would create a problematic licening situation. However, the jar file dependencies are documented in the respective model file and should be available by either looking through the links from the sources above, or finding them in the actual official distributions of the systems.
