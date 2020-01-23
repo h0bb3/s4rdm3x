@@ -5,87 +5,105 @@ import jdk.jshell.spi.ExecutionControl;
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
 import se.lnu.siq.s4rdm3x.model.CNode;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 
 public class Rank extends Metric {
 
     public String getName() {
         return "Rank";
     }
+
     public void assignMetric(Iterable<CNode> a_nodes) {
-        System.out.println("Rank: PageRank is not yet implemented, setting metric to zero");
-        for (CNode n : a_nodes) {
-            double rank = 0;
+        final double precision = 0.0000001;
 
-            n.setMetric(getName(), rank);
+        int[] nodeCount = new int[1];
+        HashMap<CNode, Double> ranks = new HashMap<>();
+        HashMap<CNode, Integer> outDegrees = new HashMap<>();
+        HashMap<CNode, ArrayList<CNode>> fanIn = new HashMap<CNode, ArrayList<CNode>>();
+
+        a_nodes.forEach(n -> nodeCount[0]++);
+
+        a_nodes.forEach(n -> ranks.put(n, 1.0 / nodeCount[0]));
+
+        a_nodes.forEach(n -> outDegrees.put(n, calcOutDegree(n, a_nodes)));
+        a_nodes.forEach(n -> fanIn.put(n, getFanIn(n, a_nodes)));
+
+
+
+
+        while (compute(ranks, outDegrees, fanIn) > precision);
+
+        for (CNode n : ranks.keySet()) {
+            n.setMetric(getName(), ranks.get(n));
         }
-
-        /*Graph ranks = new MultiGraph("rank_graph");
-
-
-        for (CNode n : a_nodes) {
-            ranks.addNode(n.getFileName());
-        }
-
-        int edgeId = 0;
-        for (CNode n : a_nodes) {
-
-            for (CNode m : a_nodes) {
-                if (n != m) {
-                    for (dmDependency d : n.getDependencies(m)) {
-                        for (Integer l : d.lines()) {
-                            ranks.addEdge("" + edgeId, n.getFileName(), m.getFileName(), true);
-                            edgeId++;
-                        }
-                    }
-                }
-            }
-
-        }
-
-        PageRank pageRank = new PageRank();
-        //pageRank.setVerbose(true);
-        pageRank.setPrecision(0.0000001);
-        pageRank.setDampingFactor(0.85);
-        pageRank.init(ranks);
-
-        for (CNode n : a_nodes) {
-            double rank = pageRank.getRank(ranks.getNode(n.getFileName()));
-
-            n.setMetric(getName(), rank);
-        }*/
     }
 
-    public void reassignMetric(Iterable<CNode> a_nodes) {
-
-    }
-
-    /*private Iterable<String> getTargetIds(CNode a_source, Iterable<CNode> a_nodes) {
-        ArrayList<String> ret = new ArrayList<>();
-
-        for(dmClass c : a_source.getClasses()) {
-            for (dmDependency d : c.getDependencies()) {
-                CNode target = findNode(d.getTarget(), a_nodes);
-                if (target !=  null) {
-                    for (int i = 0; i < d.getCount(); i++) {
-                        ret.add(target.getFileName());
-                    }
+    private ArrayList<CNode> getFanIn(CNode a_n, Iterable<CNode> a_nodes) {
+        ArrayList<CNode> ret = new ArrayList<>();
+        for (CNode other : a_nodes) {
+            if (a_nodes != a_n) {
+                for (int i = 0; i < other.getDependencyCount(a_n); i++) {
+                    ret.add(other);
                 }
             }
         }
 
         return ret;
-    }*/
+    }
 
-    /*private Node findNode(dmClass a_target, Iterable<Node> a_nodes, AttributeUtil a_au) {
-        for (Node n : a_nodes) {
-            for (dmClass target : a_au.getClasses(n)) {
-                if (a_target == target) {
-                    return n;
-                }
+    private int calcOutDegree(CNode a_n, Iterable<CNode> a_nodes) {
+        int outDegree = 0;
+        for (CNode other : a_nodes) {
+            if (other != a_n) {
+                outDegree += a_n.getDependencyCount(other);
             }
         }
 
-        return null;
-    }*/
+        return outDegree;
+    }
 
+    private double compute(HashMap<CNode, Double> a_ranks, Map<CNode, Integer> a_outDegrees, Map<CNode, ArrayList<CNode>> a_fanIn) {
+        final double dampingFactor = 0.85;
+        final int nodeCount = a_ranks.size();
+        double dampingTerm = (1 - dampingFactor) / nodeCount;
+        double [] newRanks = new double[nodeCount];
+        double danglingRank = 0;
+
+        int ix = 0;
+        for (CNode n : a_ranks.keySet()) {
+
+            double sum = 0;
+            for (CNode other : a_fanIn.get(n)) {
+                sum += a_ranks.get(other) / a_outDegrees.get(other);
+            }
+            newRanks[ix] = dampingTerm + dampingFactor * sum;
+
+            if (a_outDegrees.get(n) == 0) {
+                danglingRank += a_ranks.get(n);
+            }
+            ix++;
+        }
+
+        danglingRank *= dampingFactor / nodeCount;
+
+        double normDiff = 0;
+        ix = 0;
+        for (CNode n : a_ranks.keySet()) {
+
+            double currentRank = a_ranks.get(n);
+            double newRank = newRanks[ix] + danglingRank;
+            normDiff += Math.abs(newRank - currentRank);
+            a_ranks.replace(n, newRank);
+            ix++;
+        }
+
+        return normDiff;
+    }
+
+    public void reassignMetric(Iterable<CNode> a_nodes) {
+
+    }
 }

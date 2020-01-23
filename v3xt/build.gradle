@@ -4,7 +4,7 @@ plugins {
     id 'java'
 }
 
-group 'imgui_try'
+group 'v3xt'
 version '1.0-SNAPSHOT'
 
 sourceCompatibility = 1.8
