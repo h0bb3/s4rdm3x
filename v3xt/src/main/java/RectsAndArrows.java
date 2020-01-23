@@ -9,7 +9,6 @@ import imgui.impl.ImplGL3;
 import imgui.impl.LwjglGlfw;
 import imgui.internal.Rect;
 import kotlin.Unit;
-import mapping.MappingView;
 import se.lnu.siq.s4rdm3x.GUIConsole;
 import se.lnu.siq.s4rdm3x.StringCommandHandler;
 import se.lnu.siq.s4rdm3x.model.Selector;
@@ -194,9 +193,6 @@ public class RectsAndArrows {
     private boolean[] showExperimentView = {true};
     private int[] counter = {0};
 
-    private TreeView m_treeView = new TreeView();
-    private GraphView m_graphView = new GraphView();
-    private MappingView m_mappingView = new MappingView();
     private ExperimentsView m_experimentsView = new ExperimentsView();
 
 
@@ -251,60 +247,12 @@ public class RectsAndArrows {
 
         imgui.text("Application average %.3f ms/frame (%.1f FPS)", 1_000f / io.getFramerate(), io.getFramerate());
 
-        // 2. Show another simple window. In most cases you will use an explicit begin/end pair to name the window.
-        if (showArchitecture[0]) {
-            imgui.begin("Architectural Structure", showArchitecture, 0);
-            doArchStructure(a_arch, m_treeView.getArchRootFilter(), a_g);
-            imgui.end();
-        }
-
-        if (showTreeView[0]) {
-            if (imgui.begin("Tree Views", showTreeView, 0)) {
-                TreeView.Action a = m_treeView.doTreeView(imgui, a_arch, a_g, m_vizState.m_nvm);
-                if (a != null && a.m_doMapAction != null) {
-                    ArchDef.Component target = null;
-                    if (a.m_doMapAction.a_toComponentName != null) {
-                        target = a_arch.getComponent(a.m_doMapAction.a_toComponentName);
-                    }
-                    Selector.Pat selector = new Selector.Pat(a.m_doMapAction.a_whatNodeName.replace(".", "\\.") + (a.m_doMapAction.m_isLeaf ? "" : "\\..*"));
-                    MapNode cmd = new MapNode(target, selector);
-                    cmd.run(a_g);
-
-                }
-                imgui.end();
-            }
-        }
-
-        if (showGraphView[0]) {
-            if (imgui.begin("Graph View", showGraphView, 0)) {
-                m_graphView.doGraphView(imgui, a_g.getNodes(), a_arch, m_vizState.m_nvm, io.getDeltaTime());
-                imgui.end();
-
-            }
-        }
-
-        if (showHuGMeView[0]) {
-            if (imgui.begin("Mapping View", showHuGMeView, 0)) {
-
-                m_mappingView.doView(imgui, a_arch, a_g, m_vizState.m_nvm);
-
-                imgui.end();
-
-                if (m_mappingView.getSelectedNode() != null) {
-                    m_treeView.m_selectedClass = m_mappingView.getSelectedNode();
-                }
-            }
-        }
 
         if (showExperimentView[0]) {
             if (imgui.begin("Experiment View", showExperimentView, 0)) {
 
                 m_experimentsView.doView(new ImGuiWrapper(imgui));
                 String selectedNodeLogicName = m_experimentsView.getSelectedNodeLogicName();
-                if (selectedNodeLogicName != null) {
-                    m_treeView.m_selectedClass = a_g.getNodeByLogicName(selectedNodeLogicName);
-                }
-
                 imgui.end();
             }
         }

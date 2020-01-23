@@ -7,7 +7,6 @@ import gui.ImGuiWrapper;
 import imgui.HoveredFlag;
 import imgui.WindowFlag;
 import imgui.internal.Window;
-import mapping.MappingView;
 import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -47,7 +46,6 @@ public class ExperimentsView implements ExperimentRunnerViewThread.DataListener 
     private RunData m_popupMenuData = null;
 
     public ArrayList<RunData> m_selectedDataPoints = new ArrayList<>();
-    public ArrayList<ExperimentsView.MappingViewWrapper> m_mappingViews = new ArrayList<>();
 
     public String getSelectedNodeLogicName() {
         String node = m_fails.m_selectedNodeLogicName;
@@ -454,9 +452,9 @@ public class ExperimentsView implements ExperimentRunnerViewThread.DataListener 
             }
         }
 
-        for (ExperimentsView.MappingViewWrapper mv : m_mappingViews) {
+        /*for (ExperimentsView.MappingViewWrapper mv : m_mappingViews) {
             mv.doView(a_imgui);
-        }
+        }*/
     }
 
     // this one is needed to create context menus over child windows after the child is ended.
@@ -474,7 +472,7 @@ public class ExperimentsView implements ExperimentRunnerViewThread.DataListener 
 
     public void doPopupMenu(ImGuiWrapper a_imgui, RunData a_selected, int a_color) {
         boolean showing = false;
-        ExperimentsView.MappingViewWrapper foundMV = null;
+        /*ExperimentsView.MappingViewWrapper foundMV = null;
 
         for (ExperimentsView.MappingViewWrapper mv : m_mappingViews) {
             if (mv.isViewFor(a_selected.m_data)) {
@@ -482,9 +480,9 @@ public class ExperimentsView implements ExperimentRunnerViewThread.DataListener 
                 foundMV = mv;
                 break;
             }
-        }
+        }*/
 
-        if (a_imgui.menuItem("Show Mapping", "", showing, true)) {
+        /*if (a_imgui.menuItem("Show Mapping", "", showing, true)) {
             showing = !showing;
             if (foundMV == null && showing) {
                 CGraph graph = new CGraph();
@@ -498,16 +496,13 @@ public class ExperimentsView implements ExperimentRunnerViewThread.DataListener 
                     arch = e.m_arch;
                 }
 
-                foundMV = new ExperimentsView.MappingViewWrapper(graph, arch, a_selected.m_data);
-                //foundMV.setInitialNBData(a_rundData, graph, arch);
-                //foundMV.setInitialClustering(a_rundData.m_initialClustering);
                 m_mappingViews.add(foundMV);
             }
 
             if (foundMV != null) {
                 foundMV.show(showing);
             }
-        }
+        }*/
 
         {
             if (m_workingColor == null) {
@@ -529,51 +524,5 @@ public class ExperimentsView implements ExperimentRunnerViewThread.DataListener 
         m_performanceVsInitialMapped.setColor(ix, a_color);
         m_recallVsInitialMapped.setColor(ix, a_color);
         m_precisionVsInitialMapped.setColor(ix, a_color);
-    }
-
-    static class MappingViewWrapper {
-
-        private CGraph m_graph;
-        private ArchDef m_arch;
-        private ExperimentRunData.BasicRunData m_data;
-        private MappingView m_mv;
-        private HNode.VisualsManager m_nvm;
-        private boolean [] m_showView = {true};
-
-
-        public MappingViewWrapper(CGraph a_graph, ArchDef a_arch, ExperimentRunData.BasicRunData a_data) {
-            m_graph = a_graph;
-            m_arch = a_arch;
-            m_data = a_data;
-            m_mv = new MappingView();
-            m_nvm = new HNode.VisualsManager();
-
-            if (a_data instanceof ExperimentRunData.NBMapperData) {
-                m_mv.setInitialNBData((ExperimentRunData.NBMapperData)a_data, m_graph, m_arch);
-            }
-        }
-
-        public void doView(ImGuiWrapper a_imgui) {
-            if (m_showView[0]) {
-                if (a_imgui.imgui().begin(m_data.m_system.getName() + "_" + m_data.m_id, m_showView, 0)) {
-
-                    m_mv.doView(a_imgui.imgui(), m_arch, m_graph, m_nvm);
-
-                    a_imgui.imgui().end();
-                }
-            }
-        }
-
-        public boolean isViewFor(ExperimentRunData.BasicRunData a_rundData) {
-            return m_data == a_rundData;
-        }
-
-        public boolean isShowing() {
-            return m_showView[0];
-        }
-
-        public void show(boolean showing) {
-            m_showView[0] = showing;
-        }
     }
 }
