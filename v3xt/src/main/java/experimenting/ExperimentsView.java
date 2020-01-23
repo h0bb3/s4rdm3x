@@ -1,6 +1,5 @@
 package experimenting;
 
-import archviz.HNode;
 import glm_.vec2.Vec2;
 import glm_.vec4.Vec4;
 import gui.ImGuiWrapper;
@@ -11,11 +10,9 @@ import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import se.lnu.siq.s4rdm3x.experiments.*;
-import se.lnu.siq.s4rdm3x.experiments.system.System;
-import se.lnu.siq.s4rdm3x.model.CGraph;
+
 
 import se.lnu.siq.s4rdm3x.model.CNode;
-import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -369,7 +366,7 @@ public class ExperimentsView implements ExperimentRunnerViewThread.DataListener 
             });
         }
 
-        final int blue = a_imgui.toColor(new Vec4(0.25, 0.25, 1, 0.75));
+        final int blue = ImGuiWrapper.toColor(new Vec4(0.25, 0.25, 1, 0.75));
 
         boolean mouseClicked = a_imgui.isMouseClicked(0, false);
         //boolean mouseClicked = true;
@@ -506,11 +503,11 @@ public class ExperimentsView implements ExperimentRunnerViewThread.DataListener 
 
         {
             if (m_workingColor == null) {
-                m_workingColor = a_imgui.fromColor(a_color);
+                m_workingColor = ImGuiWrapper.fromColor(a_color);
             }
             a_imgui.imgui().colorEdit3("Set Point Color", m_workingColor, 0);
 
-            int intCol = a_imgui.toColor(m_workingColor);
+            int intCol = ImGuiWrapper.toColor(m_workingColor);
             setPlotsPointColor(a_selected, intCol);
             for (RunData brd : m_selectedDataPoints) {
                 setPlotsPointColor(brd, intCol);

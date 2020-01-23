@@ -1,4 +1,3 @@
-import archviz.HRoot;
 import experimenting.ExperimentsView;
 import glm_.vec2.Vec2;
 import glm_.vec2.Vec2i;
@@ -7,22 +6,17 @@ import gui.ImGuiWrapper;
 import imgui.*;
 import imgui.impl.ImplGL3;
 import imgui.impl.LwjglGlfw;
-import imgui.internal.Rect;
 import kotlin.Unit;
 import se.lnu.siq.s4rdm3x.GUIConsole;
 import se.lnu.siq.s4rdm3x.StringCommandHandler;
-import se.lnu.siq.s4rdm3x.model.Selector;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 import se.lnu.siq.s4rdm3x.model.CGraph;
-import se.lnu.siq.s4rdm3x.model.CNode;
-import se.lnu.siq.s4rdm3x.model.cmd.mapper.MapNode;
 import uno.glfw.GlfwWindow;
 import uno.glfw.windowHint;
 
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.glClear;
@@ -76,42 +70,7 @@ public class RectsAndArrows {
         StringCommandHandler sch = new StringCommandHandler();
         CGraph graph = new CGraph();
 
-        // testing
-        //sch.execute("load_arch data/systems/teammates/teammates-system_model.txt", graph).forEach(str -> guic.println(str));
-
         ArchDef theArch = new ArchDef();
-        //theArch.addComponent("client.part1.part1_1");
-
-        //theArch.addComponent("global");
-        theArch.addComponent("client.part1");
-        theArch.addComponent("client.part2");
-        theArch.addComponent("server.part3");
-        theArch.addComponent("server.part4");
-
-
-
-
-        //theArch.addComponent("client");
-
-
-        /*theArch.addComponent("optional");
-        theArch.addComponent("compilers");
-        theArch.addComponent("condition");
-        theArch.addComponent("rmic");
-        theArch.addComponent("cvslib");
-        theArch.addComponent("email");
-        theArch.addComponent("repository");
-        theArch.addComponent("taskdefs");
-        theArch.addComponent("listener");
-        theArch.addComponent("types");*/
-        //theArch.addComponent("ant");
-        //theArch.addComponent("ant.util");
-        /*theArch.addComponent("zip");
-        theArch.addComponent("tar");
-        theArch.addComponent("mail");
-        theArch.addComponent("bzip2");*/
-
-
 
         try {
             FontConfig fc = new FontConfig();
@@ -131,36 +90,6 @@ public class RectsAndArrows {
         } catch (Exception e) {
             System.out.println(e);
         }
-
-       archviz.Command c = new archviz.Command(m_vizState);
-       sch.addCommand(c);
-
-
-        //sch.execute("load_arch_visuals data/slask/jabref_visuals.xml", graph).forEach(str -> guic.println(str));
-        //sch.execute("load_jar data/systems/JabRef/3.7/JabRef-3.7.jar net.sf.jabref.", graph).forEach(str -> guic.println(str));
-        //sch.execute("load_arch data/slask/jabref.txt", graph).forEach(str -> guic.println(str));
-
-
-
-        //sch.execute("load_arch_visuals data/slask/jabref_visuals.xml", graph).forEach(str -> guic.println(str));
-        //sch.execute("load_jar data/systems/ProM6.9/Pr3.7.jar net.sf.jabref.", graph).forEach(str -> guic.println(str));
-        //sch.execute("load_arch data/slask/jabref.txt", graph).forEach(str -> guic.println(str));
-
-        /*ProM69_dist/ProM-Contexts-6.9.56.jar
-        ProM69_dist/ProM-Framework-6.9.97.jar
-        ProM69_dist/ProM-Models-6.9.32.jar
-        ProM69_dist/ProM-Models-6.9.32.jar*/
-
-       /* sch.execute("load_jar data/systems/ProM6.9/ProM69_dist/ProM-Contexts-6.9.56.jar", graph).forEach(str -> guic.println(str));
-        sch.execute("load_jar data/systems/ProM6.9/ProM69_dist/ProM-Framework-6.9.97.jar", graph).forEach(str -> guic.println(str));
-        sch.execute("load_jar data/systems/ProM6.9/ProM69_dist/ProM-Models-6.9.32.jar", graph).forEach(str -> guic.println(str));
-        sch.execute("load_jar data/systems/ProM6.9/ProM69_dist/ProM-Plugins-6.9.67.jar", graph).forEach(str -> guic.println(str));
-
-        sch.execute("load_arch_visuals data/slask/prom_visuals.xml", graph).forEach(str -> guic.println(str));
-        sch.execute("load_arch data/systems/ProM6.9/ProM_6_9.txt", graph).forEach(str -> guic.println(str));
-*/
-
-        //sch.execute("compute_metrics", graph).forEach(str -> guic.println(str));
 
 
         window.loop(() -> {
@@ -186,18 +115,11 @@ public class RectsAndArrows {
 
     private float[] f = {1f};
     private Vec4 clearColor = new Vec4(0.45f, 0.55f, 0.6f, 1f);
-    private boolean[] showArchitecture = {true};
-    private boolean[] showTreeView = {true};
-    private boolean[] showGraphView = {false};
-    private boolean[] showHuGMeView = {true};
     private boolean[] showExperimentView = {true};
     private int[] counter = {0};
 
     private ExperimentsView m_experimentsView = new ExperimentsView();
 
-
-
-    HRoot.State m_vizState = new HRoot.State();
 
     private void getRectTopLeft(int a_index, Vec2 a_offset, Vec2 a_size, Vec2 a_outTopLeftCorner) {
         a_offset.plus(a_size.times(a_index, a_outTopLeftCorner), a_outTopLeftCorner);
@@ -233,11 +155,7 @@ public class RectsAndArrows {
         imgui.getFont().setScale(f[0]);
         imgui.colorEdit3("clear color", clearColor, 0);               // Edit 3 floats representing a color
 
-        imgui.checkbox("Architectural Structure", showArchitecture);
-        imgui.checkbox("Tree View", showTreeView);
-        imgui.checkbox("Graph View", showGraphView);
-        imgui.checkbox("Mapping View", showHuGMeView);
-        imgui.checkbox("Experiment View", showExperimentView);
+                imgui.checkbox("Experiment View", showExperimentView);
 
         if (imgui.button("Button", new Vec2()))                               // Buttons return true when clicked (NB: most widgets return true when edited/activated)
             counter[0]++;
@@ -267,106 +185,5 @@ public class RectsAndArrows {
         implGL3.renderDrawData(imgui.getDrawData());
 
         gln.GlnKt.checkError("loop", true); // TODO remove
-    }
-
-
-    private void doArchStructure(ArchDef a_arch, String a_rootComponentFilter, CGraph a_g) {
-        if (a_arch !=  null) {
-
-            HRoot root = new HRoot();
-            for (ArchDef.Component c : a_arch.getComponents()) {
-
-                if (c.getName().startsWith(a_rootComponentFilter)) {
-                    root.add(c.getName());
-                }
-            }
-
-            for (ArchDef.Component from : a_arch.getComponents()) {
-                for (ArchDef.Component to : a_arch.getComponents()) {
-                    if (from.allowedDependency(to)) {
-                        if (from.getName().startsWith(a_rootComponentFilter) && to.getName().startsWith(a_rootComponentFilter)) {
-                            root.addDependency(from.getName(), to.getName());
-                        }
-                    }
-                }
-            }
-
-            //Arrays.sort(components, (o1, o2) -> o2.getAllowedDependencyCount() - o1.getAllowedDependencyCount());
-
-            Rect r = imgui.getCurrentWindow().getContentsRegionRect();
-
-            HRoot.Action action = root.render(r, imgui, m_vizState);
-
-            if (action != null && action.m_addComponent != null) {
-                a_arch.addComponent(action.m_addComponent);
-            }
-
-            if (action != null && action.m_deletedComponents != null) {
-                for (String cName : action.m_deletedComponents) {
-                    a_arch.removeComponent(a_arch.getComponent(cName));
-                }
-            }
-
-            // we need to do resorting before renaming
-            if (action != null && action.m_nodeOrder != null) {
-                ArrayList<ArchDef.Component> newOrder = new ArrayList<>();
-
-                for(String name : action.m_nodeOrder) {
-                    newOrder.add(a_arch.getComponent(name));
-                }
-                a_arch.clear();
-                for(ArchDef.Component c : newOrder) {
-                    a_arch.addComponent(c);
-                }
-            }
-
-            // add dependenices
-            if (action != null && action.m_addDependenices != null) {
-                for(HRoot.Action.NodeNamePair pair : action.m_addDependenices.getPairs()) {
-                    ArchDef.Component sC = a_arch.getComponent(pair.m_oldName);
-                    ArchDef.Component tC = a_arch.getComponent(pair.m_newName);
-                    if (tC == null) {
-                        System.out.println("Could not find component named: " + pair.m_newName);
-                    } else if (sC == null) {
-                        System.out.println("Could not find component named: " + pair.m_oldName);
-                    } else {
-                        sC.addDependencyTo(tC);
-                    }
-                }
-            }
-
-            // remove dependenices
-            if (action != null && action.m_removeDependencies != null) {
-                for(HRoot.Action.NodeNamePair pair : action.m_removeDependencies.getPairs()) {
-                    ArchDef.Component sC = a_arch.getComponent(pair.m_oldName);
-                    ArchDef.Component tC = a_arch.getComponent(pair.m_newName);
-                    if (tC == null) {
-                        System.out.println("Could not find component named: " + pair.m_newName);
-                    } else if (sC == null) {
-                        System.out.println("Could not find component named: " + pair.m_oldName);
-                    } else {
-                        sC.removeDependencyTo(tC);
-                    }
-                }
-            }
-
-            // node renaming
-            if (action != null && action.m_hiearchyMove != null) {
-                for(HRoot.Action.NodeNamePair pair : action.m_hiearchyMove.getPairs()) {
-                    ArchDef.Component c = a_arch.getComponent(pair.m_oldName);
-                    if (c == null) {
-                        System.out.println("Could not find component named: " + pair.m_oldName);
-                    } else {
-                        ArrayList<CNode> nodes = new ArrayList<>();
-                        for(CNode n : a_g.getNodes()) {
-                            if (c.isMappedTo(n)) {
-                                nodes.add(n);
-                            }
-                        }
-                        a_arch.setComponentName(c, pair.m_newName, nodes);
-                    }
-                }
-            }
-        }
     }
 }
