@@ -1,0 +1,62 @@
+# jar
+sweethome3d_week_020_rev_002382_date_2010-02-21.jar
+
+# name
+sweethome3d
+
+# root-packages
+com.eteks.sweethome3d.
+
+
+# modules
+sweetHome3DModel
+sweetHome3DTools
+sweetHome3DPlugin
+sweetHome3DViewController
+sweetHome3DSwing
+sweetHome3DJava3D
+sweetHome3DIO
+sweetHome3DApplet
+sweetHome3DApplication
+# mapping
+# <high_level_module> <regular_expression>
+sweetHome3DModel com.eteks.sweethome3d.model.*
+sweetHome3DTools com.eteks.sweethome3d.tools.*
+sweetHome3DPlugin com.eteks.sweethome3d.plugin.*
+sweetHome3DViewController com.eteks.sweethome3d.viewcontroller.*
+sweetHome3DSwing com.eteks.sweethome3d.swing.*
+sweetHome3DJava3D com.eteks.sweethome3d.j3d.*
+sweetHome3DIO com.eteks.sweethome3d.io.*
+sweetHome3DApplet com.eteks.sweethome3d.applet.*
+sweetHome3DApplication com.eteks.sweethome3d(?!(.model|.tools|.plugin|.viewcontroller|.j3d|.io|.applet)).*
+# relations
+# <source_module> <target_module>
+sweetHome3DTools sweetHome3DModel
+sweetHome3DPlugin sweetHome3DModel
+sweetHome3DPlugin sweetHome3DTools
+sweetHome3DViewController sweetHome3DModel
+sweetHome3DViewController sweetHome3DTools
+sweetHome3DViewController sweetHome3DPlugin
+sweetHome3DJava3D sweetHome3DModel
+sweetHome3DJava3D sweetHome3DTools
+sweetHome3DSwing sweetHome3DModel
+sweetHome3DSwing sweetHome3DTools
+sweetHome3DSwing sweetHome3DPlugin
+sweetHome3DSwing sweetHome3DViewController
+sweetHome3DSwing sweetHome3DJava3D
+sweetHome3DIO sweetHome3DModel
+sweetHome3DIO sweetHome3DTools
+sweetHome3DApplet sweetHome3DModel
+sweetHome3DApplet sweetHome3DTools
+sweetHome3DApplet sweetHome3DPlugin
+sweetHome3DApplet sweetHome3DViewController
+sweetHome3DApplet sweetHome3DJava3D
+sweetHome3DApplet sweetHome3DSwing
+sweetHome3DApplet sweetHome3DIO
+sweetHome3DApplication sweetHome3DModel
+sweetHome3DApplication sweetHome3DTools
+sweetHome3DApplication sweetHome3DPlugin
+sweetHome3DApplication sweetHome3DViewController
+sweetHome3DApplication sweetHome3DJava3D
+sweetHome3DApplication sweetHome3DSwing
+sweetHome3DApplication sweetHome3DIO

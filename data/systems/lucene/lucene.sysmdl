@@ -1,0 +1,47 @@
+# jar
+lucene_week_020_rev_1075001_date_2011-02-27.jar
+
+# name
+lucene
+
+# root-packages
+org.apache.lucene
+
+# metrics file
+#lucene-file-metrics.csv
+
+# modules
+queryparser
+search
+index
+store
+analysis
+util
+document
+# mapping
+# <high_level_module> <regular_expression>
+queryparser org.apache.lucene.queryParser.*
+search org.apache.lucene.search.*
+index org.apache.lucene.index.*
+store org.apache.lucene.store.*
+analysis org.apache.lucene.(analysis|collation).*
+util org.apache.lucene.(util|message).*
+document org.apache.lucene.document.*
+# relations
+# <source_module> <target_module>
+queryparser search
+queryparser index
+queryparser document
+queryparser util
+search index
+search analysis
+search document
+search util
+index store
+index analysis
+index document
+index util
+analysis document
+analysis util
+document util
+util document

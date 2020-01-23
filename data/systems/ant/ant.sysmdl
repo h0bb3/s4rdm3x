@@ -1,0 +1,143 @@
+# jar
+ant_week_020_rev_584500_date_2007-10-14.jar
+ant-launcher.jar
+
+# name
+ant
+
+# root-packages
+org.apache.tools
+
+# metrics file
+#ant-file-metrics.csv
+
+# modules
+optional
+compilers
+condition
+rmic
+cvslib
+email
+repository
+taskdefs
+listener
+types
+ant
+ant.util
+zip
+tar
+mail
+bzip2
+# mapping
+# <high_level_module> <regular_expression>
+optional org.apache.tools.ant.taskdefs.optional.*
+compilers org.apache.tools.ant.taskdefs.compilers.*
+condition org.apache.tools.ant.taskdefs.condition.*
+rmic org.apache.tools.ant.taskdefs.rmic.*
+cvslib org.apache.tools.ant.taskdefs.cvslib.*
+email org.apache.tools.ant.taskdefs.email.*
+repository org.apache.tools.ant.taskdefs.repository.*
+taskdefs org.apache.tools.ant.taskdefs(?!(.optional|.compilers|.condition|.rmic|.cvslib|.email|.repository)).*
+listener org.apache.tools.ant.listener.*
+types org.apache.tools.ant.types.*
+ant org.apache.tools.ant(?!(.taskdefs|.listener|.types|.util|.filters|.helper|.input|.launch|.loader|.dispatch|.property)).*
+ant.util org.apache.tools.ant.util.*
+zip org.apache.tools.zip.*
+tar org.apache.tools.tar.*
+mail org.apache.tools.mail.*
+bzip2 org.apache.tools.bzip2.*
+# relations
+# <source_module> <target_module>
+optional taskdefs
+optional listener
+optional types
+optional ant
+optional ant.util
+optional zip
+optional tar
+optional mail
+optional bzip2
+compilers taskdefs
+compilers listener
+compilers types
+compilers ant
+compilers ant.util
+compilers zip
+compilers tar
+compilers mail
+compilers bzip2
+condition taskdefs
+condition listener
+condition types
+condition ant
+condition ant.util
+condition zip
+condition tar
+condition mail
+condition bzip2
+rmic taskdefs
+rmic listener
+rmic types
+rmic ant
+rmic ant.util
+rmic zip
+rmic tar
+rmic mail
+rmic bzip2
+cvslib taskdefs
+cvslib listener
+cvslib types
+cvslib ant
+cvslib ant.util
+cvslib zip
+cvslib tar
+cvslib mail
+cvslib bzip2
+email taskdefs
+email listener
+email types
+email ant
+email ant.util
+email zip
+email tar
+email mail
+email bzip2
+repository taskdefs
+repository listener
+repository types
+repository ant
+repository ant.util
+repository zip
+repository tar
+repository mail
+repository bzip2
+taskdefs listener
+taskdefs types
+taskdefs ant
+taskdefs ant.util
+taskdefs zip
+taskdefs tar
+taskdefs mail
+taskdefs bzip2
+listener ant
+listener ant.util
+listener zip
+listener tar
+listener mail
+listener bzip2
+types ant
+types ant.util
+types zip
+types tar
+types mail
+types bzip2
+ant zip
+ant tar
+ant mail
+ant bzip2
+ant ant.util
+ant.util zip
+ant.util tar
+ant.util mail
+ant.util bzip2
+ant.util ant

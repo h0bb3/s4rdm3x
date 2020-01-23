@@ -1,0 +1,121 @@
+# jar
+teammatesV5.110.jar
+
+
+# name
+TeamMates
+
+# root-packages
+main.teammates.
+test.teammates.
+
+# metrics file
+#teammates-file-metrics.csv
+
+
+# modules
+common.util
+common.exception
+common.dataTransfer
+ui.automated
+ui.controller
+ui.view
+logic.core
+logic.api
+logic.backdoor
+storage.entity
+storage.api
+storage.search
+testDriver
+#testDriver.pageobjects
+#testDriver.cases
+#testDriver.cases.browsertests
+client.remoteAPI
+client.scripts
+
+# mapping
+# <high_level_module> <regular_expression>
+common.util teammates.common.util.*
+common.exception teammates.common.exception.*
+common.dataTransfer teammates.common.datatransfer.*
+ui.automated teammates.ui.automated.*
+ui.controller teammates.ui.controller.*
+ui.view teammates.ui(!?(.datatransfer|.pagedata|.template)).*
+logic.core teammates.logic.core.*
+logic.api teammates.logic.api.*
+logic.backdoor teammates.logic.backdoor.*
+storage.entity teammates.storage.entity.*
+storage.api teammates.storage.api.*
+storage.search teammates.storage.search.*
+testDriver teammates.test.*
+client.remoteAPI teammates.client.remoteapi.*
+client.scripts teammates.client.scripts.*
+
+# relations
+# <source_module> <target_module>
+testDriver client.remoteAPI
+testDriver client.scripts
+
+client.remoteAPI common.util
+client.remoteAPI common.exception
+client.remoteAPI common.dataTransfer
+client.scripts common.util
+client.scripts common.exception
+client.scripts common.dataTransfer
+client.scripts client.remoteAPI
+client.scripts logic.backdoor
+
+testDriver common.util
+testDriver common.exception
+testDriver common.dataTransfer
+testDriver logic.backdoor
+
+ui.automated common.util
+ui.automated common.exception
+ui.automated common.dataTransfer
+ui.automated logic.api
+ui.controller common.util
+ui.controller common.exception
+ui.controller common.dataTransfer
+ui.controller logic.api
+ui.controller ui.view
+ui.view common.util
+ui.view common.exception
+ui.view common.dataTransfer
+
+logic.core common.util
+logic.core common.exception
+logic.core common.dataTransfer
+logic.core storage.api
+logic.api logic.core
+logic.api common.util
+logic.api common.exception
+logic.api common.dataTransfer
+logic.backdoor logic.api
+logic.backdoor common.util
+logic.backdoor common.exception
+logic.backdoor common.dataTransfer
+logic.backdoor storage.api
+
+storage.entity common.util
+storage.entity common.exception
+storage.entity common.dataTransfer
+storage.api common.util
+storage.api common.exception
+storage.api common.dataTransfer
+storage.api storage.entity
+storage.api storage.search
+storage.search storage.api
+storage.search common.util
+storage.search common.exception
+storage.search common.dataTransfer
+
+common.dataTransfer storage.entity
+common.dataTransfer common.util
+common.dataTransfer common.exception
+
+common.util common.dataTransfer
+common.util common.exception
+
+common.exception common.util
+common.exception common.dataTransfer

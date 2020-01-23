@@ -1,0 +1,133 @@
+# this is the system model witout guiapi and db
+
+# name
+JabRef_37_1
+
+# jar
+JabRef-3.7.jar
+
+# metrics file
+#jabref-file-metrics.csv
+
+# root-packages
+net/sf/jabref/
+
+# modules
+globals
+preferences
+model
+logic
+gui
+cli
+
+
+# mapping: <package>.* maps all classes in <package> except for those which are explicitly listed in another mapping
+# these are taken from the HUSSACT Mapping SAEroCon Repository
+gui net.sf.jabref.JabRefGUI
+gui net.sf.jabref.JabRefMain
+gui net.sf.jabref.collab.Change
+gui net.sf.jabref.collab.ChangeDisplayDialog
+gui net.sf.jabref.collab.ChangeScanner
+gui net.sf.jabref.collab.EntryAddChange
+gui net.sf.jabref.collab.EntryChange
+gui net.sf.jabref.collab.EntryDeleteChange
+gui net.sf.jabref.collab.FileUpdatePanel
+gui net.sf.jabref.collab.GroupChange
+gui net.sf.jabref.collab.InfoPane
+gui net.sf.jabref.collab.MetaDataChange
+gui net.sf.jabref.collab.PreambleChange
+gui net.sf.jabref.collab.StringAddChange
+gui net.sf.jabref.collab.StringChange
+gui net.sf.jabref.collab.StringNameChange
+gui net.sf.jabref.collab.StringRemoveChange
+gui net.sf.jabref.gui.*
+gui net.sf.jabref.migrations.FileLinksUpgradeWarning
+gui net.sf.jabref.pdfimport.ImportDialog
+gui net.sf.jabref.pdfimport.PdfFileFilter
+gui net.sf.jabref.pdfimport.PdfImporter
+
+logic net.sf.jabref.JabRefExecutorService
+logic net.sf.jabref.collab.FileUpdateListener
+logic net.sf.jabref.collab.FileUpdateMonitor
+logic net.sf.jabref.logic.*
+logic net.sf.jabref.shared.DBMSProcessor
+logic net.sf.jabref.shared.DBMSSynchronizer
+logic net.sf.jabref.shared.MySQLProcessor
+logic net.sf.jabref.shared.OracleProcessor
+logic net.sf.jabref.shared.PostgreSQLProcessor
+logic net.sf.jabref.shared.event.*
+logic net.sf.jabref.shared.exception.*
+logic net.sf.jabref.shared.listener.*
+
+model net.sf.jabref.JabRefException
+model net.sf.jabref.model.*
+model net.sf.jabref.shared.DBMSConnection.*
+model net.sf.jabref.shared.DBMSConnectionProperties.*
+model net.sf.jabref.shared.DBMSType.*
+model net.sf.jabref.shared.security.Password.*
+
+globals net.sf.jabref.Globals
+
+cli net.sf.jabref.cli.*
+
+preferences net.sf.jabref.migrations.PreferencesMigrations
+preferences net.sf.jabref.preferences.*
+preferences net.sf.jabref.shared.prefs.*
+
+#guiapi java.awt.*
+#guiapi javax.swing.*
+
+#db java.sql.*
+#db oracle.*
+
+# relations
+# <source_module> <target_module>
+#these are taken from the 3.5 architecture, and cross checked with the hussact model
+globals cli
+globals gui
+globals logic
+globals model
+globals preferences
+logic model
+#logic db
+gui model
+gui logic
+gui preferences
+gui cli
+#gui guiapi
+gui globals
+cli model
+cli logic
+cli globals
+cli preferences
+
+# initial mapping
+logic net.sf.jabref.shared.PostgreSQLProcessor
+gui net.sf.jabref.gui.worker.CitationStyleWorker
+gui net.sf.jabref.gui.FindUnlinkedFilesDialog
+logic net.sf.jabref.logic.layout.format.DOICheck
+logic net.sf.jabref.logic.bibtexkeypattern.BibtexKeyPatternUtil
+gui net.sf.jabref.gui.push.PushToApplicationButton
+model net.sf.jabref.model.entry.CanonicalBibtexEntry
+logic net.sf.jabref.logic.importer.fileformat.mods.ModsDefinition
+logic net.sf.jabref.logic.layout.format.AuthorAbbreviator
+logic net.sf.jabref.logic.layout.format.RemoveWhitespace
+logic net.sf.jabref.logic.importer.fileformat.mods.DateDefinition
+logic net.sf.jabref.logic.layout.format.AuthorLastFirstAbbreviator
+gui net.sf.jabref.gui.importer.ImportCustomizationDialog
+gui net.sf.jabref.collab.ChangeScanner
+logic net.sf.jabref.logic.groups.GroupDescriptions
+logic net.sf.jabref.logic.util.io.XMLUtil
+gui net.sf.jabref.gui.journals.UndoableUnabbreviator
+gui net.sf.jabref.gui.fieldeditors.FileListEditorTransferHandler
+gui net.sf.jabref.gui.filelist.AttachFileAction
+gui net.sf.jabref.gui.preftabs.PreferencesFilterDialog
+logic net.sf.jabref.logic.importer.fileformat.medline.SupplMeshName
+logic net.sf.jabref.logic.importer.fileformat.medline.DataBank
+gui net.sf.jabref.gui.search.SearchWorker
+logic net.sf.jabref.logic.help.HelpFile
+cli net.sf.jabref.cli.JabRefCLI
+gui net.sf.jabref.collab.StringChange
+logic net.sf.jabref.logic.citationstyle.CitationStyle
+gui net.sf.jabref.gui.util.component.JTextAreaWithPlaceholder
+gui net.sf.jabref.gui.groups.RemoveFromGroupAction
