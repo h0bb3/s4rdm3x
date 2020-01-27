@@ -1,11 +1,11 @@
 ---
-title: 'Gala: A Python package for galactic dynamics'
+title: 's4rdm3x: A Java tool suite for orphan adoption clustering'
 tags:
-  - Python
-  - astronomy
-  - dynamics
-  - galactic dynamics
-  - milky way
+  - Java
+  - orphan adoption
+  - clustering
+  - reflexion modeling
+  - architecture conformance checking
 authors:
   - name: Adrian M. Price-Whelan
     orcid: 0000-0003-0872-7098
