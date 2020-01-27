@@ -8,7 +8,7 @@ tags:
   - architecture conformance checking
 authors:
   - name: Tobias Olsson
-    orcid: 
+    orcid: 0000-0003-1154-5308
     affiliation: "1, 2" # (Multiple affiliations must be quoted)
   - name: Author Without ORCID
     affiliation: 2
