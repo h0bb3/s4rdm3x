@@ -3,8 +3,10 @@ package gui;
 import glm_.vec2.Vec2;
 import glm_.vec4.Vec4;
 import imgui.*;
-import imgui.internal.Rect;
-import imgui.internal.Window;
+import imgui.font.FontGlyph;
+import imgui.internal.ItemFlag;
+import imgui.internal.classes.Rect;
+import imgui.internal.classes.Window;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,7 +25,7 @@ public class ImGuiWrapper {
     }
 
     public boolean beginPopupContextWindow(String a_strId, int a_mouseButton, boolean a_alsoOverItems) {
-        return m_imGui.beginPopupContextWindow(a_strId, a_mouseButton, a_alsoOverItems);
+        return m_imGui.beginPopupContextWindow(a_strId, int2MB(a_mouseButton), a_alsoOverItems);
     }
 
     public void closeCurrentPopup() {
@@ -107,7 +109,7 @@ public class ImGuiWrapper {
         }
         boolean ret = m_imGui.collapsingHeader(a_text, a_flags);
         if (m_isWidgetDisabled) {
-            m_imGui.pushItemFlag(ItemFlag.Disabled.getI(), true);
+            m_imGui.pushItemFlag(ItemFlag.Disabled.i, true);
         }
 
         return ret;
@@ -447,7 +449,7 @@ public class ImGuiWrapper {
                 buffer[i] = a_text.charAt(i);
             }
 
-            if (m_imGui.inputText(a_label, buffer, 0)) {
+            if (m_imGui.inputText(a_label, buffer, 0, null, null)) {    // TODO: this api call has changed, possibly make this better
                 String txt = new String();
                 for (int i = 0; i < buffer.length; i++) {
                     if (buffer[i] == '\0') {
@@ -474,7 +476,7 @@ public class ImGuiWrapper {
         m_imGui.setCursorPos(textPos);
         m_imGui.pushItemWidth(a_width + m_imGui.getStyle().getFramePadding().getX() * 1 + m_imGui.getFontSize());   // we need to be a bit wider than *2 so that imgui does not make wonky things with the text x position
 
-        boolean ret = m_imGui.inputText(a_label, a_buffer, InputTextFlag.EnterReturnsTrue.getI());
+        boolean ret = m_imGui.inputText(a_label, a_buffer, InputTextFlag.EnterReturnsTrue.i, null, null);   // TODO: this api call has changed
 
         // GLFW_KEY_KP_ENTER   335
         if (m_imGui.isKeyDown(335)) {
@@ -555,7 +557,7 @@ public class ImGuiWrapper {
     public void pushDisableWidgets() {
         if (!m_isWidgetDisabled) {
             m_isWidgetDisabled = true;
-            m_imGui.pushItemFlag(ItemFlag.Disabled.getI(), true);
+            m_imGui.pushItemFlag(ItemFlag.Disabled.i, true);
             m_imGui.pushStyleVar(StyleVar.Alpha, m_imGui.getStyle().getAlpha() * 0.5f);
         }
     }
@@ -581,23 +583,39 @@ public class ImGuiWrapper {
     }
 
     public boolean isMouseDoubleClicked(int a_button) {
-        return m_imGui.isMouseDoubleClicked(a_button);
+        return m_imGui.isMouseDoubleClicked(int2MB(a_button));
     }
 
     public boolean isMouseClicked(int a_button, boolean a_doRepeat) {
-        return m_imGui.isMouseClicked(a_button, a_doRepeat);
+        return m_imGui.isMouseClicked(int2MB(a_button), a_doRepeat);
+    }
+
+    // TODO: Now that the api has changed we should also have a mouse button enum in our wrapper
+    public MouseButton int2MB(int a_button) {
+        imgui.MouseButton mb = imgui.MouseButton.Left;
+        for (int i = 0; i < MouseButton.values().length; i++) {
+            if (a_button == MouseButton.values()[i].getI()) {
+                mb = MouseButton.values()[i];
+                break;
+            }
+        }
+        return mb;
+    }
+
+    public void sameLine(int a_offsetFromStartX) {
+        m_imGui.sameLine(a_offsetFromStartX, -1);
     }
 
     boolean isMouseDown(int a_button) {
-        return m_imGui.isMouseDown(a_button);
+        return m_imGui.isMouseDown(int2MB(a_button));
     }
 
     public Vec2 getMouseDragDelta(int a_button, float a_lockThreshold) {
-        return m_imGui.getMouseDragDelta(a_button, 1.0f);
+        return m_imGui.getMouseDragDelta(int2MB(a_button), 1.0f);
     }
 
     public boolean isMouseDragging(int a_button, float a_lockThreshold) {
-        return m_imGui.isMouseDragging(a_button, a_lockThreshold);
+        return m_imGui.isMouseDragging(int2MB(a_button), a_lockThreshold);
     }
 
     public void stopWindowDrag() {

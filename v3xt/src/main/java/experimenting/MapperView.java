@@ -142,7 +142,7 @@ public class MapperView {
             if (a_imgui.button("Copy Mapper##" + m_id, 0)) {
                 ret = ExperimentRunnerViewThread.DoExperimentAction.Copy;
             }
-            a_imgui.imgui().sameLine(0);
+            a_imgui.imgui().sameLine(0, 0);
             if (a_imgui.button("Delete Mapper##" + m_id, 0)) {
                 ret = ExperimentRunnerViewThread.DoExperimentAction.Delete;
             }

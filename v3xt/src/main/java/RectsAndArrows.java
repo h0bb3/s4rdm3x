@@ -4,14 +4,21 @@ import glm_.vec2.Vec2i;
 import glm_.vec4.Vec4;
 import gui.ImGuiWrapper;
 import imgui.*;
-import imgui.impl.ImplGL3;
-import imgui.impl.LwjglGlfw;
+import imgui.classes.Context;
+import imgui.classes.IO;
+import imgui.font.Font;
+import imgui.font.FontConfig;
+import imgui.impl.gl.ImplGL3;
+import imgui.impl.glfw.ImplGlfw;
+import imgui.internal.classes.TextEditState;
 import kotlin.Unit;
+import org.lwjgl.system.MemoryStack;
 import se.lnu.siq.s4rdm3x.GUIConsole;
 import se.lnu.siq.s4rdm3x.StringCommandHandler;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import uno.glfw.GlfwWindow;
+import uno.glfw.VSync;
 import uno.glfw.windowHint;
 
 import java.io.InputStream;
@@ -27,8 +34,8 @@ public class RectsAndArrows {
     // The window handle
     private GlfwWindow window;
     private uno.glfw.glfw glfw = uno.glfw.glfw.INSTANCE;
-    private LwjglGlfw lwjglGlfw = LwjglGlfw.INSTANCE;
-    private ImplGL3 implGL3 = ImplGL3.INSTANCE;
+    private ImplGlfw  implGlfw;
+    private ImplGL3  implGl3;
     private ImGui imgui = ImGui.INSTANCE;
     private IO io;
     private Context ctx;
@@ -42,26 +49,34 @@ public class RectsAndArrows {
     }
 
     private RectsAndArrows() {
+
+
+
+
         glfw.init("3.3", windowHint.Profile.core, true);
 
         window = new GlfwWindow(1280, 720, "Dear ImGui Lwjgl OpenGL3 example", NULL, new Vec2i(Integer.MIN_VALUE), true);
         window.init(true);
 
-        glfw.setSwapInterval(1);    // Enable vsync
+        glfw.setSwapInterval(VSync.ON);    // Enable vsync
 
         // Setup ImGui binding
         //setGlslVersion(330); // set here your desidered glsl version
         ctx = new Context(null);
         //io.configFlags = io.configFlags or ConfigFlag.NavEnableKeyboard  // Enable Keyboard Controls
         //io.configFlags = io.configFlags or ConfigFlag.NavEnableGamepad   // Enable Gamepad Controls
-        lwjglGlfw.init(window, true, LwjglGlfw.GlfwClientApi.OpenGL);
+        //implGlfw.init(window, true, implGlfw..GlfwClientApi.OpenGL);
 
         TextEditState tes = new TextEditState();
         //tes.setBufSizeA();
-        ctx.getInputTextState().setBufSizeA(2048);
+        ctx.getInputTextState().setBufCapacityA(2048);
         io = imgui.getIo();
 
         imgui.styleColorsDark(null);
+
+
+        implGlfw = new ImplGlfw(window, true, null);
+        implGl3 = new ImplGL3();
     }
 
     private void run() {
@@ -73,26 +88,26 @@ public class RectsAndArrows {
         ArchDef theArch = new ArchDef();
 
         try {
-            FontConfig fc = new FontConfig();
+            // TODO: Load this as a resource maybe?
+            /*FontConfig fc = new FontConfig();
             byte[] bytes;
             Class c = getClass();
             ClassLoader cl = c.getClassLoader();
-            InputStream is = cl.getResourceAsStream("imgui/src/main/resources/fonts/Roboto-Medium.ttf");
-            bytes =  Files.readAllBytes(Paths.get("data/visuals/fonts/Roboto-Medium.ttf"));
+            //InputStream is = cl.getResourceAsStream("imgui/src/main/resources/fonts/Roboto-Medium.ttf");
+            bytes =  Files.readAllBytes(Paths.get("data/resources/fonts/Roboto-Medium.ttf"));
             char [] chars = new char[bytes.length];
             for (int ix = 0; ix < chars.length; ix++) {
                 chars[ix] = (char)bytes[ix];
             }
 
-            Font f = imgui.getIo().getFonts().addFontFromMemoryTTF(chars, 24, fc,new int[] {0x0020, 0x00FF} );
-            imgui.setCurrentFont(f);
-           // System.out.println("" + bytes[0]);
+            Font f = imgui.getIo().getFonts().addFontFromMemoryTTF(chars, 24, fc, new int[] {0x0020, 0x00FF} );
+            imgui.setCurrentFont(f);*/
         } catch (Exception e) {
-            System.out.println(e);
+            System.out.println("Could not load font resource, using default");
         }
 
 
-        window.loop(() -> {
+        window.loop((MemoryStack stack)  -> {
 
             if (guic.hasInput()) {
 
@@ -106,8 +121,9 @@ public class RectsAndArrows {
         });
 
         guic.close();
-        lwjglGlfw.shutdown();
-        ContextKt.destroy(ctx);
+        implGlfw.shutdown();
+        implGl3.shutdown();
+        ctx.destroy();
 
         window.destroy();
         glfw.terminate();
@@ -121,47 +137,12 @@ public class RectsAndArrows {
     private ExperimentsView m_experimentsView = new ExperimentsView();
 
 
-    private void getRectTopLeft(int a_index, Vec2 a_offset, Vec2 a_size, Vec2 a_outTopLeftCorner) {
-        a_offset.plus(a_size.times(a_index, a_outTopLeftCorner), a_outTopLeftCorner);
-    }
-
-    private boolean equalToLevel(final int a_level, ArchDef.Component a_c1, ArchDef.Component a_c2) {
-        String [] names1 = getLevels(a_c1);
-        String [] names2 = getLevels(a_c2);
-        if (a_level < names1.length && a_level < names2.length) {
-            for (int ix = 0; ix <= a_level; ix++) {
-                if (!names1[ix].contentEquals(names2[ix])) {
-                    return false;
-                }
-            }
-            return true;
-        }
-        return false;
-    }
-
-    private String [] getLevels(ArchDef.Component a_c) {
-        return a_c.getName().split("\\.");
-    }
-
     private void mainLoop(ArchDef a_arch, CGraph a_g) {
         // Start the Dear ImGui frame
-        lwjglGlfw.newFrame();
+        implGlfw.newFrame();
 
-        boolean [] showDemo = {true};
-        imgui.showDemoWindow(showDemo);
 
-        imgui.text("Hello, world!");                                // Display some text (you can use a format string too)
-        imgui.sliderFloat("float", f, 0.25f, 5f, "%.3f", 1f);       // Edit 1 float using a slider from 0.0f to 1.0f
-        imgui.getFont().setScale(f[0]);
-        imgui.colorEdit3("clear color", clearColor, 0);               // Edit 3 floats representing a color
-
-                imgui.checkbox("Experiment View", showExperimentView);
-
-        if (imgui.button("Button", new Vec2()))                               // Buttons return true when clicked (NB: most widgets return true when edited/activated)
-            counter[0]++;
-
-        imgui.sameLine(0f, -1f);
-        imgui.text("counter = $counter");
+        //imgui.showDemoWindow(showDemo);
 
         imgui.text("Application average %.3f ms/frame (%.1f FPS)", 1_000f / io.getFramerate(), io.getFramerate());
 
@@ -182,8 +163,8 @@ public class RectsAndArrows {
 
         imgui.render();
 
-        implGL3.renderDrawData(imgui.getDrawData());
+        implGl3.renderDrawData(imgui.getDrawData());
 
-        gln.GlnKt.checkError("loop", true); // TODO remove
+        //gln.GlnKt.checkError("loop", true); // render errors only good when debugging.
     }
 }

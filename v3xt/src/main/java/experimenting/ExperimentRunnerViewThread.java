@@ -8,8 +8,12 @@ import se.lnu.siq.s4rdm3x.experiments.metric.aggregated.RelativeLineCount;
 import se.lnu.siq.s4rdm3x.experiments.system.FileBased;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
+import se.lnu.siq.s4rdm3x.model.cmd.util.SystemModelReader;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -227,16 +231,64 @@ class ExperimentRunnerViewThread extends Thread {
             m_name = a_name;
             m_file = a_file;
         }
+
+        private SystemNameFile() {
+            if (g_systems == null) {
+                g_systems = scan();
+            }
+        }
+
+        static private ArrayList<SystemNameFile> g_systems = null;
+        static SystemNameFile g_dummy = new SystemNameFile();
+
+        public static Iterable<SystemNameFile> globalSystems() {
+            return g_systems;
+        }
+
+        public int getSystemCount() {
+            return g_systems.size();
+        }
+
+        public boolean isLastSystem() {
+
+            return g_systems.get(g_systems.size() - 1) == this;
+        }
+
+        private ArrayList<SystemNameFile> scan() {
+            ArrayList<SystemNameFile> ret = new ArrayList<>();
+            try {
+                Files.find(Paths.get("data/"), Integer.MAX_VALUE, (filePath, fileAttr) -> fileAttr.isRegularFile()).filter(f -> f.toFile().getName().endsWith(".sysmdl")).forEach(f -> {
+
+                    SystemModelReader smr = new SystemModelReader();
+                    smr.readFile(f.toString());
+                    boolean jarExists[] = new boolean[1];
+                    jarExists[0] = false;
+                    if (smr.m_jars.size() > 0) {
+                        jarExists[0] = true;
+                        smr.m_jars.forEach(j -> {
+                            String jar = f.getParent().toString() + File.separator + j;
+                            if (!Files.exists(Paths.get(jar))) {
+                                jarExists[0] = false;
+                            }
+                        });
+
+                    }
+
+                    if (jarExists[0]) {
+                        ret.add(new SystemNameFile(smr.m_name, f.toString()));
+                    } else {
+                        System.out.println("Could not add system model: " + f.toString() + " - referenced jars do not exist");
+                    }
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return ret;
+        }
     }
+
     static class SystemSelection {
-        static final SystemNameFile[] g_systems = {
-                new SystemNameFile("Ant", "data/systems/ant/ant-system_model.txt"),
-                new SystemNameFile("Argouml", "data/systems/argouml/argouml-system_model.txt"),
-                new SystemNameFile("JabRef", "data/systems/JabRef/3.7/jabref-3_7-system_model_1.txt"),
-                new SystemNameFile("Lucene", "data/systems/lucene/lucene-system_model.txt"),
-                new SystemNameFile("Sweethome 3d", "data/systems/sweethome3d/sweethome3d-system_model.txt"),
-                new SystemNameFile("Teammates", "data/systems/teammates/teammates-system_model.txt"),
-                new SystemNameFile("ProM", "data/systems/ProM6.9/ProM_6_9.txt")};
 
         ArrayList<SystemNameFile> m_selectedSystems = new ArrayList<>();
 
@@ -245,20 +297,21 @@ class ExperimentRunnerViewThread extends Thread {
         }
 
         public SystemSelection() {
-
         }
+
+
 
         ArrayList<String> getSystemNames() {
             ArrayList<String> ret = new ArrayList<>();
 
-            for (SystemNameFile snf : g_systems) {
+            for (SystemNameFile snf : SystemNameFile.globalSystems()) {
                 ret.add(snf.m_name);
             }
             return ret;
         }
 
         Iterable<SystemNameFile> getSystems() {
-            return Arrays.asList(g_systems);
+            return SystemNameFile.globalSystems();
         }
 
         Iterable<SystemNameFile> getSelectedSystems() {
@@ -278,16 +331,10 @@ class ExperimentRunnerViewThread extends Thread {
         }
 
 
-        public int getSystemCount() {
-            return g_systems.length;
-        }
 
-        public boolean isLastSystem(SystemNameFile a_snf) {
-            return g_systems[g_systems.length - 1] == a_snf;
-        }
 
         public void selectFileName(String a_fileName) {
-            for (SystemNameFile snf : g_systems) {
+            for (SystemNameFile snf : SystemNameFile.globalSystems()) {
                 if (snf.m_file.equals(a_fileName)) {
                     if (!isSelected(snf)) {
                         m_selectedSystems.add(snf);
@@ -319,7 +366,6 @@ class ExperimentRunnerViewThread extends Thread {
     public DoExperimentAction doExperiment(ImGuiWrapper a_imgui, DataListener a_newDataListener) {
         DoExperimentAction ret = DoExperimentAction.None;
         if (a_imgui.imgui().collapsingHeader("Experiment: " + m_name + "###Header" + m_id, 0)) {
-            //Vec2 size = new Vec2(a_imgui.imgui().getContentRegionAvailWidth(), a_imgui.getTextLineHeightWithSpacing() * 2 + a_imgui.imgui().getContentRegionAvailWidth() / 3);
 
             if (isRunningExperiment()) {
                 a_imgui.pushDisableWidgets();
@@ -327,19 +373,15 @@ class ExperimentRunnerViewThread extends Thread {
 
             m_name = a_imgui.inputTextSingleLine("Name###Name" + m_id, m_name);
 
-            //a_imgui.imgui().beginChild(m_id, size, true, 0);
-
             {
-
                 for (SystemNameFile snf : m_selectedSystem.getSystems()) {
                     boolean isSelected[] = {m_selectedSystem.isSelected(snf)};
                     if (a_imgui.imgui().checkbox(snf.m_name + "##" + m_id, isSelected)) {
                         m_selectedSystem.toogleSelection(snf);
                     }
-                    if (!m_selectedSystem.isLastSystem(snf)) {
+                    if (!snf.isLastSystem()) {
                         a_imgui.imgui().sameLine(0, 10);
                     }
-
                 }
             }
 
@@ -351,7 +393,7 @@ class ExperimentRunnerViewThread extends Thread {
             }
 
             {
-                a_imgui.imgui().sameLine(0);
+                a_imgui.sameLine(0);
                 boolean[] initialSetPerComponent = {m_initialSetPerComponent};
                 if (a_imgui.imgui().checkbox("Initial Set Per Component##" + m_id, initialSetPerComponent)) {
                     m_initialSetPerComponent = initialSetPerComponent[0];
@@ -406,7 +448,7 @@ class ExperimentRunnerViewThread extends Thread {
             if (a_imgui.button("Add Mapper##" + m_id, 0)) {
                 m_experiments.add(new MapperView());
             }
-            a_imgui.imgui().sameLine(0);
+            a_imgui.sameLine(0);
             if (a_imgui.button("Delete Mappers##" + m_id, 0)) {
                 m_experiments.add(new MapperView());
             }
@@ -454,24 +496,14 @@ class ExperimentRunnerViewThread extends Thread {
                 }
             }
 
-            a_imgui.imgui().sameLine(0);
+            a_imgui.sameLine(0);
             if (a_imgui.button("Copy Experiment##" + m_id, 0)) {
                 ret = DoExperimentAction.Copy;
             }
-            a_imgui.imgui().sameLine(0);
+            a_imgui.sameLine(0);
             if (a_imgui.button("Delete Experiment##" + m_id, 0)) {
                 ret = DoExperimentAction.Delete;
             }
-
-
-                /*for (ExperimentRunData.BasicRunData exd : m_selectedDataPoints) {
-                    a_imgui.text(exd.m_system.getName());
-                }*/
-
-                /*if (beginPopupContextItem(a_imgui,"test_popup", 1)) {
-                    a_imgui.menuItem("test_item", "", false, true);
-                    a_imgui.endPopup();
-                }*/
         }
 
         return ret;

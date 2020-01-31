@@ -121,6 +121,11 @@ public class JavaProperty<T> implements KMutableProperty0<T> {
         return null;
     }
 
+    @Override
+    public boolean isSuspend() {
+        return false;
+    }
+
     public static class FloatProperty extends JavaProperty<Float> {
         private final float m_min;
         private final float m_max;

@@ -5,7 +5,7 @@ import glm_.vec4.Vec4;
 import gui.ImGuiWrapper;
 import imgui.HoveredFlag;
 import imgui.WindowFlag;
-import imgui.internal.Window;
+import imgui.internal.classes.Window;
 import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -26,8 +26,8 @@ public class ExperimentsView implements ExperimentRunnerViewThread.DataListener 
 
     ArrayList<ExperimentRunnerViewThread> m_experiments = new ArrayList<>();
 
-    private String m_saveFile = "C:\\hObbE\\projects\\coding\\research\\test.csv";
-    private String m_experimentSaveFile = "C:\\hObbE\\projects\\coding\\research\\experiment.xml";
+    private String m_saveFile = Paths.get("output.csv").toAbsolutePath().toString();
+    private String m_experimentSaveFile = Paths.get("experiment.xml").toAbsolutePath().toString();
 
 
     private ScatterPlot m_performanceVsInitialMapped = new ScatterPlot();
@@ -98,15 +98,15 @@ public class ExperimentsView implements ExperimentRunnerViewThread.DataListener 
         if (a_imgui.button("Add Experiment", 0)) {
             m_experiments.add(new ExperimentRunnerViewThread());
         }
-        a_imgui.imgui().sameLine(0);
+        a_imgui.sameLine(0);
         if (a_imgui.button("Delete Experiments", 0)) {
             m_experiments.clear();
         }
-        a_imgui.imgui().sameLine(0);
+        a_imgui.sameLine(0);
         if (a_imgui.button("Run Experiments", 0)) {
             m_experiments.forEach(e -> e.runExperiment(this));
         }
-        a_imgui.imgui().sameLine(0);
+        a_imgui.sameLine(0);
         if (a_imgui.button("Stop Experiments", 0)) {
             m_experiments.forEach(e -> e.stopExperiment());
         }
@@ -124,7 +124,7 @@ public class ExperimentsView implements ExperimentRunnerViewThread.DataListener 
                 a_imgui.imgui().end();
             }
         }
-        a_imgui.imgui().sameLine(0);
+        a_imgui.sameLine(0);
         a_imgui.imgui().checkbox("Show Box Plots", m_showBoxPlots);
         if (m_showBoxPlots[0]) {
             if (a_imgui.imgui().begin("Experiment Box Plots", m_showBoxPlots, 0)) {
@@ -134,7 +134,7 @@ public class ExperimentsView implements ExperimentRunnerViewThread.DataListener 
             }
         }
 
-        a_imgui.imgui().sameLine(0);
+        a_imgui.sameLine(0);
         a_imgui.imgui().checkbox("Show Fails", m_showFails);
         if (m_showFails[0]) {
             if (a_imgui.imgui().begin("Failed Clusterings", m_showFails, 0)) {
@@ -187,7 +187,7 @@ public class ExperimentsView implements ExperimentRunnerViewThread.DataListener 
 
     private void doSaveButtons(ImGuiWrapper a_imgui) {
         m_experimentSaveFile = a_imgui.inputTextSingleLine("##SaveEperimentsAs", m_experimentSaveFile);
-        a_imgui.imgui().sameLine(0);
+        a_imgui.sameLine(0);
         if (a_imgui.button("Save Experiments", 0)) {
             try {
                 HashMap<ExperimentRun, MapperView> experiments = new HashMap<>();
@@ -216,7 +216,7 @@ public class ExperimentsView implements ExperimentRunnerViewThread.DataListener 
             }
         }
 
-        a_imgui.imgui().sameLine(0);
+        a_imgui.sameLine(0);
         if (a_imgui.button("Load Experiment", 0)) {
             ExperimentXMLPersistence exmlp = new ExperimentXMLPersistence();
             try {
@@ -259,7 +259,7 @@ public class ExperimentsView implements ExperimentRunnerViewThread.DataListener 
 
         if (m_performanceVsInitialMapped.dataCount() > 0 ) {
             m_saveFile = a_imgui.inputTextSingleLine("###SaveAsExperimentDataAs", m_saveFile);
-            a_imgui.imgui().sameLine(0);
+            a_imgui.sameLine(0);
             if (a_imgui.button("Save Data", 0)) {
                 Path filePath = Paths.get(m_saveFile);
                 RundDataCSVFileSaver saver = new RundDataCSVFileSaver();
@@ -283,7 +283,7 @@ public class ExperimentsView implements ExperimentRunnerViewThread.DataListener 
                     java.lang.System.out.println("Could not create file");
                 }
             }
-            a_imgui.imgui().sameLine(0);
+            a_imgui.sameLine(0);
             if (a_imgui.button("Clear Data", 0)) {
                 m_performanceVsInitialMapped.clearData();
                 m_precisionVsInitialMapped.clearData();
@@ -459,7 +459,7 @@ public class ExperimentsView implements ExperimentRunnerViewThread.DataListener 
         Window window = a_imgui.imgui().getCurrentWindow();
         int id = a_id != null ? window.getId(a_id) : window.getDc().getLastItemId(); // If user hasn't passed an ID, we can use the LastItemID. Using LastItemID as a Popup ID won't conflict!
 
-        if (a_imgui.imgui().isMouseReleased(a_mouseButton) && a_imgui.imgui().isWindowHovered(HoveredFlag.AllowWhenBlockedByPopup.getI() | HoveredFlag.RootAndChildWindows.getI())) {
+        if (a_imgui.imgui().isMouseReleased(a_imgui.int2MB(a_mouseButton)) && a_imgui.imgui().isWindowHovered(HoveredFlag.AllowWhenBlockedByPopup.i | HoveredFlag.RootAndChildWindows.i)) {
             a_imgui.imgui().openPopupEx(id);
         }
 
