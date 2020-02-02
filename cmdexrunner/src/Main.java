@@ -111,6 +111,14 @@ public class Main {
         }
     }
 
+    private static void printUsage() {
+        java.lang.System.out.println("Usage");
+        java.lang.System.out.println("-experiment [path to experiment xml file. Mandatory]");
+        java.lang.System.out.println("-threads [number of threads per experiment. Optional: default is 1]");
+        java.lang.System.out.println("-count [number of data rows per experiment. Optional: default is 50000]");
+        java.lang.System.out.println("-outDir [directory for output, it will be created if it does not exist. If data rows already exists they will be added to.]");
+    }
+
     public static void main2(String[] a_args) {
         // accepted arguments
         // -threads thread count number optional default 1
@@ -118,11 +126,19 @@ public class Main {
         // -mapping saves mappings (optional)
         // -count the number of rows to get (optional)
         final CmdArgsHandler args = new CmdArgsHandler(a_args);
+
         final String experiment = args.getArgumentString("-experiment");
         boolean saveMappings = args.getArgumentBool("-mapping", false);
         final int rowLimit = args.getArgumentInt("-count", 50000);
         final int threadCount = args.getArgumentInt("-threads", 1);
         final String outDir = args.getArgumentString("-outDir");
+
+        final boolean argsError = experiment.length() == 0 || outDir.length() == 0;
+        if (argsError) {
+            java.lang.System.out.println("Arguments Error");
+            printUsage();
+            java.lang.System.exit(-1);
+        }
 
         ExperimentXMLPersistence exp = new ExperimentXMLPersistence();
         ArrayList<ExperimentRunner> expRunners;

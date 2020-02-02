@@ -139,7 +139,9 @@ public class RectsAndArrows {
 
     private void mainLoop(ArchDef a_arch, CGraph a_g) {
         // Start the Dear ImGui frame
+        implGl3.newFrame();
         implGlfw.newFrame();
+        imgui.newFrame();
 
 
         //imgui.showDemoWindow(showDemo);
@@ -157,12 +159,10 @@ public class RectsAndArrows {
         }
 
         // Rendering
+        imgui.render();
         gln.GlnKt.glViewport(window.getFramebufferSize());
         gln.GlnKt.glClearColor(clearColor);
         glClear(GL_COLOR_BUFFER_BIT);
-
-        imgui.render();
-
         implGl3.renderDrawData(imgui.getDrawData());
 
         //gln.GlnKt.checkError("loop", true); // render errors only good when debugging.

@@ -1,6 +1,6 @@
 package se.lnu.siq.s4rdm3x.model.cmd.mapper;
 
-import javafx.scene.shape.Arc;
+//import javafx.scene.shape.Arc;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
 import se.lnu.siq.s4rdm3x.model.CGraph;

@@ -1,7 +1,7 @@
 package se.lnu.siq.s4rdm3x.experiments;
 
-import javafx.scene.shape.Arc;
-import se.lnu.siq.s4rdm3x.model.CNode;
+//import javafx.scene.shape.Arc;
+//import se.lnu.siq.s4rdm3x.model.CNode;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 import se.lnu.siq.s4rdm3x.experiments.metric.Metric;
 import se.lnu.siq.s4rdm3x.experiments.system.System;

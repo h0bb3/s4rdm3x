@@ -2,17 +2,19 @@ import org.gradle.internal.os.*
 
 plugins {
     id 'java'
+    id 'org.jetbrains.kotlin.jvm' version '1.3.61'
 }
 
 group 'v3xt'
-version '1.0-SNAPSHOT'
 
 sourceCompatibility = 1.8
+version '1.0-SNAPSHOT'
+
+
 
 repositories {
     mavenCentral()
     maven { url 'https://jitpack.io' }
-    jcenter()
 }
 
 allprojects {
@@ -24,29 +26,47 @@ allprojects {
     }
 }
 
+
+
+
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '5.2'
-    testCompile "org.mockito:mockito-core:2.+"
-    testCompile 'org.mockito:mockito-inline:2.+'
-    implementation 'com.github.kotlin-graphics:imgui:v1.63-beta-01'
-    compile 'com.github.kotlin-graphics:imgui:v1.63-beta-01'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
 
-    switch (OperatingSystem.current()) {
-        case OperatingSystem.WINDOWS:
-            ext.lwjglNatives = "natives-windows"
-            break
-        case OperatingSystem.LINUX:
-            ext.lwjglNatives = "natives-linux"
-            break
-        case OperatingSystem.MAC_OS:
-            ext.lwjglNatives = "natives-macos"
-            break
+    ["gl", "glfw", "core"].each {
+        implementation "com.github.kotlin-graphics.imgui:imgui-$it:-SNAPSHOT"
     }
+    implementation 'com.github.kotlin-graphics.glm:glm:-SNAPSHOT'
+    implementation 'com.github.kotlin-graphics:uno-sdk:-SNAPSHOT'
+    implementation 'com.github.kotlin-graphics:gln:-SNAPSHOT'
+    implementation 'org.lwjgl:lwjgl-glfw:3.2.3'
+    implementation 'org.lwjgl:lwjgl-opengl:3.2.3'
 
-    // Look up which modules and versions of LWJGL are required and add setup the approriate natives.
+    compile 'org.lwjgl:lwjgl-glfw:3.2.3'
+    compile 'org.lwjgl:lwjgl-opengl:3.2.3'
+    compile 'org.lwjgl:lwjgl-stb:3.2.3'
+
+
+    // Look up which modules and versions of LWJGL are required and add setup the appropriate natives.
+    // we do this for all supported platforms
     configurations.compile.resolvedConfiguration.getResolvedArtifacts().forEach {
+        System.out.println("Hello Gradle World")
         if (it.moduleVersion.id.group == "org.lwjgl") {
-            runtime "org.lwjgl:${it.moduleVersion.id.name}:${it.moduleVersion.id.version}:${lwjglNatives}"
+            runtime "org.lwjgl:${it.moduleVersion.id.name}:${it.moduleVersion.id.version}:natives-windows"
+            runtime "org.lwjgl:${it.moduleVersion.id.name}:${it.moduleVersion.id.version}:natives-linux"
+            runtime "org.lwjgl:${it.moduleVersion.id.name}:${it.moduleVersion.id.version}:natives-macos"
         }
+    }
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+
+}
+
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
     }
 }

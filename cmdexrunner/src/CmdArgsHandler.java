@@ -40,4 +40,8 @@ public class CmdArgsHandler {
         }
         return a_default;
     }
+
+    public int count() {
+        return m_args == null ? 0 : m_args.length;
+    }
 }
