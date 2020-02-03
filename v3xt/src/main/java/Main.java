@@ -29,7 +29,7 @@ import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
-public class RectsAndArrows {
+public class Main {
 
     // The window handle
     private GlfwWindow window;
@@ -43,19 +43,16 @@ public class RectsAndArrows {
 
 
     public static void main(String[] a_args) {
-        RectsAndArrows pt = new RectsAndArrows();
+        Main pt = new Main();
 
         pt.run();
     }
 
-    private RectsAndArrows() {
-
-
-
+    private Main() {
 
         glfw.init("3.3", windowHint.Profile.core, true);
 
-        window = new GlfwWindow(1280, 720, "Dear ImGui Lwjgl OpenGL3 example", NULL, new Vec2i(Integer.MIN_VALUE), true);
+        window = new GlfwWindow(1280, 720, "Visual 3xperiment Tool", NULL, new Vec2i(Integer.MIN_VALUE), true);
         window.init(true);
 
         glfw.setSwapInterval(VSync.ON);    // Enable vsync

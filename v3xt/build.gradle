@@ -44,13 +44,14 @@ dependencies {
     compile 'org.lwjgl:lwjgl-glfw:3.2.3'
     compile 'org.lwjgl:lwjgl-opengl:3.2.3'
     compile 'org.lwjgl:lwjgl-stb:3.2.3'
+    compile 'org.lwjgl:lwjgl-jemalloc:3.2.3'
 
 
     // Look up which modules and versions of LWJGL are required and add setup the appropriate natives.
     // we do this for all supported platforms
     configurations.compile.resolvedConfiguration.getResolvedArtifacts().forEach {
-        System.out.println("Hello Gradle World")
         if (it.moduleVersion.id.group == "org.lwjgl") {
+            System.out.println("org.lwjgl:${it.moduleVersion.id.name}:${it.moduleVersion.id.version}:natives-X")
             runtime "org.lwjgl:${it.moduleVersion.id.name}:${it.moduleVersion.id.version}:natives-windows"
             runtime "org.lwjgl:${it.moduleVersion.id.name}:${it.moduleVersion.id.version}:natives-linux"
             runtime "org.lwjgl:${it.moduleVersion.id.name}:${it.moduleVersion.id.version}:natives-macos"
