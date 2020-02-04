@@ -170,7 +170,7 @@ public class ExperimentsView implements ExperimentRunnerViewThread.DataListener 
     private void doBoxPlots(ImGuiWrapper a_iw) {
 
         a_iw.imgui().beginColumns("boxplots", 3, 0);
-        a_iw.text("Performance");
+        a_iw.text("F1-score");
         m_performanceBP.doPlot(a_iw);
 
         a_iw.imgui().nextColumn();
@@ -347,15 +347,15 @@ public class ExperimentsView implements ExperimentRunnerViewThread.DataListener 
 
         ArrayList<ScatterPlot.Data> selectedData = new ArrayList<>();
         a_imgui.imgui().beginColumns("scatterplots", 3, 0);
-        a_imgui.text("Auto Performance vs Initial Set Size");
+        a_imgui.text("F1-Score");
         m_performanceVsInitialMapped.doPlot(a_imgui, selectedData);
 
         a_imgui.imgui().nextColumn();
-        a_imgui.text("Auto Precision vs Initial Set Size");
+        a_imgui.text("Precision");
         m_precisionVsInitialMapped.doPlot(a_imgui, selectedData);
 
         a_imgui.imgui().nextColumn();
-        a_imgui.text("Auto Recall vs Initial Set Size");
+        a_imgui.text("Recall");
         m_recallVsInitialMapped.doPlot(a_imgui, selectedData);
         a_imgui.imgui().endColumns();
 
