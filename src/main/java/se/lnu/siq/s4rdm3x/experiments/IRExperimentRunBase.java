@@ -4,6 +4,9 @@ import java.util.Random;
 
 import static se.lnu.siq.s4rdm3x.experiments.ExperimentRunner.*;
 
+/**
+ * Encapsulates basic parameters for Information Retrieval (IR) based mappers; stemming, CDA, code text, code name, module name and minimum word size.
+ */
 public abstract class IRExperimentRunBase extends ExperimentRun {
     public IRExperimentRunBase(boolean a_doUseManualMapping, IRExperimentRunBase.Data a_irData) {
         super(a_doUseManualMapping);
@@ -107,7 +110,7 @@ public abstract class IRExperimentRunBase extends ExperimentRun {
             m_doUseNodeText = new RandomBoolVariable(a_doUseNodeText);
             m_doUseNodeName = new RandomBoolVariable(a_doUseNodeName);
             m_doUseArchComponentName = new RandomBoolVariable(a_doUseArchComponentName);
-            m_minWordSize = new RandomIntVariable(m_minWordSize);
+            m_minWordSize = new RandomIntVariable(a_minWordSize);
         }
     }
 

@@ -1,0 +1,15 @@
+se.lnu.siq.dmodel
+se.lnu.siq.s4rdm3x
+se.lnu.siq.s4rdm3x.dmodel
+se.lnu.siq.s4rdm3x.dmodel.classes
+se.lnu.siq.s4rdm3x.dmodel.classes.CPPCompatibility.simple
+se.lnu.siq.s4rdm3x.experiments
+se.lnu.siq.s4rdm3x.experiments.metric
+se.lnu.siq.s4rdm3x.experiments.metric.aggregated
+se.lnu.siq.s4rdm3x.experiments.system
+se.lnu.siq.s4rdm3x.model
+se.lnu.siq.s4rdm3x.model.cmd
+se.lnu.siq.s4rdm3x.model.cmd.mapper
+se.lnu.siq.s4rdm3x.model.cmd.metrics
+se.lnu.siq.s4rdm3x.model.cmd.saerocon18
+se.lnu.siq.s4rdm3x.model.cmd.util

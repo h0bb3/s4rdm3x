@@ -6,6 +6,9 @@ import se.lnu.siq.s4rdm3x.model.cmd.mapper.LSIAttractMapper;
 
 import java.util.Random;
 
+/**
+ * Encapsulates the Latent Semantic Index Mapper (LSIMapper) parameters, and runs an instance of LSIAttractMapper. It does not add any other parameters.
+ */
 public class LSIAttractExperimentRun extends IRExperimentRunBase {
     ExperimentRunData.IRMapperData m_exData;
 

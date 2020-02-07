@@ -10,6 +10,16 @@ import se.lnu.siq.s4rdm3x.model.CGraph;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+/**
+ * ExperimentRunner is Responsible for managing and executing mapping experiments over a number of systems.
+ * It consists of a number of {@link ExperimentRun} instances that are executed over a number of {@link System} objects. The class is responsible for selecting the initially mapped set and the orphan set, for this Metrics can be used.
+ * A RunListener object can be attached to get notifications of when a run is initiated and terminated (this way you can for example collect data for display or saving)
+ * Typically an instance is run in a separate Thread.
+ *
+ * @see ExperimentRun
+ * @see System
+ * @see Metric
+ */
 public class ExperimentRunner {
     protected Random m_rand = new Random();
     private RunListener m_listener = null;
@@ -245,6 +255,9 @@ public class ExperimentRunner {
         m_name = a_toCopy.getName();
     }
 
+    /**
+     * Observer callback class for notification.
+     */
     public interface RunListener {
         public ExperimentRunData.BasicRunData OnRunInit(ExperimentRunData.BasicRunData a_rd, CGraph a_g, ArchDef a_arch);
         public void OnRunCompleted(ExperimentRunData.BasicRunData a_rd, CGraph a_g, ArchDef a_arch, ExperimentRun a_source);

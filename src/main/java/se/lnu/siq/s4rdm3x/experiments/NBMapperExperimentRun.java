@@ -10,6 +10,9 @@ import se.lnu.siq.s4rdm3x.model.cmd.util.FanInCache;
 
 import java.util.Random;
 
+/**
+ * Encapsulates the Naive Bayes Mapper parameters, and runs an instance of NBMapper. Manages parameters if word frequencies should be used or not and the mapping threshold.
+ */
 public class NBMapperExperimentRun extends IRExperimentRunBase {
 
     private ExperimentRunData.NBMapperData m_exData;
@@ -49,15 +52,6 @@ public class NBMapperExperimentRun extends IRExperimentRunBase {
         c.getAutoClusteredNodes().forEach(n -> m_exData.addAutoClusteredNode(n));
 
         if (c.getAutoClusteredOrphanCount() + c.m_manuallyMappedNodes == 0) {
-            // if possible lower the threshold and try again...
-            /*if (m_thresholdValue > 1) {
-                m_thresholdValue -= 0.05;
-                if (m_thresholdValue < 1) {
-                    m_thresholdValue = 1;
-                }
-                m_exData.m_iterations++;
-                return false;
-            }*/
             return true;
         }
 
@@ -66,7 +60,7 @@ public class NBMapperExperimentRun extends IRExperimentRunBase {
     }
 
     @Override
-    public ExperimentRun subClone() {
+    protected ExperimentRun subClone() {
         return new NBMapperExperimentRun(doUseManualMapping(), getData(), m_doWordCount, m_threshold);
     }
 

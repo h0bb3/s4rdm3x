@@ -6,7 +6,9 @@ import se.lnu.siq.s4rdm3x.model.cmd.mapper.HuGMe;
 import se.lnu.siq.s4rdm3x.model.cmd.util.FanInCache;
 
 import java.util.Random;
-
+/**
+ * Encapsulates the Count Attract Mapper parameters, and runs an instance of HuGMe. Manages the omega and phi mapping parameters.
+ */
 public class HuGMeExperimentRun extends ExperimentRun {
 
     private ExperimentRunData.HuGMEData m_exData;

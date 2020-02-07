@@ -7,6 +7,9 @@ import se.lnu.siq.s4rdm3x.model.cmd.util.FanInCache;
 
 import java.util.Random;
 
+/**
+ * Encapsulates the Information Retrieval Attract Mapper (IRAttractMapper) parameters, and runs an instance of IRAttractMapper. It does not add any other parameters.
+ */
 public class IRAttractExperimentRun extends IRExperimentRunBase {
     ExperimentRunData.IRMapperData m_exData;
 
