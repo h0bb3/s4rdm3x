@@ -11,8 +11,9 @@ A command line tool for executing experiments in parrallell. It reads an experim
 # Installation
 Download the latest [Release](https://github.com/tobias-dv-lnu/s4rdm3x/releases) from GitHub and run via commandline:
 
-`java -jar v3xt.jar
-java -jar cmdexrunner.jar`
+`java -jar v3xt.jar`
+
+`java -jar cmdexrunner.jar`
 
 Check the included readme for further details.
 
@@ -27,5 +28,8 @@ To complement the models and mappings, the actual compiled systems are also need
 Please report any bugs or anomalies in the github repository. 
 
 # Development
+* [How to set up a development environment](devenv "DevEnv")
+* [How to add a new mapper](add_new_mapper)
+* API [JavaDoc](https://tobias-dv-lnu.github.io/s4rdm3x/api "JavaDoc")
 
-There is [JavaDoc](https://tobias-dv-lnu.github.io/s4rdm3x/api "JavaDoc") and [How to set up a development environment](devenv "DevEnv")
+
