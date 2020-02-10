@@ -1,0 +1,20 @@
+// Experiment Subsystem
+[ExperimentRunner{bg:green}]-*>[System]
+[ExperimentRunner]-*>[Metric]
+[ExperimentRunner]-*>[«abstract» ExperimentRun]
+[HugMeExperimentRun]-^[«abstract» ExperimentRun]
+[«abstract» IRExperimentRunBase]-^[«abstract» ExperimentRun]
+[LSIAttractExperimentRun]-^[«abstract» IRExperimentRunBase]
+[IRAttractExperimentRun]-^[«abstract» IRExperimentRunBase]
+[NBAttractExperimentRun]-^[«abstract» IRExperimentRunBase]
+
+[LSIAttractExperimentRun]-.->[LSIAttractMapper]
+[IRAttractExperimentRun]-.->[IRAttractMapper]
+[NBAttractExperimentRun]-.->[NBAttractMapper]
+[HugMeExperimentRun]-.->[HuGMe|omega;phi]
+
+[ExperimentRunner]-.->[ExperimentRunData]
+[«abstract» ExperimentRun]-.->[ExperimentRunData]
+[IRData]-^[ExperimentRunData]
+[HuGMeData]-^[ExperimentRunData]
+[NBData]-^[ExperimentRunData]
