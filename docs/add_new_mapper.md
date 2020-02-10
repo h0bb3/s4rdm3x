@@ -9,7 +9,7 @@ The basic steps to implement a new mapper would be to
 3. Create the specific data ExperimentRunData subclass and modify RundDataCSVFileSaver to save the data in csv format.
 4. Modify ExperimentXMLPersistence to save mapper and mapper parameters to XML
 
-![alt text](/img/ex_ss.png "Experiment Subsystem")
+![alt text](img/ex_ss.png "Experiment Subsystem")
 
 ## GUI
 To be able to use a new mapper in the graphical user interface a few modifications is needed.
