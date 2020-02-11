@@ -9,6 +9,9 @@ import java.util.Arrays;
 
 import static experimenting.ExperimentRunnerViewThread.*;
 
+/**
+ * Encapsulates the settings of one mapper this includes specific mapper parameters and generic ones (as the color to use for the mapper)
+ */
 public class MapperView {
     // ir experiment parameters
     IRExperimentRunBase.Data m_irData = new IRExperimentRunBase.Data();
@@ -52,6 +55,9 @@ public class MapperView {
         m_useManualmapping = a_toBeCopied.m_useManualmapping;
     }
 
+    /**
+     * @param a_exr A new ExperimentRun the parameters of the MapperView shuld be set to match this new experiment.
+     */
     void setExperiment(ExperimentRun a_exr) {
 
         m_experimentRun = a_exr;
@@ -86,6 +92,12 @@ public class MapperView {
         m_useManualmapping = a_exr.doUseManualMapping();
     }
 
+    /**
+     * Called every frame when it is time to visualize the experiment. Depending on if an experiment is set different parameter settings need to be provided.
+     * @param a_imgui Visualization wrapper class.
+     * @param a_isRunning   True if the experiment is running, i.e. the user should be able so see parameters but not change them.
+     * @return an action telling if the user wants to do something to the experiment, e.g. delete it.
+     */
     public ExperimentRunnerViewThread.DoExperimentAction doExperiment(ImGuiWrapper a_imgui, boolean a_isRunning) {
         DoExperimentAction ret = DoExperimentAction.None;
         if (a_imgui.imgui().collapsingHeader("Mapper: " + m_name + "###Header" + m_id, 0)) {
@@ -102,10 +114,7 @@ public class MapperView {
                     m_useManualmapping = manualMappnig[0];
                 }
             }
-
-
             a_imgui.imgui().colorEdit3("Plot Color##" + m_id, m_currentColor, 0);
-
 
             {
                 String[] experiments = {"Naive Bayes Mapping", "HuGMe", "IRAttract", "LSIAttract"};
@@ -214,6 +223,10 @@ public class MapperView {
         return a_threshold;
     }
 
+    /**
+     * Creates a new experiment based on the parameters provided.
+     * @return the newly created experiment.
+     */
     public ExperimentRun createExperiment() {
         m_experimentRun = null;
 

@@ -17,6 +17,9 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+/**
+ * Encapsulates one mapping experiment, ie. a specification of what systems to use and how the initial set is generated. It then contains the actual mappers to run. It also manages the visualization of the results of running experiments.
+ */
 class ExperimentRunnerViewThread extends Thread {
     String m_id;
     ExperimentRunner m_experiment;
