@@ -13,8 +13,8 @@ The basic steps to implement a new mapper would be to
 
 ## GUI
 To be able to use a new mapper in the graphical user interface a few modifications is needed.
-1. Add the new mapper to the available mappers in X
-2. Add the parameters of the new mapper Y
+1. Add the new constant for the mapper in [ExperimentRunnerViewThread]
+2. Add the parameters of the new mapper to [MapperView] and implement the visualization in [MapperView.doExperiment()] and mapper creation in [MapperView.createExperiment()]
 
 
 [ExperimentRunner]:api/se/lnu/siq/s4rdm3x/experiments/ExperimentRunner.html
@@ -27,4 +27,9 @@ To be able to use a new mapper in the graphical user interface a few modificatio
 [NBAttractMapper]:api/se/lnu/siq/s4rdm3x/model/cmd/mapper/NBAttractMapper.html
 [IRAttractMapper]:api/se/lnu/siq/s4rdm3x/model/cmd/mapper/IRAttractMapper.html
 [LSIAttractMapper]:api/se/lnu/siq/s4rdm3x/model/cmd/mapper/LSIAttractMapper.html
+
+[ExperimentRunnerViewThread]:api/experimenting/ExperimentRunnerViewThread.html
+[MapperView]:api/experimenting/MapperView.html
+[MapperView.doExperiment()]:api/experimenting/MapperView.html#doExperiment(gui.ImGuiWrapper,boolean)
+[MapperView.createExperiment()]:/api/experimenting/MapperView.html#createExperiment()
 
