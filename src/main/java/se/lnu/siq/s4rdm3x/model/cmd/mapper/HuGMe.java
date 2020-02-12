@@ -5,6 +5,10 @@ import se.lnu.siq.s4rdm3x.model.CNode;
 
 import java.util.ArrayList;
 
+/**
+ * Encapsulates the CountAttract function that maps based on graph dependency counts. It is described and evaluated by Andreas Christl, Rainer Koschke, and Margaret-Anne Storey. 2007. Automated clustering to support the reflexion method. Inf. Softw. Technol. 49, 3 (March 2007), 255–274. DOI:https://doi.org/10.1016/j.infsof.2006.10.015
+ *
+ */
 public class HuGMe extends MapperBase {
 
     private double m_filterThreshold;   // omega in paper

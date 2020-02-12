@@ -9,6 +9,7 @@ import weka.core.stemmers.Stemmer;
 
 import java.util.ArrayList;
 
+
 public abstract class IRMapperBase extends MapperBase {
 
     private boolean m_doUseCDA;

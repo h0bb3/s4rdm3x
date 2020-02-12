@@ -17,6 +17,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Mapper based on textual analysis of nodes using a naive Bayes classifier. Evaluated by Tobias Olsson, Morgan Ericsson, and Anna Wingkvist. 2019. Semi-automatic mapping of source code using naive Bayes. In Proceedings of the 13th European Conference on Software Architecture - Volume 2 (ECSA ’19). Association for Computing Machinery, New York, NY, USA, 209–216. DOI:https://doi.org/10.1145/3344948.3344984
+ *
+ */
 public class NBMapperEx extends IRMapperBase {
 
     private boolean m_addRawArchitectureTrainingData = false;

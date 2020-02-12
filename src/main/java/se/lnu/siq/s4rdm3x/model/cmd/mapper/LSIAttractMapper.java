@@ -10,6 +10,10 @@ import weka.core.stemmers.Stemmer;
 import java.util.*;
 import java.util.Vector;
 
+/**
+ * Encapsulates mapping based on a latent semantic indexing cosine similarity metric. Evaluated by Roberto Almeida Bittencourt, Gustavo Jansen de_Souza Santos, Dalton Dario Serey Guerrero, and Gail C. Murphy. 2010. Improving Automated Mapping in Reflexion Models Using Information Retrieval Techniques. In Proceedings of the 2010 17th Working Conference on Reverse Engineering (WCRE ’10). IEEE Computer Society, USA, 163–172. DOI:https://doi.org/10.1109/WCRE.2010.26
+ *
+ */
 public class LSIAttractMapper extends IRMapperBase {
     public int m_autoWrong = 0;
 
