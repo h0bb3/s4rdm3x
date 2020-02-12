@@ -18,7 +18,7 @@ Download the latest [Release](https://github.com/tobias-dv-lnu/s4rdm3x/releases)
 Check the included readme for further details.
 
 ## Data Systems
-S4rdm3x is distributed with architectural models and source code to implementation mappings for a number of systems (see the data/systems directory). Models and mappings are based on work during the [SAEroCon workshop] (https://saerocon.wordpress.com/) and a replication package provided by Joao Brunet et. al. [On the Evolutionary Nature of Architectural Violations] (https://code.google.com/archive/p/on-the-nature-dataset/wikis/ReplicabilityOfTheStudy.wiki)
+S4rdm3x is distributed with architectural models and source code to implementation mappings for a number of systems (see the data/systems directory). Models and mappings are based on work during the [SAEroCon workshop](https://saerocon.wordpress.com/) and a replication package provided by Joao Brunet et. al. [On the Evolutionary Nature of Architectural Violations](https://code.google.com/archive/p/on-the-nature-dataset/wikis/ReplicabilityOfTheStudy.wiki)
 
 To complement the models and mappings, the actual compiled systems are also needed (i.e. jar files). These are not included in this distribution as this would create a problematic licensing situation. However, the jar file dependencies are documented in the respective model file and should be available by either looking through the links from the sources above, or finding them in the actual official distributions of the systems.
 
@@ -28,6 +28,7 @@ To complement the models and mappings, the actual compiled systems are also need
 Please report any bugs or anomalies in the github repository. 
 
 # Development
+* [Learn about the needed dependencies](dependencies "Dependencies")
 * [How to set up a development environment](devenv "DevEnv")
 * [How to add a new mapper](add_new_mapper)
 * API [JavaDoc](https://tobias-dv-lnu.github.io/s4rdm3x/api "JavaDoc")
