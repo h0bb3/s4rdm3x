@@ -10,6 +10,9 @@ import weka.core.stemmers.Stemmer;
 import java.util.ArrayList;
 
 
+/**
+ * Encapsulates basic functions usable for mappers based on information retrieval. Manages the states of what information should be used.
+ */
 public abstract class IRMapperBase extends MapperBase {
 
     private boolean m_doUseCDA;
@@ -18,6 +21,15 @@ public abstract class IRMapperBase extends MapperBase {
     private boolean m_doUseArchComponentName;
     private int m_minWordLength = 3;
 
+    /**
+     * @param a_arch The architectural modules and their relations used in the mapping
+     * @param a_doManualMapping true manual mapping is to be used
+     * @param a_doUseCDA true if Concrete Dependency Attraction texts should be used
+     * @param a_doUseNodeText   true if the node (code) text (includes parameter names, variable names, field names, and method names) should be used
+     * @param a_doUseNodeName   true if the nodes name (e.g. class name) should be used
+     * @param a_doUseArchComponentName  true if the architectural module names should be used
+     * @param a_minWordLength   the minimum length of a word
+     */
     protected IRMapperBase(ArchDef a_arch, boolean a_doManualMapping, boolean a_doUseCDA, boolean a_doUseNodeText, boolean a_doUseNodeName, boolean a_doUseArchComponentName, int a_minWordLength) {
         super(a_doManualMapping, a_arch);
 
@@ -44,6 +56,11 @@ public abstract class IRMapperBase extends MapperBase {
         return m_doUseArchComponentName;
     }
 
+
+    /**
+     * @param a_word a word to test
+     * @return true of the word is considered a stop word, currenly only: "<init>", "<clinit>", "tmp", "temp"
+     */
     boolean isStopWord(String a_word) {
         final String[] stopWords = {"<init>", "<clinit>", "tmp", "temp"};
         for (String stopWord : stopWords) {
@@ -54,6 +71,11 @@ public abstract class IRMapperBase extends MapperBase {
         return false;
     }
 
+    /**
+     * @param a_node the node to get ir data from
+     * @param a_stemmer the stemmer to use (null if none)
+     * @return a string with all ir words from a node (text and name) separated by space, words are de-camel-cased and stemmed
+     */
     String getNodeWords(CNode a_node, Stemmer a_stemmer) {
         String ret = "";
         if (m_doUseNodeText) {
@@ -75,6 +97,11 @@ public abstract class IRMapperBase extends MapperBase {
         return ret;
     }
 
+    /**
+     * @param a_c component to words from (currently only name)
+     * @param a_stemmer stemmer to use (null if none)
+     * @return a list of component words separated by space, de-camel-cased and stemmed
+     */
     protected String getArchComponentWords(ArchDef.Component a_c, Stemmer a_stemmer) {
         String ret = "";
         if (m_doUseArchComponentName) {
@@ -84,6 +111,13 @@ public abstract class IRMapperBase extends MapperBase {
         return ret;
     }
 
+    /**
+     * Gets the CDA words for an orphan, that is hypothetically mapped to a certain module. The CDA words describe the dependencies you would get based on the modules involved
+     * @param a_orphan the orphan to get CDA words for
+     * @param a_component the module the orphan is hypothetically mapped to
+     * @param a_mappedTargets the target nodes i.e. the already mapped nodes
+     * @return a string of CDA words separated by space
+     */
     protected String getUnmappedCDAWords(OrphanNode a_orphan, ArchDef.Component a_component, Iterable<ClusteredNode> a_mappedTargets) {
         if (m_doUseCDA) {
             return getDependencyStringFromNode(a_orphan.get(), a_component.getName(), a_mappedTargets) + " " + getDependencyStringToNode(a_orphan.get(), a_component.getName(), a_mappedTargets);
@@ -91,6 +125,12 @@ public abstract class IRMapperBase extends MapperBase {
         return "";
     }
 
+    /**
+     * Gets the CDA words for a mapped node. The CDA words describe the dependencies between the node and all targets on the module level.
+     * @param a_source the source node
+     * @param a_targets the collection of mapped target nodes
+     * @return a string of CDA words separated by space
+     */
     protected String getMappedCDAWords(ClusteredNode a_source, Iterable<ClusteredNode>a_targets) {
         if (m_doUseCDA) {
             return getDependencyStringFromNode(a_source.get(), a_targets) + " " + getDependencyStringToNode(a_source.get(), a_targets);
@@ -156,6 +196,12 @@ public abstract class IRMapperBase extends MapperBase {
     }
 
 
+    /**
+     * @param a_string A camel cased string to split into stemmed words above the min length
+     * @param a_minLength  word length threshold before stemming
+     * @param a_stemmer stemmer to use on word (null if no stemmer)
+     * @return a string will all words separated by space
+     */
     public String deCamelCase(String a_string, int a_minLength, weka.core.stemmers.Stemmer a_stemmer) {
         String ret = "";
         for (int i = 0; i < 10; i++) {
@@ -181,9 +227,11 @@ public abstract class IRMapperBase extends MapperBase {
         return ret.trim();
     }
 
+    /**
+     * @return a new instance of the weka SnowballStemmer. This special creation seems to be needed when using snowball in a multithreaded environment.
+     */
     protected synchronized Stemmer getStemmer() {
         SnowballStemmer stemmer = null;
-
 
         try {
             Thread.sleep(200);

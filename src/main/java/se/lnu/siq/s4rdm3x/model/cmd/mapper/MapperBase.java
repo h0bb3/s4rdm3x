@@ -8,6 +8,9 @@ import se.lnu.siq.s4rdm3x.stats;
 import java.util.ArrayList;
 import java.util.Collections;
 
+/**
+ * Encapsulates some basic mapper functionality
+ */
 public class MapperBase {
 
     public int m_manuallyMappedNodes = 0;
@@ -126,6 +129,10 @@ public class MapperBase {
         }
     }
 
+    /**
+     * @param a_g contains all nodes (orphans and the initial set)
+     * @return a shuffled list of the clustered nodes i.e. the initial set.
+     */
     protected ArrayList<ClusteredNode> getInitiallyMappedNodes(CGraph a_g) {
         ArrayList<ClusteredNode> ret = new ArrayList<>();
         for (CNode n : m_arch.getMappedNodes(a_g.getNodes())) {
@@ -139,6 +146,10 @@ public class MapperBase {
         return ret;
     }
 
+    /**
+     * @param a_g contains all nodes (orphans and the initial set)
+     * @return a shuffled list of the orphan nodes.
+     */
     protected ArrayList<OrphanNode> getOrphanNodes(CGraph a_g) {
 
         ArrayList<OrphanNode> ret = new ArrayList<>();
@@ -153,6 +164,13 @@ public class MapperBase {
         return ret;
     }
 
+    /**
+     * Cluster a node to an architectural module based on if the highest attraction value is over a threshold, and higher than the next highest attraction value (i.e. no equal attractions).
+     * @param a_orphanNode The node to possibly cluster to, it needs to have the attractions set using the same indexing as the components in a_archDef, this node will get a clustering of type Automatic
+     * @param a_archDef The components to cluster to
+     * @param a_clusteringThreshold threshold that needs to be overcome, the value is mapper specific
+     * @return the component that the node was clustered to, or null if it was not clustered.
+     */
     public ArchDef.Component doAutoMappingAbsThreshold(OrphanNode a_orphanNode, ArchDef a_archDef, double a_clusteringThreshold) {
         double attractions[] = a_orphanNode.getAttractions();
         int[] maxes= getMaxIndices(attractions);
@@ -168,6 +186,13 @@ public class MapperBase {
 
     }
 
+    /**
+     * Cluster a node to an architectural module based on if the highest attraction value is a_clusteringThreshold times higher than the next highest attraction value.
+     * @param a_orphanNode The node to possibly cluster to, it needs to have the attractions set using the same indexing as the components in a_archDef, this node will get a clustering of type Automatic
+     * @param a_archDef The components to cluster to
+     * @param a_clusteringThreshold the multiplier of the next highest threshold. Values under 1 would not make sense here.
+     * @return the component that the node was clustered to, or null if it was not clustered.
+     */
     public ArchDef.Component doAutoMapping(OrphanNode a_orphanNode, ArchDef a_archDef, double a_clusteringThreshold) {
         double attractions[] = a_orphanNode.getAttractions();
         int[] maxes= getMaxIndices(attractions);
@@ -197,6 +222,12 @@ public class MapperBase {
         return ret;
     }
 
+    /**
+     * Cluster a node to an architectural module based on if the highest attraction value is the only value one SD over the mean of all attraction values or the only value above the mean. This is the approach described in the HuGMe technique
+     * @param a_orphanNode The node to possibly cluster to, it needs to have the attractions set using the same indexing as the components in a_archDef, this node will get a clustering of type Automatic
+     * @param a_archDef The components to cluster to
+     * @return the component that the node was clustered to, or null if it was not clustered.
+     */
     public ArchDef.Component doAutoMapping(OrphanNode a_orphanNode, ArchDef a_archDef) {
         double attractions[] = a_orphanNode.getAttractions();
         double mean = stats.mean(attractions);
@@ -231,6 +262,13 @@ public class MapperBase {
         return m_doManualMapping;
     }
 
+
+    /**
+     * Performs a correct manual mapping, however a mapping is considered a failure if the advice (attraction) to a user would not be regarded as good (see return).
+     * @param a_n The orphan node to manually map. Attractions need to be set in this node, the mapping is ALWAYS done to the correct module.
+     * @param a_arch The components used in the mapping.
+     * @return true if the attraction of the correct module is higher than the median attraction (i.e. the module was presented in the upper half of a list of modules sorted on attraction).
+     */
     protected boolean manualMapping(OrphanNode a_n, ArchDef a_arch) {
         ArchDef.Component targetC = a_arch.getMappedComponent(a_n.get());
         double[] attractions = a_n.getAttractions();
