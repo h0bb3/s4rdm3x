@@ -462,7 +462,7 @@ public class ImGuiWrapper {
             return a_text;
         } catch (ArrayIndexOutOfBoundsException e) {
             g_textBufferExtraSize *= 2;
-            imgui().clearActiveId();
+            imgui().clearActiveID();
             return a_text;
             //rounds++;
         }

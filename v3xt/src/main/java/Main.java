@@ -12,7 +12,9 @@ import imgui.impl.gl.ImplGL3;
 import imgui.impl.glfw.ImplGlfw;
 import imgui.internal.classes.TextEditState;
 import kotlin.Unit;
+import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.Platform;
 import se.lnu.siq.s4rdm3x.GUIConsole;
 import se.lnu.siq.s4rdm3x.StringCommandHandler;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
@@ -25,15 +27,19 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import static imgui.impl.gl.CommonGLKt.setGlslVersion;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.system.MemoryUtil.NULL;
+import static uno.glfw.windowHint.*;
+import static uno.glfw.windowHint.Profile.core;
 
 public class Main {
 
     // The window handle
     private GlfwWindow window;
     private uno.glfw.glfw glfw = uno.glfw.glfw.INSTANCE;
+    private uno.glfw.windowHint windowHint = uno.glfw.windowHint.INSTANCE;
     private ImplGlfw  implGlfw;
     private ImplGL3  implGl3;
     private ImGui imgui = ImGui.INSTANCE;
@@ -50,30 +56,51 @@ public class Main {
 
     private Main() {
 
-        glfw.init("3.3", windowHint.Profile.core, true);
+        //glfw.init("3.3", windowHint.Profile.core, true);
+        glfw.init();
 
-        window = new GlfwWindow(1280, 720, "Visual 3xperiment Tool", NULL, new Vec2i(Integer.MIN_VALUE), true);
-        window.init(true);
+        if (Platform.get() == Platform.MACOSX) { // GL 3.2 + GLSL 150
+
+            setGlslVersion(150);
+            windowHint.getContext().setVersion("3.2");
+            windowHint.setProfile(core);     // 3.2+ only
+            windowHint.setForwardComp(true); // Required on Mac
+
+        } else {   // GL 3.0 + GLSL 130
+
+            setGlslVersion(130);
+            windowHint.getContext().setVersion("3.0");
+            //profile = core      // 3.2+ only
+            //forwardComp = true  // 3.0+ only
+        }
+
+        window = new GlfwWindow(1280, 720, "Visual 3xperiment Tool", NULL, new Vec2i(30), true);
+        window.makeContextCurrent();
+        //window.init(true);
 
         glfw.setSwapInterval(VSync.ON);    // Enable vsync
 
+        GL.createCapabilities();
+
         // Setup ImGui binding
         //setGlslVersion(330); // set here your desidered glsl version
-        ctx = new Context(null);
+        ctx = new Context();
         //io.configFlags = io.configFlags or ConfigFlag.NavEnableKeyboard  // Enable Keyboard Controls
         //io.configFlags = io.configFlags or ConfigFlag.NavEnableGamepad   // Enable Gamepad Controls
         //implGlfw.init(window, true, implGlfw..GlfwClientApi.OpenGL);
 
-        TextEditState tes = new TextEditState();
-        //tes.setBufSizeA();
-        ctx.getInputTextState().setBufCapacityA(2048);
-        io = imgui.getIo();
+
 
         imgui.styleColorsDark(null);
 
 
         implGlfw = new ImplGlfw(window, true, null);
         implGl3 = new ImplGL3();
+
+        TextEditState tes = new TextEditState();
+        //tes.setBufSizeA();
+        ctx.getInputTextState().setBufCapacityA(2048);
+        io = imgui.getIo();
     }
 
     private void run() {
