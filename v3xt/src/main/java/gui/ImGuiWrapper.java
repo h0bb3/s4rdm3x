@@ -7,6 +7,7 @@ import imgui.font.FontGlyph;
 import imgui.internal.ItemFlag;
 import imgui.internal.classes.Rect;
 import imgui.internal.classes.Window;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -169,6 +170,12 @@ public class ImGuiWrapper {
         return name;
     }
 
+    private Vec2 rotate(Vec2 a_pos, float a_angle) {
+
+        // TODO: implement
+        throw new NotImplementedException();
+    }
+
     public Vec2 text(String a_text, Vec2 a_position, int a_color, float a_angle) {
         final int tId = m_imGui.getDefaultFont().containerAtlas.getTexId();
 
@@ -206,9 +213,8 @@ public class ImGuiWrapper {
             //float height = (fg.getY0() - fg.getY1()) * scale;
 
             // -3 to get some offset before the first character
-            p2 = new Vec2((fg.getX1() - 5) * scale, (fg.getY1() * scale) + height*0.5).rotate(a_angle);
-            p3 = new Vec2((fg.getX1() - 5) * scale, (fg.getY0() * scale) + height*0.5).rotate(a_angle);
-
+            p2 = rotate(new Vec2((fg.getX1() - 5) * scale, (fg.getY1() * scale) + height*0.5), (a_angle));
+            p3 = rotate(new Vec2((fg.getX1() - 5) * scale, (fg.getY0() * scale) + height*0.5), (a_angle));
 
             firstPos.setX(p2.getX() * 0.5f + p3.getX() * 0.5f);
             firstPos.setY(p2.getY() * 0.5f + p3.getY() * 0.5f);
@@ -221,10 +227,10 @@ public class ImGuiWrapper {
             Vec2 p0, p1, p2, p3;
             //float height = (fg.getY0() - fg.getY1()) * scale;
 
-            p0 = new Vec2((x + fg.getX0() * scale), (fg.getY0() * scale) + height*0.5).rotate(a_angle);
-            p1 = new Vec2((x + fg.getX0() * scale), (fg.getY1() * scale) + height*0.5).rotate(a_angle);
-            p2 = new Vec2((x + fg.getX1() * scale), (fg.getY1() * scale) + height*0.5).rotate(a_angle);
-            p3 = new Vec2((x + fg.getX1() * scale), (fg.getY0() * scale) + height*0.5).rotate(a_angle);
+            p0 = rotate(new Vec2((x + fg.getX0() * scale), (fg.getY0() * scale) + height*0.5), a_angle);
+            p1 = rotate(new Vec2((x + fg.getX0() * scale), (fg.getY1() * scale) + height*0.5), a_angle);
+            p2 = rotate(new Vec2((x + fg.getX1() * scale), (fg.getY1() * scale) + height*0.5), a_angle);
+            p3 = rotate(new Vec2((x + fg.getX1() * scale), (fg.getY0() * scale) + height*0.5), a_angle);
 
             x = x + fg.getAdvanceX() * scale;
 
@@ -238,10 +244,10 @@ public class ImGuiWrapper {
             Vec2 p0, p1, p2, p3;
             //float height = (fg.getY0() - fg.getY1()) * scale;
 
-            p0 = new Vec2((x + fg.getX0() * scale), (fg.getY0() * scale) + height*0.5).rotate(a_angle);
-            p1 = new Vec2((x + fg.getX0() * scale), (fg.getY1() * scale) + height*0.5).rotate(a_angle);
-            p2 = new Vec2((x + fg.getX1() * scale), (fg.getY1() * scale) + height*0.5).rotate(a_angle);
-            p3 = new Vec2((x + fg.getX1() * scale), (fg.getY0() * scale) + height*0.5).rotate(a_angle);
+            p0 = rotate(new Vec2((x + fg.getX0() * scale), (fg.getY0() * scale) + height*0.5), a_angle);
+            p1 = rotate(new Vec2((x + fg.getX0() * scale), (fg.getY1() * scale) + height*0.5), a_angle);
+            p2 = rotate(new Vec2((x + fg.getX1() * scale), (fg.getY1() * scale) + height*0.5), a_angle);
+            p3 = rotate(new Vec2((x + fg.getX1() * scale), (fg.getY0() * scale) + height*0.5), a_angle);
 
             x = x + fg.getAdvanceX() * scale;
 
@@ -443,10 +449,11 @@ public class ImGuiWrapper {
         //String clipboard = imgui().getIo().getGetClipboardTextFn() != null ? imgui().getIo().getGetClipboardTextFn().invoke(imgui().getIo().getClipboardUserData()).toString() : "";
         // TODO: This is not a good way to handle this but I can not seem to get a hold of the clipboard data or use any callbacks.
         try {
-            char[] buffer = new char[a_text.length() + g_textBufferExtraSize];
-            Arrays.fill(buffer, '\0');
-            for (int i = 0; i < a_text.length() && i < buffer.length; i++) {
-                buffer[i] = a_text.charAt(i);
+            byte[] buffer = new byte[a_text.length() + g_textBufferExtraSize*2];
+            byte[] textBytes = a_text.getBytes();
+            Arrays.fill(buffer, (byte)'\0');
+            for (int i = 0; i < textBytes.length && i < buffer.length; i++) {
+                buffer[i] = textBytes[i];
             }
 
             if (m_imGui.inputText(a_label, buffer, 0, null, null)) {    // TODO: this api call has changed, possibly make this better
@@ -476,7 +483,13 @@ public class ImGuiWrapper {
         m_imGui.setCursorPos(textPos);
         m_imGui.pushItemWidth(a_width + m_imGui.getStyle().getFramePadding().getX() * 1 + m_imGui.getFontSize());   // we need to be a bit wider than *2 so that imgui does not make wonky things with the text x position
 
-        boolean ret = m_imGui.inputText(a_label, a_buffer, InputTextFlag.EnterReturnsTrue.i, null, null);   // TODO: this api call has changed
+        byte[] buffer = new String(a_buffer).getBytes();
+        boolean ret = m_imGui.inputText(a_label, buffer, InputTextFlag.EnterReturnsTrue.i, null, null);   // TODO: this api call has changed
+
+        char[] textBuffer = new String(buffer).toCharArray();
+        for (int i = 0; i < a_buffer.length && i < textBuffer.length; i++) {
+            a_buffer[i] = textBuffer[i];
+        }
 
         // GLFW_KEY_KP_ENTER   335
         if (m_imGui.isKeyDown(335)) {
@@ -504,7 +517,7 @@ public class ImGuiWrapper {
     }
 
     public void addText(Vec2 a_pos, int a_color, String a_text) {
-        m_imGui.getWindowDrawList().addText(a_pos, a_color, a_text.toCharArray(), a_text.length());
+        m_imGui.getWindowDrawList().addText(a_pos, a_color, a_text);
     }
 
     public void addCircle(Vec2 a_center, float a_radius, int a_color, int a_segments, float a_thickness) {
@@ -524,7 +537,7 @@ public class ImGuiWrapper {
     }
 
     public Vec2 calcTextSize(String a_str, boolean a_hideTextAfterDoubleHash) {
-        return m_imGui.calcTextSize(a_str, a_hideTextAfterDoubleHash);
+        return m_imGui.calcTextSize(a_str, a_hideTextAfterDoubleHash, -1);
     }
 
     public boolean beginTooltip() {

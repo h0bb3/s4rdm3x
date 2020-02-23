@@ -1,7 +1,6 @@
 package se.lnu.siq.s4rdm3x.experiments.metric;
 
 
-import jdk.jshell.spi.ExecutionControl;
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
 import se.lnu.siq.s4rdm3x.model.CNode;
 

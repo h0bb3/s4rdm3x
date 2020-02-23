@@ -10,7 +10,7 @@ import imgui.font.Font;
 import imgui.font.FontConfig;
 import imgui.impl.gl.ImplGL3;
 import imgui.impl.glfw.ImplGlfw;
-import imgui.internal.classes.TextEditState;
+import imgui.internal.classes.InputTextState;
 import kotlin.Unit;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
@@ -74,7 +74,8 @@ public class Main {
             //forwardComp = true  // 3.0+ only
         }
 
-        window = new GlfwWindow(1280, 720, "Visual 3xperiment Tool", NULL, new Vec2i(30), true);
+        Vec2i pos = new Vec2i(30);
+        window = new GlfwWindow(1280, 720, "Visual 3xperiment Tool", NULL, pos, true);
         window.makeContextCurrent();
         //window.init(true);
 
@@ -97,7 +98,7 @@ public class Main {
         implGlfw = new ImplGlfw(window, true, null);
         implGl3 = new ImplGL3();
 
-        TextEditState tes = new TextEditState();
+        InputTextState tes = new InputTextState();
         //tes.setBufSizeA();
         ctx.getInputTextState().setBufCapacityA(2048);
         io = imgui.getIo();

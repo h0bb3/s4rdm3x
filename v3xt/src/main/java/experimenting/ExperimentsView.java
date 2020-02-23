@@ -207,7 +207,8 @@ public class ExperimentsView implements ExperimentRunnerViewThread.DataListener 
                     @Override
                     public void onSavedExperiment(Document a_doc, Element a_experimentElement, ExperimentRun a_savedExperiment) {
                         MapperView evt = experiments.get(a_savedExperiment);
-                        a_experimentElement.appendChild(exmlp.vec4ToElement(a_doc, evt.getColor().toFloatArray(), "plot_color"));
+                        float[] col = new float[4];
+                        a_experimentElement.appendChild(exmlp.vec4ToElement(a_doc, evt.getColor().to(col), "plot_color"));
                     }
                 });
             } catch (Exception e) {
@@ -234,7 +235,7 @@ public class ExperimentsView implements ExperimentRunnerViewThread.DataListener 
                             m_experiments.add(ex);
                         }
                         MapperView mv = ex.findMapper(a_loadedExperiment);
-                        mv.getColor().setArray(exmlp.elementToVec4(a_experimentElement, "plot_color"));
+                        mv.getColor().put(exmlp.elementToVec4(a_experimentElement, "plot_color"));
                     }
 
                     @Override
