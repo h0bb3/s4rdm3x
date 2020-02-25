@@ -9,6 +9,7 @@ import imgui.internal.classes.Rect;
 import imgui.internal.classes.Window;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Stack;
@@ -457,13 +458,8 @@ public class ImGuiWrapper {
             }
 
             if (m_imGui.inputText(a_label, buffer, 0, null, null)) {    // TODO: this api call has changed, possibly make this better
-                String txt = new String();
-                for (int i = 0; i < buffer.length; i++) {
-                    if (buffer[i] == '\0') {
-                        break;
-                    }
-                    txt += buffer[i];
-                }
+                int i; for (i = 0; i < buffer.length && buffer[i] != 0; i++) { }
+                String txt = new String(buffer, 0, i, StandardCharsets.UTF_8);
                 return txt;
             }
             return a_text;
@@ -486,9 +482,10 @@ public class ImGuiWrapper {
         byte[] buffer = new String(a_buffer).getBytes();
         boolean ret = m_imGui.inputText(a_label, buffer, InputTextFlag.EnterReturnsTrue.i, null, null);   // TODO: this api call has changed
 
-        char[] textBuffer = new String(buffer).toCharArray();
-        for (int i = 0; i < a_buffer.length && i < textBuffer.length; i++) {
-            a_buffer[i] = textBuffer[i];
+        int i; for (i = 0; i < buffer.length && buffer[i] != 0; i++) { }
+        String txt = new String(buffer, 0, i, StandardCharsets.UTF_8);
+        for (i = 0; i < a_buffer.length && i < txt.length(); i++) {
+            a_buffer[i] = txt.charAt(i);
         }
 
         // GLFW_KEY_KP_ENTER   335

@@ -253,6 +253,7 @@ public class ExperimentsView implements ExperimentRunnerViewThread.DataListener 
 
 
             } catch (Exception e) {
+                System.out.println("Exception when attempting to load/save:" + m_experimentSaveFile);
                 java.lang.System.out.println(e);
                 e.printStackTrace();
             }
