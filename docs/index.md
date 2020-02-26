@@ -15,6 +15,10 @@ Download the latest [Release](https://github.com/tobias-dv-lnu/s4rdm3x/releases)
 
 `java -jar cmdexrunner.jar`
 
+For OSX users the `-XstartOnFirstThread` JVM option needs to be supplied. Also note that the OSX version is highly unstable, you may need to try to start it several times.
+
+`java -XstartOnFirstThread -jar cmdexrunner.jar`
+
 Check the included readme for further details.
 
 ## Data Systems
