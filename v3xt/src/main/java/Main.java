@@ -106,8 +106,8 @@ public class Main {
 
     private void run() {
 
-        GUIConsole guic = new GUIConsole();
-        StringCommandHandler sch = new StringCommandHandler();
+        //GUIConsole guic = new GUIConsole();
+        //StringCommandHandler sch = new StringCommandHandler();
         CGraph graph = new CGraph();
 
         ArchDef theArch = new ArchDef();
@@ -134,18 +134,18 @@ public class Main {
 
         window.loop((MemoryStack stack)  -> {
 
-            if (guic.hasInput()) {
+            //if (guic.hasInput()) {
 
-                String in = guic.popInput();
-                sch.execute(in, graph).forEach(str -> guic.println(str));
-            }
+            //    String in = guic.popInput();
+            //    sch.execute(in, graph).forEach(str -> guic.println(str));
+            //}
 
-            mainLoop(sch.getArchDef() != null ? sch.getArchDef() : theArch, graph);
-
+            //mainLoop(sch.getArchDef() != null ? sch.getArchDef() : theArch, graph);
+            mainLoop(null, null);
             return Unit.INSTANCE;
         });
 
-        guic.close();
+        //guic.close();
         implGlfw.shutdown();
         implGl3.shutdown();
         ctx.destroy();
@@ -169,7 +169,8 @@ public class Main {
         imgui.newFrame();
 
 
-        //imgui.showDemoWindow(showDemo);
+        //boolean [] showdemo = {true};
+        //imgui.showDemoWindow(showdemo);
 
         imgui.text("Application average %.3f ms/frame (%.1f FPS)", 1_000f / io.getFramerate(), io.getFramerate());
 
@@ -190,6 +191,6 @@ public class Main {
         glClear(GL_COLOR_BUFFER_BIT);
         implGl3.renderDrawData(imgui.getDrawData());
 
-        //gln.GlnKt.checkError("loop", true); // render errors only good when debugging.
+        gln.GlnKt.checkError("loop", true); // render errors only good when debugging.
     }
 }

@@ -1,4 +1,4 @@
-import org.gradle.internal.os.*
+//import org.gradle.internal.os.*
 
 plugins {
     id 'java'
@@ -40,7 +40,7 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 
     ["gl", "glfw", "core"].each {
-        implementation "com.github.kotlin-graphics.imgui:imgui-$it:v1.75"
+        implementation "com.github.kotlin-graphics.imgui:imgui-$it:-SNAPSHOT"
     }
     //implementation 'com.github.kotlin-graphics:glm:v1.0.1'
     implementation 'com.github.kotlin-graphics:glm:-SNAPSHOT'   // version 1.0.1 seems to be too old, but it is also the latest release.
