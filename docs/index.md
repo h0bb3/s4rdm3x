@@ -9,15 +9,18 @@ A tool that provides a GUI to define and run small scale experiments as well as 
 A command line tool for executing experiments in parrallell. It reads an experiment definition xml-file and distributes the experiments over a number of threads. Typically useful for running experiments in multicore computing clouds.
 
 # Installation
-Download the latest [Release](https://github.com/tobias-dv-lnu/s4rdm3x/releases) from GitHub and run via commandline:
+Download the latest [Release](https://github.com/tobias-dv-lnu/s4rdm3x/releases) from GitHub and
+
+# Running
+Run via commandline:
 
 `java -jar v3xt.jar`
 
 `java -jar cmdexrunner.jar`
 
-For OSX users the `-XstartOnFirstThread` JVM option needs to be supplied. Also note that the OSX version is highly unstable, you may need to try to start it several times.
+For OSX users the `-XstartOnFirstThread` JVM option needs to be supplied when nrunning the `v3xt.jar`. Also note that the OSX version is highly unstable, you may need to try to start it several times.
 
-`java -XstartOnFirstThread -jar cmdexrunner.jar`
+`java -XstartOnFirstThread -jar v3xt.jar`
 
 Check the included readme for further details.
 
