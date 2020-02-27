@@ -1,4 +1,4 @@
-![Java Build](https://github.com/tobias-dv-lnu/s4rdm3x/workflows/Java%20CI/badge.svg)
+![Build](https://github.com/tobias-dv-lnu/s4rdm3x/workflows/Build/badge.svg)
 
 # s4rdm3x
 A tool suite to perform experiments in automatic mapping of source code to modular architecure definitions, also called the orphan adoption problem.
