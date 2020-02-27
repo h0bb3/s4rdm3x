@@ -260,7 +260,7 @@ class ExperimentRunnerViewThread extends Thread {
         private ArrayList<SystemNameFile> scan() {
             ArrayList<SystemNameFile> ret = new ArrayList<>();
             try {
-                Files.find(Paths.get("data/"), Integer.MAX_VALUE, (filePath, fileAttr) -> fileAttr.isRegularFile()).filter(f -> f.toFile().getName().endsWith(".sysmdl")).forEach(f -> {
+                Files.find(Paths.get("data" + File.separator), Integer.MAX_VALUE, (filePath, fileAttr) -> fileAttr.isRegularFile()).filter(f -> f.toFile().getName().endsWith(".sysmdl")).forEach(f -> {
 
                     SystemModelReader smr = new SystemModelReader();
                     smr.readFile(f.toString());

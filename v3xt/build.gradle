@@ -34,11 +34,17 @@ sourceSets {
             srcDir '../src/main/java'   // this is the core code
         }
     }
+
+    test {
+        java {
+            srcDir '../src/test/java'   // core tests
+        }
+    }
 }
 
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testImplementation('org.junit.jupiter:junit-jupiter:5.6.0')
 
     ["gl", "glfw", "core"].each {
         implementation "com.github.kotlin-graphics.imgui:imgui-$it:-SNAPSHOT"
@@ -77,6 +83,13 @@ dependencies {
 
 }
 
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
 compileKotlin {
     kotlinOptions {
         jvmTarget = "1.8"
@@ -95,15 +108,3 @@ jar {
                 'Main-Class': 'Main'
     }
 }
-
-//create a single Jar with all dependencies
-/*task fatJar(type: Jar) {
-    manifest {
-        attributes 'Implementation-Title': 'v3xt',
-                'Implementation-Version': 1.1,
-                'Main-Class': 'Main'
-    }
-    baseName = project.name + '-all'
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-    with jar
-}*/

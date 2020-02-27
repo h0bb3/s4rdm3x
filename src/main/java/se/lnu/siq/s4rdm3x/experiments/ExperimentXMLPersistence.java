@@ -10,6 +10,7 @@ import se.lnu.siq.s4rdm3x.experiments.metric.Rand;
 import se.lnu.siq.s4rdm3x.experiments.metric.aggregated.RelativeLineCount;
 import se.lnu.siq.s4rdm3x.experiments.system.FileBased;
 import se.lnu.siq.s4rdm3x.experiments.system.System;
+import weka.core.PropertyPath;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -146,6 +147,9 @@ public class ExperimentXMLPersistence {
                 String file = s.hasAttribute("file") ? s.getAttribute("file") : "";
 
                 if (file.length() > 0) {
+                    String separator = s.hasAttribute("file_separator") ? s.getAttribute("file_separator") : "\\";
+
+                    file = file.replace(separator, File.separator);
                     suas.add(new FileBased(file));
                 } else {
                     throw new Exception("Only file based systems are supported");
@@ -281,6 +285,8 @@ public class ExperimentXMLPersistence {
             systemsNode.appendChild(systemNode);
             systemNode.setAttribute("name", s.getName());
             if (s instanceof FileBased) {
+
+                systemNode.setAttribute("file_separator", File.separator);
                 systemNode.setAttribute("file", ((FileBased)s).getFile());
             }
         }

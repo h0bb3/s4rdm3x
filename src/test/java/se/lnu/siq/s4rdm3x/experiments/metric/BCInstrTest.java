@@ -79,7 +79,7 @@ public class BCInstrTest {
 
     @Test
     void test_BranchesTest() {
-        assertEquals(142, getMetric("BranchesTest"));
+        assertEquals(148, getMetric("BranchesTest"));
     }
 
     @Test
