@@ -9,9 +9,8 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
-    - name: Goto v3xt dir
-      run: cd v3xt
     - name: Grant execute permission for gradlew
-      run: chmod +x ./gradlew
+      run: chmod +x ./v3xt/gradlew
     - name: Test with Gradle
+      working-directory: ./v3xt
       run: ./gradlew test
