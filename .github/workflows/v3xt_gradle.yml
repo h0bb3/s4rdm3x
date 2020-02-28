@@ -17,4 +17,4 @@ jobs:
       run: chmod +x ./v3xt/gradlew
     - name: Build with Gradle
       working-directory: ./v3xt
-      run: ./gradlew build
+      run: ./v3xt/gradlew build -x test
