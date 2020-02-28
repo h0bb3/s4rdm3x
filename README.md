@@ -1,9 +1,11 @@
-![Build](https://github.com/tobias-dv-lnu/s4rdm3x/workflows/Build/badge.svg)
+![Core Build](https://github.com/tobias-dv-lnu/s4rdm3x/workflows/Core%20Build/badge.svg)
+![Core Tests](https://github.com/tobias-dv-lnu/s4rdm3x/workflows/Core%20Tests/badge.svg)
+![v3xt Build](https://github.com/tobias-dv-lnu/s4rdm3x/workflows/v3xt%20Build/badge.svg)
 
 # s4rdm3x
 A tool suite to perform experiments in automatic mapping of source code to modular architecure definitions, also called the orphan adoption problem.
 
-It consists of a reusable base code and two tools.
+It consists of a reusable base code (core) and two tools (v3xt & CMDExRunner).
 The base code provides Java bytecode analysis to extract a dependency graph (and naming information) as well as loading an architectural definition and source to module mapping. Furthermore it implements the HuGMe method and four attraction functions to map a source code file to an architectural module. The attraction functions are CountAttract, IRAttract, LSIAttract and NBAttract.
 
 ## v3xt
