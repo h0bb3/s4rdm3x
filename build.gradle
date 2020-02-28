@@ -3,9 +3,15 @@
 plugins {
     id 'java'
     id "com.github.johnrengelman.shadow" version "5.2.0"
+    id "maven"
 }
 
-group 's4rdm3x.core'
+// jitpack
+group = 'com.github.tobias-dv-lnu'
+
+ext {
+    moduleName = "${group}.s4rdm3x.core"
+}
 
 sourceCompatibility = 1.8
 version '1.0-SNAPSHOT'
