@@ -1,4 +1,4 @@
-name: Build
+name: v3xt Build
 
 on: [push]
 
