@@ -18,14 +18,14 @@ repositories {
     maven { url 'https://jitpack.io' }
 }
 
-allprojects {
+/*allprojects {
     apply plugin: 'idea'
     idea {
         module {
             inheritOutputDirs = true
         }
     }
-}
+}*/
 
 sourceSets {
     main {
@@ -75,7 +75,7 @@ dependencies {
 
 }
 
-compileKotlin {
+/*compileKotlin {
     kotlinOptions {
         jvmTarget = "1.8"
     }
@@ -84,7 +84,7 @@ compileTestKotlin {
     kotlinOptions {
         jvmTarget = "1.8"
     }
-}
+}*/
 
 jar {
     manifest {
