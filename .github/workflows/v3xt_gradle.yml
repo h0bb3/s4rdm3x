@@ -16,4 +16,5 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x ./v3xt/gradlew
     - name: Build with Gradle
-      run: ./v3xt/gradlew build
+      working-directory: ./v3xt
+      run: ./gradlew build
