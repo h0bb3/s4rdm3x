@@ -12,6 +12,10 @@ import java.util.Collections;
 
 public class SingularValueDecompositionTest {
 
+    @Test void failTest() {
+        assertTrue(false);
+    }
+
     @Test
     public void svdTest1() {
         // this test is from the example in https://www.youtube.com/watch?v=CwBn0voJDaw
