@@ -1,0 +1,51 @@
+//import org.gradle.internal.os.*
+
+plugins {
+    id 'java'
+    id "com.github.johnrengelman.shadow" version "5.2.0"
+}
+
+group 's4rdm3x.core'
+
+sourceCompatibility = 1.8
+version '1.0-SNAPSHOT'
+
+
+
+repositories {
+    mavenCentral()
+}
+
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/java'
+        }
+    }
+
+    test {
+        java {
+            srcDir 'src/test/java'
+        }
+    }
+}
+
+
+dependencies {
+    testImplementation('org.junit.jupiter:junit-jupiter:5.6.0')
+
+    compile files('lib/asm-6.2.1.jar', 'lib/asm-util-6.2.1.jar')
+    compile files('lib/weka-stable-3.8.3.jar')
+
+
+    // this is for core dependencies
+    runtime files('lib/snowball.jar', 'lib/bounce-0.18.jar')
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
