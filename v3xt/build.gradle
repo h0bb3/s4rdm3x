@@ -42,9 +42,9 @@ dependencies {
         implementation "com.github.kotlin-graphics.imgui:imgui-$it:-SNAPSHOT"
     }
     //implementation 'com.github.kotlin-graphics:glm:v1.0.1'
-    implementation 'com.github.kotlin-graphics:glm:-SNAPSHOT'   // version 1.0.1 seems to be too old, but it is also the latest release.
-    implementation 'com.github.kotlin-graphics:uno-sdk:v0.7.7'
-    implementation 'com.github.kotlin-graphics:gln:v0.4.9'
+    implementation 'com.github.kotlin-graphics:glm:1b4ac18dd1a3c23440d3f33596688aac60bc0141'   // version 1.0.1 seems to be too old, but it is also the latest release.
+    implementation 'com.github.kotlin-graphics:uno-sdk:c8a3099e8f5d335341df4010e8e7c20589317dfd'
+    implementation 'com.github.kotlin-graphics:gln:880960aeaf813f72242f03458cf44e606d4c05f0'
     implementation 'org.lwjgl:lwjgl-glfw:3.2.3'
     implementation 'org.lwjgl:lwjgl-opengl:3.2.3'
 
