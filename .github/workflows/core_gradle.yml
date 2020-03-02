@@ -1,6 +1,9 @@
 name: Core Build
 
-on: [push]
+on:
+  push:
+    paths:
+    - "src/**"
 
 jobs:
   build:
