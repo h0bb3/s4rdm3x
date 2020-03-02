@@ -1,0 +1,35 @@
+plugins {
+    id 'java'
+    id "com.github.johnrengelman.shadow" version "5.2.0"
+}
+
+group 'cmdexrunner'
+
+sourceCompatibility = 1.8
+version '1.0-SNAPSHOT'
+
+
+
+repositories {
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+}
+
+
+dependencies {
+    implementation 'com.github.tobias-dv-lnu:s4rdm3x:1.2'
+
+    // this is for core dependencies
+    runtime files('../lib/asm-6.2.1.jar', '../lib/asm-util-6.2.1.jar')
+    runtime files('../lib/weka-stable-3.8.3.jar')
+    runtime files('../lib/snowball.jar', '../lib/bounce-0.18.jar')
+}
+
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'cmdexrunner',
+                'Implementation-Version': 1.1,
+                'Main-Class': 'Main'
+    }
+}
