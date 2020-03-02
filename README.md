@@ -1,7 +1,10 @@
 ![Core Build](https://github.com/tobias-dv-lnu/s4rdm3x/workflows/Core%20Build/badge.svg)
 ![Core Tests](https://github.com/tobias-dv-lnu/s4rdm3x/workflows/Core%20Tests/badge.svg)
-![v3xt Build](https://github.com/tobias-dv-lnu/s4rdm3x/workflows/v3xt%20Build/badge.svg)
 [![](https://jitpack.io/v/tobias-dv-lnu/s4rdm3x.svg)](https://jitpack.io/#tobias-dv-lnu/s4rdm3x)
+
+![v3xt Build](https://github.com/tobias-dv-lnu/s4rdm3x/workflows/v3xt%20Build/badge.svg)
+![CmdExRunner Build](https://github.com/tobias-dv-lnu/s4rdm3x/workflows/CmdExRunner%20Build/badge.svg)
+
 
 
 # s4rdm3x
