@@ -1,12 +1,14 @@
 ![Core Build](https://github.com/tobias-dv-lnu/s4rdm3x/workflows/Core%20Build/badge.svg)
 ![Core Tests](https://github.com/tobias-dv-lnu/s4rdm3x/workflows/Core%20Tests/badge.svg)
-![v3xt Build](https://github.com/tobias-dv-lnu/s4rdm3x/workflows/v3xt%20Build/badge.svg)
 [![](https://jitpack.io/v/tobias-dv-lnu/s4rdm3x.svg)](https://jitpack.io/#tobias-dv-lnu/s4rdm3x)
 
+![v3xt Build](https://github.com/tobias-dv-lnu/s4rdm3x/workflows/v3xt%20Build/badge.svg)
+![CmdExRunner Build](https://github.com/tobias-dv-lnu/s4rdm3x/workflows/CmdExRunner%20Build/badge.svg)
 
-A tool suite to perform experiments in automatic mapping of source code to modular architecure definitions, also called the orphan adoption problem.
+A tool suite to perform experiments in automatic mapping of source code to modular architecure definitions, also called the orphan adoption problem. It consists of a reusable base code (core) and two tools (v3xt & CMDExRunner).
 
-It consists of a reusable base code and two tools. The base code provides Java bytecode analysis to extract a dependency graph (and naming information) as well as loading an architectural definition and source to module mapping. Furthermore it implements the HuGMe method and four attraction functions to map a source code file to an architectural module. The attraction functions are CountAttract, IRAttract, LSIAttract and NBAttract.
+## core
+The base code provides Java bytecode analysis to extract a dependency graph (and naming information) as well as loading an architectural definition and source to module mapping. Furthermore it implements the HuGMe method and four attraction functions to map a source code file to an architectural module. The attraction functions are CountAttract, IRAttract, LSIAttract and NBAttract.
 
 ## v3xt
 A tool that provides a GUI to define and run small scale experiments as well as visualize the results in real-time. This can be used to quickly try and asses new ideas and define larger experiments. Supports loading and saving of experiments definitions as experiments.
@@ -15,7 +17,7 @@ A tool that provides a GUI to define and run small scale experiments as well as 
 A command line tool for executing experiments in parrallell. It reads an experiment definition xml-file and distributes the experiments over a number of threads. Typically useful for running experiments in multicore computing clouds.
 
 # Installation
-Download the latest [Release](https://github.com/tobias-dv-lnu/s4rdm3x/releases) from GitHub and
+Download the latest [Release](https://github.com/tobias-dv-lnu/s4rdm3x/releases) from GitHub it includes precompiled versions of the tools as jar applications for all plattforms.
 
 # Running
 Run via commandline:
