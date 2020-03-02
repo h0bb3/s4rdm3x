@@ -17,7 +17,7 @@ A tool that provides a GUI to define and run small scale experiments as well as 
 A command line tool for executing experiments in parrallell. It reads an experiment definition xml-file and distributes the experiments over a number of threads. Typically useful for running experiments in multicore computing clouds.
 
 # Installation
-Download the latest [Release](https://github.com/tobias-dv-lnu/s4rdm3x/releases) from GitHub and
+Download the latest [Release](https://github.com/tobias-dv-lnu/s4rdm3x/releases) from GitHub it includes precompiled versions of the tools as jar applications for all plattforms.
 
 # Running
 Run via commandline:
