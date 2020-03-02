@@ -8,9 +8,9 @@
 
 
 # s4rdm3x
-A tool suite to perform experiments in automatic mapping of source code to modular architecure definitions, also called the orphan adoption problem.
+A tool suite to perform experiments in automatic mapping of source code to modular architecure definitions, also called the orphan adoption problem. It consists of a reusable base code (core) and two tools (v3xt & CMDExRunner).
 
-It consists of a reusable base code (core) and two tools (v3xt & CMDExRunner).
+## core
 The base code provides Java bytecode analysis to extract a dependency graph (and naming information) as well as loading an architectural definition and source to module mapping. Furthermore it implements the HuGMe method and four attraction functions to map a source code file to an architectural module. The attraction functions are CountAttract, IRAttract, LSIAttract and NBAttract.
 
 ## v3xt
