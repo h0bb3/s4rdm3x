@@ -5,6 +5,8 @@
 ![v3xt Build](https://github.com/tobias-dv-lnu/s4rdm3x/workflows/v3xt%20Build/badge.svg)
 ![CmdExRunner Build](https://github.com/tobias-dv-lnu/s4rdm3x/workflows/CmdExRunner%20Build/badge.svg)
 
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://github.com/tobias-dv-lnu/s4rdm3x/blob/master/LICENSE)
+
 
 
 # s4rdm3x
