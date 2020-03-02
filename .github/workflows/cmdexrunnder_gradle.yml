@@ -14,7 +14,7 @@ jobs:
       with:
         java-version: 1.8
     - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
+      run: chmod +x ./cmdexrunner/gradlew
     - name: Build with Gradle
       working-directory: ./cmdexrunner
       run: ./gradlew build -x test
