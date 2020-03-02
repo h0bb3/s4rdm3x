@@ -30,6 +30,6 @@ Architectural drift and erosion are common problems in long lived software syste
 The first tool is a graphical editor for creation and visualization of mapping experiments. As such it offers a quick way to create and evaluate new experiment ideas.
 The second tool is a tool to execute mapping experiments at scale. It offers multithreaded execution of mapping experiments via a command line interface. This useful when many experiments can execute in parralell for example on a high performance computing cloud.
 
-``S4rdm3x`` has been used in research studies on orphan adoption [@ImprovedHuGMe, @NaiveBayes]and in computer science projects as part of a continous integration tool chain for static architectural conformance checking.
+``S4rdm3x`` has been used in research studies on orphan adoption [@ImprovedHuGMe, @NaiveBayes]and in computer science projects as part of a continous integration tool chain for static architecture conformance checking.
 
 # References
