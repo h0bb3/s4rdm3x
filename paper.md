@@ -22,7 +22,7 @@ bibliography: paper.bib
 
 # Summary
 
-Architectural drift and erosion are common problems in long lived software systems. Reflexion modeling is a technique that can perform static architecture conformance checking to combat such problems during the life cykle of a system. However, reflexion modeling relies on a mapping of the source code to the modules of the architecture. Such a mapping currently needs to be manually created and maintained which is infeasible at scale.
+Architectural drift and erosion are common problems in long lived software systems. Reflexion modeling is a technique that can perform static architecture conformance checking to find such problems during the lifecykle of a system. However, reflexion modeling relies on a mapping of the source code to the modules of the architecture. Such a mapping currently needs to be manually created and maintained which is infeasible at scale.
 
 ``S4rdm3x`` is a tool suite to perform experiments in automatic mapping of source code to modular architecure definitions, also called the orphan adoption problem. It aims to be a testbed for new development in this area and provides baseline implementations of current clustering techniques for orphan adoption. 
 
@@ -30,6 +30,6 @@ Architectural drift and erosion are common problems in long lived software syste
 The first tool is a graphical editor for creation and visualization of mapping experiments. As such it offers a quick way to create and evaluate new experiment ideas.
 The second tool is a tool to execute mapping experiments at scale. It offers multithreaded execution of mapping experiments via a command line interface. This useful when many experiments can execute in parralell for example on a high performance computing cloud.
 
-``S4rdm3x`` has been used in research studies on orphan adoption [@ImprovedHuGMe, @NaiveBayes]and in computer science projects as part of a continous integration tool chain for static architectural conformance checking.
+``S4rdm3x`` has been used in research studies on orphan adoption [@ImprovedHuGMe, @NaiveBayes]and in computer science projects as part of a continous integration tool chain for static architecture conformance checking.
 
 # References
