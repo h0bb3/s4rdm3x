@@ -178,7 +178,7 @@ public class ImGuiWrapper {
     }
 
     public Vec2 text(String a_text, Vec2 a_position, int a_color, float a_angle) {
-        final int tId = m_imGui.getDefaultFont().containerAtlas.getTexId();
+        final int tId = m_imGui.getDefaultFont().containerAtlas.getTexID();
 
         float x = 0;
         float scale = m_imGui.getFont().getScale();

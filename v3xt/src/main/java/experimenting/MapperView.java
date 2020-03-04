@@ -137,7 +137,7 @@ public class MapperView {
 
                     if (m_experimentIx == g_nbmapper_ex) {
                         m_doWordCount = doRandomBoolVariable(a_imgui, "Use Word Counts", m_doWordCount);
-                        m_threshold = doRandomDoubleVariable(a_imgui, "Threshold", m_threshold, 1, 25);
+                        m_threshold = doRandomDoubleVariable(a_imgui, "Threshold", m_threshold, 0, 1);
                     }
                 } else if (m_experimentIx == g_hugmemapper_ex) {
                     m_omega = doRandomDoubleVariable(a_imgui, "Omega Threshold", m_omega);

@@ -459,7 +459,10 @@ public class ExperimentsView implements ExperimentRunnerViewThread.DataListener 
     // this one is needed to create context menus over child windows after the child is ended.
     boolean beginPopupContextItem(ImGuiWrapper a_imgui, String a_id, int a_mouseButton) {
         Window window = a_imgui.imgui().getCurrentWindow();
-        int id = a_id != null ? window.getId(a_id) : window.getDc().getLastItemId(); // If user hasn't passed an ID, we can use the LastItemID. Using LastItemID as a Popup ID won't conflict!
+
+        Object oId = new Object();
+
+        int id = a_id != null ? window.getID(oId) : window.getDc().getLastItemId(); // If user hasn't passed an ID, we can use the LastItemID. Using LastItemID as a Popup ID won't conflict!
 
         if (a_imgui.imgui().isMouseReleased(a_imgui.int2MB(a_mouseButton)) && a_imgui.imgui().isWindowHovered(HoveredFlag.AllowWhenBlockedByPopup.i | HoveredFlag.RootAndChildWindows.i)) {
             a_imgui.imgui().openPopupEx(id);
