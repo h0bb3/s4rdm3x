@@ -5,8 +5,6 @@ import se.lnu.siq.s4rdm3x.experiments.ExperimentRunner.RandomDoubleVariable;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.NBMapper;
-import se.lnu.siq.s4rdm3x.model.cmd.mapper.NBMapperEx;
-import se.lnu.siq.s4rdm3x.model.cmd.util.FanInCache;
 
 import java.util.Random;
 
@@ -25,7 +23,11 @@ public class NBMapperExperimentRun extends IRExperimentRunBase {
     public NBMapperExperimentRun(boolean a_doUseManualMapping, IRExperimentRunBase.Data a_irData, RandomBoolVariable a_doWordCount, RandomDoubleVariable a_threshold) {
         super (a_doUseManualMapping, a_irData);
         m_doWordCount = new RandomBoolVariable(a_doWordCount);
-        m_threshold = new RandomDoubleVariable(a_threshold);
+        if (a_threshold.getMin() < 0 || a_threshold.getMax() > 1) {
+            m_threshold = new RandomDoubleVariable(0.9, 0);
+        } else {
+            m_threshold = new RandomDoubleVariable(a_threshold);
+        }
     }
 
     @Override
@@ -39,8 +41,8 @@ public class NBMapperExperimentRun extends IRExperimentRunBase {
 
     @Override
     public boolean runClustering(CGraph a_g, ArchDef arch) {
-        NBMapper c = new NBMapper(arch, doUseManualMapping(), m_exData.m_doUseCDA, m_exData.m_doUseNodeText, m_exData.m_doUseNodeName, m_exData.m_doUseArchComponentName, m_exData.m_minWordSize, null);
-        c.setClusteringThreshold(m_thresholdValue);
+        NBMapper c = new NBMapper(arch, doUseManualMapping(), m_exData.m_doUseCDA, m_exData.m_doUseNodeText, m_exData.m_doUseNodeName, m_exData.m_doUseArchComponentName, m_exData.m_minWordSize, null, m_thresholdValue);
+        c.setMappingThreshold(m_thresholdValue);
         c.doStemming(m_exData.m_doStemming);
         c.doWordCount(m_exData.m_doWordCount);
         c.run(a_g);

@@ -1,21 +1,19 @@
 package se.lnu.siq.s4rdm3x.model.cmd.mapper;
 
-import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
 import se.lnu.siq.s4rdm3x.model.CGraph;
-import se.lnu.siq.s4rdm3x.model.CNode;
-import weka.attributeSelection.*;
-import weka.classifiers.bayes.net.search.local.GeneticSearch;
 import weka.core.*;
-import weka.core.pmml.jaxbbindings.Cluster;
 import weka.core.stemmers.SnowballStemmer;
 import weka.filters.Filter;
-import weka.filters.supervised.attribute.AttributeSelection;
 import weka.filters.unsupervised.attribute.StringToWordVector;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Mapper based on textual analysis of nodes using a naive Bayes classifier. Evaluated by Tobias Olsson, Morgan Ericsson, and Anna Wingkvist. 2019. Semi-automatic mapping of source code using naive Bayes. In Proceedings of the 13th European Conference on Software Architecture - Volume 2 (ECSA ’19). Association for Computing Machinery, New York, NY, USA, 209–216. DOI:https://doi.org/10.1145/3344948.3344984
+ *
+ */
 public class NBMapper extends IRMapperBase {
 
     private boolean m_addRawArchitectureTrainingData = false;
@@ -57,35 +55,39 @@ public class NBMapper extends IRMapperBase {
     public int m_consideredNodes = 0;
     public int m_autoWrong = 0;
 
-    private double m_clusteringThreshold = 2.0;
+    private double m_mappingThreshold = 0.9;
 
     private boolean m_doStemm = false;
     private Filter m_filter = new StringToWordVector();
     private double [] m_initialDistribution = null;
 
-    public NBMapper(ArchDef a_arch, boolean a_doUseCDA, boolean a_doUseNodeText, boolean a_doUseNodeName, boolean a_doUseArchComponentName, int a_minWordLength) {
+    public NBMapper(ArchDef a_arch, boolean a_doUseCDA, boolean a_doUseNodeText, boolean a_doUseNodeName, boolean a_doUseArchComponentName, int a_minWordLength, double a_mappingThreshold) {
         super(a_arch, false, a_doUseCDA, a_doUseNodeText, a_doUseNodeName, a_doUseArchComponentName, a_minWordLength);
         ((StringToWordVector)m_filter).setOutputWordCounts(false);
         ((StringToWordVector) m_filter).setTFTransform(false);
         ((StringToWordVector) m_filter).setIDFTransform(false);
+        setMappingThreshold(a_mappingThreshold);
     }
-    public NBMapper(ArchDef a_arch, boolean a_doManualMapping, boolean a_doUseCDA, boolean a_doUseNodeText, boolean a_doUseNodeName, boolean a_doUseArchComponentName, int a_minWordLength, double [] a_initialDistribution) {
+    public NBMapper(ArchDef a_arch, boolean a_doManualMapping, boolean a_doUseCDA, boolean a_doUseNodeText, boolean a_doUseNodeName, boolean a_doUseArchComponentName, int a_minWordLength, double [] a_initialDistribution, double a_mappingThreshold) {
         super(a_arch, a_doManualMapping, a_doUseCDA, a_doUseNodeText, a_doUseNodeName, a_doUseArchComponentName, a_minWordLength);
         m_initialDistribution = a_initialDistribution;
         ((StringToWordVector)m_filter).setOutputWordCounts(false);
         ((StringToWordVector) m_filter).setTFTransform(false);
         ((StringToWordVector) m_filter).setIDFTransform(false);
+        setMappingThreshold(a_mappingThreshold);
     }
 
-    public void setClusteringThreshold(double a_thresholdMultiplier) {
-        m_clusteringThreshold = a_thresholdMultiplier;
-        if (m_clusteringThreshold < 1) {
-            m_clusteringThreshold = 1;
+    public void setMappingThreshold(double a_threshold) {
+        m_mappingThreshold = a_threshold;
+        if (m_mappingThreshold > 1) {
+            m_mappingThreshold = 0.9;
+        } else if (m_mappingThreshold < 0.0) {
+            m_mappingThreshold = 0.9;
         }
     }
 
     public double getClusteringThreshold() {
-        return m_clusteringThreshold;
+        return m_mappingThreshold;
     }
 
     public Filter getFilter() {
@@ -167,7 +169,7 @@ public class NBMapper extends IRMapperBase {
 
                 orphanNode.setAttractions(attraction);
 
-                ArchDef.Component autoClusteredTo = doAutoMappingAbsThreshold(orphanNode, m_arch, 0.9);
+                ArchDef.Component autoClusteredTo = doAutoMappingAbsThreshold(orphanNode, m_arch, m_mappingThreshold);
                 if (autoClusteredTo != null) {
                     addAutoClusteredOrphan(orphanNode);
                     if (autoClusteredTo != m_arch.getMappedComponent(orphanNode.get())) {

@@ -168,7 +168,7 @@ public class MapperBase {
      * Cluster a node to an architectural module based on if the highest attraction value is over a threshold, and higher than the next highest attraction value (i.e. no equal attractions).
      * @param a_orphanNode The node to possibly cluster to, it needs to have the attractions set using the same indexing as the components in a_archDef, this node will get a clustering of type Automatic
      * @param a_archDef The components to cluster to
-     * @param a_clusteringThreshold threshold that needs to be overcome, the value is mapper specific
+     * @param a_clusteringThreshold threshold that needs to be overcome, the value is mapper specific, e.g. if using probabilities 0-1 would be appropriate
      * @return the component that the node was clustered to, or null if it was not clustered.
      */
     public ArchDef.Component doAutoMappingAbsThreshold(OrphanNode a_orphanNode, ArchDef a_archDef, double a_clusteringThreshold) {

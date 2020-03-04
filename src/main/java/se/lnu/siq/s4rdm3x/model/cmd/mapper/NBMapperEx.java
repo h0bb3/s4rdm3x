@@ -17,10 +17,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Mapper based on textual analysis of nodes using a naive Bayes classifier. Evaluated by Tobias Olsson, Morgan Ericsson, and Anna Wingkvist. 2019. Semi-automatic mapping of source code using naive Bayes. In Proceedings of the 13th European Conference on Software Architecture - Volume 2 (ECSA ’19). Association for Computing Machinery, New York, NY, USA, 209–216. DOI:https://doi.org/10.1145/3344948.3344984
- *
- */
 public class NBMapperEx extends IRMapperBase {
 
     private boolean m_addRawArchitectureTrainingData = false;
@@ -62,7 +58,7 @@ public class NBMapperEx extends IRMapperBase {
     public int m_consideredNodes = 0;
     public int m_autoWrong = 0;
 
-    private double m_clusteringThreshold = 2.0;
+    private double m_clusteringThreshold = 0.9;
 
     private boolean m_doStemm = false;
     private Filter m_filter = new StringToWordVector();
@@ -82,10 +78,12 @@ public class NBMapperEx extends IRMapperBase {
         ((StringToWordVector) m_filter).setIDFTransform(false);
     }
 
-    public void setClusteringThreshold(double a_thresholdMultiplier) {
-        m_clusteringThreshold = a_thresholdMultiplier;
-        if (m_clusteringThreshold < 1) {
-            m_clusteringThreshold = 1;
+    public void setClusteringThreshold(double a_threshold) {
+        m_clusteringThreshold = a_threshold;
+        if (m_clusteringThreshold > 1) {
+            m_clusteringThreshold = 0.9;
+        } else if (m_clusteringThreshold < 0.0) {
+            m_clusteringThreshold = 0.9;
         }
     }
 

@@ -38,7 +38,7 @@ public class NBMapperTests {
         c2.clusterToNode(g.getNode("C"), ArchDef.Component.ClusteringType.Automatic);
 
 
-        IRMapperBase sut = new NBMapper(null, false, false, false, false, 0);
+        IRMapperBase sut = new NBMapper(null, false, false, false, false, 0, 0.9);
 
         ArrayList<MapperBase.ClusteredNode> nodes = new ArrayList<>();
 
@@ -100,7 +100,7 @@ public class NBMapperTests {
         c2.clusterToNode(g.getNode("C"), ArchDef.Component.ClusteringType.Automatic);
 
 
-        IRMapperBase sut = new NBMapper(null, false, false, false, false, 0);
+        IRMapperBase sut = new NBMapper(null, false, false, false, false, 0, 0.9);
 
         ArrayList<MapperBase.ClusteredNode> nodes = new ArrayList<>();
 
@@ -150,7 +150,7 @@ public class NBMapperTests {
 
         c2.mapToNode(d);
 
-        NBMapper sut = new NBMapper(arch, true, true, true, false, 0);
+        NBMapper sut = new NBMapper(arch, true, true, true, false, 0, 0.9);
         StringToWordVector filter = new StringToWordVector();
         filter.setOutputWordCounts(true);
 
@@ -202,7 +202,7 @@ public class NBMapperTests {
         c1.mapToNode(d);
 
 
-        NBMapper sut = new NBMapper(arch, true, true, true, false, 0);
+        NBMapper sut = new NBMapper(arch, true, true, true, false, 0, 0.9);
 
         sut.run(g);
 
@@ -210,7 +210,7 @@ public class NBMapperTests {
 
     @Test
     void deCamelCaseTest() {
-        NBMapper sut = new NBMapper(null, true, true, true, false, 0);
+        NBMapper sut = new NBMapper(null, true, true, true, false, 0, 0.9);
 
         assertEquals("test", sut.deCamelCase("test", 3, null));
         assertEquals("test test", sut.deCamelCase("testTest", 3, null));
@@ -230,7 +230,7 @@ public class NBMapperTests {
 
     @Test
     void getMaxIndicesTest() {
-        NBMapper sut = new NBMapper(null, true, true, true, false, 0);
+        NBMapper sut = new NBMapper(null, true, true, true, false, 0, 0.9);
 
         assertEquals(0, sut.getMaxIndices(new double[]{1, 0})[0]);
         assertEquals(1, sut.getMaxIndices(new double[]{1, 0})[1]);
