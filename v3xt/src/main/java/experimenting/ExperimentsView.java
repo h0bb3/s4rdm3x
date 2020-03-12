@@ -264,19 +264,21 @@ public class ExperimentsView implements ExperimentRunnerViewThread.DataListener 
             a_imgui.sameLine(0);
             if (a_imgui.button("Save Data", 0)) {
                 Path filePath = Paths.get(m_saveFile);
-                RundDataCSVFileSaver saver = new RundDataCSVFileSaver();
+                RundDataCSVFileSaver saver = new RundDataCSVFileSaver(filePath);
                 try {
                     if (!Files.exists(filePath)) {
                         Files.createFile(filePath);
                         try {
-                            saver.writeHeader(filePath);
+                            saver.writeHeader();
                         } catch (IOException e) {
                             java.lang.System.out.println("Could not write to file");
                         }
+                    } else {
+                        saver.setHeaderCount();
                     }
 
                     try {
-                        saver.writeData(filePath, getExperimentRunData());
+                        saver.writeData(getExperimentRunData());
                     } catch (IOException e) {
                         java.lang.System.out.println("Could not write to file");
                     }

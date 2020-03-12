@@ -4,11 +4,18 @@ import glm_.vec2.Vec2;
 import gui.ImGuiWrapper;
 import se.lnu.siq.s4rdm3x.model.CNode;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
+import se.lnu.siq.s4rdm3x.util.CSVFile;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 public class FailedClusterings {
+    private String m_saveDir = Paths.get("").toAbsolutePath().toString();
+
     public static class System {
         public class Result {
             public class Clustering {
@@ -119,18 +126,86 @@ public class FailedClusterings {
     ArrayList<System> m_systems = new ArrayList<>();
     String m_selectedNodeLogicName;
 
+
+    private ArrayList<String> getHeaderStrings(System a_s) {
+        ArrayList<String> header = new ArrayList<>();
+        header.add("Experiment");
+        header.add("Node");
+        header.add("Mapping");
+        header.add("Error Ratio");
+        for (String c : a_s.m_components) {
+            header.add(c);
+        }
+
+        return header;
+    }
+
+    private boolean createFile(Path a_fp) {
+        try {
+            Files.createFile(a_fp);
+            return true;
+        } catch (Exception e) {
+            java.lang.System.out.println("Could not create File: " + a_fp);
+            return false;
+        }
+    }
+
     void doShow(ImGuiWrapper a_imgui) {
+
+        m_saveDir = a_imgui.inputTextSingleLine("###SaveAsFailDataDir", m_saveDir);
+
+        a_imgui.sameLine(0);
+        if (m_systems.size() == 0) {
+            a_imgui.pushDisableWidgets();
+        }
+        if (a_imgui.button("Save Data", 0)) {
+            for (System s :m_systems) {
+                String f = m_saveDir + File.separator + s.m_name + ".csv";
+
+                Path fp = Paths.get(f);
+                if (createFile(fp)) {
+                    CSVFile csv = new CSVFile(fp);
+                    ArrayList<Iterable<String>> rows = new ArrayList<>();
+
+                    for (int i = 0; i < s.m_results.size(); i++) {
+                        System.Result r = s.m_results.get(i);
+                        ArrayList<String> row = new ArrayList<>();
+
+                        row.add(r.m_experiment);
+                        row.add(r.m_logicNodeName);
+                        row.add(r.m_mapping);
+                        row.add(String.format("%.4f", r.getErrorRatio()));
+                        for (int cIx = 0; cIx < s.m_components.size(); cIx++) {
+                            row.add("" + r.getFrequency(s.m_components.get(cIx)));
+                        }
+
+                        //csv.writeRow(row);
+                        rows.add(row);
+                    }
+                    try {
+                        csv.writeHeader(getHeaderStrings(s));
+                        csv.writeRows(rows);
+                    } catch (Exception e) {
+                        java.lang.System.out.println("Could not write row to File: " + f);
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        a_imgui.sameLine(0);
+        if (a_imgui.button("Clear Data###ClearFailData", 0)) {
+            m_systems.clear();
+        }
+        if (m_systems.size() == 0) {
+            a_imgui.popDisableWidgets();
+        }
+
         for (System s : m_systems) {
             if (a_imgui.imgui().collapsingHeader(s.m_name, 0)) {
-                ArrayList<String> header = new ArrayList<>();
-                header.add("Experiment");
-                header.add("Node");
-                header.add("Mapping");
-                header.add("Error Ratio");
-                int componentCount = s.m_components.size();
-                for (String c : s.m_components) {
-                    header.add(c);
-                }
+
+
+
+                ArrayList<String> header = getHeaderStrings(s);
 
                 float[] colWidths = new float[header.size()];
                 a_imgui.imgui().beginColumns("failedmappingsheader", header.size(), 0);
@@ -164,6 +239,7 @@ public class FailedClusterings {
                 float xPos = a_imgui.imgui().getWindowPos().getX() + a_imgui.imgui().getScrollX();
                 float yPos = a_imgui.imgui().getWindowPos().getY() - a_imgui.imgui().getScrollY();
                 float cursorPosY = a_imgui.imgui().getCursorPosY();
+                int componentCount = s.m_components.size();
 
                 for (int i = 0; i < s.m_results.size(); i++) {
                     System.Result r = s.m_results.get(i);
