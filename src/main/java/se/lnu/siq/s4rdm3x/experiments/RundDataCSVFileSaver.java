@@ -1,5 +1,7 @@
 package se.lnu.siq.s4rdm3x.experiments;
 
+import se.lnu.siq.s4rdm3x.util.CSVFile;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -8,9 +10,13 @@ import java.util.Random;
 
 import static java.nio.file.Files.write;
 
-public class RundDataCSVFileSaver {
+public class RundDataCSVFileSaver extends CSVFile {
 
-    public void writeHeader(Path a_filePath) throws IOException {
+    public RundDataCSVFileSaver(Path a_fp) {
+        super(a_fp);
+    }
+
+    public void writeHeader() throws IOException {
         ArrayList<String> row = new ArrayList<>();
         row.add("date");
         row.add("time");
@@ -44,17 +50,17 @@ public class RundDataCSVFileSaver {
         row.add("threshold");
         row.add("wordcount");
 
-
-        writeRow(a_filePath, row);
+        writeHeader(row);
+        //writeRow(a_filePath, row);
     }
 
-    public void writeData(Path a_filePath, Iterable<? extends ExperimentRunData.BasicRunData> a_data) throws IOException {
+    public void writeData(Iterable<? extends ExperimentRunData.BasicRunData> a_data) throws IOException {
         for (ExperimentRunData.BasicRunData d : a_data) {
-            writeData(a_filePath, d);
+            writeData(d);
         }
     }
 
-    public void writeData(Path a_filePath, ExperimentRunData.BasicRunData a_rd) throws IOException {
+    public void writeData(ExperimentRunData.BasicRunData a_rd) throws IOException {
         ArrayList<String> row = new ArrayList<>();
         row.add(a_rd.m_date);
         row.add("" + a_rd.m_time);
@@ -98,7 +104,7 @@ public class RundDataCSVFileSaver {
             row.add("-1");row.add("X"); // nb data
         }
 
-        writeRow(a_filePath, row);
+        writeRow(row);
     }
 
     private void addIRMapperData(ArrayList<String> a_row, ExperimentRunData.IRMapperData a_ird) {
@@ -108,20 +114,6 @@ public class RundDataCSVFileSaver {
         a_row.add("" + (a_ird.m_doUseNodeName ? "Y" : "N"));
         a_row.add("" + (a_ird.m_doUseArchComponentName ? "Y" : "N"));
         a_row.add("" + (a_ird.m_minWordSize));
-
-    }
-
-    private void writeRow(Path a_filePath, Iterable<String> m_strings) throws IOException {
-
-        String txtRow = "";
-        for (String s : m_strings) {
-            txtRow += s + "\t";
-        }
-
-        txtRow = txtRow.substring(0, txtRow.length() - 1);
-        txtRow += "\r\n";
-
-        write(a_filePath, txtRow.getBytes(), StandardOpenOption.APPEND);
 
     }
 }

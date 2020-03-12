@@ -20,6 +20,7 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
     Path m_mappingsFilePath;
     int m_errorCounter;
     int m_runCount;
+    RundDataCSVFileSaver m_saver;
 
     public static class Mapping {
         public int m_runId;
@@ -39,9 +40,9 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
         m_runCount = 0;
         m_filePath = createFile(a_dir, a_file);
 
-        RundDataCSVFileSaver saver = new RundDataCSVFileSaver();
+        RundDataCSVFileSaver m_saver = new RundDataCSVFileSaver(m_filePath);
 
-        writeHeader(m_filePath, saver);
+        writeHeader();
     }
 
 
@@ -129,14 +130,14 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
 
     public void OnRunCompleted(ExperimentRunData.BasicRunData a_rd, CGraph a_g, ArchDef a_arch, ExperimentRun a_source) {
 
-        writeData(m_filePath, new RundDataCSVFileSaver(), a_rd);
+        writeData(a_rd);
 
         m_runCount++;
     }
 
-    private void writeHeader(Path a_filePath, RundDataCSVFileSaver a_saver) {
+    private void writeHeader() {
         try {
-            a_saver.writeHeader(a_filePath);
+            m_saver.writeHeader();
             m_errorCounter = 0;
         } catch (Exception e) {
             if (m_errorCounter > 100) {
@@ -147,14 +148,14 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
                 m_errorCounter++;
                 Random r = new Random();
                 try{Thread.sleep((long)(r.nextDouble() * 1717));} catch (Exception e2) {};
-                writeHeader(a_filePath, a_saver);
+                writeHeader();
             }
         }
     }
 
-    private void writeData(Path a_filePath, RundDataCSVFileSaver a_saver, ExperimentRunData.BasicRunData a_rd) {
+    private void writeData(ExperimentRunData.BasicRunData a_rd) {
         try {
-            a_saver.writeData(a_filePath, a_rd);
+            m_saver.writeData(a_rd);
             m_errorCounter = 0;
         } catch (Exception e) {
             if (m_errorCounter > 100) {
@@ -165,7 +166,7 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
                 m_errorCounter++;
                 Random r = new Random();
                 try{Thread.sleep((long)(r.nextDouble() * 1717));} catch (Exception e2) {};
-                writeData(a_filePath, a_saver, a_rd);
+                writeData(a_rd);
             }
         }
     }
