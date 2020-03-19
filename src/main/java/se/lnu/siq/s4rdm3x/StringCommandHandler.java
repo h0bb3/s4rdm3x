@@ -1,5 +1,6 @@
 package se.lnu.siq.s4rdm3x;
 
+import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
 import se.lnu.siq.s4rdm3x.model.cmd.*;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.GetComponentFan;
@@ -162,6 +163,26 @@ public class StringCommandHandler {
                         classesStr += dmc.getName();
                     }
                     ret.add("\tclasses: " + classesStr);
+                }
+            } else if (in.startsWith("print_dependencies")) {
+                String[] cargs = in.split(" ");
+                Selector.ISelector s = new Selector.All();
+                if (cargs.length > 1) {
+                    SelectorBuilder bs = new SelectorBuilder();
+                    s = bs.buildFromString(join(cargs, 1, " "));
+                }
+
+                GetNodes c = new GetNodes(s);
+                c.run(graph);
+                for (CNode sn : c.m_nodes) {
+                    ret.add(sn.getName());
+                    for (CNode tn : c.m_nodes) {
+                        if (sn != tn) {
+                            for (dmDependency d : sn.getDependencies(tn)) {
+                                ret.add("\t" + d.getCount() + ":" + d.getType() + ":" + tn.getName());
+                            }
+                        }
+                    }
                 }
             }
             else if (in.startsWith("//")) {
