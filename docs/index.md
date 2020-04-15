@@ -40,6 +40,7 @@ S4rdm3x is distributed with architectural models and source code to implementati
 To complement the models and mappings, the actual compiled systems are also needed (i.e. jar files). These are not included in this distribution as this would create a problematic licensing situation. However, the jar file dependencies are documented in the respective model file and should be available by either looking through the links from the sources above, or finding them in the actual official distributions of the systems.
 
 ## How To Use It
+The release contains a ready to use test experiment as explained in the release README
 
 # Contributing
 Please report any bugs or anomalies in the github repository. 
