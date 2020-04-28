@@ -45,6 +45,7 @@ public class    SystemModelReader {
     }
 
     private void handleLine(String a_line, Context a_context) {
+        String splitter = "\\s+";   // split on any number of white space characters
         switch (a_context) {
             case Module: {
                 Module m = new Module();
@@ -52,21 +53,21 @@ public class    SystemModelReader {
                 m_modules.add(m);
             } break;
             case Mapping: {
-                String [] parts = a_line.split(" ");
+                String [] parts = a_line.split(splitter);
                 Mapping m = new Mapping();
                 m.m_moduleName = parts[0];
                 m.m_regexp = parts[1];
                 m_mappings.add(m);
             } break;
             case InitialMapping: {
-                String [] parts = a_line.split(" ");
+                String [] parts = a_line.split(splitter);
                 Mapping m = new Mapping();
                 m.m_moduleName = parts[0];
                 m.m_regexp = parts[1];
                 m_initialMappings.add(m);
             } break;
             case Relation: {
-                String [] parts = a_line.split(" ");
+                String [] parts = a_line.split(splitter);
                 Relation r = new Relation();
                 r.m_moduleNameFrom = parts[0];
                 r.m_moduleNameTo = parts[1];
