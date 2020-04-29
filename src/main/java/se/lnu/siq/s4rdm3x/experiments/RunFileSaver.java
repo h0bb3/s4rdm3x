@@ -40,7 +40,7 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
         m_runCount = 0;
         m_filePath = createFile(a_dir, a_file);
 
-        RundDataCSVFileSaver m_saver = new RundDataCSVFileSaver(m_filePath);
+        m_saver = new RundDataCSVFileSaver(m_filePath);
 
         writeHeader();
     }
