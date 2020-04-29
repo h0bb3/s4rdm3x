@@ -42,6 +42,21 @@ public class ArchCreator {
         }
     }
 
+    public int countNodesToBeMapped(ArchDef a_arch, Iterable<SystemModelReader.Mapping>a_mappings, CGraph a_g) {
+        int count = 0;
+        for (SystemModelReader.Mapping mapping : a_mappings) {
+            ArchDef.Component c = a_arch.getComponent(mapping.m_moduleName);
+            Selector.Pat p = new Selector.Pat(mapping.m_regexp);
+
+            for (CNode n : a_g.getNodes()) {
+                if (p.isSelected(n)) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
     public void setInitialMapping(ArchDef a_arch, SystemModelReader a_model, CGraph a_g) {
         for (SystemModelReader.Mapping mapping : a_model.m_initialMappings) {
             ArchDef.Component c = a_arch.getComponent(mapping.m_moduleName);

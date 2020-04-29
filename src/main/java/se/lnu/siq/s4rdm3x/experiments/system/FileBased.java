@@ -39,6 +39,13 @@ public class FileBased extends System {
         ac.setInitialMapping(a_arch, m_smr, a_g);
     }
 
+    @Override
+    public int getInitialMappingCount(CGraph a_g, ArchDef a_arch) {
+        ArchCreator ac = new ArchCreator();
+        ac.countNodesToBeMapped(a_arch, m_smr.m_initialMappings, a_g);
+        return m_smr.m_initialMappings.size();
+    }
+
     public ArchDef createAndMapArch(CGraph a_g) throws System.NoMappedNodesException {
         ArchCreator ac = new ArchCreator();
         ArchDef ret = ac.createArch(m_smr);

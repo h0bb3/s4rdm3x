@@ -9,7 +9,8 @@ import java.util.ArrayList;
 
 public abstract class System {
     public abstract ArchDef createAndMapArch(CGraph a_g) throws NoMappedNodesException;
-    public void setInitialMapping(CGraph a_g, ArchDef a_arch) {};
+    public abstract void setInitialMapping(CGraph a_g, ArchDef a_arch);
+    public abstract int getInitialMappingCount(CGraph a_g, ArchDef a_arch);
     public abstract boolean load(CGraph a_g);
     public abstract String getName();
 

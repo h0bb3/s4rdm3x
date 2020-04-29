@@ -314,10 +314,11 @@ public class ExperimentRunner {
 
                             // we need to adjust the initial set generation so that we do not get a skewed distribution at the extremes
                             // e.g. if we have many arch components possibly many initial set ratios will generate this amount of nodes
+                            // we also need to compensate for a possible initial set
                             gap.m_initialSetRatio = new RandomDoubleVariable(m_initialSetSize);
                             final int minInitialSet = m_initialSetPerComponent ? arch.getComponentCount() : 1;
 
-                            int mappedNodeCount = arch.getMappedNodeCount(a_g.getNodes());
+                            int mappedNodeCount = arch.getMappedNodeCount(a_g.getNodes()) - (m_useInitialMapping ? sua.getInitialMappingCount(a_g, arch) : 0);
                             double min = (double)minInitialSet / (double)mappedNodeCount;
                             double max = (double)(mappedNodeCount) / (double)mappedNodeCount - 0.000000001;
 
@@ -346,11 +347,11 @@ public class ExperimentRunner {
                         }
 
 
+                        arch.cleanNodeClusters(a_g.getNodes(), false);
                         if (m_useInitialMapping) {
                             // Set the initial set an initial set from architecture
                             sua.setInitialMapping(a_g, arch);
                         }
-                        arch.cleanNodeClusters(a_g.getNodes(), false);
                         if (m_initialSetPerComponent) {
                             setGenerator.assignInitialClustersPerComponent(a_g, arch, initialSetRatio.generate(m_rand), metric, m_rand);
                         } else {
