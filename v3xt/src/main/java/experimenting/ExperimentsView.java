@@ -377,7 +377,7 @@ public class ExperimentsView implements ExperimentRunnerViewThread.DataListener 
 
         for (RunData exd : m_selectedDataPoints) {
 
-            Vec2 screenPos = new Vec2(exd.m_data.m_initialClusteringPercent, exd.m_data.calcAutoPerformance());
+            Vec2 screenPos = new Vec2(exd.m_data.m_initialClusteringPercent, exd.m_data.calcF1Score());
             m_performanceVsInitialMapped.toScreenPos(screenPos, screenPos);
             a_imgui.addCircleFilled(screenPos, 4, blue, 6);
 
@@ -430,7 +430,7 @@ public class ExperimentsView implements ExperimentRunnerViewThread.DataListener 
             }
 
 
-            Vec2 screenPos = new Vec2(pd.m_point.getX(), exd.m_data.calcAutoPerformance());
+            Vec2 screenPos = new Vec2(pd.m_point.getX(), exd.m_data.calcF1Score());
             m_performanceVsInitialMapped.toScreenPos(screenPos, screenPos);
             a_imgui.addCircleFilled(screenPos, 4, blue, 6);
 
