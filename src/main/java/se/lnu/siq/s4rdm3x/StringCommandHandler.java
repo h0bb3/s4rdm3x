@@ -252,6 +252,22 @@ public class StringCommandHandler {
 
                 ret.add(metric +": " + c.m_result);
 
+            } else if (in.startsWith("print_node_component_coupling")) {
+                if (m_arch != null) {
+                    ReportDependencies rd = new ReportDependencies();
+                    rd.run(graph, m_arch);
+                    ret.add("Node" + "\t" + "internal" + "\t" + "external" + "\t" + "unmaped");
+                    for (ReportDependencies.Dependency d : rd.m_dependencyReport) {
+                        ret.add(d.m_node.getName() + "\t" + d.getInternalDependencyCount() + "\t" + d.getExternalDependencyCount() + "\t" + d.getUnmappedDependencyCount());
+                        //String lines = "";
+                        //for (int line : v.m_dependency.lines()) {
+                        //    ret.add(v.m_source.m_component.getName() + "\t" + v.m_source.m_class.getFileName() + "\t" + v.m_dest.m_component.getName() + "\t" + v.m_dest.m_class.getFileName() + "\t" + v.m_dependency.getType() + "\t" + line);
+                        //}
+
+                    }
+                } else {
+                    ret.add("No Architecture Defined, consider loading one.");
+                }
             } else if (in.startsWith("print_node_component_fan")) {
 
                 GetNodeComponentCoupling c = new GetNodeComponentCoupling(m_arch);

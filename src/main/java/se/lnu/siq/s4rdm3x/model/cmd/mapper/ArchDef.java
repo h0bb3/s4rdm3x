@@ -148,6 +148,16 @@ public class ArchDef {
             return a_n.getClusteringComponentName().contentEquals(m_name);
         }
 
+        public Iterable<CNode> getMappedNodes(Iterable<CNode> a_nodes) {
+            ArrayList<CNode> ret = new ArrayList<>();
+            for (CNode n : a_nodes) {
+                if (isMappedTo(n)) {
+                    ret.add(n);
+                }
+            }
+            return ret;
+        }
+
         public void mapToNodes(Iterable<CNode> a_nodesToRemap) {
             for (CNode n : a_nodesToRemap) {
                 mapToNode(n);
@@ -212,6 +222,16 @@ public class ArchDef {
         }
 
         return null;
+    }
+
+    public Iterable<CNode> getUnmappedNodes(Iterable<CNode> a_nodes) {
+        ArrayList<CNode> ret = new ArrayList<>();
+        for (CNode n : a_nodes) {
+            if (n.getMapping().length() == 0) {
+                ret.add(n);
+            }
+        }
+        return ret;
     }
 
     public Iterable<CNode> getMappedNodes(Iterable<CNode> a_nodes) {
