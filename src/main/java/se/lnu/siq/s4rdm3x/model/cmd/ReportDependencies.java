@@ -1,6 +1,5 @@
 package se.lnu.siq.s4rdm3x.model.cmd;
 
-import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
@@ -9,6 +8,8 @@ import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ReportDependencies {
     public ArrayList<CheckViolations.Violation> m_divergencies = new ArrayList<>();
@@ -16,26 +17,68 @@ public class ReportDependencies {
 
     public static class Dependency {
         public CNode m_node;
-        ArrayList<dmDependency> m_internalDependencies; // dependencies to/from other nodes within the same architectural module, dependencies to self are not counted
-        ArrayList<dmDependency> m_externalDependencies; // dependencies to/from nodes in other architectural modules
-        ArrayList<dmDependency> m_unmappedDependenices; // dependencies to/from nodes that are not mapped to an architectural module
 
-        public int getInternalDependencyCount() {
-            return getDCount(m_internalDependencies);
+        Set<CNode> m_internalDependencies; // dependencies to/from other nodes within the same architectural module, dependencies to self are not counted
+        Set<CNode> m_externalDependencies; // dependencies to/from nodes in other architectural modules
+        Set<CNode> m_unmappedDependenices; // dependencies to/from nodes that are not mapped to an architectural module
+
+        // Fan methods refer to counting all dependencies between nodes, i.e. you can get multiple dependencies between the same two nodes
+        // Coupling methods refer to counting only unique nodes, i.e. you will get a maximum of one dependency between the same two nodes
+
+        public int getInternalFan() {
+            return getFan(m_internalDependencies);
         }
 
-        public int getExternalDependencyCount() {
-            return getDCount(m_externalDependencies);
+        public int getExternalFan() {
+            return getFan(m_externalDependencies);
         }
 
-        public int getUnmappedDependencyCount() {
-            return getDCount(m_unmappedDependenices);
+        public int getUnmappedFan() {
+            return getFan(m_unmappedDependenices);
         }
 
-        private int getDCount(Iterable<dmDependency> a_dependencies) {
+        public int getInternalFanOut() {
+            return getFanOut(m_internalDependencies);
+        }
+
+        public int getExternalFanOut() {
+            return getFanOut(m_externalDependencies);
+        }
+
+        public int getUnmappedFanOut() {
+            return getFanOut(m_unmappedDependenices);
+        }
+
+        public int getInternalCouplingOut() {
+            return getCouplingOut(m_internalDependencies);
+        }
+
+        public int getExternalCouplingOut() {
+            return getCouplingOut(m_externalDependencies);
+        }
+
+        public int getUnmappedCouplingOut() {
+            return getCouplingOut(m_unmappedDependenices);
+        }
+
+        private int getFanOut(Iterable<CNode> a_dependencies) {
             int [] ret = new int[1];
             ret[0] = 0;
-            a_dependencies.forEach(d -> ret[0] += d.getCount());
+            a_dependencies.forEach(d -> ret[0] += m_node.getDependencyCount(d));
+            return ret[0];
+        }
+
+        private int getCouplingOut(Iterable<CNode> a_dependencies) {
+            Set ret = new HashSet<CNode>();
+
+            a_dependencies.forEach(d -> {if (m_node.hasDependency(d)) {ret.add(d);}});
+            return ret.size();
+        }
+
+        private int getFan(Iterable<CNode> a_dependencies) {
+            int [] ret = new int[1];
+            ret[0] = 0;
+            a_dependencies.forEach(d -> ret[0] += m_node.getDependencyCount(d) + d.getDependencyCount(m_node));
             return ret[0];
         }
     }
@@ -65,7 +108,7 @@ public class ReportDependencies {
                 Dependency d = new Dependency();
                 m_dependencyReport.add(d);
                 d.m_node = n;
-                d.m_externalDependencies = new ArrayList<>();
+                d.m_externalDependencies = new HashSet<>();
                 for (ArchDef.Component cTo : a_arch.getComponents()) {
                     if (cFrom == cTo) {
                         d.m_internalDependencies = getDependencies(n, nodesPerComponent.get(cTo));
@@ -78,15 +121,12 @@ public class ReportDependencies {
         }
     }
 
-    private ArrayList<dmDependency> getDependencies(CNode a_from, Iterable<CNode> a_targets) {
-        ArrayList<dmDependency> ret = new ArrayList<>();
+    private Set<CNode> getDependencies(CNode a_from, Iterable<CNode> a_targets) {
+        Set<CNode> ret = new HashSet<>();
         for (CNode to : a_targets) {
             if (a_from != to) {
-                for (dmDependency d : a_from.getDependencies(to)) {
-                    ret.add(d);
-                }
-                for (dmDependency d : to.getDependencies(a_from)) {
-                    ret.add(d);
+                if (a_from.hasDependency(to) || to.hasDependency(a_from)) {
+                    ret.add(to);
                 }
             }
         }

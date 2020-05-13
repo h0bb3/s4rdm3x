@@ -60,7 +60,9 @@ public class CNode {
         m_tags.addAll(a_node.m_tags);
     }
 
-        public static class MetricMap extends HashMap<String, Double> {}
+
+
+    public static class MetricMap extends HashMap<String, Double> {}
 
     private MetricMap m_metrics = new MetricMap();
 
@@ -232,8 +234,8 @@ public class CNode {
         return m_classes.size();
     }
 
-    public boolean containsClass(dmClass a_className) {
-        return m_classes.contains(a_className);
+    public boolean containsClass(dmClass a_class) {
+        return m_classes.contains(a_class);
     }
 
     public void addClass(dmClass a_c) {

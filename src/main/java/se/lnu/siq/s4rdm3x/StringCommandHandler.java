@@ -1,6 +1,7 @@
 package se.lnu.siq.s4rdm3x;
 
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
+import se.lnu.siq.s4rdm3x.experiments.system.System;
 import se.lnu.siq.s4rdm3x.model.cmd.*;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.GetComponentFan;
@@ -8,7 +9,6 @@ import se.lnu.siq.s4rdm3x.model.cmd.mapper.GetNodeComponentCoupling;
 import se.lnu.siq.s4rdm3x.model.cmd.metrics.ComputeMetrics;
 import se.lnu.siq.s4rdm3x.model.cmd.metrics.GetMetric;
 import se.lnu.siq.s4rdm3x.model.cmd.metrics.GetMetrics;
-import se.lnu.siq.s4rdm3x.model.cmd.saerocon18.Cluster1;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
 import se.lnu.siq.s4rdm3x.model.Selector;
@@ -57,6 +57,7 @@ public class StringCommandHandler {
         String in = a_command;
         CGraph graph = a_g;
         ArrayList<String> ret = new ArrayList<>();
+        final String sep = "\t";
         try {
 
             if (in.startsWith("load_jar")) {
@@ -119,7 +120,13 @@ public class StringCommandHandler {
             } else if (in.startsWith("load_arch ")) {
                 String[] cargs = in.split(" ");
                 LoadArch la = new LoadArch(cargs[1]);
-                la.run(graph);
+                try {
+                    la.run(graph);
+                } catch (System.NoMappedNodesException e) {
+                    for (ArchDef.Component c : e.m_components) {
+                        ret.add("Warning: Architectural module: " + c.getName() + " has no mapped nodes");
+                    }
+                }
                 m_arch = la.m_arch;
                 if (m_arch != null) {
                     ret.add("Architecture Loaded from: " + cargs[1]);
@@ -138,7 +145,7 @@ public class StringCommandHandler {
                 for(CheckViolations.Violation v : cv.m_divergencies) {
                     String lines = "";
                     for (int line : v.m_dependency.lines()) {
-                        ret.add(v.m_source.m_component.getName() + "\t" + v.m_source.m_class.getFileName() + "\t" + v.m_dest.m_component.getName() + "\t" + v.m_dest.m_class.getFileName() + "\t" + v.m_dependency.getType() + "\t" + line);
+                        ret.add(v.m_source.m_component.getName() + sep + v.m_source.m_class.getFileName() + sep + v.m_dest.m_component.getName() + sep + v.m_dest.m_class.getFileName() + sep + v.m_dependency.getType() + sep + line);
                     }
 
                 }
@@ -154,7 +161,7 @@ public class StringCommandHandler {
                 c.run(graph);
                 for (CNode n : c.m_nodes) {
                     ret.add(n.getName());
-                    ret.add("\ttags: " + n.getTags());
+                    ret.add(sep + "tags: " + n.getTags());
                     String classesStr = "";
                     for (dmClass dmc: n.getClasses()) {
                         if (classesStr.length() > 0) {
@@ -162,7 +169,7 @@ public class StringCommandHandler {
                         }
                         classesStr += dmc.getName();
                     }
-                    ret.add("\tclasses: " + classesStr);
+                    ret.add(sep + "classes: " + classesStr);
                 }
             } else if (in.startsWith("print_dependencies")) {
                 String[] cargs = in.split(" ");
@@ -179,7 +186,7 @@ public class StringCommandHandler {
                     for (CNode tn : c.m_nodes) {
                         if (sn != tn) {
                             for (dmDependency d : sn.getDependencies(tn)) {
-                                ret.add("\t" + d.getCount() + ":" + d.getType() + ":" + tn.getName());
+                                ret.add(sep + d.getCount() + ":" + d.getType() + ":" + tn.getName());
                             }
                         }
                     }
@@ -223,7 +230,7 @@ public class StringCommandHandler {
 
                 String header = "file";
                 for (String metric : c.m_result.getMetrics()) {
-                    header += "\t" + metric;
+                    header +=sep + metric;
                 }
 
                 ret.add(header);
@@ -231,7 +238,7 @@ public class StringCommandHandler {
                 for (CNode n : c.m_result.getNodes()) {
                     String row = n.getName();
                     for (String m : c.m_result.getMetrics()) {
-                        row += "\t" + c.m_result.get(n, m);
+                        row += sep + c.m_result.get(n, m);
                     }
 
                     ret.add(row);
@@ -256,14 +263,9 @@ public class StringCommandHandler {
                 if (m_arch != null) {
                     ReportDependencies rd = new ReportDependencies();
                     rd.run(graph, m_arch);
-                    ret.add("Node" + "\t" + "internal" + "\t" + "external" + "\t" + "unmaped");
+                    ret.add("Node" + sep + "fan-internal" + sep + "fan-external" + sep + "fan-unmaped" + sep + "fanout-internal" + sep + "fanout-external" + sep + "fanout-unmaped"+ sep + "couplingout-internal" + sep + "couplingout-external" + sep + "couplingout-unmaped");
                     for (ReportDependencies.Dependency d : rd.m_dependencyReport) {
-                        ret.add(d.m_node.getName() + "\t" + d.getInternalDependencyCount() + "\t" + d.getExternalDependencyCount() + "\t" + d.getUnmappedDependencyCount());
-                        //String lines = "";
-                        //for (int line : v.m_dependency.lines()) {
-                        //    ret.add(v.m_source.m_component.getName() + "\t" + v.m_source.m_class.getFileName() + "\t" + v.m_dest.m_component.getName() + "\t" + v.m_dest.m_class.getFileName() + "\t" + v.m_dependency.getType() + "\t" + line);
-                        //}
-
+                        ret.add(d.m_node.getName() + sep + d.getInternalFan() + sep + d.getExternalFan() + sep + d.getUnmappedFan() + sep + d.getInternalFanOut() + sep + d.getExternalFanOut() + sep + d.getUnmappedFanOut() + sep + d.getInternalCouplingOut() + sep + d.getExternalCouplingOut() + sep + d.getUnmappedCouplingOut());
                     }
                 } else {
                     ret.add("No Architecture Defined, consider loading one.");
@@ -275,7 +277,7 @@ public class StringCommandHandler {
 
                 String header = "file";
                 for (String metric : c.m_result.getMetrics()) {
-                    header += "\t" + metric;
+                    header += sep + metric;
                 }
 
                 ret.add(header);
@@ -283,7 +285,7 @@ public class StringCommandHandler {
                 for (CNode n : c.m_result.getNodes()) {
                     String row = n.getName();
                     for (String m : c.m_result.getMetrics()) {
-                        row += "\t" + c.m_result.get(n, m);
+                        row += sep + c.m_result.get(n, m);
                     }
 
                     ret.add(row);
@@ -299,7 +301,7 @@ public class StringCommandHandler {
                 ret.add("Architectural Components Fan Out");
                 String header = "from/to";
                 for (ArchDef.Component component : c.m_fanOut.getColumnObjects()) {
-                    header += "\t" + component.getName();
+                    header += sep + component.getName();
                 }
 
                 ret.add(header);
@@ -308,7 +310,7 @@ public class StringCommandHandler {
                     String rowStr = row.getName();
 
                     for (ArchDef.Component col : c.m_fanOut.getColumnObjects()) {
-                        rowStr += "\t" + c.m_fanOut.get(row, col);
+                        rowStr += sep + c.m_fanOut.get(row, col);
                     }
                     ret.add(rowStr);
                 }
@@ -317,7 +319,7 @@ public class StringCommandHandler {
                 ret.add("Architectural Components Fan In");
                 header = "from/to";
                 for (ArchDef.Component component : c.m_fanIn.getColumnObjects()) {
-                    header += "\t" + component.getName();
+                    header += sep + component.getName();
                 }
 
                 ret.add(header);
@@ -326,7 +328,7 @@ public class StringCommandHandler {
                     String rowStr = row.getName();
 
                     for (ArchDef.Component col : c.m_fanIn.getColumnObjects()) {
-                        rowStr += "\t" + c.m_fanIn.get(row, col);
+                        rowStr += sep + c.m_fanIn.get(row, col);
                     }
                     ret.add(rowStr);
                 }
