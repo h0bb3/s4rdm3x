@@ -263,9 +263,9 @@ public class StringCommandHandler {
                 if (m_arch != null) {
                     ReportDependencies rd = new ReportDependencies();
                     rd.run(graph, m_arch);
-                    ret.add("Node" + sep + "fan-internal" + sep + "fan-external" + sep + "fan-unmaped" + sep + "fanout-internal" + sep + "fanout-external" + sep + "fanout-unmaped"+ sep + "couplingout-internal" + sep + "couplingout-external" + sep + "couplingout-unmaped");
+                    ret.add("Node" + sep + "fan-internal" + sep + "fan-external" + sep + "fan-unmaped" + sep + "fanout-internal" + sep + "fanout-external" + sep + "fanout-unmaped" + sep + "couplingout-internal" + sep + "couplingout-external" + sep + "couplingout-unmaped" + sep + "coupling-internal" + sep + "coupling-external" + sep + "coupling-unmaped");
                     for (ReportDependencies.Dependency d : rd.m_dependencyReport) {
-                        ret.add(d.m_node.getName() + sep + d.getInternalFan() + sep + d.getExternalFan() + sep + d.getUnmappedFan() + sep + d.getInternalFanOut() + sep + d.getExternalFanOut() + sep + d.getUnmappedFanOut() + sep + d.getInternalCouplingOut() + sep + d.getExternalCouplingOut() + sep + d.getUnmappedCouplingOut());
+                        ret.add(d.m_node.getName() + sep + d.getInternalFan() + sep + d.getExternalFan() + sep + d.getUnmappedFan() + sep + d.getInternalFanOut() + sep + d.getExternalFanOut() + sep + d.getUnmappedFanOut() + sep + d.getInternalCouplingOut() + sep + d.getExternalCouplingOut() + sep + d.getUnmappedCouplingOut()+sep + d.getInternalCoupling() + sep + d.getExternalCoupling() + sep + d.getUnmappedCoupling());
                     }
                 } else {
                     ret.add("No Architecture Defined, consider loading one.");

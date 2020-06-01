@@ -15,13 +15,25 @@ repositories {
     maven { url 'https://jitpack.io' }
 }
 
+// these can be nice to use instead of going via jitpack when developing
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/java'
+            srcDir '../src/main/java'   // this is the core code
+        }
+    }
+}
+
 
 dependencies {
-    implementation 'com.github.tobias-dv-lnu:s4rdm3x:1.2'
+    //implementation 'com.github.tobias-dv-lnu:s4rdm3x:1.2'
 
     // this is for core dependencies
-    runtime files('../lib/asm-6.2.1.jar', '../lib/asm-util-6.2.1.jar')
-    runtime files('../lib/weka-stable-3.8.3.jar')
+    compile files('../lib/asm-6.2.1.jar', '../lib/asm-util-6.2.1.jar')
+    compile files('../lib/weka-stable-3.8.3.jar')
+    //runtime files('../lib/asm-6.2.1.jar', '../lib/asm-util-6.2.1.jar')
+    //runtime files('../lib/weka-stable-3.8.3.jar')
     runtime files('../lib/snowball.jar', '../lib/bounce-0.18.jar')
 }
 

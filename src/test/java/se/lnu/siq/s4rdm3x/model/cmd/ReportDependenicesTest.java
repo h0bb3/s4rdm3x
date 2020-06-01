@@ -22,6 +22,12 @@ public class ReportDependenicesTest {
         assertEquals(a_expectedUnmapped, a_sut.getUnmappedCouplingOut());
     }
 
+    private void assertDependencyReportCoupling(ReportDependencies.Dependency a_sut, int a_expectedInternal, int a_expectedExternal, int a_expectedUnmapped) {
+        assertEquals(a_expectedInternal, a_sut.getInternalCoupling());
+        assertEquals(a_expectedExternal, a_sut.getExternalCoupling());
+        assertEquals(a_expectedUnmapped, a_sut.getUnmappedCoupling());
+    }
+
     private void assertDependencyReportFanOut(ReportDependencies.Dependency a_sut, int a_expectedInternal, int a_expectedExternal, int a_expectedUnmapped) {
         assertEquals(a_expectedInternal, a_sut.getInternalFanOut());
         assertEquals(a_expectedExternal, a_sut.getExternalFanOut());
@@ -53,6 +59,8 @@ public class ReportDependenicesTest {
         assertDependencyReportFanOut(dB, 0, 0, 0);
         assertDependencyReportCouplingOut(dA, 0, 1, 0);
         assertDependencyReportCouplingOut(dB, 0, 0, 0);
+        assertDependencyReportCoupling(dA, 0, 1, 0);
+        assertDependencyReportCoupling(dB, 0, 1, 0);
     }
 
     @Test
@@ -87,6 +95,11 @@ public class ReportDependenicesTest {
 
         assertDependencyReportCouplingOut(dA, 0, 2, 0);
         assertDependencyReportCouplingOut(dB, 0, 0, 0);
+        assertDependencyReportCouplingOut(dC, 0, 0, 0);
+
+        assertDependencyReportCoupling(dA, 0, 2, 0);
+        assertDependencyReportCoupling(dB, 0, 1, 0);
+        assertDependencyReportCoupling(dB, 0, 1, 0);
     }
 
     @Test
@@ -116,6 +129,9 @@ public class ReportDependenicesTest {
 
         assertDependencyReportCouplingOut(dA, 0, 1, 0);
         assertDependencyReportCouplingOut(dB, 0, 1, 0);
+
+        assertDependencyReportCoupling(dA, 0, 1, 0);
+        assertDependencyReportCoupling(dB, 0, 1, 0);
     }
 
     @Test
@@ -143,6 +159,8 @@ public class ReportDependenicesTest {
         assertDependencyReportFanOut(dB, 0, 0, 0);
         assertDependencyReportCouplingOut(dA, 1, 0, 0);
         assertDependencyReportCouplingOut(dB, 0, 0, 0);
+        assertDependencyReportCoupling(dA, 1, 0, 0);
+        assertDependencyReportCoupling(dB, 1, 0, 0);
     }
 
     @Test
@@ -178,6 +196,10 @@ public class ReportDependenicesTest {
         assertDependencyReportCouplingOut(dB, 0, 0, 0);
         assertDependencyReportCouplingOut(dC, 0, 0, 0);
 
+        assertDependencyReportCoupling(dA, 1, 1, 0);
+        assertDependencyReportCoupling(dB, 0, 1, 0);
+        assertDependencyReportCoupling(dC, 1, 0, 0);
+
     }
 
     @Test
@@ -198,6 +220,7 @@ public class ReportDependenicesTest {
         assertDependencyReportFan(dA, 0, 0, 1);
         assertDependencyReportFanOut(dA, 0, 0, 1);
         assertDependencyReportCouplingOut(dA, 0, 0, 1);
+        assertDependencyReportCoupling(dA, 0, 0, 1);
     }
 
     private ReportDependencies.Dependency getDependency(Iterable<ReportDependencies.Dependency> a_dependencyReport, CNode a_node) {

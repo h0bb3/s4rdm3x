@@ -75,11 +75,30 @@ public class ReportDependencies {
             return ret.size();
         }
 
+        private int getCoupling(Iterable<CNode> a_dependencies) {
+            Set ret = new HashSet<CNode>();
+
+            a_dependencies.forEach(d -> {if (m_node.hasDependency(d) || d.hasDependency(m_node)) {ret.add(d);}});
+            return ret.size();
+        }
+
         private int getFan(Iterable<CNode> a_dependencies) {
             int [] ret = new int[1];
             ret[0] = 0;
             a_dependencies.forEach(d -> ret[0] += m_node.getDependencyCount(d) + d.getDependencyCount(m_node));
             return ret[0];
+        }
+
+        public int getInternalCoupling() {
+            return getCoupling(m_internalDependencies);
+        }
+
+        public int getExternalCoupling() {
+            return getCoupling(m_externalDependencies);
+        }
+
+        public int getUnmappedCoupling() {
+            return getCoupling(m_unmappedDependenices);
         }
     }
 
