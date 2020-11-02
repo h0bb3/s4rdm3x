@@ -10,7 +10,6 @@ import se.lnu.siq.s4rdm3x.experiments.metric.Rand;
 import se.lnu.siq.s4rdm3x.experiments.metric.aggregated.RelativeLineCount;
 import se.lnu.siq.s4rdm3x.experiments.system.FileBased;
 import se.lnu.siq.s4rdm3x.experiments.system.System;
-import weka.core.PropertyPath;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -20,8 +19,6 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 public class ExperimentXMLPersistence {
 
@@ -148,6 +145,8 @@ public class ExperimentXMLPersistence {
 
                 if (file.length() > 0) {
                     String separator = s.hasAttribute("file_separator") ? s.getAttribute("file_separator") : "\\";
+
+
 
                     file = file.replace(separator, File.separator);
                     suas.add(new FileBased(file));
