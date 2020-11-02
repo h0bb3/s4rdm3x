@@ -21,6 +21,10 @@ A command line tool for executing experiments in parrallell. It reads an experim
 # Installation
 Download the latest [Release](https://github.com/tobias-dv-lnu/s4rdm3x/releases) from GitHub, it includes precompiled versions of the tools as jar applications for all plattforms.
 
+# Prerequisites
+
+- Java 11 or superior
+
 # Running
 Run via commandline:
 
@@ -37,7 +41,12 @@ Check the included readme for further details.
 ## Data Systems
 S4rdm3x is distributed with architectural models and source code to implementation mappings for a number of systems (see the data/systems directory). Models and mappings are based on work during the [SAEroCon workshop](https://saerocon.wordpress.com/) and a replication package provided by Joao Brunet et. al. [On the Evolutionary Nature of Architectural Violations](https://code.google.com/archive/p/on-the-nature-dataset/wikis/ReplicabilityOfTheStudy.wiki)
 
-To complement the models and mappings, the actual compiled systems are also needed (i.e. jar files). These are not included in this distribution as this would create a problematic licensing situation. However, the jar file dependencies are documented in the respective model file and should be available by either looking through the links from the sources above, or finding them in the actual official distributions of the systems.
+To complement the models and mappings, the actual compiled systems are also needed (i.e. jar files). These are not included in this distribution as this would create a problematic licensing situation. However, the jar file dependencies are documented in the respective model file and should be available by either looking through the links from the sources above, or finding them in the actual official distribution of the systems.
+
+### Some Official Distributions
+* [JabRef-3.7.jar](https://github.com/JabRef/jabref/releases/tag/v3.7)
+* [ProM 6.9](http://www.promtools.org/doku.php?id=prom69)
+
 
 ## How To Use It
 The release contains a ready to use test experiment as explained in the release README
