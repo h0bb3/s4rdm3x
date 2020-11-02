@@ -21,6 +21,10 @@ A command line tool for executing experiments in parrallell. It reads an experim
 # Installation
 Download the latest [Release](https://github.com/tobias-dv-lnu/s4rdm3x/releases) from GitHub, it includes precompiled versions of the tools as jar applications for all plattforms.
 
+# Prerequisites
+
+- Java 11 or superior
+
 # Running
 Run via commandline:
 
