@@ -1,0 +1,71 @@
+# name
+Apache Commons Imaging
+
+# jar
+commons-imaging-1.0-alpha2.jar
+
+# root-packages
+org/apache/commons/imaging/
+
+# metrics file
+#commons-imaging-file-metrics.csv
+
+# modules
+base
+color
+common
+bmp
+dcx
+gif
+icns
+ico
+jpeg
+pcx
+png
+pnm
+psd
+rgbe
+tiff
+wbmp
+xbm
+xpm
+icc
+internal
+palette
+
+# mapping
+# <high_level_module> <regular_expression>
+base org.apache.commons.imaging.color.[^.]*
+color org.apache.commons.imaging.color.*
+common org.apache.commons.imaging.common.*
+bmp org.apache.commons.imaging.formats.bmp.*
+dcx org.apache.commons.imaging.formats.dcx.*
+gif org.apache.commons.imaging.formats.gif.*
+icns org.apache.commons.imaging.formats.icns.*
+ico org.apache.commons.imaging.formats.ico.*
+jpeg org.apache.commons.imaging.formats.jpeg.*
+pcx org.apache.commons.imaging.formats.pcx.*
+png org.apache.commons.imaging.formats.png.*
+pnm org.apache.commons.imaging.formats.pnm.*
+psd org.apache.commons.imaging.formats.psd.*
+rgbe org.apache.commons.imaging.formats.rgbe.*
+tiff org.apache.commons.imaging.formats.tiff.*
+wbmp org.apache.commons.imaging.formats.wbmp.*
+xbm org.apache.commons.imaging.formats.xbm.*
+xpm org.apache.commons.imaging.formats.xpm.*
+icc org.apache.commons.imaging.formats.icc.*
+internal org.apache.commons.imaging.formats.internal.*
+palette org.apache.commons.imaging.formats.palette.*
+
+# relations
+# <source_module> <target_module>
+
+base icc
+base common
+common base
+common internal
+icc common
+jpeg common
+palette base
+palette internal
+color internal
