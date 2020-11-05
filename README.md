@@ -7,6 +7,7 @@
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://github.com/tobias-dv-lnu/s4rdm3x/blob/master/LICENSE)
 
+[![status](https://joss.theoj.org/papers/f4301adc3e9121a10354c355d91b5c1f/status.svg)](https://joss.theoj.org/papers/f4301adc3e9121a10354c355d91b5c1f)
 
 
 # s4rdm3x
