@@ -35,8 +35,6 @@ palette
 
 # mapping
 # <high_level_module> <regular_expression>
-base org.apache.commons.imaging.color.[^.]*
-color org.apache.commons.imaging.color.*
 common org.apache.commons.imaging.common.*
 bmp org.apache.commons.imaging.formats.bmp.*
 dcx org.apache.commons.imaging.formats.dcx.*
@@ -44,6 +42,7 @@ gif org.apache.commons.imaging.formats.gif.*
 icns org.apache.commons.imaging.formats.icns.*
 ico org.apache.commons.imaging.formats.ico.*
 jpeg org.apache.commons.imaging.formats.jpeg.*
+color org.apache.commons.imaging.color.*
 pcx org.apache.commons.imaging.formats.pcx.*
 png org.apache.commons.imaging.formats.png.*
 pnm org.apache.commons.imaging.formats.pnm.*
@@ -54,18 +53,35 @@ wbmp org.apache.commons.imaging.formats.wbmp.*
 xbm org.apache.commons.imaging.formats.xbm.*
 xpm org.apache.commons.imaging.formats.xpm.*
 icc org.apache.commons.imaging.formats.icc.*
-internal org.apache.commons.imaging.formats.internal.*
-palette org.apache.commons.imaging.formats.palette.*
+internal org.apache.commons.imaging.internal.*
+palette org.apache.commons.imaging.palette.*
+base org.apache.commons.imaging(?!(.common|.formats|.internal|.palette)).*
 
 # relations
 # <source_module> <target_module>
 
-base icc
-base common
+base base
+base bmp
+base gif
+base jpeg
+base png
+base psd
+base tiff
+bmp base
+bmp jpeg
 common base
-common internal
-icc common
+jpeg base
 jpeg common
-palette base
-palette internal
-color internal
+jpeg gif
+jpeg jpeg
+jpeg tiff
+png base
+psd base
+psd gif
+psd jpeg
+psd psd
+tiff base
+tiff common
+tiff gif
+tiff jpeg
+tiff tiff
