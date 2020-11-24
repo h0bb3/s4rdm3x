@@ -7,6 +7,8 @@ import se.lnu.siq.s4rdm3x.stats;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Encapsulates some basic mapper functionality
@@ -44,7 +46,29 @@ public class MapperBase {
     }
 
 
+    public static class DependencyWeights {
+        Map<dmDependency.Type, Double> m_weights = new HashMap<>();
 
+        public DependencyWeights(double a_initialWeight) {
+            for(dmDependency.Type e : dmDependency.Type.values()) {
+                m_weights.put(e, a_initialWeight);
+            }
+        }
+
+        public DependencyWeights(DependencyWeights a_copy) {
+            for(dmDependency.Type e : dmDependency.Type.values()) {
+                m_weights.put(e, a_copy.getWeight(e));
+            }
+        }
+
+        public double getWeight(dmDependency.Type a_dep) {
+            return m_weights.get(a_dep);
+        }
+
+        public void setWeight(dmDependency.Type a_dep, double a_w) {
+            m_weights.replace(a_dep, a_w);
+        }
+    }
 
     public static class OrphanNode {
         CNode m_node;
@@ -80,6 +104,15 @@ public class MapperBase {
 
         public int getDependencyCount(ClusteredNode a_n) {
             return m_node.getDependencyCount(a_n.get());
+        }
+
+        public double getDependencyCount(ClusteredNode a_n, DependencyWeights a_dw) {
+            double ret = 0;
+
+            for (dmDependency d : m_node.getDependencies(a_n.get())) {
+                ret += d.getCount() * a_dw.getWeight(d.getType());
+            }
+            return ret;
         }
     }
 
@@ -126,6 +159,15 @@ public class MapperBase {
 
         public int getDependencyCount(OrphanNode a_n) {
             return m_node.getDependencyCount(a_n.get());
+        }
+
+        public double getDependencyCount(OrphanNode a_node, DependencyWeights a_dw) {
+            double ret = 0;
+
+            for (dmDependency d : m_node.getDependencies(a_node.get())) {
+                ret += d.getCount() * a_dw.getWeight(d.getType());
+            }
+            return ret;
         }
     }
 

@@ -14,17 +14,30 @@ public class HuGMe extends MapperBase {
     private double m_filterThreshold;   // omega in paper
     private double m_violationWeight;   // psi in paper
 
+    private DependencyWeights m_weights;
+
     public int m_consideredNodes = 0;           // all nodes that pass the filter
 
     public int m_autoWrong = 0;
     public int m_unmappedNodesFromStart = 0;
     public int m_mappedNodesFromStart = 0;
 
+    public HuGMe(double a_filterThreshold, double a_violationWeight, boolean a_doManualMapping, ArchDef a_arch, DependencyWeights a_dw) {
+        super(a_doManualMapping, a_arch);
+        m_violationWeight = a_violationWeight;
+        m_filterThreshold = a_filterThreshold;
+        m_arch = a_arch;
+
+        m_weights = new DependencyWeights(a_dw);
+    }
+
     public HuGMe(double a_filterThreshold, double a_violationWeight, boolean a_doManualMapping, ArchDef a_arch) {
         super(a_doManualMapping, a_arch);
         m_violationWeight = a_violationWeight;
         m_filterThreshold = a_filterThreshold;
         m_arch = a_arch;
+
+        m_weights = new DependencyWeights(1.0);
     }
 
 
@@ -234,8 +247,8 @@ public class HuGMe extends MapperBase {
 
         double cCount = 0;
         for (ClusteredNode nTo : a_cluster) {
-            cCount += a_node.getDependencyCount(nTo) * a_weightFromNode; //m_fic.getFanIn(nTo, a_node) * a_weightFromNode;
-            cCount += nTo.getDependencyCount(a_node) * a_weightFromCluster;//m_fic.getFanIn(a_node, nTo) * a_weightFromCluster;
+            cCount += a_node.getDependencyCount(nTo, m_weights) * a_weightFromNode; //m_fic.getFanIn(nTo, a_node) * a_weightFromNode;
+            cCount += nTo.getDependencyCount(a_node, m_weights) * a_weightFromCluster;//m_fic.getFanIn(a_node, nTo) * a_weightFromCluster;
         }
 
         count = cCount;
