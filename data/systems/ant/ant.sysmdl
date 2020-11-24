@@ -12,13 +12,13 @@ org.apache.tools
 #ant-file-metrics.csv
 
 # modules
-optional
+optional	# no mappings exist for this one
 compilers
 condition
 rmic
 cvslib
 email
-repository
+repository	# no mappings exist for this one
 taskdefs
 listener
 types
@@ -30,13 +30,13 @@ mail
 bzip2
 # mapping
 # <high_level_module> <regular_expression>
-optional org.apache.tools.ant.taskdefs.optional.*
+optional org.apache.tools.ant.taskdefs.optional.*	# no files match this
 compilers org.apache.tools.ant.taskdefs.compilers.*
 condition org.apache.tools.ant.taskdefs.condition.*
 rmic org.apache.tools.ant.taskdefs.rmic.*
 cvslib org.apache.tools.ant.taskdefs.cvslib.*
 email org.apache.tools.ant.taskdefs.email.*
-repository org.apache.tools.ant.taskdefs.repository.*
+repository org.apache.tools.ant.taskdefs.repository.*	# no files match this
 taskdefs org.apache.tools.ant.taskdefs(?!(.optional|.compilers|.condition|.rmic|.cvslib|.email|.repository)).*
 listener org.apache.tools.ant.listener.*
 types org.apache.tools.ant.types.*
