@@ -3,6 +3,7 @@ package se.lnu.siq.s4rdm3x.experiments;
 import se.lnu.siq.s4rdm3x.experiments.system.System;
 import se.lnu.siq.s4rdm3x.experiments.metric.Metric;
 import se.lnu.siq.s4rdm3x.model.CNode;
+import se.lnu.siq.s4rdm3x.model.cmd.mapper.MapperBase;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -81,8 +82,9 @@ public class ExperimentRunData {
     }
 
     public static class HuGMEData extends BasicRunData {
-        public double m_omega;  // specific for HuGMe
-        public double m_phi;    // specific for HuGMe
+        public double m_omega;                      // specific for HuGMe
+        public double m_phi;                     // specific for HuGMe
+        public MapperBase.DependencyWeights m_weights;
     }
 
     public static class IRMapperData extends BasicRunData {
