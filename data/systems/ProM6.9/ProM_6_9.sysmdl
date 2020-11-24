@@ -2,10 +2,10 @@
 ProM6.9
 
 # jar
-ProM69_dist/ProM-Contexts-6.9.56.jar
-ProM69_dist/ProM-Framework-6.9.97.jar
-ProM69_dist/ProM-Models-6.9.32.jar
-ProM69_dist/ProM-Plugins-6.9.67.jar
+ProM-Contexts-6.9.56.jar
+ProM-Framework-6.9.97.jar
+ProM-Models-6.9.32.jar
+ProM-Plugins-6.9.67.jar
 
 # root-packages
 org/processmining/
