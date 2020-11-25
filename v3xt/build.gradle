@@ -30,10 +30,7 @@ dependencies {
     implementation 'com.github.tobias-dv-lnu.imgui:imgui-glfw:v1.75'
      */
 
-    // this is only used when developing in your own branch
-    implementation 'com.github.tobias-dv-lnu.imgui:imgui-core:CAttractWeights-SNAPSHOT'
-
-    //implementation 'com.github.tobias-dv-lnu.imgui:imgui-core:-SNAPSHOT'  // this is what you need if merging to master branch
+    implementation 'com.github.tobias-dv-lnu.imgui:imgui-core:-SNAPSHOT'
     implementation 'com.github.tobias-dv-lnu.imgui:imgui-gl:-SNAPSHOT'
     implementation 'com.github.tobias-dv-lnu.imgui:imgui-glfw:-SNAPSHOT'
 
@@ -63,8 +60,8 @@ dependencies {
     }
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
-    // this is for core source
-    implementation 'com.github.tobias-dv-lnu:s4rdm3x:-SNAPSHOT'
+    // this is for core source in main branch
+     implementation 'com.github.tobias-dv-lnu:s4rdm3x:CAttractWeights-SNAPSHOT'
 
     // this is for core libs dependencies
     runtime files('../lib/asm-6.2.1.jar', '../lib/asm-util-6.2.1.jar')
