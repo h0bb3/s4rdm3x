@@ -30,7 +30,10 @@ dependencies {
     implementation 'com.github.tobias-dv-lnu.imgui:imgui-glfw:v1.75'
      */
 
-    implementation 'com.github.tobias-dv-lnu.imgui:imgui-core:-SNAPSHOT'
+    // this is only used when developing in your own branch
+    implementation 'com.github.tobias-dv-lnu.imgui:imgui-core:CAttractWeights-SNAPSHOT'
+
+    //implementation 'com.github.tobias-dv-lnu.imgui:imgui-core:-SNAPSHOT'  // this is what you need if merging to master branch
     implementation 'com.github.tobias-dv-lnu.imgui:imgui-gl:-SNAPSHOT'
     implementation 'com.github.tobias-dv-lnu.imgui:imgui-glfw:-SNAPSHOT'
 

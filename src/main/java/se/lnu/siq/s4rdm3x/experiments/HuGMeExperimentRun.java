@@ -56,8 +56,12 @@ public class HuGMeExperimentRun extends ExperimentRun {
 
     @Override
     public boolean runClustering(CGraph a_g, ArchDef arch) {
-
-        HuGMe c = new HuGMe(m_exData.m_omega, m_exData.m_phi, doUseManualMapping(), arch);
+        HuGMe c;
+        if (m_dependencyWeights != null) {
+            c = new HuGMe(m_exData.m_omega, m_exData.m_phi, doUseManualMapping(), arch, m_exData.m_weights);
+        } else {
+            c = new HuGMe(m_exData.m_omega, m_exData.m_phi, doUseManualMapping(), arch);
+        }
 
         c.run(a_g);
 
