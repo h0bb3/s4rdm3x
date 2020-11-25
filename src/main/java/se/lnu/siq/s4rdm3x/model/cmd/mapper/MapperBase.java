@@ -61,6 +61,10 @@ public class MapperBase {
             }
         }
 
+        public boolean hasWeight(dmDependency.Type a_dep) {
+            return m_weights.containsKey(a_dep);
+        }
+
         public double getWeight(dmDependency.Type a_dep) {
             return m_weights.get(a_dep);
         }

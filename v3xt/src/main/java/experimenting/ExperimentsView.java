@@ -271,7 +271,7 @@ public class ExperimentsView implements ExperimentRunnerViewThread.DataListener 
                         try {
                             saver.writeHeader();
                         } catch (IOException e) {
-                            java.lang.System.out.println("Could not write to file");
+                            java.lang.System.err.println("Could not write to file: " + e.getMessage());
                         }
                     } else {
                         saver.setHeaderCount();
@@ -280,11 +280,13 @@ public class ExperimentsView implements ExperimentRunnerViewThread.DataListener 
                     try {
                         saver.writeData(getExperimentRunData());
                     } catch (IOException e) {
-                        java.lang.System.out.println("Could not write to file");
+                        java.lang.System.err.println("Could not write to file: " + e.getMessage());
+                    } catch (IllegalArgumentException e) {
+                        java.lang.System.err.println("Could not write to file: " + e.getMessage());
                     }
 
                 } catch (IOException e) {
-                    java.lang.System.out.println("Could not create file");
+                    java.lang.System.err.println("Could not create file: " + e.getMessage());
                 }
             }
             a_imgui.sameLine(0);
