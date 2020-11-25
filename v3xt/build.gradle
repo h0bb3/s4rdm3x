@@ -61,7 +61,9 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
     // this is for core source in main branch
-     implementation 'com.github.tobias-dv-lnu:s4rdm3x:CAttractWeights-SNAPSHOT'
+    //implementation 'com.github.tobias-dv-lnu:s4rdm3x:-SNAPSHOT'
+    implementation 'com.github.tobias-dv-lnu:s4rdm3x:CAttractWeights-SNAPSHOT'
+
 
     // this is for core libs dependencies
     runtime files('../lib/asm-6.2.1.jar', '../lib/asm-util-6.2.1.jar')
