@@ -165,7 +165,15 @@ public class MapperView {
                         }
                     }
 
-                    if (m_doUseDependencyWeights) {
+
+
+                    if (!m_doUseDependencyWeights) {
+                        a_imgui.pushDisableWidgets();
+                    }
+
+                    a_imgui.imgui().indent(3);
+                    if (a_imgui.collapsingHeader("Dependency Weights##" + m_id, 0)) {
+
                         for (dmDependency.Type dt : dmDependency.Type.values()) {
                             ExperimentRunner.RandomDoubleVariable weight;
                             if (m_dependencyWeights.containsKey(dt)) {
@@ -177,6 +185,39 @@ public class MapperView {
 
                             m_dependencyWeights.replace(dt, doRandomDoubleVariable(a_imgui, dt.toString(), weight));
                         }
+
+                        if (a_imgui.button("Set to 0##" + m_id, 0)) {
+                            m_dependencyWeights.values().forEach(v -> v.set(0, 0));
+                        }
+
+                        a_imgui.sameLine(0);
+
+                        if (a_imgui.button("Set to 1##" + m_id, 0)) {
+                            m_dependencyWeights.values().forEach(v -> v.set(1, 0));
+                        }
+                        a_imgui.sameLine(0);
+                        if (a_imgui.button("Set to Paper##" + m_id, 0)) {
+                            // from Automated clustering to support the reflexion method
+                            // v, variable; m, method or routine; c, class; i, interface; t, type (including class and interface)
+                            //  m calls m 2
+                            //  m uses v 1
+                            //  m sets v 3          // I do not really know what this one is
+                            //  c implements i 1
+                            //  v of-type t 1
+                            //  m has-parameter-of-type t 1
+                            //  t inherits t 1
+
+                            m_dependencyWeights.values().forEach(v -> v.set(1.0/3, 0));
+                            m_dependencyWeights.get(dmDependency.Type.MethodCall).set(2.0/3, 0);
+                            m_dependencyWeights.get(dmDependency.Type.OwnFieldUse).set(3.0/3, 0);   // aproximates sets
+                            m_dependencyWeights.get(dmDependency.Type.FieldUse).set(3.0/3, 0);      // aproximates sets
+
+                        }
+                    }
+                    a_imgui.imgui().indent(-3);
+
+                    if (!m_doUseDependencyWeights) {
+                        a_imgui.popDisableWidgets();
                     }
 
 
