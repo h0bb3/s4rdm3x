@@ -88,9 +88,11 @@ public class MapperView {
             m_omega = hugme.getOmega();
             m_phi = hugme.getPhi();
             m_dependencyWeights = new HashMap<>();
-            for (dmDependency.Type dt : hugme.getDependencyWeights().keySet()) {
-                m_dependencyWeights.put(dt, new ExperimentRunner.RandomDoubleVariable(hugme.getDependencyWeights().get(dt)));
-                m_doUseDependencyWeights = true;
+            if (hugme.getDependencyWeights() != null) {
+                for (dmDependency.Type dt : hugme.getDependencyWeights().keySet()) {
+                    m_dependencyWeights.put(dt, new ExperimentRunner.RandomDoubleVariable(hugme.getDependencyWeights().get(dt)));
+                    m_doUseDependencyWeights = true;
+                }
             }
             m_experimentIx = g_hugmemapper_ex;
         } else if (a_exr instanceof IRAttractExperimentRun) {
