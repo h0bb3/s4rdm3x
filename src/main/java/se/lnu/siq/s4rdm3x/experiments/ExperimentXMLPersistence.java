@@ -381,7 +381,9 @@ public class ExperimentXMLPersistence {
             HuGMeExperimentRun hugexr = (HuGMeExperimentRun)a_exr;
             exrNode.appendChild(randomDoubleToElement(a_doc, hugexr.getOmega(), "omega"));
             exrNode.appendChild(randomDoubleToElement(a_doc, hugexr.getPhi(), "phi"));
-            exrNode.appendChild(dependencyWeightsMapToElement(a_doc, hugexr.getDependencyWeights()));
+            if (hugexr.getDependencyWeights() != null) {
+                exrNode.appendChild(dependencyWeightsMapToElement(a_doc, hugexr.getDependencyWeights()));
+            }
         } else if (a_exr instanceof IRAttractExperimentRun) {
             exrNode.setAttribute("type", "irattract");
             //IRAttractExperimentRun irexr = (IRAttractExperimentRun)a_exr;

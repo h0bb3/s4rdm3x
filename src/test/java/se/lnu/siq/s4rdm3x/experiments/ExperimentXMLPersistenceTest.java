@@ -66,6 +66,41 @@ public class ExperimentXMLPersistenceTest {
         }
     }
 
+    @Test
+    public void testPersistence_HuGMeExperimentNoDependencyWeights() {
+        ArrayList<System> systems = new ArrayList<>();
+        ArrayList<Metric> metrics = new ArrayList<>();
+        ExperimentRunner.RandomDoubleVariable initialSetSize = new ExperimentRunner.RandomDoubleVariable(0.5);
+
+        ArrayList<ExperimentRun> experiments = new ArrayList<>();
+        ExperimentRun ex = new HuGMeExperimentRun(false, new ExperimentRunner.RandomDoubleVariable(0.3), new ExperimentRunner.RandomDoubleVariable(0.1), null);
+        experiments.add(ex);
+        ex.setName("testName");
+
+        ExperimentRunner r = new ExperimentRunner(systems, metrics, experiments, false, initialSetSize, false);
+        ArrayList<ExperimentRunner> runners = new ArrayList<>();
+        runners.add(r);
+
+        ExperimentXMLPersistence sua = new ExperimentXMLPersistence();
+
+        try {
+            PipedOutputStream out = new PipedOutputStream();
+            PipedInputStream in = new PipedInputStream(out);
+
+
+            sua.saveExperiments(runners, out, null);
+            out.close();
+            ArrayList<ExperimentRunner> loadedRunners = sua.loadExperimentRunners(in, null);
+
+            assertEquals(loadedRunners.size(), 1);
+            assertTrue(equals(runners.get(0), loadedRunners.get(0)));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            assert(false);
+        }
+    }
+
     private boolean equals(double a_expected, double a_actual) {
         return Math.abs(a_expected - a_actual) < 0.0001;
     }
@@ -150,20 +185,28 @@ public class ExperimentXMLPersistenceTest {
                 return false;
             }
 
-            if (e.getDependencyWeights().size() != a.getDependencyWeights().size()) {
-                logErr("getDependencyWeights().size() NOT equal - expected" + e.getDependencyWeights().size() + " actual:" + a.getDependencyWeights().size());
-                return false;
-            }
+            if (e.getDependencyWeights() == null) {
+                if (a.getDependencyWeights() != null && a.getDependencyWeights().size() != 0) {
+                    logErr("getDependencyWeights() NOT NULL or size != 0 - expected NULL or size() == 0  actual:" + a.getDependencyWeights().size());
+                    return false;
+                }
+            } else {
 
-            for (dmDependency.Type dt : e.getDependencyWeights().keySet()) {
-                if (!a.getDependencyWeights().containsKey(dt)) {
-                    logErr("getDependencyWeights() does not contain expected key:" + dt);
+                if (e.getDependencyWeights().size() != a.getDependencyWeights().size()) {
+                    logErr("getDependencyWeights().size() NOT equal - expected" + e.getDependencyWeights().size() + " actual:" + a.getDependencyWeights().size());
                     return false;
                 }
 
-                if (!equals(e.getDependencyWeights().get(dt), a.getDependencyWeights().get(dt))) {
-                    logErr("\twhen comparing dependency weights for " + dt);
-                    return false;
+                for (dmDependency.Type dt : e.getDependencyWeights().keySet()) {
+                    if (!a.getDependencyWeights().containsKey(dt)) {
+                        logErr("getDependencyWeights() does not contain expected key:" + dt);
+                        return false;
+                    }
+
+                    if (!equals(e.getDependencyWeights().get(dt), a.getDependencyWeights().get(dt))) {
+                        logErr("\twhen comparing dependency weights for " + dt);
+                        return false;
+                    }
                 }
             }
         }
