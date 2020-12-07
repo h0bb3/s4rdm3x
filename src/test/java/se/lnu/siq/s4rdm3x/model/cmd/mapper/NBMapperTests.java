@@ -22,8 +22,63 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class NBMapperTests {
 
+    private static class SUT extends NBMapper {
+        public SUT(ArchDef a_arch) {
+            super(a_arch, true, true, true, false, 0, 0.9);
+        }
+
+        private String getDependencyStringFromNode(CNode a_from, Iterable<ClusteredNode> a_tos) {
+            try {
+
+                Method sutMethod = IRMapperBase.class.getDeclaredMethod("getDependencyStringFromNode", CNode.class, Iterable.class);
+                sutMethod.setAccessible(true);
+                return (String)sutMethod.invoke(this, a_from, a_tos);
+            } catch (Exception e) {
+                assertEquals(true, false);
+            }
+            return null;
+        }
+
+        private String getDependencyStringToNode(CNode a_to, Iterable<ClusteredNode> a_froms) {
+            try {
+
+                Method sutMethod = IRMapperBase.class.getDeclaredMethod("getDependencyStringToNode", CNode.class, Iterable.class);
+                sutMethod.setAccessible(true);
+                return (String)sutMethod.invoke(this, a_to, a_froms);
+            } catch (Exception e) {
+                assertEquals(true, false);
+            }
+            return null;
+        }
+    }
+
+    private static class SUT_data {
+        NodeGenerator ng = new NodeGenerator();
+        CGraph g = ng.generateGraph(dmDependency.Type.Returns, new String [] {"AB", "BC", "CA", "DC", "AC", "AB"});
+        CNode a = g.getNode("A");
+        CNode b = g.getNode("B");
+        CNode c = g.getNode("C");
+        CNode d = g.getNode("D");   // this is the orphan
+        ArchDef arch = new ArchDef();
+        ArchDef.Component c1 = arch.addComponent("Component1");
+        ArchDef.Component c2 = arch.addComponent("Component2");
+
+        {
+            c1.clusterToNode(a, ArchDef.Component.ClusteringType.Initial);
+            c1.mapToNode(a);
+            c1.clusterToNode(b, ArchDef.Component.ClusteringType.Initial);
+            c1.mapToNode(b);
+
+            c2.clusterToNode(c, ArchDef.Component.ClusteringType.Initial);
+            c2.mapToNode(c);
+
+            c2.mapToNode(d);    // this is the orphan
+        }
+
+    }
+
     @Test
-    public void getDependencyStringFromNode() {
+    public void getDependencyStringFromNode_test() {
         NodeGenerator ng = new NodeGenerator();
         ArchDef a = new ArchDef();
         ArchDef.Component c1, c2;
@@ -40,8 +95,7 @@ public class NBMapperTests {
         c1.mapToNode(g.getNode("C"));   // this should be component 1 for the mapping and component 2 for the clustering
         c2.clusterToNode(g.getNode("C"), ArchDef.Component.ClusteringType.Automatic);
 
-
-        IRMapperBase sut = new NBMapper(null, false, false, false, false, 0, 0.9);
+        SUT sut = new SUT(null);
 
         ArrayList<MapperBase.ClusteredNode> nodes = new ArrayList<>();
 
@@ -49,43 +103,21 @@ public class NBMapperTests {
         nodes.add(new MapperBase.ClusteredNode(g.getNode("B"), a));
         nodes.add(new MapperBase.ClusteredNode(g.getNode("C"), a));
 
-
-        try {
-            Method sutMethod = IRMapperBase.class.getDeclaredMethod("getDependencyStringFromNode", CNode.class, Iterable.class);
-            sutMethod.setAccessible(true);
-
-            String expected = "Component1ImplementsComponent1 Component1ImplementsComponent2";
-            String actual = (String)sutMethod.invoke(sut, g.getNode("A"), nodes);
-            assertEquals(expected, actual);
-
-            expected = "Component1ImplementsComponent2";
-            actual = (String)sutMethod.invoke(sut, g.getNode("B"), nodes);
-            assertEquals(expected, actual);
-
-            expected = "Component2ImplementsComponent1";
-            actual = (String)sutMethod.invoke(sut, g.getNode("C"), nodes);
-            assertEquals(expected, actual);
-
-        } catch (Exception e) {
-            assertEquals(true, false);
-        }
-
-        /*String expected = "Component1ImplementsComponent1 Component1ImplementsComponent2";
-        String actual = sut.getDependencyStringFromNode(g.getNode("A"), g.getNodes());
-
+        String expected = "Component1ImplementsComponent1 Component1ImplementsComponent2";
+        String actual = sut.getDependencyStringFromNode(g.getNode("A"), nodes);
         assertEquals(expected, actual);
 
         expected = "Component1ImplementsComponent2";
-        actual = sut.getDependencyStringFromNode(g.getNode("B"), g.getNodes());
+        actual = sut.getDependencyStringFromNode(g.getNode("B"), nodes);
         assertEquals(expected, actual);
 
         expected = "Component2ImplementsComponent1";
-        actual = sut.getDependencyStringFromNode(g.getNode("C"), g.getNodes());
-        assertEquals(expected, actual);*/
+        actual = sut.getDependencyStringFromNode(g.getNode("C"), nodes);
+        assertEquals(expected, actual);
     }
 
     @Test
-    public void getDependencyStringToNode() {
+    public void getDependencyStringToNode_test() {
         NodeGenerator ng = new NodeGenerator();
         ArchDef a = new ArchDef();
         ArchDef.Component c1, c2;
@@ -103,7 +135,7 @@ public class NBMapperTests {
         c2.clusterToNode(g.getNode("C"), ArchDef.Component.ClusteringType.Automatic);
 
 
-        IRMapperBase sut = new NBMapper(null, false, false, false, false, 0, 0.9);
+        SUT sut = new SUT(null);
 
         ArrayList<MapperBase.ClusteredNode> nodes = new ArrayList<>();
 
@@ -111,59 +143,36 @@ public class NBMapperTests {
         nodes.add(new MapperBase.ClusteredNode(g.getNode("B"), a));
         nodes.add(new MapperBase.ClusteredNode(g.getNode("C"), a));
 
-        try {
-            Method sutMethod = IRMapperBase.class.getDeclaredMethod("getDependencyStringToNode", CNode.class, Iterable.class);
-            sutMethod.setAccessible(true);
+        String expected = "Component2LocalVarComponent1";
 
-            String expected = "Component2LocalVarComponent1";
-            String actual = (String)sutMethod.invoke(sut, g.getNode("A"), nodes);
-            assertEquals(expected, actual);
+        String actual = sut.getDependencyStringToNode(g.getNode("A"), nodes);
+        assertEquals(expected, actual);
 
-            expected = "Component1LocalVarComponent1";
-            actual = (String)sutMethod.invoke(sut, g.getNode("B"), nodes);
-            assertEquals(expected, actual);
+        expected = ""; // actually should be "Component1LocalVarComponent1" but as both components are the same no relations should be generated
+        actual = sut.getDependencyStringToNode(g.getNode("B"), nodes);
+        assertEquals(expected, actual);
 
-            expected = "Component1LocalVarComponent2 Component1LocalVarComponent2";
-            actual = (String)sutMethod.invoke(sut, g.getNode("C"), nodes);
-            assertEquals(expected, actual);
-
-        } catch (Exception e) {
-            assertEquals(true, false);
-        }
+        expected = "Component1LocalVarComponent2 Component1LocalVarComponent2";
+        actual = sut.getDependencyStringToNode(g.getNode("C"), nodes);
+        assertEquals(expected, actual);
     }
 
     @Test
     void getTrainingData() {
-        NodeGenerator ng = new NodeGenerator();
-        CGraph g = ng.generateGraph(dmDependency.Type.Returns, new String [] {"AB", "BC", "CA", "DC", "AC", "AB"});
-        CNode a = g.getNode("A");
-        CNode b = g.getNode("B");
-        CNode c = g.getNode("C");
-        CNode d = g.getNode("D");   // this is the orphan
 
-        ArchDef arch = new ArchDef();
-        ArchDef.Component c1 = arch.addComponent("Component1");
-        ArchDef.Component c2 = arch.addComponent("Component2");
-        c1.clusterToNode(a, ArchDef.Component.ClusteringType.Initial);
-        c1.mapToNode(a);
-        c1.clusterToNode(b, ArchDef.Component.ClusteringType.Initial);
-        c1.mapToNode(b);
-        c2.clusterToNode(c, ArchDef.Component.ClusteringType.Initial);
-        c2.mapToNode(c);
-
-        c2.mapToNode(d);
-
-        NBMapper sut = new NBMapper(arch, true, true, true, false, 0, 0.9);
+        SUT_data sd = new SUT_data();
+        SUT sut = new SUT(sd.arch);
         StringToWordVector filter = new StringToWordVector();
         filter.setOutputWordCounts(true);
 
-        Instances actual = sut.getTrainingData(sut.getInitiallyMappedNodes(g), arch, filter, null);
+
+        Instances actual = sut.getTrainingData(sut.getInitiallyMappedNodes(sd.g), sd.arch, filter, null);
 
         NBMapper.Classifier nbc = new NBMapper.Classifier();
 
         try {
             nbc.buildClassifier(actual);
-            sut.adjustClassProbabilities(sut.getInitiallyMappedNodes(g), nbc);
+            sut.adjustClassProbabilities(sut.getInitiallyMappedNodes(sd.g), nbc);
             double [] classProbs = nbc.getProbabilityOfClass();
 
             assertEquals(classProbs[0], 2.0/3);
@@ -208,8 +217,8 @@ public class NBMapperTests {
         }
 
         Map<String, AttribMap> componentMap = new HashMap<>();
-        componentMap.put(c1.getName(), new AttribMap());
-        componentMap.put(c2.getName(), new AttribMap());
+        componentMap.put(sd.c1.getName(), new AttribMap());
+        componentMap.put(sd.c2.getName(), new AttribMap());
 
 
         for (Instance inst : actual) {
@@ -243,13 +252,13 @@ public class NBMapperTests {
 
         // now we can check the expected attributes
         // c1 contains node a and b with and gets the name as a feature
-        componentMap.get(c1.getName()).assertTrue(a.getName().toLowerCase(), 1, 1.0);
-        componentMap.get(c1.getName()).assertTrue(b.getName().toLowerCase(), 1, 1.0);
-        componentMap.get(c2.getName()).assertTrue(c.getName().toLowerCase(), 1, 1.0);
+        componentMap.get(sd.c1.getName()).assertTrue(sd.a.getName().toLowerCase(), 1, 1.0);
+        componentMap.get(sd.c1.getName()).assertTrue(sd.b.getName().toLowerCase(), 1, 1.0);
+        componentMap.get(sd.c2.getName()).assertTrue(sd.c.getName().toLowerCase(), 1, 1.0);
 
-        componentMap.get(c1.getName()).assertNotFound(c.getName().toLowerCase());
-        componentMap.get(c2.getName()).assertNotFound(a.getName().toLowerCase());
-        componentMap.get(c2.getName()).assertNotFound(b.getName().toLowerCase());
+        componentMap.get(sd.c1.getName()).assertNotFound(sd.c.getName().toLowerCase());
+        componentMap.get(sd.c2.getName()).assertNotFound(sd.a.getName().toLowerCase());
+        componentMap.get(sd.c2.getName()).assertNotFound(sd.b.getName().toLowerCase());
 
         // check the CDA relations
         // {"AB", "BC", "CA", "DC", "AC", "AB"}
@@ -270,54 +279,28 @@ public class NBMapperTests {
         // Component1ReturnsComponent1: 2   0
         // Component1ReturnsComponent2: 2   2
         // Component2ReturnsComponent1: 1   1
-        componentMap.get(c1.getName()).assertTrue("Component1ReturnsComponent1", 2, 1.0);
-        componentMap.get(c2.getName()).assertTrue("Component1ReturnsComponent1", 0, 1.0);
+        componentMap.get(sd.c1.getName()).assertTrue("Component1ReturnsComponent1", 2, 1.0);
+        componentMap.get(sd.c2.getName()).assertTrue("Component1ReturnsComponent1", 0, 1.0);
 
-        componentMap.get(c1.getName()).assertTrue("Component1ReturnsComponent2", 2, 1.0);
-        componentMap.get(c2.getName()).assertTrue("Component1ReturnsComponent2", 2, 1.0);
+        componentMap.get(sd.c1.getName()).assertTrue("Component1ReturnsComponent2", 2, 1.0);
+        componentMap.get(sd.c2.getName()).assertTrue("Component1ReturnsComponent2", 2, 1.0);
 
-        componentMap.get(c1.getName()).assertTrue("Component2ReturnsComponent1", 1, 1.0);
-        componentMap.get(c2.getName()).assertTrue("Component2ReturnsComponent1", 1, 1.0);
+        componentMap.get(sd.c1.getName()).assertTrue("Component2ReturnsComponent1", 1, 1.0);
+        componentMap.get(sd.c2.getName()).assertTrue("Component2ReturnsComponent1", 1, 1.0);
     }
 
     @Test
     void getPredictionData() {
-        NodeGenerator ng = new NodeGenerator();
-        CGraph g = ng.generateGraph(dmDependency.Type.Returns, new String [] {"AB", "BC", "CA", "DC", "AC", "AB"});
-        CNode a = g.getNode("A");
-        CNode b = g.getNode("B");
-        CNode c = g.getNode("C");
-        CNode d = g.getNode("D");   // this is the orphan
 
-        ArchDef arch = new ArchDef();
-        ArchDef.Component c1 = arch.addComponent("Component1");
-        ArchDef.Component c2 = arch.addComponent("Component2");
-        c1.clusterToNode(a, ArchDef.Component.ClusteringType.Initial);
-        c1.mapToNode(a);
-        c1.clusterToNode(b, ArchDef.Component.ClusteringType.Initial);
-        c1.mapToNode(b);
-        c2.clusterToNode(c, ArchDef.Component.ClusteringType.Initial);
-        c2.mapToNode(c);
 
-        c1.mapToNode(d);
-
-        class SUT extends NBMapper {
-            public SUT() {
-                super(arch, true, true, true, false, 0, 0.9);
-            }
-
-            public Instances getPredictionData(OrphanNode a_node, Iterable<ClusteredNode> a_mappedNodes, String[] a_componentNames, ArchDef.Component a_component, Filter a_filter, weka.core.stemmers.Stemmer a_stemmer) {
-                return super.getPredictionDataForNode(a_node, a_mappedNodes, a_componentNames, a_component, a_filter, a_stemmer);
-            }
-        }
-
-        SUT sut = new SUT();
+        SUT_data sd = new SUT_data();
+        SUT sut = new SUT(sd.arch);
         StringToWordVector filter = new StringToWordVector();
         filter.setOutputWordCounts(true);
 
 
         // as if mapped to c1
-        Instances actual = sut.getPredictionData(new MapperBase.OrphanNode(d, arch), sut.getInitiallyMappedNodes(g), arch.getComponentNames(), c1, filter, null);
+        Instances actual = sut.getPredictionDataForNode(new MapperBase.OrphanNode(sd.d, sd.arch), sut.getInitiallyMappedNodes(sd.g), sd.arch.getComponentNames(), sd.c1, filter, null);
 
         System.out.println(actual);
         Attribute classAttribute = actual.classAttribute();
@@ -342,14 +325,14 @@ public class NBMapperTests {
                 } else if (cw == null) {
                     return;
                 }
-                assertEquals(cw.m_count, a_expectedCount, "Attribute count differs for: " + a_name);
-                assertEquals(cw.m_weight, a_expectedWeight, "Attribute weight differs for: " + a_name);
+                assertEquals(a_expectedCount, cw.m_count, "Attribute count differs for: " + a_name);
+                assertEquals(a_expectedWeight, cw.m_weight, "Attribute weight differs for: " + a_name);
             }
 
             public void assertNotFound(String a_name) {
                 CountWeight cw = get(a_name);
                 assertNotNull(cw, "No Attribute found for name: "  + a_name);
-                assertEquals(cw.m_count, 0, "Attribute found for " + a_name);
+                assertEquals(0, cw.m_count, "Attribute found for " + a_name);
             }
 
             public void assertIsNull(String a_name) {
@@ -359,8 +342,7 @@ public class NBMapperTests {
         }
 
         Map<String, AttribMap> componentMap = new HashMap<>();
-        componentMap.put(c1.getName(), new AttribMap());
-        componentMap.put(c2.getName(), new AttribMap());
+        componentMap.put(sd.c2.getName(), new AttribMap());
 
 
         for (Instance inst : actual) {
@@ -388,18 +370,16 @@ public class NBMapperTests {
 
         // check that all components have been found
 
-        AttribMap am = componentMap.get(c1.getName());
-        assertTrue(am.m_componentFound, "Component Has No Attributes assigned: " + c1.getName());
+        AttribMap am = componentMap.get(sd.c2.getName());
+        assertTrue(am.m_componentFound, "Component Has No Attributes assigned: " + sd.c1.getName());
 
 
         // now we can check the expected attributes
         // c1 contains node a and b with and gets the name as a feature
-        componentMap.get(c1.getName()).assertTrue(d.getName().toLowerCase(), 1, 1.0);
-        componentMap.get(c1.getName()).assertIsNull(a.getName().toLowerCase());
-        componentMap.get(c1.getName()).assertIsNull(b.getName().toLowerCase());
-        componentMap.get(c1.getName()).assertIsNull(c.getName().toLowerCase());
-
-
+        componentMap.get(sd.c2.getName()).assertTrue(sd.d.getName().toLowerCase(), 1, 1.0);
+        componentMap.get(sd.c2.getName()).assertIsNull(sd.a.getName().toLowerCase());
+        componentMap.get(sd.c2.getName()).assertIsNull(sd.b.getName().toLowerCase());
+        componentMap.get(sd.c2.getName()).assertIsNull(sd.c.getName().toLowerCase());
 
         // check the CDA relations
         // {"AB", "BC", "CA", "DC", "AC", "AB"}
@@ -411,9 +391,9 @@ public class NBMapperTests {
         // -> -, -, -, Component1ReturnsComponent2, -, -
         //
         // Component1ReturnsComponent2: 1
-        componentMap.get(c1.getName()).assertTrue("Component1ReturnsComponent2", 1, 1.0);
-        componentMap.get(c1.getName()).assertTrue("Component1ReturnsComponent1", 0, 1.0);
-        componentMap.get(c1.getName()).assertTrue("Component2ReturnsComponent2", 0, 1.0);
+        componentMap.get(sd.c2.getName()).assertTrue("Component1ReturnsComponent2", 1, 1.0);
+        componentMap.get(sd.c2.getName()).assertTrue("Component1ReturnsComponent1", 0, 1.0);
+        componentMap.get(sd.c2.getName()).assertTrue("Component2ReturnsComponent2", 0, 1.0);
     }
 
     @Test

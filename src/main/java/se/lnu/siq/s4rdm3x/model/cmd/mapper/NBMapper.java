@@ -181,7 +181,7 @@ public class NBMapper extends IRMapperBase {
         }
     }
 
-    public void adjustClassProbabilities(ArrayList<ClusteredNode> a_initiallyMapped, Classifier a_classifier) {
+    protected void adjustClassProbabilities(ArrayList<ClusteredNode> a_initiallyMapped, Classifier a_classifier) {
         if (m_initialDistribution == null || m_initialDistribution.length == a_classifier.getProbabilityOfClass().length) {
 
             m_initialDistribution = new double[m_arch.getComponentCount()];
@@ -249,7 +249,7 @@ public class NBMapper extends IRMapperBase {
         }
     }
 
-    private DenseInstance createDenseInstance(Attribute a_attrib, int a_numAttributes, int a_componentIndex, String a_words, double a_weight) {
+    protected DenseInstance createDenseInstance(Attribute a_attrib, int a_numAttributes, int a_componentIndex, String a_words, double a_weight) {
         double[] values = new double[a_numAttributes];
         values[0] = a_componentIndex;
         values[1] = a_attrib.addStringValue(a_words);
@@ -257,7 +257,7 @@ public class NBMapper extends IRMapperBase {
         return new DenseInstance(a_weight, values);
     }
 
-    public Instances getTrainingData(Iterable<ClusteredNode> a_nodes, ArchDef a_arch, Filter a_filter, weka.core.stemmers.Stemmer a_stemmer) {
+    protected Instances getTrainingData(Iterable<ClusteredNode> a_nodes, ArchDef a_arch, Filter a_filter, weka.core.stemmers.Stemmer a_stemmer) {
         ArrayList<Attribute> attributes = new ArrayList<>();
 
         // first we have the architectural components
