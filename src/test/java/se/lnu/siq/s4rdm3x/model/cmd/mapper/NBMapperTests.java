@@ -159,6 +159,22 @@ public class NBMapperTests {
 
         Instances actual = sut.getTrainingData(sut.getInitiallyMappedNodes(g), arch, filter, null);
 
+        NBMapper.Classifier nbc = new NBMapper.Classifier();
+
+        try {
+            nbc.buildClassifier(actual);
+            sut.adjustClassProbabilities(sut.getInitiallyMappedNodes(g), nbc);
+            double [] classProbs = nbc.getProbabilityOfClass();
+
+            assertEquals(classProbs[0], 2.0/3);
+            assertEquals(classProbs[1], 1.0/3);
+
+        } catch (Exception e) {
+            assertFalse(true);
+            e.printStackTrace();
+        }
+
+
         System.out.println(actual);
         Attribute classAttribute = actual.classAttribute();
 

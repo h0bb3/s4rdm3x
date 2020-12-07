@@ -37,19 +37,17 @@ public class NBMapper extends IRMapperBase {
     //public static class Classifier extends weka.classifiers.bayes.NaiveBayes {
 
         public double [] getProbabilityOfClass() {
-            /*return m_probOfClass;*/
-            return null;
+            return m_probOfClass;
         }
 
         public double getProbabilityOfWord(int a_wordIx, int a_classIx) {
 
             // this is from the implementation of classifier.toString
-            /*if (m_probOfWordGivenClass != null && a_classIx < m_probOfWordGivenClass.length && a_wordIx < m_probOfWordGivenClass[a_classIx].length) {
+            if (m_probOfWordGivenClass != null && a_classIx < m_probOfWordGivenClass.length && a_wordIx < m_probOfWordGivenClass[a_classIx].length) {
                 return Math.exp(m_probOfWordGivenClass[a_classIx][a_wordIx]);
             } else {
                 return -1;
-            }*/
-            return -1;
+            }
         }
     }
 
@@ -136,12 +134,7 @@ public class NBMapper extends IRMapperBase {
 
             nbClassifier.buildClassifier(trainingData);
 
-
-            if (m_initialDistribution != null && m_initialDistribution.length == nbClassifier.getProbabilityOfClass().length) {
-                for (int dIx = 0; dIx < nbClassifier.getProbabilityOfClass().length; dIx++) {
-                    nbClassifier.getProbabilityOfClass()[dIx] = m_initialDistribution[dIx];
-                }
-            }
+            adjustClassProbabilities(initiallyMapped, nbClassifier);
 
             //System.out.print(" the expression for the input data as per algorithm is ");
             //System.out.println(nbClassifier);
@@ -185,6 +178,26 @@ public class NBMapper extends IRMapperBase {
         } catch (Exception e) {
             System.out.println(e.toString());
             e.printStackTrace();
+        }
+    }
+
+    public void adjustClassProbabilities(ArrayList<ClusteredNode> a_initiallyMapped, Classifier a_classifier) {
+        if (m_initialDistribution == null || m_initialDistribution.length == a_classifier.getProbabilityOfClass().length) {
+
+            m_initialDistribution = new double[m_arch.getComponentCount()];
+            // each instance is counted as a separate document and this is not the case really as only every node should be counted as a document as this will affect the probabilities of the class
+            double initialSetCount = a_initiallyMapped.size();
+            for (int i = 0; i < m_arch.getComponentCount(); i++) {
+                double [] count = {0};
+                ArchDef.Component c = m_arch.getComponent(i);
+
+                a_initiallyMapped.forEach( n -> {if (n.getClusteredComponent() == c) {count[0] += 1.0;}});
+                m_initialDistribution[i] = count[0] / initialSetCount;
+            }
+        }
+
+        for (int dIx = 0; dIx < a_classifier.getProbabilityOfClass().length; dIx++) {
+            a_classifier.getProbabilityOfClass()[dIx] = m_initialDistribution[dIx];
         }
     }
 
@@ -274,7 +287,7 @@ public class NBMapper extends IRMapperBase {
             // add the cda for the node
             //relations = getDependencyStringFromNode(n, a_nodes) + " " +  getDependencyStringToNode(n, a_nodes) + " ";
             relations = getMappedCDAWords(n, a_nodes);
-            data.add(createDenseInstance(features, 2, components.indexOf(n.getClusteringComponentName()), relations, 0.5));
+            data.add(createDenseInstance(features, 2, components.indexOf(n.getClusteringComponentName()), relations, 1.0));
             // apparently weighting at the instance level seems to work... question is how :P
             // however the results seem very small, also my guess is that we have many interdependent attributes overall making binary filtering more successful
             // it would be a good idea to filter the attributes based on their correlation and remove highly correlated features (i.e. remove one and keep one)
