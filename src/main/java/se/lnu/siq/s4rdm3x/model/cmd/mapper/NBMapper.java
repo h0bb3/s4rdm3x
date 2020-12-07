@@ -1,5 +1,6 @@
 package se.lnu.siq.s4rdm3x.model.cmd.mapper;
 
+import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import weka.core.*;
 import weka.core.stemmers.SnowballStemmer;
@@ -8,6 +9,7 @@ import weka.filters.unsupervised.attribute.StringToWordVector;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.List;
 
 /**
@@ -24,25 +26,30 @@ public class NBMapper extends IRMapperBase {
     }
 
     public void doWordCount(boolean a_doWordCount) {
-        ((StringToWordVector)m_filter).setOutputWordCounts(a_doWordCount);
+        m_filter.setOutputWordCounts(a_doWordCount);
+        //m_filter.setTFTransform(a_doWordCount);
+       // m_filter.setIDFTransform(a_doWordCount);
     }
 
 
 
     public static class Classifier extends weka.classifiers.bayes.NaiveBayesMultinomial {
+    //public static class Classifier extends weka.classifiers.bayes.NaiveBayes {
 
         public double [] getProbabilityOfClass() {
-            return m_probOfClass;
+            /*return m_probOfClass;*/
+            return null;
         }
 
         public double getProbabilityOfWord(int a_wordIx, int a_classIx) {
 
             // this is from the implementation of classifier.toString
-            if (m_probOfWordGivenClass != null && a_classIx < m_probOfWordGivenClass.length && a_wordIx < m_probOfWordGivenClass[a_classIx].length) {
+            /*if (m_probOfWordGivenClass != null && a_classIx < m_probOfWordGivenClass.length && a_wordIx < m_probOfWordGivenClass[a_classIx].length) {
                 return Math.exp(m_probOfWordGivenClass[a_classIx][a_wordIx]);
             } else {
                 return -1;
-            }
+            }*/
+            return -1;
         }
     }
 
@@ -58,22 +65,23 @@ public class NBMapper extends IRMapperBase {
     private double m_mappingThreshold = 0.9;
 
     private boolean m_doStemm = false;
-    private Filter m_filter = new StringToWordVector();
+    private StringToWordVector m_filter = new StringToWordVector();
     private double [] m_initialDistribution = null;
+    private double m_cdaWeight = 0.5f;
 
     public NBMapper(ArchDef a_arch, boolean a_doUseCDA, boolean a_doUseNodeText, boolean a_doUseNodeName, boolean a_doUseArchComponentName, int a_minWordLength, double a_mappingThreshold) {
         super(a_arch, false, a_doUseCDA, a_doUseNodeText, a_doUseNodeName, a_doUseArchComponentName, a_minWordLength);
-        ((StringToWordVector)m_filter).setOutputWordCounts(false);
-        ((StringToWordVector) m_filter).setTFTransform(false);
-        ((StringToWordVector) m_filter).setIDFTransform(false);
+        m_filter.setOutputWordCounts(false);
+        m_filter.setTFTransform(false);
+        m_filter.setIDFTransform(false);
         setMappingThreshold(a_mappingThreshold);
     }
     public NBMapper(ArchDef a_arch, boolean a_doManualMapping, boolean a_doUseCDA, boolean a_doUseNodeText, boolean a_doUseNodeName, boolean a_doUseArchComponentName, int a_minWordLength, double [] a_initialDistribution, double a_mappingThreshold) {
         super(a_arch, a_doManualMapping, a_doUseCDA, a_doUseNodeText, a_doUseNodeName, a_doUseArchComponentName, a_minWordLength);
         m_initialDistribution = a_initialDistribution;
-        ((StringToWordVector)m_filter).setOutputWordCounts(false);
-        ((StringToWordVector) m_filter).setTFTransform(false);
-        ((StringToWordVector) m_filter).setIDFTransform(false);
+        m_filter.setOutputWordCounts(false);
+        m_filter.setTFTransform(false);
+        m_filter.setIDFTransform(false);
         setMappingThreshold(a_mappingThreshold);
     }
 
@@ -121,7 +129,7 @@ public class NBMapper extends IRMapperBase {
         weka.core.Instances trainingData = getTrainingData(initiallyMapped, m_arch, getFilter(), stemmer);
 
         m_consideredNodes = orphans.size();
-        
+
         Classifier nbClassifier = new Classifier(); // avg 23% wrong
 
         try {
@@ -181,44 +189,60 @@ public class NBMapper extends IRMapperBase {
     }
 
 
-    private Instances getPredictionDataForNode(OrphanNode a_node, Iterable<ClusteredNode> a_mappedNodes, String[] a_componentNames, ArchDef.Component a_component, Filter a_filter, weka.core.stemmers.Stemmer a_stemmer) {
+    protected Instances getPredictionDataForNode(OrphanNode a_node, Iterable<ClusteredNode> a_mappedNodes, String[] a_componentNames, ArchDef.Component a_component, Filter a_filter, weka.core.stemmers.Stemmer a_stemmer) {
         ArrayList<Attribute> attributes = new ArrayList<>();
 
         // first we have the architectural components
         List<String> componentNames = Arrays.asList(a_componentNames);
-        attributes.add(new Attribute("hypothetical_component", componentNames));
-        attributes.add(new Attribute("model_features", (ArrayList<String>) null));
+        attributes.add(new Attribute("concrete_component", componentNames));
+        Attribute features = new Attribute("model_features", (ArrayList<String>) null);
+        attributes.add(features);
 
         Instances data = new Instances("PredictionData", attributes, 0);
 
         String nodeText = getNodeWords(a_node.get(), a_stemmer);
-
-        double[] values = new double[data.numAttributes()];
         String relations = getUnmappedCDAWords(a_node, a_component, a_mappedNodes);
 
-        relations += " " + nodeText;
+        relations +=  nodeText;
 
-        values[0] = componentNames.indexOf(a_node.getMapping());
-        values[1] = data.attribute(1).addStringValue(relations);
-        data.add(new DenseInstance(1.0, values));
+        // the mapping is used for the concrete component, this is the actual answer but it is only used for confusion matrix stuff in weka and does not affect the prediction
+        data.add(createDenseInstance(features, 2, componentNames.indexOf(a_node.getMapping()), relations, 1.0));
 
         data.setClassIndex(0);
 
         try {
-            //filter.setInputFormat(data);
+            //filter.setInputFormat(data);  // filter data format is set in getTrainingData this means that it must be called first
             data = Filter.useFilter(data, a_filter);
-
-
             return data;
         } catch (Exception e) {
 
-            System.out.println(e.toString());
-            e.printStackTrace();
+            if (e instanceof IllegalStateException) {
+                System.out.println("Warning: Filter.setInputFormat could differ between training and prediction data. Consider creating the prediction data first");
+
+                try {
+                    a_filter.setInputFormat(data);  // filter data format is set in getTrainingData this means that it must be called first
+                    data = Filter.useFilter(data, a_filter);
+                    return data;
+                } catch (Exception ex) {
+                    System.out.println(ex.toString());
+                    ex.printStackTrace();
+                }
+            } else {
+                System.out.println(e.toString());
+                e.printStackTrace();
+            }
 
             return null;
         }
     }
 
+    private DenseInstance createDenseInstance(Attribute a_attrib, int a_numAttributes, int a_componentIndex, String a_words, double a_weight) {
+        double[] values = new double[a_numAttributes];
+        values[0] = a_componentIndex;
+        values[1] = a_attrib.addStringValue(a_words);
+
+        return new DenseInstance(a_weight, values);
+    }
 
     public Instances getTrainingData(Iterable<ClusteredNode> a_nodes, ArchDef a_arch, Filter a_filter, weka.core.stemmers.Stemmer a_stemmer) {
         ArrayList<Attribute> attributes = new ArrayList<>();
@@ -227,20 +251,18 @@ public class NBMapper extends IRMapperBase {
         List<String> components = Arrays.asList(a_arch.getComponentNames());
 
 
-        attributes.add(new Attribute("hypothetical_component", components));
-        attributes.add(new Attribute("model_features", (ArrayList<String>) null));
+        attributes.add(new Attribute("concrete_component", components));
+        Attribute features = new Attribute("model_features", (ArrayList<String>) null);
+        attributes.add(features);
 
         Instances data = new Instances("TrainingData", attributes, 0);
 
         // add the component names
         if (doUseArchComponentName()) {
             for (ArchDef.Component c : a_arch.getComponents()) {
-                double[] values = new double[data.numAttributes()];
-                values[0] = components.indexOf(c.getName());
                 String relations = getArchComponentWords(c, a_stemmer);
                 if (relations.length() > 0) {
-                    values[1] = data.attribute(1).addStringValue(relations);
-                    data.add(new DenseInstance(1.0, values));
+                    data.add(createDenseInstance(features, 2, components.indexOf(c.getName()), relations, 1.0));
                 }
             }
         }
@@ -248,19 +270,20 @@ public class NBMapper extends IRMapperBase {
         // add the node stuff
         String relations = "";
         for (ClusteredNode n : a_nodes) {
-            double[] values = new double[data.numAttributes()];
-            values[0] = components.indexOf(n.getClusteringComponentName());
 
             // add the cda for the node
             //relations = getDependencyStringFromNode(n, a_nodes) + " " +  getDependencyStringToNode(n, a_nodes) + " ";
             relations = getMappedCDAWords(n, a_nodes);
-            relations += " ";
+            data.add(createDenseInstance(features, 2, components.indexOf(n.getClusteringComponentName()), relations, 0.5));
+            // apparently weighting at the instance level seems to work... question is how :P
+            // however the results seem very small, also my guess is that we have many interdependent attributes overall making binary filtering more successful
+            // it would be a good idea to filter the attributes based on their correlation and remove highly correlated features (i.e. remove one and keep one)
+
 
             // add the identifier texts for the node
-            relations += getNodeWords(n.get(), a_stemmer);
+            relations = getNodeWords(n.get(), a_stemmer);
 
-            values[1] = data.attribute(1).addStringValue(relations);
-            data.add(new DenseInstance(1.0, values));
+            data.add(createDenseInstance(features, 2, components.indexOf(n.getClusteringComponentName()), relations, 1.0));
         }
 
         data.setClassIndex(0);
@@ -268,6 +291,15 @@ public class NBMapper extends IRMapperBase {
         try {
             a_filter.setInputFormat(data);
             data = Filter.useFilter(data, a_filter);
+
+            Enumeration<Attribute> attribs = data.enumerateAttributes();
+            /*while(attribs.hasMoreElements()) {
+                Attribute a = attribs.nextElement();
+                if (isCDAWord(a.name())) {
+                    //a.setWeight(0.5);
+                }
+            }*/
+
             return data;
         } catch (Exception e) {
 
@@ -277,5 +309,15 @@ public class NBMapper extends IRMapperBase {
 
             return null;
         }
+    }
+
+    // this is just a hack
+    private boolean isCDAWord(String a_word) {
+        for (dmDependency.Type dt : dmDependency.Type.values()) {
+            if (a_word.indexOf(dt.toString()) > 0) {
+                return true;
+            }
+        }
+        return false;
     }
 }

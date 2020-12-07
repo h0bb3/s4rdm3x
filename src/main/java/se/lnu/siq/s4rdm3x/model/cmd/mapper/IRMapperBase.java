@@ -152,7 +152,10 @@ public abstract class IRMapperBase extends MapperBase {
             if (a_to != from.get()) {
                 for (dmDependency d : from.getDependencies(a_to)) {
                     for (int i = 0; i < d.getCount(); i++) {
-                        relations += getComponentComponentRelationString(from.getClusteringComponentName(), d.getType(), a_nodeComponentName) + " ";//from.getMapping().replace(".", "") + d.getType() + a_nodeComponentName.replace(".", "") + " ";
+                        // to nodes should only be added if different components or there will be double counts
+                        if (!from.getClusteringComponentName().equals(a_nodeComponentName)) {
+                            relations += getComponentComponentRelationString(from.getClusteringComponentName(), d.getType(), a_nodeComponentName) + " ";//from.getMapping().replace(".", "") + d.getType() + a_nodeComponentName.replace(".", "") + " ";
+                        }
                     }
                 }
             }
