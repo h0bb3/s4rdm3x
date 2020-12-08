@@ -5,18 +5,13 @@ import se.lnu.siq.s4rdm3x.dmodel.NodeGenerator;
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
-import weka.classifiers.functions.SGDText;
 import weka.core.Attribute;
 import weka.core.Instance;
 import weka.core.Instances;
-import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.StringToWordVector;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -49,6 +44,75 @@ public class NBMapperTests {
                 assertEquals(true, false);
             }
             return null;
+        }
+
+        private ArrayList<Instance> findInstances(String a_className, Instances a_instances) {
+            ArrayList<Instance> ret = new ArrayList<>();
+            Attribute classAttribute = a_instances.classAttribute();
+            for (Instance i : a_instances) {
+                if (a_className.equals(classAttribute.value((int)i.value(classAttribute)))) {
+                    ret.add(i);
+                }
+            }
+
+            return ret;
+        }
+
+        void assertClassCount(int a_expected, Instances a_instances) {
+            Set<String> classes = new HashSet<>();
+            Attribute classAttribute = a_instances.classAttribute();
+            for (Instance i : a_instances) {
+                classes.add(classAttribute.value((int)i.value(classAttribute)));
+            }
+
+            assertEquals(a_expected, classes.size());
+        }
+
+        int sumAttributeCount(Iterable<Instance> a_instances, String a_attributeName) {
+            int sum = 0;
+
+            for (Instance i : a_instances) {
+
+                Enumeration<Attribute> attribs = i.enumerateAttributes();
+                while (attribs.hasMoreElements()) {
+                    Attribute a = attribs.nextElement();
+                    if (a.name().equalsIgnoreCase(a_attributeName)) {
+                        sum += (int)i.value(a);
+                    }
+                }
+            }
+            return sum;
+        }
+
+        double getAttributeWeight(Iterable<Instance> a_instances, String a_attributeName) {
+
+            for (Instance i : a_instances) {
+
+                Enumeration<Attribute> attribs = i.enumerateAttributes();
+
+                while (attribs.hasMoreElements()) {
+                    Attribute a = attribs.nextElement();
+                    if (a.name().equalsIgnoreCase(a_attributeName)) {
+                        if ((int)i.value(a) > 0) {
+                            return a.weight();
+                        }
+                    }
+                }
+            }
+            return -1;
+        }
+
+        void assertAttributeTrue(String a_className, String a_attributeName, Instances a_instances, int a_expectedCount, double a_expectedWeight) {
+            ArrayList<Instance> iForClass = findInstances(a_className, a_instances);
+
+            assertTrue(iForClass.size() > 0 , "No Instances found for class: "  + a_className);
+
+            assertEquals(a_expectedCount, sumAttributeCount(iForClass, a_attributeName), "Attribute count differs for: " + a_className + "." + a_attributeName);
+            assertEquals(a_expectedWeight, getAttributeWeight(iForClass, a_attributeName), "Attribute weight differs for: " + a_className + "." + a_attributeName);
+        }
+
+        public void assertAttributeNotFound(String a_className, String a_attributeName, Instances a_instances) {
+            assertAttributeTrue(a_className, a_attributeName, a_instances, 0, -1);
         }
     }
 
@@ -167,6 +231,7 @@ public class NBMapperTests {
 
 
         Instances actual = sut.getTrainingData(sut.getInitiallyMappedNodes(sd.g), sd.arch, filter, null);
+        printInstances(actual);
 
         NBMapper.Classifier nbc = new NBMapper.Classifier();
 
@@ -185,80 +250,29 @@ public class NBMapperTests {
 
 
         System.out.println(actual);
-        Attribute classAttribute = actual.classAttribute();
+
 
         // each clustered node (a, b, c) will create an 2 instances one for node name and one for cda
         assertEquals(6, actual.size());
 
-        // the instance is a word matrix representation lets grab it.
-        // and create a hashmap
-
-        class CountWeight {
-            int m_count;
-            double m_weight;
-        }
-        class AttribMap extends HashMap<String, CountWeight> {
-            boolean m_componentFound = false;
-
-            void assertTrue(String a_name, int a_expectedCount, double a_expectedWeight) {
-                CountWeight cw = get(a_name);
-                assertNotNull(cw, "No Attribute found for name: "  + a_name);
-
-                assertEquals(cw.m_count, a_expectedCount, "Attribute count differs for: " + a_name);
-                assertEquals(cw.m_weight, a_expectedWeight, "Attribute weight differs for: " + a_name);
-
-            }
-
-            public void assertNotFound(String a_name) {
-                CountWeight cw = get(a_name);
-                assertNotNull(cw, "No Attribute found for name: "  + a_name);
-                assertEquals(cw.m_count, 0, "Attribute found for " + a_name);
-            }
-        }
-
-        Map<String, AttribMap> componentMap = new HashMap<>();
-        componentMap.put(sd.c1.getName(), new AttribMap());
-        componentMap.put(sd.c2.getName(), new AttribMap());
-
-
-        for (Instance inst : actual) {
-
-            Enumeration<Attribute> attribs = actual.enumerateAttributes();
-
-            System.out.print("class: " + classAttribute.value((int)inst.value(classAttribute)) + " ");
-            while (attribs.hasMoreElements()) {
-                Attribute attr = attribs.nextElement();
-                System.out.print(attr.name() + ":#" + (int)inst.value(attr) + ":w" + attr.weight() + " - ");
-
-                String cName = classAttribute.value((int)inst.value(classAttribute));
-                AttribMap attribMap = componentMap.get(cName);
-                assertNotNull(attribMap, "could not find component: " + cName);
-                attribMap.m_componentFound = true;
-                if (!attribMap.containsKey(attr.name() )) {
-                    attribMap.put(attr.name() , new CountWeight());
-                }
-                CountWeight cw = attribMap.get(attr.name());
-                cw.m_count += (int)inst.value(attr);
-                cw.m_weight = attr.weight();    // what happens if the same attribute has different weights... currently this should not happen but....
-            }
-            System.out.println("");
-        }
-
         // check that all components have been found
-        for (String name : componentMap.keySet()) {
-            AttribMap am = componentMap.get(name);
-            assertTrue(am.m_componentFound, "Component Has No Attributes assigned: " + name);
+        for (ArchDef.Component c : sd.arch.getComponents()) {
+            assertTrue(sut.findInstances(c.getName(), actual).size() > 0, "Component Has No Instances Assigned: " + c.getName());
         }
 
         // now we can check the expected attributes
         // c1 contains node a and b with and gets the name as a feature
-        componentMap.get(sd.c1.getName()).assertTrue(sd.a.getName().toLowerCase(), 1, 1.0);
-        componentMap.get(sd.c1.getName()).assertTrue(sd.b.getName().toLowerCase(), 1, 1.0);
-        componentMap.get(sd.c2.getName()).assertTrue(sd.c.getName().toLowerCase(), 1, 1.0);
+        sut.assertAttributeTrue(sd.c1.getName(), sd.a.getName().toLowerCase(), actual, 1, 1.0);
+        sut.assertAttributeTrue(sd.c1.getName(), sd.b.getName().toLowerCase(), actual, 1, 1.0);
+        sut.assertAttributeTrue(sd.c2.getName(), sd.c.getName().toLowerCase(), actual, 1, 1.0);
 
-        componentMap.get(sd.c1.getName()).assertNotFound(sd.c.getName().toLowerCase());
-        componentMap.get(sd.c2.getName()).assertNotFound(sd.a.getName().toLowerCase());
-        componentMap.get(sd.c2.getName()).assertNotFound(sd.b.getName().toLowerCase());
+        sut.assertAttributeNotFound(sd.c1.getName(), sd.c.getName().toLowerCase(), actual);
+        sut.assertAttributeNotFound(sd.c1.getName(), sd.d.getName().toLowerCase(), actual);
+
+        sut.assertAttributeNotFound(sd.c2.getName(), sd.a.getName().toLowerCase(), actual);
+        sut.assertAttributeNotFound(sd.c2.getName(), sd.b.getName().toLowerCase(), actual);
+        sut.assertAttributeNotFound(sd.c2.getName(), sd.d.getName().toLowerCase(), actual);
+
 
         // check the CDA relations
         // {"AB", "BC", "CA", "DC", "AC", "AB"}
@@ -279,14 +293,31 @@ public class NBMapperTests {
         // Component1ReturnsComponent1: 2   0
         // Component1ReturnsComponent2: 2   2
         // Component2ReturnsComponent1: 1   1
-        componentMap.get(sd.c1.getName()).assertTrue("Component1ReturnsComponent1", 2, 1.0);
-        componentMap.get(sd.c2.getName()).assertTrue("Component1ReturnsComponent1", 0, 1.0);
+        sut.assertAttributeTrue(sd.c1.getName(), "Component1ReturnsComponent1", actual, 2, 1.0);
+        sut.assertAttributeTrue(sd.c2.getName(), "Component1ReturnsComponent1", actual, 0, -1.0);
 
-        componentMap.get(sd.c1.getName()).assertTrue("Component1ReturnsComponent2", 2, 1.0);
-        componentMap.get(sd.c2.getName()).assertTrue("Component1ReturnsComponent2", 2, 1.0);
+        sut.assertAttributeTrue(sd.c1.getName(), "Component1ReturnsComponent2", actual, 2, 1.0);
+        sut.assertAttributeTrue(sd.c2.getName(), "Component1ReturnsComponent2", actual, 2, 1.0);
 
-        componentMap.get(sd.c1.getName()).assertTrue("Component2ReturnsComponent1", 1, 1.0);
-        componentMap.get(sd.c2.getName()).assertTrue("Component2ReturnsComponent1", 1, 1.0);
+        sut.assertAttributeTrue(sd.c1.getName(), "Component2ReturnsComponent1", actual, 1, 1.0);
+        sut.assertAttributeTrue(sd.c2.getName(), "Component2ReturnsComponent1", actual, 1, 1.0);
+    }
+
+    private void printInstances(Instances a_insts) {
+        Attribute classAttribute = a_insts.classAttribute();
+        for (Instance inst : a_insts) {
+
+            Enumeration<Attribute> attribs = a_insts.enumerateAttributes();
+
+            System.out.print("class: " + classAttribute.value((int)inst.value(classAttribute)) + " ");
+            while (attribs.hasMoreElements()) {
+                Attribute attr = attribs.nextElement();
+                System.out.print(attr.name() + ":#" + (int)inst.value(attr) + ":w" + attr.weight() + " - ");
+
+                String cName = classAttribute.value((int)inst.value(classAttribute));
+            }
+            System.out.println("");
+        }
     }
 
     @Test
@@ -302,84 +333,23 @@ public class NBMapperTests {
         // as if mapped to c1
         Instances actual = sut.getPredictionDataForNode(new MapperBase.OrphanNode(sd.d, sd.arch), sut.getInitiallyMappedNodes(sd.g), sd.arch.getComponentNames(), sd.c1, filter, null);
 
-        System.out.println(actual);
-        Attribute classAttribute = actual.classAttribute();
-
+        printInstances(actual);
         // node will create 1 instance
         assertEquals(1, actual.size());
 
-        // the instance is a word matrix representation lets grab it.
-        // and create a hashmap
-
-        class CountWeight {
-            int m_count;
-            double m_weight;
-        }
-        class AttribMap extends HashMap<String, CountWeight> {
-            boolean m_componentFound = false;
-
-            void assertTrue(String a_name, int a_expectedCount, double a_expectedWeight) {
-                CountWeight cw = get(a_name);
-                if (a_expectedCount > 1) {
-                    assertNotNull(cw, "No Attribute found for name: " + a_name);
-                } else if (cw == null) {
-                    return;
-                }
-                assertEquals(a_expectedCount, cw.m_count, "Attribute count differs for: " + a_name);
-                assertEquals(a_expectedWeight, cw.m_weight, "Attribute weight differs for: " + a_name);
-            }
-
-            public void assertNotFound(String a_name) {
-                CountWeight cw = get(a_name);
-                assertNotNull(cw, "No Attribute found for name: "  + a_name);
-                assertEquals(0, cw.m_count, "Attribute found for " + a_name);
-            }
-
-            public void assertIsNull(String a_name) {
-                CountWeight cw = get(a_name);
-                assertNull(cw, "Attribute found for name: "  + a_name);
-            }
-        }
-
-        Map<String, AttribMap> componentMap = new HashMap<>();
-        componentMap.put(sd.c2.getName(), new AttribMap());
-
-
-        for (Instance inst : actual) {
-
-            Enumeration<Attribute> attribs = actual.enumerateAttributes();
-
-            System.out.print("class: " + classAttribute.value((int)inst.value(classAttribute)) + " ");
-            while (attribs.hasMoreElements()) {
-                Attribute attr = attribs.nextElement();
-                System.out.print(attr.name() + ":#" + (int)inst.value(attr) + ":w" + attr.weight() + " - ");
-
-                String cName = classAttribute.value((int)inst.value(classAttribute));
-                AttribMap attribMap = componentMap.get(cName);
-                assertNotNull(attribMap, "could not find component: " + cName);
-                attribMap.m_componentFound = true;
-                if (!attribMap.containsKey(attr.name() )) {
-                    attribMap.put(attr.name() , new CountWeight());
-                }
-                CountWeight cw = attribMap.get(attr.name());
-                cw.m_count += (int)inst.value(attr);
-                cw.m_weight = attr.weight();    // what happens if the same attribute has different weights... currently this should not happen but....
-            }
-            System.out.println("");
-        }
 
         // check that all components have been found
 
-        AttribMap am = componentMap.get(sd.c2.getName());
-        assertTrue(am.m_componentFound, "Component Has No Attributes assigned: " + sd.c1.getName());
+        assertEquals(1, actual.size(), "Too many Instances found");
+        assertEquals(1, sut.findInstances(sd.c2.getName(), actual).size(), "Component Has No Instances assigned: " + sd.c1.getName());
 
 
         // now we can check the expected attributes
         // c1 contains node a and b with and gets the name as a feature
-        componentMap.get(sd.c2.getName()).assertTrue(sd.d.getName().toLowerCase(), 1, 1.0);
-        componentMap.get(sd.c2.getName()).assertIsNull(sd.a.getName().toLowerCase());
-        componentMap.get(sd.c2.getName()).assertIsNull(sd.b.getName().toLowerCase());
-        componentMap.get(sd.c2.getName()).assertIsNull(sd.c.getName().toLowerCase());
+        sut.assertAttributeTrue(sd.c2.getName(), sd.d.getName().toLowerCase(), actual,1, 1);
+        sut.assertAttributeNotFound(sd.c2.getName(), sd.a.getName().toLowerCase(), actual);
+        sut.assertAttributeNotFound(sd.c2.getName(), sd.b.getName().toLowerCase(), actual);
+        sut.assertAttributeNotFound(sd.c2.getName(), sd.c.getName().toLowerCase(), actual);
 
         // check the CDA relations
         // {"AB", "BC", "CA", "DC", "AC", "AB"}
@@ -391,9 +361,10 @@ public class NBMapperTests {
         // -> -, -, -, Component1ReturnsComponent2, -, -
         //
         // Component1ReturnsComponent2: 1
-        componentMap.get(sd.c2.getName()).assertTrue("Component1ReturnsComponent2", 1, 1.0);
-        componentMap.get(sd.c2.getName()).assertTrue("Component1ReturnsComponent1", 0, 1.0);
-        componentMap.get(sd.c2.getName()).assertTrue("Component2ReturnsComponent2", 0, 1.0);
+        sut.assertAttributeTrue(sd.c2.getName(), "Component1ReturnsComponent2", actual,1, 1);
+        sut.assertAttributeNotFound(sd.c2.getName(), "Component1ReturnsComponent1", actual);
+        sut.assertAttributeNotFound(sd.c2.getName(), "Component2ReturnsComponent2", actual);
+        sut.assertAttributeNotFound(sd.c2.getName(), "Component2ReturnsComponent1", actual);
     }
 
     @Test
