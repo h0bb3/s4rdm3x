@@ -6,12 +6,13 @@ import java.lang.reflect.Method;
 public class MagicInvoker {
     private Object m_caller;    // we use a member as it is too easy to forget to add this when calling invokeMethodMagic as it takes an Object ...
 
+    // the object the method will be invoked on
     public MagicInvoker(Object a_caller) {
         m_caller = a_caller;
     }
 
     // tries to find a method by searching a class hierarchy recursively upwards
-    public Method getMethodRecurse(Class a_class, String a_name,  Class<?>... a_parameterTypes) {
+    private Method getMethodRecurse(Class a_class, String a_name,  Class<?>... a_parameterTypes) {
         Method[] methods = a_class.getDeclaredMethods();
         for (int mIx = 0; mIx < methods.length; mIx++) {
             if (methods[mIx].getName().equals(a_name)) {
@@ -35,7 +36,7 @@ public class MagicInvoker {
         }
     }
 
-    public Method findMethod(String a_methodName, Object ... a_args) {
+    private Method findMethod(String a_methodName, Object ... a_args) {
         Class caller = m_caller.getClass();
 
         Class<?> [] classes = new Class<?>[a_args.length];
@@ -43,7 +44,8 @@ public class MagicInvoker {
             classes[i] = a_args[i].getClass();
         }
 
-        return getMethodRecurse(caller.getSuperclass(), a_methodName, classes);
+        Method m = getMethodRecurse(caller.getSuperclass(), a_methodName, classes);
+        return m;
     }
 
     // Invokes a named method with arguments
@@ -60,6 +62,8 @@ public class MagicInvoker {
 
     // uses the caller method name anc class to invoke a method, i.e. create an inner class and inherit from the wanted class,
     // and override the intended method, the outer class can then call the privateMethod (as outer classes have access to inner class privates)
+    //
+    // If varargs (...) are used in the private method then these must be cast to Object i.e. invokeMethodMagic(arg1, (Object)varargs)
     //
     // class SomeInnerClass extends HasPrivateMethod {
     //
