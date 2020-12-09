@@ -1,6 +1,7 @@
 package se.lnu.siq.s4rdm3x.model.cmd.mapper;
 
 import org.junit.jupiter.api.Test;
+import se.lnu.siq.s4rdm3x.MagicInvoker;
 import se.lnu.siq.s4rdm3x.dmodel.NodeGenerator;
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
 import se.lnu.siq.s4rdm3x.model.CGraph;
@@ -22,65 +23,16 @@ public class NBMapperTests {
             super(a_arch, true, true, true, false, 0, 0.9);
         }
 
-        String getCallingMethodName() {
-            String methodName = Thread.currentThread().getStackTrace()[2].getMethodName();
-            return methodName;
-        }
 
-        Method getMethod(String a_name, Class<?>... a_parameterTypes) throws NoSuchMethodException {
-            // we need to look in the superclass as otherwise we will find the actual methods in this class
-            return getMethodRecurse(this.getClass().getSuperclass(), a_name, a_parameterTypes);
-        }
-
-        Method getMethodRecurse(Class a_class, String a_name,  Class<?>... a_parameterTypes) {
-
-            Method[] methods = a_class.getDeclaredMethods();
-            for (int mIx = 0; mIx < methods.length; mIx++) {
-                if (methods[mIx].getName().equals(a_name)) {
-                    Class[] params = methods[mIx].getParameterTypes();
-                    if (params.length == a_parameterTypes.length) {
-                        int pIx = 0;
-                        while(pIx < params.length && params[pIx].isAssignableFrom(a_parameterTypes[pIx])) {
-                            pIx++;
-                        }
-                        if (pIx == params.length) {
-                            return methods[mIx];
-                        }
-                    }
-                }
-            }
-            // try the parent
-            if (a_class.getSuperclass() != null) {
-                return getMethodRecurse(a_class.getSuperclass(), a_name, a_parameterTypes);
-            } else {
-                return null;
-            }
-        }
-
-        Object invokeMethodMagic(Object... a_args) {
-            String methodName = Thread.currentThread().getStackTrace()[2].getMethodName();
-            try {
-                Class<?> [] classes = new Class<?>[a_args.length];
-                for (int i = 0; i < a_args.length; i++) {
-                    classes[i] = a_args[i].getClass();
-                }
-
-                Method sutMethod = getMethod(methodName, classes);
-                sutMethod.setAccessible(true);
-                return (String) sutMethod.invoke(this, a_args);
-            } catch (Exception e) {
-                e.printStackTrace();
-                assertTrue(false, "Some reflexion exeption occured: " + methodName + "\n\n" + e.getMessage());
-                return null;
-            }
-        }
 
         private String getDependencyStringFromNode(CNode a_from, Iterable<ClusteredNode> a_tos) {
-            return (String)invokeMethodMagic(a_from, a_tos);
+            MagicInvoker mi = new MagicInvoker(this);
+            return (String)mi.invokeMethodMagic(a_from, a_tos);
         }
 
         private String getDependencyStringToNode(CNode a_to, Iterable<ClusteredNode> a_froms) {
-            return (String)invokeMethodMagic(a_to, a_froms);
+            MagicInvoker mi = new MagicInvoker(this);
+            return (String)mi.invokeMethodMagic(a_to, a_froms);
         }
 
         private ArrayList<Instance> findInstances(String a_className, Instances a_instances) {
