@@ -74,10 +74,11 @@ public class MagicInvokerTest {
     public void test_aPrivateMethod4_Overload() {
 
         class Inner extends ClassWithPrivateMethods {
-            private void aPrivateMethod4() {
+            private String aPrivateMethod4() {
                 MagicInvoker sut = new MagicInvoker(this);
                 String actual = (String)sut.invokeMethodMagic();
                 assertEquals("Hello Other World", actual);
+                return actual;
             }
         }
 
