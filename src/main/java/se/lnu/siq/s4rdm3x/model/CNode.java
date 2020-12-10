@@ -2,9 +2,13 @@ package se.lnu.siq.s4rdm3x.model;
 
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
+import weka.classifiers.functions.SGDText;
+import weka.core.DenseInstance;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 
 public class CNode {
@@ -192,35 +196,79 @@ public class CNode {
         return false;
     }
 
-    public int getDependencyCount(CNode a_to) {
-        int count = 0;
-        for (dmClass cFrom : m_classes) {
-            for(dmDependency dFrom : cFrom.getDependencies()) {
-                for (dmClass cTo : a_to.getClasses()) {
-                    if (dFrom.getTarget() == cTo) {
-                        count += dFrom.getCount();
-                    }
-                }
-            }
-        }
+    public static interface DependencyFilter {
+        boolean filter(CNode a_from, dmDependency a_dep, CNode a_to);
+    }
+    public static class NoFilter implements DependencyFilter {
+        public boolean filter(CNode a_from, dmDependency a_dep, CNode a_to) { return true; }
+    }
 
-        return count;
+    public static class CountFilter implements DependencyFilter {
+        public int m_count = 0;
+        public boolean filter(CNode a_from, dmDependency a_dep, CNode a_to) { m_count += a_dep.getCount(); return false; }
+    }
+
+    public int getDependencyCount(CNode a_to) {
+        return getDependencyCount(a_to, new CountFilter());
+    }
+
+    public int getDependencyCount(CNode a_to, CountFilter a_filter) {
+        getDependencies(a_to, a_filter);
+        return a_filter.m_count;
+    }
+
+    public int getDependencyCount(Iterable<CNode> a_tos, CountFilter a_filter) {
+        a_tos.forEach(n->{getDependencyCount(n, a_filter);});
+        return a_filter.m_count;
+    }
+
+    public Iterable<dmDependency> getDependencies(Iterable<CNode> a_tos) {
+        return getDependencies(a_tos, new NoFilter());
+    }
+
+    public Iterable<dmDependency> getDependencies(Iterable<CNode> a_tos, DependencyFilter a_filter) {
+        return getDependencies(a_tos, new ArrayList<>(), a_filter);
+    }
+
+    public Iterable<dmDependency> getDependencies(Iterable<CNode> a_tos, List<dmDependency> a_result) {
+        return getDependencies(a_tos, a_result, new NoFilter());
+    }
+
+    public Iterable<dmDependency> getDependencies(Iterable<CNode> a_tos, List<dmDependency> a_result, DependencyFilter a_filter) {
+        for (CNode to : a_tos) {
+            getDependencies(to, a_result, a_filter);
+        }
+        return a_result;
     }
 
     public Iterable<dmDependency> getDependencies(CNode a_to) {
-        ArrayList<dmDependency> ret = new ArrayList<>();
+        return getDependencies(a_to, new ArrayList<>());
+    }
+
+    public Iterable<dmDependency> getDependencies(CNode a_to, DependencyFilter a_filter) {
+        return getDependencies(a_to, new ArrayList<>(), a_filter);
+    }
+
+    public Iterable<dmDependency> getDependencies(CNode a_to, List<dmDependency> a_result) {
+        return getDependencies(a_to, a_result, new NoFilter());
+    }
+
+    public Iterable<dmDependency> getDependencies(CNode a_to, List<dmDependency> a_result, DependencyFilter a_filter) {
+
         for (dmClass cFrom : m_classes) {
             for(dmDependency dFrom : cFrom.getDependencies()) {
                 for (dmClass cTo : a_to.getClasses()) {
-                    if (dFrom.getTarget() == cTo) {
-                        ret.add(dFrom);
+                    if (dFrom.getTarget() == cTo && a_filter.filter(this, dFrom, a_to)) {
+                        a_result.add(dFrom);
                     }
                 }
             }
         }
 
-        return ret;
+        return a_result;
     }
+
+
 
     public String getFileName() {
         return m_classes.get(0).getFileName();
