@@ -3,60 +3,101 @@ package se.lnu.siq.s4rdm3x.model.cmd;
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
+import se.lnu.siq.s4rdm3x.model.Selector;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 public class ReportModuleDependencies {
 
-    public static class Module {
-        ArchDef.Component m_component;
-        ArrayList<CNode> m_nodes;   // the nodes that are clustered to the component
-        ArrayList<CNode> m_fanOut;  // the nodes that m_nodes have dependencies to
-        ArrayList<CNode> m_fanIn;   // the nodes that have dependencies to m_nodes
+    public static class ModuleDependency {
 
+        ArchDef.Component m_source, m_target;
+        dmDependency m_d;
 
-
-        public int countInternalDependencies(dmDependency.Type a_type) {
-            return count(a_type, m_nodes);
-        }
-
-        public int countOutgoingDependencies(dmDependency.Type a_type) {
-            return count(a_type, m_fanOut);
-        }
-
-        public int countIncomingDependencies(dmDependency.Type a_type) {
-            return count(a_type, m_fanIn);
-        }
-
-        private int count(dmDependency.Type a_type, Iterable<CNode> a_tos) {
-
-            class Counter extends CNode.CountFilter {
-                @Override
-                public boolean filter(CNode a_from, dmDependency a_dep, CNode a_to) {
-                    if (a_from != a_to && a_dep.getType() == a_type) {
-                        m_count += a_dep.getCount();
-                    }
-                    return false;
-                }
-            }
-
-            Counter c = new Counter();
-            m_nodes.forEach(from -> {a_tos.forEach(to->{from.getDependencyCount(to, c);});});
-            return c.m_count;
+        public ModuleDependency(ArchDef.Component a_from, dmDependency a_dep, ArchDef.Component a_to) {
+            m_source = a_from;
+            m_target = a_to;
+            m_d = a_dep;
         }
     }
 
+    Map<dmDependency.Type, ArrayList<ModuleDependency>> m_moduleDeps;
+
     public void run(CGraph a_g, ArchDef a_arch) {
-        // iterate all components and get all nodes for each component
-        // find all dependencies and construct the fan sets for each module
-        // decide how to count i.e. internal vs outgoing and internal
-        // |A -> B| B->|C|
-        // AB has 2 internal deps A->B and B<-A
-        // AB has 1 external fan out B->C
-        // C has 0 internal
-        // C has 1 external fan in C<-B
-        // |AB| has thus 2/3 internal deps and 1/3 external deps
-        // |C| has thus 0/1 internal deps 1/1 external deps
+
+        Iterable<CNode> mappedNodes = a_arch.getMappedNodes(a_g.getNodes());
+
+        m_moduleDeps = new HashMap<>();
+
+        for (CNode from : mappedNodes) {
+            mappedNodes.forEach(to -> from.getDependencies(to, new CNode.DependencyFilter() {
+                @Override
+                public boolean filter(CNode a_from, dmDependency a_dep, CNode a_to) {
+
+                    addModuleDependency(a_arch.getMappedComponent(a_from), a_dep, a_arch.getMappedComponent(a_to));
+
+                    return false;
+                }
+
+                private void addModuleDependency(ArchDef.Component a_from, dmDependency a_dep, ArchDef.Component a_to) {
+                    ArrayList<ModuleDependency> target;
+                    if (!m_moduleDeps.containsKey(a_dep.getType())) {
+                        target = new ArrayList<>();
+                        m_moduleDeps.put(a_dep.getType(), target);
+                    } else {
+                        target = m_moduleDeps.get(a_dep.getType());
+                    }
+
+                    target.add(new ModuleDependency(a_from, a_dep, a_to));
+                }
+            }));
+        }
+    }
+
+    public int countInternalDeps(dmDependency.Type a_type) {
+        return countDeps(a_type, moduleDependency -> moduleDependency.m_target == moduleDependency.m_source ? moduleDependency.m_d.getCount() : 0);
+    }
+
+    public int countExternalDeps(dmDependency.Type a_type) {
+        return countDeps(a_type, moduleDependency -> moduleDependency.m_target != moduleDependency.m_source ? moduleDependency.m_d.getCount() : 0);
+    }
+
+    public int countInternalDeps() {
+        return countDeps(moduleDependency -> moduleDependency.m_target == moduleDependency.m_source ? moduleDependency.m_d.getCount() : 0);
+    }
+
+    public int countExternalDeps() {
+        return countDeps(moduleDependency -> moduleDependency.m_target != moduleDependency.m_source ? moduleDependency.m_d.getCount() : 0);
+    }
+
+    private int countDeps(dmDependency.Type a_type, Function<ModuleDependency, Integer> a_counter) {
+        int ret = 0;
+        ret = countDeps(m_moduleDeps.get(a_type), a_counter);
+
+        return ret;
+    }
+
+    private int countDeps(Iterable<ModuleDependency> a_mds, Function<ModuleDependency, Integer> a_counter) {
+        int ret = 0;
+        if (a_mds != null) {
+            for (ModuleDependency md : a_mds) {
+                ret += a_counter.apply(md);
+            }
+        }
+        return ret;
+    }
+
+    private int countDeps(Function<ModuleDependency, Integer> a_counter) {
+        int ret = 0;
+        for(Iterable<ModuleDependency> mds : m_moduleDeps.values()) {
+            ret += countDeps(mds, a_counter);
+        }
+
+        return ret;
     }
 }

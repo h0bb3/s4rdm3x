@@ -185,7 +185,7 @@ public class MapperView {
                                 m_dependencyWeights.put(dt, weight);
                             }
 
-                            m_dependencyWeights.replace(dt, doRandomDoubleVariable(a_imgui, dt.toString(), weight));
+                            m_dependencyWeights.replace(dt, doRandomDoubleVariable(a_imgui, dt.toString(), weight, -1, 1));
                         }
 
                         if (a_imgui.button("Set to 0##" + m_id, 0)) {

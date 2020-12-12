@@ -191,8 +191,14 @@ public class StringCommandHandler {
                         }
                     }
                 }
-            }
-            else if (in.startsWith("//")) {
+            } else if (in.startsWith("print_moduledependencies")) {
+                ReportModuleDependencies c = new ReportModuleDependencies();
+                c.run(graph, m_arch);
+                ret.add("type" + sep + "internal" + sep + "external");
+                for(dmDependency.Type t : dmDependency.Type.values()) {
+                    ret.add(t + sep + c.countInternalDeps(t) + sep + c.countExternalDeps(t));
+                }
+            } else if (in.startsWith("//")) {
                 // skip comment
             } else if (in.startsWith("info")) {
 
