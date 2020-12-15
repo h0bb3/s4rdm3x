@@ -11,6 +11,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static se.lnu.siq.s4rdm3x.dmodel.dmDependency.Type.ConstructorCall;
+import static se.lnu.siq.s4rdm3x.dmodel.dmDependency.Type.MethodCall;
 
 /**
  * Created by tohto on 2017-04-27.
@@ -508,6 +509,48 @@ class ASMdmProjectBuilderTest {
             //dumpDependencies(c);
             //assertEquals(3, c.getDependencyCount());
 
+        } catch (Exception e) {
+            assertTrue(false);
+        }
+    }
+
+    @Test
+    void localVariablesTest() {
+        try {
+            dmClass expected = new dmClass(g_classesPkg + "Test4");
+            expected.addDependency("java.lang.Object", dmDependency.Type.Extends);
+            expected.addDependency("java.lang.Object", ConstructorCall);
+            expected.addDependency("void", dmDependency.Type.Returns);
+
+            // this is the method declaration
+            expected.addDependency(g_classesPkg + "Test3", dmDependency.Type.Argument);
+            expected.addDependency("java.lang.Iterable", dmDependency.Type.Argument);
+            expected.addDependency("void", dmDependency.Type.Returns);
+
+            // this is the for loop
+            expected.addDependency(g_classesPkg + "Test3", dmDependency.Type.LocalVar);
+            expected.addDependency("java.lang.Iterable", MethodCall);  // magically called in foreach
+            expected.addDependency("java.util.Iterator", MethodCall); // magically called in foreach
+            expected.addDependency("java.util.Iterator", MethodCall); // magically called in foreach
+            expected.addDependency("java.lang.Object", MethodCall); // toString
+
+
+
+            // this is the var argmethod declaration
+            expected.addDependency(g_classesPkg + "Test3", dmDependency.Type.Argument);
+            expected.addDependency("void", dmDependency.Type.Returns);
+            expected.addDependency(g_classesPkg + "Test3", dmDependency.Type.LocalVar);
+            expected.addDependency("java.lang.Object", MethodCall); // toString
+
+
+            ASMdmProjectBuilder pb = getAsMdmProjectBuilder(g_classesDir + "Test4.class");
+
+            assertTrue(pb.getProject() != null);
+
+            dmClass c = pb.getProject().findClass(expected.getName());
+            assertTrue(c != null);
+
+            assertTrue(compare(expected, c) == 0);
         } catch (Exception e) {
             assertTrue(false);
         }
