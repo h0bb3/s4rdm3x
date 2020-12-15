@@ -103,7 +103,9 @@ public class dmClass {
     }
 
     void addText(String a_text) {
-        m_texts.add(a_text);
+        if (a_text.length() > 0) {
+            m_texts.add(a_text);
+        }
     }
 
     public Iterable<String> getTexts() {

@@ -183,6 +183,11 @@ public class StringCommandHandler {
                 c.run(graph);
                 for (CNode sn : c.m_nodes) {
                     ret.add(sn.getName());
+
+                    sn.getClasses().forEach(cl -> {
+                        ret.add(sep + cl.getClassName() + ":" + cl.getLineCount());
+                    });
+
                     for (CNode tn : c.m_nodes) {
                         if (sn != tn) {
                             for (dmDependency d : sn.getDependencies(tn)) {
