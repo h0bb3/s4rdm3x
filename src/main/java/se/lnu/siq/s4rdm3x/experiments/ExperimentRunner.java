@@ -302,37 +302,50 @@ public class ExperimentRunner {
                             } catch (System.NoMappedNodesException ex) {
                                 // we just print some warnings and remove the offending components
                                 for (ArchDef.Component c : ex.m_components) {
-                                    java.lang.System.out.println("Warning: No nodes mapped to component: " + c.getName() + " in system: " + sua.getName() + " - removing component from analysis.");
+                                    java.lang.System.err.println("Warning: No nodes mapped to component: " + c.getName() + " in system: " + sua.getName() + " - removing component from analysis.");
                                     ex.m_arch.removeComponent(c);
+
                                 }
-                                gap.m_a = ex.m_arch;
+                                if (ex.m_arch.getComponentCount() == 0) {
+                                    java.lang.System.err.println("Error: No components in architecture in system: " + sua.getName());
+                                } else {
+                                    gap.m_a = ex.m_arch;
+                                }
+
                             }
 
-                            loadedSystems.put(sua, gap);
-                            a_g = gap.m_g;
-                            arch = gap.m_a;
+                            if (gap.m_a != null) {
+                                loadedSystems.put(sua, gap);
+                                a_g = gap.m_g;
+                                arch = gap.m_a;
 
-                            // we need to adjust the initial set generation so that we do not get a skewed distribution at the extremes
-                            // e.g. if we have many arch components possibly many initial set ratios will generate this amount of nodes
-                            // we also need to compensate for a possible initial set
-                            gap.m_initialSetRatio = new RandomDoubleVariable(m_initialSetSize);
-                            final int minInitialSet = m_initialSetPerComponent ? arch.getComponentCount() : 1;
+                                // we need to adjust the initial set generation so that we do not get a skewed distribution at the extremes
+                                // e.g. if we have many arch components possibly many initial set ratios will generate this amount of nodes
+                                // we also need to compensate for a possible initial set
+                                gap.m_initialSetRatio = new RandomDoubleVariable(m_initialSetSize);
+                                final int minInitialSet = m_initialSetPerComponent ? arch.getComponentCount() : 1;
 
-                            int mappedNodeCount = arch.getMappedNodeCount(a_g.getNodes()) - (m_useInitialMapping ? sua.getInitialMappingCount(a_g, arch) : 0);
-                            double min = (double)minInitialSet / (double)mappedNodeCount;
-                            double max = (double)(mappedNodeCount) / (double)mappedNodeCount - 0.000000001;
+                                int mappedNodeCount = arch.getMappedNodeCount(a_g.getNodes()) - (m_useInitialMapping ? sua.getInitialMappingCount(a_g, arch) : 0);
+                                double min = (double) minInitialSet / (double) mappedNodeCount;
+                                double max = (double) (mappedNodeCount) / (double) mappedNodeCount - 0.000000001;
 
-                            if (gap.m_initialSetRatio.getMin() > min) {
-                                min = gap.m_initialSetRatio.getMin();
+                                if (gap.m_initialSetRatio.getMin() > min) {
+                                    min = gap.m_initialSetRatio.getMin();
+                                }
+
+                                if (gap.m_initialSetRatio.getMax() < max) {
+                                    max = gap.m_initialSetRatio.getMax();
+                                }
+
+                                gap.m_initialSetRatio.setMinMax(min, max);
+
+                                initialSetRatio = gap.m_initialSetRatio;
+                            } else {
+                                java.lang.System.err.println("Error: No architecture for system: " + sua.getName() + " => Aborting Experiment");
+                                m_state = State.Stoping;
+                                arch = null;
+                                initialSetRatio = null;
                             }
-
-                            if (gap.m_initialSetRatio.getMax() < max ) {
-                                max = gap.m_initialSetRatio.getMax();
-                            }
-
-                            gap.m_initialSetRatio.setMinMax(min, max);
-
-                            initialSetRatio = gap.m_initialSetRatio;
 
                         } else {
                             GraphArchitecturePair gap = loadedSystems.get(sua);
@@ -341,80 +354,82 @@ public class ExperimentRunner {
                             initialSetRatio = gap.m_initialSetRatio;
                         }
 
-                        // this is an optimization if we only have one metric we do not need to reassign it
-                        if (prevMetric != metric) {
-                            metric.assignMetric(arch.getMappedNodes(a_g.getNodes()));
-                        }
-
-
-                        arch.cleanNodeClusters(a_g.getNodes(), false);
-                        if (m_useInitialMapping) {
-                            // Set the initial set an initial set from architecture
-                            sua.setInitialMapping(a_g, arch);
-                        }
-                        if (m_initialSetPerComponent) {
-                            setGenerator.assignInitialClustersPerComponent(a_g, arch, initialSetRatio.generate(m_rand), metric, m_rand);
-                        } else {
-                            setGenerator.assignInitialClusters(a_g, arch, initialSetRatio.generate(m_rand), metric, m_rand);
-                        }
-
-
-                        for (ExperimentRun experiment : m_experiments) {
-
-                            final ExperimentRunData.BasicRunData rd = experiment.createNewRunData(m_rand);
-                            rd.m_metric = metric;
-                            rd.m_system = sua;
-                            rd.m_totalMapped = arch.getMappedNodeCount(a_g.getNodes());
-
-
-                            rd.m_date = sdfDate.format(new Date());
-                            rd.m_mapperName = experiment.getName();
-
-                            arch.getClusteredNodes(a_g.getNodes(), ArchDef.Component.ClusteringType.Initial).forEach(n -> rd.addInitialClusteredNode(n));
-
-                            rd.m_initialClusteringPercent = (double)rd.getInitialClusteringNodeCount() / (double)rd.m_totalMapped;
-
-                            //rd.m_totalMapped = 0;
-                            rd.m_totalManuallyClustered = 0;
-                            rd.m_totalAutoWrong = 0;
-                            rd.m_iterations = 0;
-                            rd.m_totalFailedClusterings = 0;
-                            rd.m_id = i;
-
-                            if (m_listener != null) {
-                                m_listener.OnRunInit(rd, a_g, arch);
-                            }
-                            long start = java.lang.System.nanoTime();
-
-                            // we always run until we are finished even if we are stopped to avoid partial data sets.
-                            while (!experiment.runClustering(a_g, arch)) {
-
-
-                                // TODO: this component could be wrong and should maye be corrected
-                                /*for (CNode a_n : arch.getMappedNodes(a_g.getNodes())) {
-                                    ArchDef.Component c = arch.getClusteredComponent(a_n);
-                                    ArchDef.Component m = arch.getMappedComponent(a_n);
-                                    if (c != null && c != m && c.getClusteringType(a_n) == ArchDef.Component.ClusteringType.Automatic) {
-
-                                        m.clusterToNode(a_n, ArchDef.Component.ClusteringType.Automatic);
-                                    }
-                                }*/
+                        if (m_state == State.Running) {
+                            // this is an optimization if we only have one metric we do not need to reassign it
+                            if (prevMetric != metric) {
+                                metric.assignMetric(arch.getMappedNodes(a_g.getNodes()));
                             }
 
 
-                            rd.m_time = java.lang.System.nanoTime() - start;
-
-                            if (m_listener != null) {
-                                m_listener.OnRunCompleted(rd, a_g, arch, experiment);
+                            arch.cleanNodeClusters(a_g.getNodes(), false);
+                            if (m_useInitialMapping) {
+                                // Set the initial set an initial set from architecture
+                                sua.setInitialMapping(a_g, arch);
+                            }
+                            if (m_initialSetPerComponent) {
+                                setGenerator.assignInitialClustersPerComponent(a_g, arch, initialSetRatio.generate(m_rand), metric, m_rand);
+                            } else {
+                                setGenerator.assignInitialClusters(a_g, arch, initialSetRatio.generate(m_rand), metric, m_rand);
                             }
 
-                            arch.cleanNodeClusters(a_g.getNodes(), true);
-                        }
 
-                        i++;
-                        prevMetric = metric;
-                        // Needed?
-                        metric.reassignMetric(arch.getMappedNodes(a_g.getNodes()));
+                            for (ExperimentRun experiment : m_experiments) {
+
+                                final ExperimentRunData.BasicRunData rd = experiment.createNewRunData(m_rand);
+                                rd.m_metric = metric;
+                                rd.m_system = sua;
+                                rd.m_totalMapped = arch.getMappedNodeCount(a_g.getNodes());
+
+
+                                rd.m_date = sdfDate.format(new Date());
+                                rd.m_mapperName = experiment.getName();
+
+                                arch.getClusteredNodes(a_g.getNodes(), ArchDef.Component.ClusteringType.Initial).forEach(n -> rd.addInitialClusteredNode(n));
+
+                                rd.m_initialClusteringPercent = (double) rd.getInitialClusteringNodeCount() / (double) rd.m_totalMapped;
+
+                                //rd.m_totalMapped = 0;
+                                rd.m_totalManuallyClustered = 0;
+                                rd.m_totalAutoWrong = 0;
+                                rd.m_iterations = 0;
+                                rd.m_totalFailedClusterings = 0;
+                                rd.m_id = i;
+
+                                if (m_listener != null) {
+                                    m_listener.OnRunInit(rd, a_g, arch);
+                                }
+                                long start = java.lang.System.nanoTime();
+
+                                // we always run until we are finished even if we are stopped to avoid partial data sets.
+                                while (!experiment.runClustering(a_g, arch)) {
+
+
+                                    // TODO: this component could be wrong and should maye be corrected
+                                    /*for (CNode a_n : arch.getMappedNodes(a_g.getNodes())) {
+                                        ArchDef.Component c = arch.getClusteredComponent(a_n);
+                                        ArchDef.Component m = arch.getMappedComponent(a_n);
+                                        if (c != null && c != m && c.getClusteringType(a_n) == ArchDef.Component.ClusteringType.Automatic) {
+
+                                            m.clusterToNode(a_n, ArchDef.Component.ClusteringType.Automatic);
+                                        }
+                                    }*/
+                                }
+
+
+                                rd.m_time = java.lang.System.nanoTime() - start;
+
+                                if (m_listener != null) {
+                                    m_listener.OnRunCompleted(rd, a_g, arch, experiment);
+                                }
+
+                                arch.cleanNodeClusters(a_g.getNodes(), true);
+                            }
+
+                            i++;
+                            prevMetric = metric;
+                            // Needed?
+                            metric.reassignMetric(arch.getMappedNodes(a_g.getNodes()));
+                        }
                     }
                     if (m_state != State.Running) {
                         break;

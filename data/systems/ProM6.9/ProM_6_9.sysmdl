@@ -19,7 +19,12 @@ prom.domain.plugins
 #log
 #apacheutils
 
-# mapping: <package>.* maps all classes in <package> except for those which are explicitly listed in another mapping
+# mapping
+# <high_level_module> <regular_expression>
+prom.framework org\.processmining\.framework\.*
+prom.domain.contexts org\.processmining\.contexts\.*
+prom.domain.models org\.processmining\.models\.*
+prom.domain.plugins org\.processmining\.plugins\.*
 
 # relations
 # <source_module> <target_module>
@@ -34,11 +39,7 @@ prom.domain.plugins prom.domain.models
 #prom.packages prom.domain.models
 
 
-# mapping
-prom.framework org.processmining.framework.*
-prom.domain.contexts org.processmining.contexts.*
-prom.domain.models org.processmining.models.*
-prom.domain.plugins org.processmining.plugins.*
+
 
 
 # initial mapping

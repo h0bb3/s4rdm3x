@@ -11,21 +11,22 @@ public class ArchCreator {
     public void mapArch(ArchDef a_arch, SystemModelReader a_model, CGraph a_g) throws System.NoMappedNodesException{
         for (SystemModelReader.Mapping mapping : a_model.m_mappings) {
             ArchDef.Component c = a_arch.getComponent(mapping.m_moduleName);
-            Selector.Pat p = new Selector.Pat(mapping.m_regexp);
+            if (c != null) {
+                Selector.Pat p = new Selector.Pat(mapping.m_regexp);
 
-            for (CNode n : a_g.getNodes()) {
-                if (p.isSelected(n)) {
-                    ArchDef.Component oldMapping = a_arch.getMappedComponent(n);
-                    if (oldMapping != null) {
-                        // we already have a mapping
-                        if (!mapping.m_regexp.contains(".*")) {
-                            oldMapping.unmap(n);
-                            c.mapToNode(n);
+                for (CNode n : a_g.getNodes()) {
+                    if (p.isSelected(n)) {
+                        ArchDef.Component oldMapping = a_arch.getMappedComponent(n);
+                        if (oldMapping != null) {
+                            if (c != oldMapping) {
+                                java.lang.System.err.println("Warning: Old mapping exists for node: was " + n.getName() + " -> " + oldMapping.getName() + " now mapped to: " + c.getName() + " (Make sure this is what you want...)");
+                            }
                         }
-                    } else {
                         c.mapToNode(n);
                     }
                 }
+            } else {
+                java.lang.System.err.println("Error: Could not find component with name: " + mapping.m_moduleName + " for system: " + a_model.m_name);
             }
         }
 

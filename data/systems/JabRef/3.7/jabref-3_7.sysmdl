@@ -23,56 +23,56 @@ cli
 
 # mapping: <package>.* maps all classes in <package> except for those which are explicitly listed in another mapping
 # these are taken from the HUSSACT Mapping SAEroCon Repository
-gui net.sf.jabref.JabRefGUI
-gui net.sf.jabref.JabRefMain
-gui net.sf.jabref.collab.Change
-gui net.sf.jabref.collab.ChangeDisplayDialog
-gui net.sf.jabref.collab.ChangeScanner
-gui net.sf.jabref.collab.EntryAddChange
-gui net.sf.jabref.collab.EntryChange
-gui net.sf.jabref.collab.EntryDeleteChange
-gui net.sf.jabref.collab.FileUpdatePanel
-gui net.sf.jabref.collab.GroupChange
-gui net.sf.jabref.collab.InfoPane
-gui net.sf.jabref.collab.MetaDataChange
-gui net.sf.jabref.collab.PreambleChange
-gui net.sf.jabref.collab.StringAddChange
-gui net.sf.jabref.collab.StringChange
-gui net.sf.jabref.collab.StringNameChange
-gui net.sf.jabref.collab.StringRemoveChange
-gui net.sf.jabref.gui.*
-gui net.sf.jabref.migrations.FileLinksUpgradeWarning
-gui net.sf.jabref.pdfimport.ImportDialog
-gui net.sf.jabref.pdfimport.PdfFileFilter
-gui net.sf.jabref.pdfimport.PdfImporter
+gui net\.sf\.jabref\.JabRefGUI
+gui net\.sf\.jabref\.JabRefMain
+gui net\.sf\.jabref\.collab\.Change
+gui net\.sf\.jabref\.collab\.ChangeDisplayDialog
+gui net\.sf\.jabref\.collab\.ChangeScanner
+gui net\.sf\.jabref\.collab\.EntryAddChange
+gui net\.sf\.jabref\.collab\.EntryChange
+gui net\.sf\.jabref\.collab\.EntryDeleteChange
+gui net\.sf\.jabref\.collab\.FileUpdatePanel
+gui net\.sf\.jabref\.collab\.GroupChange
+gui net\.sf\.jabref\.collab\.InfoPane
+gui net\.sf\.jabref\.collab\.MetaDataChange
+gui net\.sf\.jabref\.collab\.PreambleChange
+gui net\.sf\.jabref\.collab\.StringAddChange
+gui net\.sf\.jabref\.collab\.StringChange
+gui net\.sf\.jabref\.collab\.StringNameChange
+gui net\.sf\.jabref\.collab\.StringRemoveChange
+gui net\.sf\.jabref\.gui\.*
+gui net\.sf\.jabref\.migrations\.FileLinksUpgradeWarning
+gui net\.sf\.jabref\.pdfimport\.ImportDialog
+gui net\.sf\.jabref\.pdfimport\.PdfFileFilter
+gui net\.sf\.jabref\.pdfimport\.PdfImporter
 
-logic net.sf.jabref.JabRefExecutorService
-logic net.sf.jabref.collab.FileUpdateListener
-logic net.sf.jabref.collab.FileUpdateMonitor
-logic net.sf.jabref.logic.*
-logic net.sf.jabref.shared.DBMSProcessor
-logic net.sf.jabref.shared.DBMSSynchronizer
-logic net.sf.jabref.shared.MySQLProcessor
-logic net.sf.jabref.shared.OracleProcessor
-logic net.sf.jabref.shared.PostgreSQLProcessor
-logic net.sf.jabref.shared.event.*
-logic net.sf.jabref.shared.exception.*
-logic net.sf.jabref.shared.listener.*
+logic net\.sf\.jabref\.JabRefExecutorService
+logic net\.sf\.jabref\.collab\.FileUpdateListener
+logic net\.sf\.jabref\.collab\.FileUpdateMonitor
+logic net\.sf\.jabref\.logic\.*
+logic net\.sf\.jabref\.shared\.DBMSProcessor
+logic net\.sf\.jabref\.shared\.DBMSSynchronizer
+logic net\.sf\.jabref\.shared\.MySQLProcessor
+logic net\.sf\.jabref\.shared\.OracleProcessor
+logic net\.sf\.jabref\.shared\.PostgreSQLProcessor
+logic net\.sf\.jabref\.shared\.event\.*
+logic net\.sf\.jabref\.shared\.exception\.*
+logic net\.sf\.jabref\.shared\.listener\.*
 
-model net.sf.jabref.JabRefException
-model net.sf.jabref.model.*
-model net.sf.jabref.shared.DBMSConnection.*
-model net.sf.jabref.shared.DBMSConnectionProperties.*
-model net.sf.jabref.shared.DBMSType.*
-model net.sf.jabref.shared.security.Password.*
+model net\.sf\.jabref\.JabRefException
+model net\.sf\.jabref\.model\.*
+model net\.sf\.jabref\.shared\.DBMSConnection\.*
+model net\.sf\.jabref\.shared\.DBMSConnectionProperties\.*
+model net\.sf\.jabref\.shared\.DBMSType\.*
+model net\.sf\.jabref\.shared\.security\.Password\.*
 
-globals net.sf.jabref.Globals
+globals net\.sf\.jabref\.Globals
 
-cli net.sf.jabref.cli.*
+cli net\.sf\.jabref\.cli\.*
 
-preferences net.sf.jabref.migrations.PreferencesMigrations
-preferences net.sf.jabref.preferences.*
-preferences net.sf.jabref.shared.prefs.*
+preferences net\.sf\.jabref\.migrations\.PreferencesMigrations
+preferences net\.sf\.jabref\.preferences\.*
+preferences net\.sf\.jabref\.shared\.prefs\.*
 
 #guiapi java.awt.*
 #guiapi javax.swing.*
