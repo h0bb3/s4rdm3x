@@ -103,18 +103,15 @@ public class ArchCreator {
         return arch;
     }
 
-    public SystemModelReader createSystemModel(ArchDef a_arch, Iterable<CNode> a_nodesToMap) {
+    public SystemModelReader createSystemModel(ArchDef a_arch, Iterable<CNode> a_nodesToMap, String a_name) {
         SystemModelReader ret = new SystemModelReader();
 
-        ret.m_name = "created system";
+        ret.m_name = a_name;
 
         for (ArchDef.Component c : a_arch.getComponents()) {
 
-            SystemModelReader.Module module = new SystemModelReader.Module();
-            module.m_name = c.getName();
+            SystemModelReader.Module module = new SystemModelReader.Module(c.getName());
             ret.m_modules.add(module);
-
-
 
             for (ArchDef.Component to : a_arch.getComponents()) {
                 if (c.allowedDependency(to)) {
@@ -126,14 +123,10 @@ public class ArchCreator {
                 }
             }
 
-
             for (CNode n : a_nodesToMap) {
                 if (c.isMappedTo(n)) {
-                    SystemModelReader.Mapping m = new SystemModelReader.Mapping();
-
-                    m.m_moduleName = c.getName();
-                    //m.m_regexp = n.getName();
-                    m.m_regexp = n.getLogicName();
+                    String regexp = n.getLogicName() + "(?!.)";  // we use exact matching
+                    SystemModelReader.Mapping m = new SystemModelReader.Mapping(c.getName(), regexp);
 
                     ret.m_mappings.add(m);
                 }
@@ -141,6 +134,5 @@ public class ArchCreator {
         }
 
         return ret;
-
     }
 }

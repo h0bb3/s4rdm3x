@@ -4,13 +4,21 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class    SystemModelReader {
+public class SystemModelReader {
     public static class Module {
+        public Module(String a_name) {
+            m_name = a_name;
+        }
         public String m_name;
     }
     public static class Mapping {
         public String m_moduleName;
         public String m_regexp;
+
+        public Mapping(String a_moduleName, String a_regexp) {
+            m_moduleName = a_moduleName;
+            m_regexp = a_regexp;
+        }
     }
     public static class Relation {
         public String m_moduleNameFrom;
@@ -57,20 +65,15 @@ public class    SystemModelReader {
         a_line = "don't use me there may be comments in the string use parts[0]";
         switch (a_context) {
             case Module: {
-                Module m = new Module();
-                m.m_name = parts[0];
+                Module m = new Module(parts[0]);
                 m_modules.add(m);
             } break;
             case Mapping: {
-                Mapping m = new Mapping();
-                m.m_moduleName = parts[0];
-                m.m_regexp = parts[1];
+                Mapping m = new Mapping(parts[0], parts[1]);
                 m_mappings.add(m);
             } break;
             case InitialMapping: {
-                Mapping m = new Mapping();
-                m.m_moduleName = parts[0];
-                m.m_regexp = parts[1];
+                Mapping m = new Mapping(parts[0], parts[1]);
                 m_initialMappings.add(m);
             } break;
             case Relation: {
