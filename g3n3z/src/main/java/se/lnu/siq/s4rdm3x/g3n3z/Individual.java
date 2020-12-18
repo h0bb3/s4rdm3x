@@ -165,11 +165,11 @@ public class Individual {
         return m_weights.getWeight(t);
     }
 
-    public void mutate() {
+    public void mutate(double a_amplitude) {
         dmDependency.Type t = dmDependency.Type.values()[m_rand.nextInt(dmDependency.Type.values().length)];
 
         double w = m_weights.getWeight(t);
-        w += (m_rand.nextDouble() - 0.5) * 0.2;
+        w += 2.0 * (m_rand.nextDouble() - 0.5) * a_amplitude; // +/- amplitude
         if (w < 0) {
             w = 0;
         } else if (w > 1) {
