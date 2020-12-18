@@ -26,7 +26,7 @@ public class Generation {
 
     }
 
-    public Generation(Generation a_prevGen) {
+    public Generation(Generation a_prevGen, double a_chanceOfMutation, double a_mutationAmplitude, int a_eliteIndividualMaxAge, int a_tournamentSize) {
         m_graph = a_prevGen.m_graph;
         m_arch = a_prevGen.m_arch;
         m_r = a_prevGen.m_r;
@@ -35,19 +35,19 @@ public class Generation {
         // create the individuals
 
         // elitism - but kill the elite individual if it has lived a long life
-        int elitismOffset = a_prevGen.m_individuals[0].getEliteGenerations() < 1 ? 1: 0;
+        int elitismOffset = a_prevGen.m_individuals[0].getEliteGenerations() + 1 < a_eliteIndividualMaxAge ? 1: 0;
         if (elitismOffset > 0) {
             m_individuals[0] = new Individual(a_prevGen.m_individuals[0]);
         }
 
         for (int i = elitismOffset; i < m_individuals.length; i++) {
-            Integer[] pop = tournament(5, a_prevGen.m_individuals);
+            Integer[] pop = tournament(a_tournamentSize, a_prevGen.m_individuals);
             Individual i1 = a_prevGen.m_individuals[pop[0]];
             Individual i2 = a_prevGen.m_individuals[pop[1]];
 
             m_individuals[i] = new Individual(i1, i2);
-            if (m_r.nextDouble() < 0.2) {
-                m_individuals[i].mutate();
+            if (m_r.nextDouble() < a_chanceOfMutation) {
+                m_individuals[i].mutate(a_mutationAmplitude);
             }
 
         }
@@ -106,10 +106,31 @@ public class Generation {
     }
 
 
-    public void eval() {
+    public void eval(int a_maxThreads) {
 
         ArrayList<Iterable<String>> initialSets = createInitialSets(10);
+        if (a_maxThreads > 0) {
+            evalThreads(initialSets, a_maxThreads);
+        } else {
+            evalPlain(initialSets);
+        }
+
+
+        Arrays.sort(m_individuals, (o1, o2)->{return Double.compare(o2.getF1(), o1.getF1());});
+    }
+
+    private void evalPlain(Iterable<Iterable<String>> a_initialSets) {
+        for (int i = 0; i < m_individuals.length; i++) {
+
+            Individual indiv = m_individuals[i];
+            indiv.eval(a_initialSets);
+            System.out.println("\t\tIndividual F1: " + indiv.getF1());
+        }
+    }
+
+    private void evalThreads(Iterable<Iterable<String>>a_initialSets, int a_maxThreads) {
         final int[] doneCount = {0};
+        int startedThreads = 0;
 
         for (int i = 0; i < m_individuals.length; i++) {
 
@@ -117,17 +138,22 @@ public class Generation {
             Runnable r = new Runnable() {
                 @Override
                 public void run() {
-                    indiv.eval(initialSets);
+                    indiv.eval(a_initialSets);
                     System.out.println("\t\tIndividual F1: " + indiv.getF1());
                     doneCount[0]++;
                 }
             };
             Thread t = new Thread(r);
             t.start();
+            startedThreads++;
+            // do not start too many threads
+            while (startedThreads - doneCount[0] >= a_maxThreads) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
 
-            //indiv.eval(initialSets);
-            //System.out.println("\t\tIndividual F1: " + indiv.getF1());
-            //doneCount[0]++;
+                }
+            }
         }
 
         while(doneCount[0] != m_individuals.length) {
@@ -137,18 +163,6 @@ public class Generation {
 
             }
         }
-
-        Arrays.sort(m_individuals, (o1, o2)->{return Double.compare(o2.getF1(), o1.getF1());});
-    }
-
-    private boolean allDone() {
-        for (Individual i : m_individuals) {
-            if (i.getF1() <= -Double.MAX_VALUE) {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     private ArrayList<Iterable<String>> createInitialSets(int a_setCount) {
