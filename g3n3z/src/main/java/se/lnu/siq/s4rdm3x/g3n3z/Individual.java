@@ -16,6 +16,7 @@ public class Individual {
     private Random m_rand = null;
     private final long m_seed;
     private double m_f1 = -1;
+    private int m_eliteGeneration;
 
     private MapperBase.DependencyWeights m_weights;
 
@@ -29,29 +30,39 @@ public class Individual {
         for (dmDependency.Type t : dmDependency.Type.values()) {
             m_weights.setWeight(t, m_rand.nextDouble());
         }
+        m_eliteGeneration = 0;
     }
 
-    public Individual(Individual m_p1, Individual m_p2, double a_chanceOfMutation) {
-        m_graph = copy(m_p1.m_graph, m_p1.m_arch);
-        m_arch = m_p1.m_arch;
+    public Individual(Individual a_p1, Individual a_p2) {
+        m_graph = copy(a_p1.m_graph, a_p1.m_arch);
+        m_arch = a_p1.m_arch;
         m_weights = new MapperBase.DependencyWeights(1.0);
-        m_seed = (m_p1.m_seed + m_p2.m_seed) / 2;
+        m_seed = (a_p1.m_seed + a_p2.m_seed) / 2;
         m_rand = new Random(m_seed);
+        m_eliteGeneration = 0;
 
         for (dmDependency.Type t : dmDependency.Type.values()) {
-            if (m_rand.nextDouble() < a_chanceOfMutation) {
-                m_weights.setWeight(t, m_rand.nextDouble());
+
+            if (m_rand.nextDouble() < 0.5) {
+                m_weights.setWeight(t, a_p1.m_weights.getWeight(t));
             } else {
-                if (m_rand.nextDouble() < 0.5) {
-                    m_weights.setWeight(t, m_p1.m_weights.getWeight(t));
-                } else {
-                    m_weights.setWeight(t, m_p2.m_weights.getWeight(t));
-                }
-                /*double p1 = m_p1.m_weights.getWeight(t);
-                double p2 = m_p2.m_weights.getWeight(t);
-                m_weights.setWeight(t, (p1 + p2) / 2.0);*/
+                m_weights.setWeight(t, a_p2.m_weights.getWeight(t));
+            }
+            /*double p1 = a_p1.m_weights.getWeight(t);
+            double p2 = a_p2.m_weights.getWeight(t);
+            m_weights.setWeight(t, (p1 + p2) / 2.0);*/
+        }
+    }
+
+    public boolean equals(Individual a_i) {
+        for (dmDependency.Type t : dmDependency.Type.values()) {
+            double v1 = m_weights.getWeight(t);
+            double v2 = a_i.m_weights.getWeight(t);
+            if (Math.abs(v1-v2) > 0.0001) {
+                return false;
             }
         }
+        return true;
     }
 
     public Individual(Individual a_eliteIndividual) {
@@ -60,10 +71,16 @@ public class Individual {
         m_weights = new MapperBase.DependencyWeights(a_eliteIndividual.m_weights);
         m_seed = a_eliteIndividual.m_seed;
         m_rand = new Random(m_seed);
+        m_eliteGeneration = a_eliteIndividual.m_eliteGeneration + 1;
+    }
+
+    public int getEliteGenerations() {
+        return m_eliteGeneration;
     }
 
     public double eval(Iterable<Iterable<String>> a_initialSets) {
         double f1 = 0;
+        m_f1 = -Double.MAX_VALUE;
         int setCount = 0;
         for (Iterable<String> initialSet : a_initialSets) {
             //System.out.println("\t\t\tEvaluating initial set: " + setCount);
@@ -76,7 +93,19 @@ public class Individual {
             setCount++;
         }
 
+
         m_f1 = f1 / setCount;
+
+        /*
+        // maximize the first weight only
+        m_f1 = m_weights.getWeight(dmDependency.Type.values()[4]);
+        m_f1 += m_weights.getWeight(dmDependency.Type.values()[1]);
+        for (dmDependency.Type t : dmDependency.Type.values()) {
+            if (t != dmDependency.Type.values()[4] && t != dmDependency.Type.values()[1]) {
+                m_f1 -= m_weights.getWeight(t);
+            }
+        }*/
+
         return m_f1;
     }
 
@@ -134,5 +163,19 @@ public class Individual {
 
     public double getDW(dmDependency.Type t) {
         return m_weights.getWeight(t);
+    }
+
+    public void mutate() {
+        dmDependency.Type t = dmDependency.Type.values()[m_rand.nextInt(dmDependency.Type.values().length)];
+
+        double w = m_weights.getWeight(t);
+        w += (m_rand.nextDouble() - 0.5) * 0.2;
+        if (w < 0) {
+            w = 0;
+        } else if (w > 1) {
+            w = 1;
+        }
+
+        m_weights.setWeight(t, w);
     }
 }

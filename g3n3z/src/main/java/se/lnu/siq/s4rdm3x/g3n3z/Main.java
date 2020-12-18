@@ -28,10 +28,10 @@ public class Main {
             ArchDef a = system.createAndMapArch(g);
             Environment env = new Environment(g, a, seed);
 
-            Individual best = env.evolve(10, 10);
+            Individual best = env.evolve(40, 100);
 
             for (dmDependency.Type t: dmDependency.Type.values()) {
-                java.lang.System.out.println(t + " : " + best.getDW(t));
+                java.lang.System.out.println(t + ":\t" + best.getDW(t));
             }
         } catch (IOException | System.NoMappedNodesException e) {
             e.printStackTrace();

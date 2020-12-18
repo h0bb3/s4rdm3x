@@ -5,6 +5,7 @@ import se.lnu.siq.s4rdm3x.model.CNode;
 import se.lnu.siq.s4rdm3x.model.Selector;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 public class Environment {
@@ -29,16 +30,26 @@ public class Environment {
     public Individual evolve(final int a_individualsPerGeneration, final int a_maxGenerations) {
         Random r = new Random(m_seed);
         Generation currentGeneration = new Generation(m_graph, m_arch, a_individualsPerGeneration, r);
+        ArrayList<Double> popAverageScore = new ArrayList<>();
+        ArrayList<Double> bestIndScore = new ArrayList<>();
 
         for (int g = 0; g < a_maxGenerations; g++) {
-            java.lang.System.out.println("Evaluating generation: " + g);
+            //java.lang.System.out.println("Evaluating generation: " + g);
             currentGeneration.eval();
-            java.lang.System.out.println("Best Individual F1 score: " + currentGeneration.getBest().getF1());
+            java.lang.System.out.println("\tAverage F1 score:\t" + currentGeneration.getAverageScore());
+            java.lang.System.out.println("\tBest Individual F1 score:\t" + currentGeneration.getBest().getF1());
+            popAverageScore.add(currentGeneration.getAverageScore());
+            bestIndScore.add(currentGeneration.getBest().getF1());
             if (g + 1 < a_maxGenerations) {
-                java.lang.System.out.println("Spawing new generation...");
+                //java.lang.System.out.println("Spawing new generation...");
                 currentGeneration = new Generation(currentGeneration);
             }
         }
+        java.lang.System.out.println("best\taverage");
+        for (int i = 0; i < popAverageScore.size(); i++) {
+            java.lang.System.out.println("" + bestIndScore.get(i) + "\t" + popAverageScore.get(i));
+        }
+
 
         return currentGeneration.getBest();
     }
