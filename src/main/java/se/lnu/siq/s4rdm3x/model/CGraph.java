@@ -81,4 +81,9 @@ public class CGraph {
     public void removeNode(CNode a_node) {
         m_nodes.remove(a_node);
     }
+
+
+    public int getNodeCount() {
+        return m_nodes.size();
+    }
 }

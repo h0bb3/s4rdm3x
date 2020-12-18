@@ -24,7 +24,6 @@ public class Generation {
             m_individuals[i] = new Individual(a_graph, a_arch, m_r.nextInt());
         }
 
-        Arrays.sort(m_individuals, (o1, o2) -> {return (int)(o1.getF1() - o2.getF1());});
     }
 
     public Generation(Generation a_prevGen) {
@@ -35,49 +34,69 @@ public class Generation {
 
         // create the individuals
 
-        // elitism
-        m_individuals[0] = new Individual(a_prevGen.m_individuals[0]);
-
-        for (int i = 1; i < m_individuals.length; i++) {
-            ArrayList<Individual> population = new ArrayList<>();
-
-            int i1Ix = tournament(m_individuals.length / 3, a_prevGen.m_individuals);
-            Individual i1 = a_prevGen.m_individuals[i1Ix];
-            a_prevGen.m_individuals[i1Ix] = null;
-            int i2Ix = tournament(m_individuals.length / 3, a_prevGen.m_individuals);
-            Individual i2 = a_prevGen.m_individuals[i2Ix];
-            a_prevGen.m_individuals[i1Ix] = i1;
-
-            m_individuals[i] = new Individual(i1, i2, m_r.nextLong());
+        // elitism - but kill the elite individual if it has lived a long life
+        int elitismOffset = a_prevGen.m_individuals[0].getEliteGenerations() < 1 ? 1: 0;
+        if (elitismOffset > 0) {
+            m_individuals[0] = new Individual(a_prevGen.m_individuals[0]);
         }
+
+        for (int i = elitismOffset; i < m_individuals.length; i++) {
+            Integer[] pop = tournament(5, a_prevGen.m_individuals);
+            Individual i1 = a_prevGen.m_individuals[pop[0]];
+            Individual i2 = a_prevGen.m_individuals[pop[1]];
+
+            m_individuals[i] = new Individual(i1, i2);
+            if (m_r.nextDouble() < 0.2) {
+                m_individuals[i].mutate();
+            }
+
+        }
+        // if things are too equal to the previous generation we need to mix it up
+        /*if (countEquals(a_prevGen.m_individuals, m_individuals) > m_individuals.length / 3) {
+            for (int i = 1 + m_individuals.length / 2 - 1; i < m_individuals.length; i++) {
+                m_individuals[i] = new Individual(m_graph, m_arch, m_r.nextLong());
+            }
+        }*/
     }
 
-    private int tournament(int a_tournamentSize, Individual[] a_individuals) {
+    private int countEquals(Individual[] a_individuals1, Individual[] a_individuals2, int a_elitismOffset) {
+        int count = 0;
+        for (int i = a_elitismOffset; i < a_individuals1.length; i++) {
+            for (int j = 0; j < a_individuals2.length; j++) {
+                if (a_individuals1[i].equals(a_individuals2[j])) {
+                    count++;
+                    break;
+                }
+            }
+        }
+
+        return count;
+    }
+
+    private Integer[] tournament(int a_tournamentSize, Individual[] a_population) {
         Integer [] tournament = new Integer[a_tournamentSize];
         Arrays.setAll(tournament, operand -> -1);
 
         for (int i = 0; i < tournament.length; i++) {
-            tournament[i] = selectRandomIndividual(tournament, a_individuals);
+            tournament[i] = selectRandomIndividual(tournament, a_population);
         }
 
-        Arrays.sort(tournament, (o1, o2)->{return Double.compare(a_individuals[o2].getF1(), a_individuals[o1].getF1());});
+        Arrays.sort(tournament, (o1, o2)->{return Double.compare(a_population[o2].getF1(), a_population[o1].getF1());});
 
-        return tournament[0];
+        return tournament;
     }
 
-    private int selectRandomIndividual(Integer[] a_tournament, Individual[] a_population) {
+    private int selectRandomIndividual(Integer[] a_takenIndices, Individual[] a_population) {
 
         int ret = 0;
         boolean taken = false;
         do {
             ret = m_r.nextInt(a_population.length);
-            taken = a_population[ret] == null;
-            if (!taken) {
-                for (Integer i : a_tournament) {
-                    if (ret == i) {
-                        taken = true;
-                        break;
-                    }
+            taken = false;
+            for (Integer i : a_takenIndices) {
+                if (ret == i) {
+                    taken = true;
+                    break;
                 }
             }
 
@@ -90,13 +109,46 @@ public class Generation {
     public void eval() {
 
         ArrayList<Iterable<String>> initialSets = createInitialSets(10);
+        final int[] doneCount = {0};
 
         for (int i = 0; i < m_individuals.length; i++) {
-            java.lang.System.out.println("\tEvaluating individual: " + i);
-            m_individuals[i].eval(initialSets);
-            java.lang.System.out.println("\t\tF1: " + m_individuals[i].getF1());
+
+            Individual indiv = m_individuals[i];
+            Runnable r = new Runnable() {
+                @Override
+                public void run() {
+                    indiv.eval(initialSets);
+                    System.out.println("\t\tIndividual F1: " + indiv.getF1());
+                    doneCount[0]++;
+                }
+            };
+            Thread t = new Thread(r);
+            t.start();
+
+            //indiv.eval(initialSets);
+            //System.out.println("\t\tIndividual F1: " + indiv.getF1());
+            //doneCount[0]++;
         }
+
+        while(doneCount[0] != m_individuals.length) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+
+            }
+        }
+
         Arrays.sort(m_individuals, (o1, o2)->{return Double.compare(o2.getF1(), o1.getF1());});
+    }
+
+    private boolean allDone() {
+        for (Individual i : m_individuals) {
+            if (i.getF1() <= -Double.MAX_VALUE) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private ArrayList<Iterable<String>> createInitialSets(int a_setCount) {
@@ -168,5 +220,14 @@ public class Generation {
 
     public Individual getBest() {
         return m_individuals[0];
+    }
+
+    public double getAverageScore() {
+        double ret = 0;
+        for(Individual i : m_individuals) {
+            ret += i.getF1();
+        }
+
+        return ret / m_individuals.length;
     }
 }
