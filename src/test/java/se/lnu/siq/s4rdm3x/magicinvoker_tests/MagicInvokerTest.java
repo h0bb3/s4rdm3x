@@ -138,7 +138,7 @@ public class MagicInvokerTest {
     public void test_aPrivateMethod7_Int() {
 
         class Inner extends ClassWithPrivateMethods {
-            private int aPrivateMethod7(int a_n1, int a_n2) {
+            private int aPrivateMethod7(int a_n1, float a_n2) {
                 MagicInvoker sut = new MagicInvoker(this);
                 int actual = (int)sut.invokeMethodMagic(a_n1, a_n2);
                 return actual;
