@@ -167,7 +167,7 @@ public class Generation {
 
     private ArrayList<Iterable<String>> createInitialSets(int a_setCount) {
         final double start = 0.01;
-        final double delta = (1.0 - 2 * start) / a_setCount;    // top and bottom size bounds
+        final double delta = (1.0 - 2 * start) / (a_setCount - 1);    // top and bottom size bounds
         ArrayList<Iterable<String>> sets = new ArrayList<>();
 
         for (int i = 0; i < a_setCount; i++) {
@@ -212,8 +212,8 @@ public class Generation {
 
             // find a candidate that is valid
             CNode candidate = null;
-            int candidateIx = 0;
-            int componentIx = 0;
+            int candidateIx = -1;
+            int componentIx = -1;
             do {
 
                 candidateIx = m_r.nextInt(set.size());
@@ -244,4 +244,30 @@ public class Generation {
 
         return ret / m_individuals.length;
     }
+
+    /*public boolean isStale() {
+        return f1Similarity() > 0.5;
+    }
+
+    private double f1Similarity() {
+        int count = 0;
+        int max = 0;
+
+        max = m_individuals.length;
+        max = max * (max - 1) / 2;  // magic to get 1 + 2 + 3 + 4 .. + n
+        max--;
+
+        for (int i = 0; i < m_individuals.length; i++) {
+            for (int j = i + 1; j < m_individuals.length; j++) {
+                if (Math.abs(m_individuals[i].getF1() - m_individuals[j].getF1()) < 0.0001) {
+                    count++;
+                }
+            }
+        }
+        return count/max;
+    }
+
+    public void setExtremes(int a_count) {
+
+    }*/
 }

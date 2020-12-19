@@ -6,6 +6,7 @@ import se.lnu.siq.s4rdm3x.model.CNode;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.HuGMe;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.MapperBase;
+import se.lnu.siq.s4rdm3x.stats;
 
 import java.util.Random;
 
@@ -17,6 +18,9 @@ public class Individual {
     private final long m_seed;
     private double m_f1 = -1;
     private int m_eliteGeneration;
+
+    //private Individual m_p1;
+    //private Individual m_p2;
 
     private MapperBase.DependencyWeights m_weights;
 
@@ -37,9 +41,12 @@ public class Individual {
         m_graph = copy(a_p1.m_graph, a_p1.m_arch);
         m_arch = a_p1.m_arch;
         m_weights = new MapperBase.DependencyWeights(1.0);
-        m_seed = (a_p1.m_seed + a_p2.m_seed) / 2;
+        m_seed = (a_p1.m_rand.nextInt() + a_p2.m_rand.nextInt()) / 2;
         m_rand = new Random(m_seed);
         m_eliteGeneration = 0;
+
+        //m_p1 = a_p1;
+        //m_p2 = a_p2;
 
         for (dmDependency.Type t : dmDependency.Type.values()) {
 
@@ -81,7 +88,12 @@ public class Individual {
     public double eval(Iterable<Iterable<String>> a_initialSets) {
         double f1 = 0;
         m_f1 = -Double.MAX_VALUE;
+
         int setCount = 0;
+        for (Iterable<String> initialSet : a_initialSets) {setCount++;}
+        double [] scores = new double[setCount];
+        int setIx = 0;
+
         for (Iterable<String> initialSet : a_initialSets) {
             //System.out.println("\t\t\tEvaluating initial set: " + setCount);
             m_arch.cleanNodeClusters(m_graph.getNodes(), false);
@@ -89,17 +101,17 @@ public class Individual {
             int initialSetSize = copyInitialSetToGraph(initialSet);
 
             //System.out.println("\t\t\tRunning experiment... ");
-            f1 += runExperimentGetF1Score(m_graph.getNodeCount() - initialSetSize);
-            setCount++;
+            f1 = runExperimentGetF1Score(m_graph.getNodeCount() - initialSetSize);
+            scores[setIx] = f1;
+            setIx++;
         }
+        m_f1 = stats.medianUnsorted(scores);
 
 
-        m_f1 = f1 / setCount;
-
-        /*
         // maximize the first weight only
-        m_f1 = m_weights.getWeight(dmDependency.Type.values()[4]);
+        /*m_f1 = m_weights.getWeight(dmDependency.Type.values()[4]);
         m_f1 += m_weights.getWeight(dmDependency.Type.values()[1]);
+        m_f1 -= m_rand.nextDouble() * 0.5;  // add some random noise
         for (dmDependency.Type t : dmDependency.Type.values()) {
             if (t != dmDependency.Type.values()[4] && t != dmDependency.Type.values()[1]) {
                 m_f1 -= m_weights.getWeight(t);
@@ -123,7 +135,7 @@ public class Individual {
             exp = createExperiment();
             exp.run(m_graph);
             clusterFails += exp.m_autoWrong;
-             actualOrphans += exp.getAutoClusteredOrphanCount();
+            actualOrphans += exp.getAutoClusteredOrphanCount();
         } while (exp.getAutoClusteredOrphanCount() > 0);
 
         double precision = (double)(actualOrphans - clusterFails) / (double)actualOrphans;
