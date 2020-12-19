@@ -55,6 +55,11 @@ public class Environment {
             if (overallBest.getF1() < currentGeneration.getBest().getF1()) {
                 overallBest = currentGeneration.getBest();
             }
+
+            //if (currentGeneration.isStale()) {
+            //    currentGeneration.setExtremes(a_individualsPerGeneration / 2);
+            //}
+
             if (g + 1 < a_maxGenerations) {
                 currentGeneration = new Generation(currentGeneration, a_chanceOfMutation, a_mutationAmplitude, a_eliteIndividualMaxAge, a_tournamentSize);
             }
@@ -64,7 +69,7 @@ public class Environment {
             java.lang.System.out.println("" + bestIndScore.get(i) + "\t" + popAverageScore.get(i));
         }
 
-        java.lang.System.out.println(java.lang.System.lineSeparator() + "Evaluation done." + java.lang.System.lineSeparator() + "Weights for last generation best individual (this may be most general solution):");
+        java.lang.System.out.println(java.lang.System.lineSeparator() + "Evaluation done." + java.lang.System.lineSeparator() + "Weights for last generation best individual (this is probably the best solution):");
         printIndividual(currentGeneration.getBest());
 
         java.lang.System.out.println(java.lang.System.lineSeparator() + "Weights for all generations best individual:");
