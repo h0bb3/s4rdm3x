@@ -18,17 +18,6 @@ repositories {
     maven { url 'https://jitpack.io' }
 }
 
-// these can be nice to use instead of going via jitpack when developing
-sourceSets {
-    main {
-        java {
-            srcDir 'src/main/java'
-            srcDir '../src/main/java'   // this is the core code
-        }
-    }
-}
-
-
 
 dependencies {
     /*["gl", "glfw", "core"].each {
@@ -59,10 +48,6 @@ dependencies {
     compile 'org.lwjgl:lwjgl-stb:3.2.3'
     compile 'org.lwjgl:lwjgl-jemalloc:3.2.3'
 
-    // this is for core libs dependencies
-    compile files('../lib/asm-6.2.1.jar', '../lib/asm-util-6.2.1.jar')
-    compile files('../lib/weka-stable-3.8.3.jar')
-
     // Look up which modules and versions of LWJGL are required and add setup the appropriate natives.
     // we do this for all supported platforms
     configurations.compile.resolvedConfiguration.getResolvedArtifacts().forEach {
@@ -76,14 +61,12 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
     // this is for core source
-    //implementation 'com.github.tobias-dv-lnu:s4rdm3x:-SNAPSHOT'
+    implementation 'com.github.tobias-dv-lnu:s4rdm3x:-SNAPSHOT'
 
     // this is for core libs dependencies
-    /*runtime files('../lib/asm-6.2.1.jar', '../lib/asm-util-6.2.1.jar')
-    runtime files('../lib/weka-stable-3.8.3.jar')*/
+    runtime files('../lib/asm-6.2.1.jar', '../lib/asm-util-6.2.1.jar')
+    runtime files('../lib/weka-stable-3.8.3.jar')
     runtime files('../lib/snowball.jar', '../lib/bounce-0.18.jar')
-
-
 
 }
 
