@@ -50,4 +50,15 @@ public class ClassWithPrivateMethods {
         return ret+"-heyho";
     }
 
+    private int aPrivateMethod7(int a_n1, float a_n2) {
+        return a_n1 + (int)a_n2;
+    }
+
+    private float aPrivateMethod7(float a_n1, float a_n2) {
+        return a_n1 + a_n2;
+    }
+
+    private double aPrivateMethod8(double a_n1, boolean a_bool, char a_c, byte a_b, long a_long, short a_s) {
+        return a_n1;
+    }
 }

@@ -133,4 +133,52 @@ public class MagicInvokerTest {
         String actual = i.aPrivateMethod6("1", "7", "9");
         assertEquals("179-heyho", actual);
     }
+
+    @Test
+    public void test_aPrivateMethod7_Int() {
+
+        class Inner extends ClassWithPrivateMethods {
+            private int aPrivateMethod7(int a_n1, int a_n2) {
+                MagicInvoker sut = new MagicInvoker(this);
+                int actual = (int)sut.invokeMethodMagic(a_n1, a_n2);
+                return actual;
+            }
+        }
+
+        Inner i = new Inner();
+        int actual = i.aPrivateMethod7(1, 7);
+        assertEquals(1+7, actual);
+    }
+
+    @Test
+    public void test_aPrivateMethod7_Float() {
+
+        class Inner extends ClassWithPrivateMethods {
+            private float aPrivateMethod7(float a_n1, float a_n2) {
+                MagicInvoker sut = new MagicInvoker(this);
+                float actual = (float)sut.invokeMethodMagic(a_n1, a_n2);
+                return actual;
+            }
+        }
+
+        Inner i = new Inner();
+        float actual = i.aPrivateMethod7(1, 7);
+        assertEquals(1.0f+7.0f, actual);
+    }
+
+    @Test
+    public void test_aPrivateMethod8() {
+
+        class Inner extends ClassWithPrivateMethods {
+            private double aPrivateMethod8(double a_n1, boolean a_bool, char a_c, byte a_b, long a_long, short a_s) {
+                MagicInvoker sut = new MagicInvoker(this);
+                double actual = (double)sut.invokeMethodMagic(a_n1, a_bool, a_c, a_b, a_long, a_s);
+                return actual;
+            }
+        }
+
+        Inner i = new Inner();
+        double actual = i.aPrivateMethod8(1.0, true, 't', (byte) 8, 17L, (short)17);
+        assertEquals(1.0, actual);
+    }
 }

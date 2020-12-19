@@ -1,5 +1,6 @@
 package se.lnu.siq.s4rdm3x;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 
 // Helper class to allow calling private methods in any class.
@@ -11,12 +12,25 @@ public class MagicInvoker {
         m_caller = a_caller;
     }
 
+    private Class<?> toBoxedPrimitive(Class<?> a_class) {
+        return Array.get(Array.newInstance(a_class, 1), 0).getClass();
+    }
+
+
     // tries to find a method by searching a class hierarchy recursively upwards
     private Method getMethodRecurse(Class a_class, String a_name,  Class<?>... a_parameterTypes) {
         Method[] methods = a_class.getDeclaredMethods();
         for (int mIx = 0; mIx < methods.length; mIx++) {
             if (methods[mIx].getName().equals(a_name)) {
                 Class[] params = methods[mIx].getParameterTypes();
+
+                // fix primitive types to objects
+                for (int pIx = 0; pIx < params.length; pIx++) {
+                    if (params[pIx].isPrimitive()) {
+                        params[pIx] = toBoxedPrimitive(params[pIx]);
+                    }
+                }
+
                 if (params.length == a_parameterTypes.length) {
                     int pIx = 0;
                     while(pIx < params.length && params[pIx].isAssignableFrom(a_parameterTypes[pIx])) {
