@@ -1,5 +1,6 @@
 package se.lnu.siq.s4rdm3x.g3n3z;
 
+import org.graalvm.compiler.lir.CompositeValue;
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
@@ -8,15 +9,17 @@ import se.lnu.siq.s4rdm3x.model.cmd.mapper.HuGMe;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.MapperBase;
 import se.lnu.siq.s4rdm3x.stats;
 
+import java.util.Arrays;
 import java.util.Random;
 
-public class Individual {
+public class Individual implements Comparable<Individual> {
 
     private final CGraph m_graph;
     private final ArchDef m_arch;
     private Random m_rand = null;
     private final long m_seed;
-    private double m_f1 = -1;
+    private double [] m_f1Scores;
+    private double m_medianF1Score; // this is an optimization
     private int m_eliteGeneration;
 
     //private Individual m_p1;
@@ -81,17 +84,25 @@ public class Individual {
         m_eliteGeneration = a_eliteIndividual.m_eliteGeneration + 1;
     }
 
+    public void setWeights(MapperBase.DependencyWeights a_weights) {
+        for (dmDependency.Type t : dmDependency.Type.values()) {
+            m_weights.setWeight(t, a_weights.getWeight(t));
+        }
+    }
+
     public int getEliteGenerations() {
         return m_eliteGeneration;
     }
 
     public double eval(Iterable<Iterable<String>> a_initialSets) {
         double f1 = 0;
-        m_f1 = -Double.MAX_VALUE;
+
 
         int setCount = 0;
         for (Iterable<String> initialSet : a_initialSets) {setCount++;}
-        double [] scores = new double[setCount];
+        m_f1Scores = new double[setCount];
+        Arrays.fill(m_f1Scores, -Double.MAX_VALUE);
+        m_medianF1Score = -Double.MAX_VALUE;
         int setIx = 0;
 
         for (Iterable<String> initialSet : a_initialSets) {
@@ -102,27 +113,39 @@ public class Individual {
 
             //System.out.println("\t\t\tRunning experiment... ");
             f1 = runExperimentGetF1Score(m_graph.getNodeCount() - initialSetSize);
-            scores[setIx] = f1;
+            m_f1Scores[setIx] = f1;
             setIx++;
         }
-        m_f1 = stats.medianUnsorted(scores);
+
 
 
         // maximize the first weight only
-        /*m_f1 = m_weights.getWeight(dmDependency.Type.values()[4]);
-        m_f1 += m_weights.getWeight(dmDependency.Type.values()[1]);
-        m_f1 -= m_rand.nextDouble() * 0.5;  // add some random noise
-        for (dmDependency.Type t : dmDependency.Type.values()) {
-            if (t != dmDependency.Type.values()[4] && t != dmDependency.Type.values()[1]) {
-                m_f1 -= m_weights.getWeight(t);
+        /*for (setIx = 0; setIx < setCount; setIx++) {
+            m_f1Scores[setIx] = m_weights.getWeight(dmDependency.Type.values()[4]);
+            m_f1Scores[setIx] += m_weights.getWeight(dmDependency.Type.values()[1]);
+            m_f1Scores[setIx] -= m_rand.nextDouble() * 0.5;  // add some random noise
+            for (dmDependency.Type t : dmDependency.Type.values()) {
+                if (t != dmDependency.Type.values()[4] && t != dmDependency.Type.values()[1]) {
+                    m_f1Scores[setIx] -= m_weights.getWeight(t);
+                }
             }
         }*/
 
-        return m_f1;
+        f1 = stats.medianUnsorted(m_f1Scores);
+        m_medianF1Score = f1;
+
+        return f1;
     }
 
-    public double getF1() {
-        return m_f1;
+    public double getMedianF1() {
+        return m_medianF1Score;
+    }
+    public double getMeanF1() {
+        return stats.mean(m_f1Scores);
+    }
+
+    public double getF1Score(int a_initialSetIx) {
+        return m_f1Scores[a_initialSetIx];
     }
 
     private double runExperimentGetF1Score(int a_totalPossibleOrphans) {
@@ -138,11 +161,20 @@ public class Individual {
             actualOrphans += exp.getAutoClusteredOrphanCount();
         } while (exp.getAutoClusteredOrphanCount() > 0);
 
-        double precision = (double)(actualOrphans - clusterFails) / (double)actualOrphans;
-        double recall = (double)(actualOrphans - clusterFails) / (double)a_totalPossibleOrphans;
+        double precision = 0;
+        if (actualOrphans > 0) {
+            precision = (double) (actualOrphans - clusterFails) / (double) actualOrphans;
+        }
+        double recall = 0;
+        if (a_totalPossibleOrphans > 0) {
+            recall = (double)(actualOrphans - clusterFails) / (double)a_totalPossibleOrphans;
+        }
 
-        return (2.0 * precision * recall) / (precision + recall);
-
+        if (precision > 0 || recall > 0) {
+            return (2.0 * precision * recall) / (precision + recall);
+        } else {
+            return 0.0;
+        }
     }
 
     private HuGMe createExperiment() {
@@ -189,5 +221,22 @@ public class Individual {
         }
 
         m_weights.setWeight(t, w);
+    }
+
+    @Override
+    public int compareTo(Individual a_i) {
+        // swap the objects so we get the correct order
+        //return Double.compare(a_i.getMeanF1(), getMeanF1());
+        int sumScoreThis = 0;
+        int sumScoreI = 0;
+        for (int i = 0; i < m_f1Scores.length; i++) {
+            if (a_i.m_f1Scores[i] > m_f1Scores[i]) {
+                sumScoreI++;
+            } else if (a_i.m_f1Scores[i] < m_f1Scores[i]) {
+                sumScoreThis++;
+            }
+        }
+
+        return Integer.compare(sumScoreI, sumScoreThis);
     }
 }

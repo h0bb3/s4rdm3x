@@ -27,8 +27,8 @@ class IndividualTest {
     @Test
     public void testF1() {
         try {
-            //FileBased system = new FileBased("C:/hObbE/projects/coding/github/s4rdm3x/data/systems/ProM6.9/ProM_6_9.sysmdl");
-            FileBased system = new FileBased("C:/hObbE/projects/coding/github/s4rdm3x/data/systems/teammates/teammates.sysmdl");
+            FileBased system = new FileBased("C:/hObbE/projects/coding/github/s4rdm3x/data/systems/ProM6.9/ProM_6_9.sysmdl");
+            //FileBased system = new FileBased("C:/hObbE/projects/coding/github/s4rdm3x/data/systems/teammates/teammates.sysmdl");
             CGraph g = new CGraph();
             system.load(g);
             ArchDef a = system.createAndMapArch(g);
@@ -76,7 +76,25 @@ class IndividualTest {
             e.printStackTrace();
             assertTrue(false);
         }
+    }
 
+    @Test
+    public void dumpSystem() {
+        try {
+            System2JavaDumper s2jd = new System2JavaDumper();
+
+            FileBased system = new FileBased("C:/hObbE/projects/coding/github/s4rdm3x/data/systems/ProM6.9/ProM_6_9.sysmdl");
+            //FileBased system = new FileBased("C:/hObbE/projects/coding/github/s4rdm3x/data/systems/teammates/teammates.sysmdl");
+            CGraph g = new CGraph();
+            system.load(g);
+            ArchDef a = system.createAndMapArch(g);
+
+
+            s2jd.dump(java.lang.System.out, "Testing", g);
+        } catch (Exception e) {
+            e.printStackTrace();
+            assertTrue(false);
+        }
     }
 
 }

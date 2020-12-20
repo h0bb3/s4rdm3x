@@ -14,6 +14,7 @@ public class Generation {
     ArchDef m_arch;
     Individual[] m_individuals;
     Random m_r;
+    int m_initialSetCount = - 1;
 
     public Generation(CGraph a_graph, ArchDef a_arch, int a_individuals, Random a_r) {
         m_graph = a_graph;
@@ -81,7 +82,8 @@ public class Generation {
             tournament[i] = selectRandomIndividual(tournament, a_population);
         }
 
-        Arrays.sort(tournament, (o1, o2)->{return Double.compare(a_population[o2].getF1(), a_population[o1].getF1());});
+        Arrays.sort(tournament, (o1, o2)->{return Double.compare(a_population[o2].getMeanF1(), a_population[o1].getMeanF1());});
+        Arrays.sort(tournament);
 
         return tournament;
     }
@@ -106,9 +108,10 @@ public class Generation {
     }
 
 
-    public void eval(int a_maxThreads) {
+    public void eval(int a_maxThreads, int a_initialSetCount) {
 
-        ArrayList<Iterable<String>> initialSets = createInitialSets(10);
+        m_initialSetCount = a_initialSetCount;
+        ArrayList<Iterable<String>> initialSets = createInitialSets(m_initialSetCount);
         if (a_maxThreads > 0) {
             evalThreads(initialSets, a_maxThreads);
         } else {
@@ -116,7 +119,8 @@ public class Generation {
         }
 
 
-        Arrays.sort(m_individuals, (o1, o2)->{return Double.compare(o2.getF1(), o1.getF1());});
+        //Arrays.sort(m_individuals, (o1, o2)->{return Double.compare(o2.getMedianF1(), o1.getMedianF1());});
+        Arrays.sort(m_individuals);
     }
 
     private void evalPlain(Iterable<Iterable<String>> a_initialSets) {
@@ -124,7 +128,7 @@ public class Generation {
 
             Individual indiv = m_individuals[i];
             indiv.eval(a_initialSets);
-            System.out.println("\t\tIndividual F1: " + indiv.getF1());
+            System.out.println("\t\tIndividual Median F1: " + indiv.getMedianF1());
         }
     }
 
@@ -139,7 +143,7 @@ public class Generation {
                 @Override
                 public void run() {
                     indiv.eval(a_initialSets);
-                    System.out.println("\t\tIndividual F1: " + indiv.getF1());
+                    System.out.println("\t\tIndividual Median F1: " + indiv.getMedianF1());
                     doneCount[0]++;
                 }
             };
@@ -239,10 +243,16 @@ public class Generation {
     public double getAverageScore() {
         double ret = 0;
         for(Individual i : m_individuals) {
-            ret += i.getF1();
+            for (int j = 0; j < m_initialSetCount; j++) {
+                ret += i.getF1Score(j);
+            }
         }
 
-        return ret / m_individuals.length;
+        return ret / (m_individuals.length * m_initialSetCount);
+    }
+
+    public Individual getIndividual(int a_iIx) {
+        return m_individuals[a_iIx];
     }
 
     /*public boolean isStale() {

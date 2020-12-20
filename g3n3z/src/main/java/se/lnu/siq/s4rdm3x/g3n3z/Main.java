@@ -21,7 +21,7 @@ public class Main {
         final int individuals = args.getArgumentInt("-individuals", 30);
         final int generations = args.getArgumentInt("-generations", 100);
         final int threads = args.getArgumentInt("-threads", 0);
-        final double mutation = args.getArgumentDouble("-mutationChance", 0.2);
+        final double mutation = args.getArgumentDouble("-mutationChance", 0.05);
         final double amplitude = args.getArgumentDouble("-mutationAmplitude", 0.2);
         final int eliteIndividualMaxAge = args.getArgumentInt("-maxAge", 2);
         final int tournamentSize = args.getArgumentInt("-tournamentSize", 4);
@@ -64,10 +64,10 @@ public class Main {
         java.lang.System.out.println("-threads [number of threads per experiment. Optional: default is 1]");
         java.lang.System.out.println("-individuals [number of individuals, 5+. Optional: default is 30]");
         java.lang.System.out.println("-generations [number of generations, 1+. Optional: default is 100]");
-        java.lang.System.out.println("-mutationChance [the chance an individual will have one weight mutated, 0-1. Optional: default is 0.2]");
+        java.lang.System.out.println("-mutationChance [the chance an individual will have one weight mutated, 0-1. Optional: default is 0.05]");
         java.lang.System.out.println("-mutationAmplitude [how much a weight will maximally affected in the case of a mutation, 0-1. Optional: 0.2]");
         java.lang.System.out.println("-maxAge [the maximum generations an elite individual will survive, 0-[generations]. Optional: default is 2]");
-        java.lang.System.out.println("-maxAge [the maximum number of individuals in a tournament, 0-[individuals]. Optional: default is 4]");
-        java.lang.System.out.println("-seed [the maximum generations an elite individual will survive. Optional: default is based on system time]");
+        java.lang.System.out.println("-tournamentSize [the maximum number of individuals in a tournament, 0-[individuals]. Optional: default is 4]");
+        java.lang.System.out.println("-seed [the random seed used to create util.Random() objects. Optional: default is based on system time]");
     }
 }

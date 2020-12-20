@@ -5,6 +5,7 @@ import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
 import se.lnu.siq.s4rdm3x.model.Selector;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
+import se.lnu.siq.s4rdm3x.model.cmd.mapper.MapperBase;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -31,7 +32,7 @@ public class Environment {
     }
 
     public void printIndividual(Individual a_i) {
-        java.lang.System.out.println("\tF1:\t"+ a_i.getF1());
+        java.lang.System.out.println("\tF1:\t"+ a_i.getMedianF1());
         for (dmDependency.Type t: dmDependency.Type.values()) {
             java.lang.System.out.println("\t"+ t + ":\t" + a_i.getDW(t));
         }
@@ -40,19 +41,27 @@ public class Environment {
     public Individual evolve(final int a_individualsPerGeneration, final int a_maxGenerations, final int a_maxThreads, final double a_chanceOfMutation, final double a_mutationAmplitude, final int a_eliteIndividualMaxAge, int a_tournamentSize) {
         Random r = new Random(m_seed);
         Generation currentGeneration = new Generation(m_graph, m_arch, a_individualsPerGeneration, r);
+
+        // inject the optimal solution in the first generation
+        /*Individual specimen = currentGeneration.getIndividual(a_individualsPerGeneration - 1);
+        MapperBase.DependencyWeights dw = new MapperBase.DependencyWeights(0.0);
+        dw.setWeight(dmDependency.Type.values()[4], 1.0);
+        dw.setWeight(dmDependency.Type.values()[1], 1.0);
+        specimen.setWeights(dw);*/
+
         ArrayList<Double> popAverageScore = new ArrayList<>();
         ArrayList<Double> bestIndScore = new ArrayList<>();
         Individual overallBest = currentGeneration.getBest();
 
         for (int g = 0; g < a_maxGenerations; g++) {
             java.lang.System.out.println("Evaluating generation: " + g);
-            currentGeneration.eval(a_maxThreads);
+            currentGeneration.eval(a_maxThreads, 10);
             java.lang.System.out.println("\tAverage F1 score:\t" + currentGeneration.getAverageScore());
-            java.lang.System.out.println("\tBest Individual F1 score:\t" + currentGeneration.getBest().getF1());
+            java.lang.System.out.println("\tBest Individual F1 score:\t" + currentGeneration.getBest().getMedianF1());
             popAverageScore.add(currentGeneration.getAverageScore());
-            bestIndScore.add(currentGeneration.getBest().getF1());
+            bestIndScore.add(currentGeneration.getBest().getMedianF1());
             printIndividual(currentGeneration.getBest());
-            if (overallBest.getF1() < currentGeneration.getBest().getF1()) {
+            if (overallBest.getMedianF1() < currentGeneration.getBest().getMedianF1()) {
                 overallBest = currentGeneration.getBest();
             }
 
