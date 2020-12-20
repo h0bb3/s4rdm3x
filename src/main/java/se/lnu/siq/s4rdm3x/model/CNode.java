@@ -287,8 +287,9 @@ public class CNode {
     }
 
     public void addClass(dmClass a_c) {
-
-        m_classes.add(a_c);
+        if (!m_classes.contains(a_c)) {
+            m_classes.add(a_c);
+        }
     }
 
     public void removeTag(String a_tag) {

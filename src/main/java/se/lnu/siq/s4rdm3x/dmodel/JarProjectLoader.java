@@ -14,9 +14,9 @@ import java.util.jar.JarFile;
  */
 public class JarProjectLoader {
 
-    public dmProject buildProjectFromJAR(String a_jarFileName, String[] a_rootPackages) throws IOException {
+    public dmProject buildProjectFromJAR(String a_jarFileName, String[] a_rootPackages, dmProject a_project) throws IOException {
         JarFile jarFile = new JarFile(a_jarFileName);
-        ASMdmProjectBuilder builder = new ASMdmProjectBuilder();
+        ASMdmProjectBuilder builder = new ASMdmProjectBuilder(a_project);
 
         //URL[] urls = { new URL("jar:file:" + a_jarFileName +"!/") };
         //URLClassLoader cl = URLClassLoader.newInstance(urls);
@@ -69,5 +69,9 @@ public class JarProjectLoader {
     public dmProject buildProjectFromJAR(String a_jarFileName, String a_rootPackage) throws IOException {
         String[] roots = {a_rootPackage};
         return buildProjectFromJAR(a_jarFileName, roots);
+    }
+
+    public dmProject buildProjectFromJAR(String m_file, String[] m_rootPackages) throws IOException {
+        return buildProjectFromJAR(m_file, m_rootPackages, new dmProject());
     }
 }

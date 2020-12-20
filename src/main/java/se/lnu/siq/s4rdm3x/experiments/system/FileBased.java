@@ -68,6 +68,8 @@ public class FileBased extends System {
 
         String [] roots = new String[m_smr.m_roots.size()];
         m_smr.m_roots.toArray(roots);
+
+        LoadJar c = new LoadJar("", roots);
         for (String jar : m_smr.m_jars) {
             Path p;
             if (m_file.length() > 0) {
@@ -75,7 +77,7 @@ public class FileBased extends System {
             } else {
                 p = Paths.get(jar);
             }
-            LoadJar c = new LoadJar(p.toString(), roots);
+            c.setFile(p.toString());
             try {
                 c.run(a_g);
             } catch (IOException e) {
