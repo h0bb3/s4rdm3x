@@ -36,7 +36,11 @@ public class LoadJar {
     public void run(CGraph a_g) throws IOException {
 
         JarProjectLoader b = new JarProjectLoader();
-        m_project = b.buildProjectFromJAR(m_file, m_rootPackages);
+        if (m_project == null) {
+            m_project = b.buildProjectFromJAR(m_file, m_rootPackages);
+        } else {
+            m_project = b.buildProjectFromJAR(m_file, m_rootPackages, m_project);
+        }
 
         for (dmClass c : m_project.getClasses()) {
             String cName = c.getFileName();
@@ -48,5 +52,9 @@ public class LoadJar {
 
     public dmProject getProject() {
         return m_project;
+    }
+
+    public void setFile(String a_file) {
+        m_file = a_file;
     }
 }

@@ -52,6 +52,15 @@ public class ASMdmProjectBuilder extends ClassVisitor {
         m_doPrint = true;
     }
 
+    public ASMdmProjectBuilder(dmProject a_project) {
+        super(g_opcodes);
+
+        m_project = a_project;
+        m_currentClass = null;
+        m_tabs = 0;
+        m_doPrint = true;
+    }
+
     public void dontPrint() {
         m_doPrint = false;
     }
