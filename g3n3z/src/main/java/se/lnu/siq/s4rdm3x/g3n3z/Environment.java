@@ -42,6 +42,8 @@ public class Environment {
         Random r = new Random(m_seed);
         Generation currentGeneration = new Generation(m_graph, m_arch, a_individualsPerGeneration, r);
 
+        printParameters(a_individualsPerGeneration, a_maxGenerations, a_chanceOfMutation, a_mutationAmplitude, a_eliteIndividualMaxAge, a_tournamentSize);
+
         // inject the optimal solution in the first generation
         /*Individual specimen = currentGeneration.getIndividual(a_individualsPerGeneration - 1);
         MapperBase.DependencyWeights dw = new MapperBase.DependencyWeights(0.0);
@@ -84,18 +86,22 @@ public class Environment {
         java.lang.System.out.println(java.lang.System.lineSeparator() + "Weights for all generations best individual:");
         printIndividual(overallBest);
 
-        java.lang.System.out.println(java.lang.System.lineSeparator() + "Algorithm Parameters:");
-        java.lang.System.out.println("\tsystem:\t" + m_systemName);
-        java.lang.System.out.println("\tindividuals:\t" + a_individualsPerGeneration);
-        java.lang.System.out.println("\tgenerations:\t" + a_maxGenerations);
-        java.lang.System.out.println("\tmutation chance:\t" + a_chanceOfMutation);
-        java.lang.System.out.println("\tmutation amplitude:\t" + a_mutationAmplitude);
-        java.lang.System.out.println("\tmax age:\t" + a_eliteIndividualMaxAge);
-        java.lang.System.out.println("\ttournament size:\t" + a_tournamentSize);
-        java.lang.System.out.println("\tseed:\t" + m_seed);
+        printParameters(a_individualsPerGeneration, a_maxGenerations, a_chanceOfMutation, a_mutationAmplitude, a_eliteIndividualMaxAge, a_tournamentSize);
 
 
         return currentGeneration.getBest();
+    }
+
+    private void printParameters(int a_individualsPerGeneration, int a_maxGenerations, double a_chanceOfMutation, double a_mutationAmplitude, int a_eliteIndividualMaxAge, int a_tournamentSize) {
+        System.out.println(System.lineSeparator() + "Algorithm Parameters:");
+        System.out.println("\tsystem:\t" + m_systemName);
+        System.out.println("\tindividuals:\t" + a_individualsPerGeneration);
+        System.out.println("\tgenerations:\t" + a_maxGenerations);
+        System.out.println("\tmutation chance:\t" + a_chanceOfMutation);
+        System.out.println("\tmutation amplitude:\t" + a_mutationAmplitude);
+        System.out.println("\tmax age:\t" + a_eliteIndividualMaxAge);
+        System.out.println("\ttournament size:\t" + a_tournamentSize);
+        System.out.println("\tseed:\t" + m_seed);
     }
 
 
