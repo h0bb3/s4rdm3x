@@ -48,12 +48,21 @@ public class Main {
             // load the system
             CGraph g = new CGraph();
             system.load(g);
-            ArchDef a = system.createAndMapArch(g);
+            ArchDef a;
+            try {
+                a = system.createAndMapArch(g);
+            } catch (System.NoMappedNodesException e) {
+                a = e.m_arch;
+                for (ArchDef.Component c : e.m_components) {
+                    java.lang.System.err.println("Warning: No nodes mapped for module: " + c.getName() + " -> removing module");
+                    a.removeComponent(c);
+                }
+            }
             Environment env = new Environment(g, a, seed, system.getName());
 
             Individual best = env.evolve(individuals, generations, threads, mutation, amplitude, eliteIndividualMaxAge, tournamentSize);
 
-        } catch (IOException | System.NoMappedNodesException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
