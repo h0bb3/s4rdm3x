@@ -27,7 +27,7 @@ public class System2JavaDumper {
     DumpBase m_shadow;
 
 
-    void dump(PrintStream a_out, String a_className, CGraph a_g, ArchDef a_a, DumpBase.HuGMeParams[] a_hugmeTests, DumpBase.NBParams[] a_nbTests) {
+    void dump(PrintStream a_out, String a_className, CGraph a_g, ArchDef a_a, DumpBase.HuGMeParams[] a_hugmeTests, DumpBase.NBParams[] a_nbTests, DumpBase.IRParams [] a_irTests, DumpBase.IRParams [] a_lsiTests) {
 
         m_out = a_out;
         m_tc = 0;
@@ -40,7 +40,7 @@ public class System2JavaDumper {
         ps("import se.lnu.siq.s4rdm3x.dmodel.dmDependency");
         ps("import java.util.HashMap");
 
-        createClassBlock(a_className, a_g, a_a, a_hugmeTests, a_nbTests);
+        createClassBlock(a_className, a_g, a_a, a_hugmeTests, a_nbTests, a_irTests, a_lsiTests);
     }
 
     private void pln(String a_str) {
@@ -82,7 +82,7 @@ public class System2JavaDumper {
         pbs(access + " " + a_returnType + " " + a_methodName);
     }
 
-    private void createClassBlock(String a_className, CGraph a_g, ArchDef a_a, DumpBase.HuGMeParams [] a_hugmeTests, DumpBase.NBParams[] a_nbTests) {
+    private void createClassBlock(String a_className, CGraph a_g, ArchDef a_a, DumpBase.HuGMeParams [] a_hugmeTests, DumpBase.NBParams[] a_nbTests, DumpBase.IRParams [] a_irTests, DumpBase.IRParams [] a_lsiTests) {
         pbs("public class " + a_className + " extends DumpBase");
         m_shadow = new DumpBase();
 
@@ -90,6 +90,8 @@ public class System2JavaDumper {
 
         create_getHuGMeParams(a_hugmeTests);
         create_getNBParams(a_nbTests);
+        create_getIRParams(a_irTests);
+        create_getLSIParams(a_lsiTests);
 
         createNodesMethod(a_g.getNodes());
 
@@ -98,26 +100,40 @@ public class System2JavaDumper {
         pbe();
     }
 
-    private void create_getNBParams(DumpBase.NBParams [] a_scores) {
-        DumpBase db = new DumpBase();
-
-        pms("getNBParams(int a_index)", false, "NBParams");
-
-        ps("NBParams r = null");
+    private void create_getXParams(String a_xType, String a_xMethod, DumpBase.Params [] a_params) {
+        pms(a_xMethod + "(int a_index)", false, a_xType);
+        ps(a_xType + " r = null");
         pbs("switch (a_index)");
-        for (int sIx = 0; sIx < a_scores.length; sIx++) {
-            DumpBase.NBParams p = a_scores[0];
+
+        for (int sIx = 0; sIx < a_params.length; sIx++) {
+            DumpBase.Params p = a_params[sIx];
             pbs("case " + sIx + ":");
-            ps("r = new NBParams()");
+            ps("r = new "+ a_xType +"()");
             createParamFields(p);
             ps("break");
             pbe();
         }
+
         pbe();
 
         ps("return r");
-
         pbe();
+    }
+
+    private void create_getNBParams(DumpBase.NBParams [] a_scores) {
+        create_getXParams("NBParams", "getNBParams", a_scores);
+    }
+
+    private void create_getHuGMeParams(DumpBase.HuGMeParams [] a_scores) {
+        create_getXParams("HuGMeParams", "getHuGMeParams", a_scores);
+    }
+
+    private void create_getIRParams(DumpBase.IRParams [] a_scores) {
+        create_getXParams("IRParams", "getIRParams", a_scores);
+    }
+
+    private void create_getLSIParams(DumpBase.IRParams [] a_scores) {
+        create_getXParams("IRParams", "getLSIParams", a_scores);
     }
 
     private void createParamFields(DumpBase.Params a_params) {
@@ -141,27 +157,7 @@ public class System2JavaDumper {
         }
     }
 
-    private void create_getHuGMeParams(DumpBase.HuGMeParams [] a_scores) {
-        DumpBase db = new DumpBase();
 
-        pms("getHuGMeParams(int a_index)", false, "HuGMeParams");
-
-        ps("HuGMeParams r = null");
-        pbs("switch (a_index)");
-        for (int sIx = 0; sIx < a_scores.length; sIx++) {
-            DumpBase.HuGMeParams p = a_scores[0];
-            pbs("case " + sIx + ":");
-            ps("r = new HuGMeParams()");
-            createParamFields(p);
-            ps("break");
-            pbe();
-        }
-        pbe();
-
-        ps("return r");
-
-        pbe();
-    }
 
     private void createArchMethod(ArchDef a_a) {
         pms("createArch()");

@@ -22,13 +22,16 @@ public class DumpBase {
         public double m_weights[] = new double[dmDependency.Type.values().length];
     }
 
-    public static class NBParams extends Params {
+    public static class IRParams extends Params {
         public boolean m_doStemming;
         public boolean m_doUseCDA;
         public boolean m_doUseNodeText;
         public boolean m_doUseNodeName;
         public boolean m_doUseArchComponentName;
         public int m_minWordSize;
+    }
+
+    public static class NBParams extends IRParams {
         public boolean m_doWordCount;
         public double m_threshold;
     }
@@ -59,6 +62,20 @@ public class DumpBase {
         return ret;
     }
 
+    public IRParams generateIRParams() {
+        java.util.Random r = new java.util.Random();
+        IRParams ret = new IRParams();
+        ret.m_doManualMapping = false;
+
+        ret.m_doStemming = true;    // irmapper needs this or it will often map nothing
+        ret.m_doUseCDA = r.nextBoolean();
+        ret.m_doUseNodeText = true; // LSI and IRmappers need this or they will most likely not map anything
+        ret.m_doUseNodeName = true;    // irmapper needs this or it will often map nothing
+        ret.m_doUseArchComponentName = true;    // irmapper needs this or it will often map nothing
+        ret.m_minWordSize = r.nextInt(4) + 1;
+        return ret;
+    }
+
     public NBParams generateNBParams() {
         java.util.Random r = new java.util.Random();
         NBParams ret = new NBParams();
@@ -81,6 +98,14 @@ public class DumpBase {
     }
 
     public NBParams getNBParams(int a_index) {
+        return null;
+    }
+
+    public IRParams getIRParams(int a_index) {
+        return null;
+    }
+
+    public IRParams getLSIParams(int a_index) {
         return null;
     }
 }

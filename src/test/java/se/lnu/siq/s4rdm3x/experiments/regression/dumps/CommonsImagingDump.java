@@ -15,61 +15,61 @@ public class CommonsImagingDump extends DumpBase {
 		switch (a_index) {
 			case 0: {
 				r = new HuGMeParams();
-				r.m_omega = 0.1761901866434501;
-				r.m_phi = 0.16394935449302783;
-				r.m_weights[0] = 0.5047220145273752;
-				r.m_weights[1] = 0.6932549116486612;
-				r.m_weights[2] = 0.258104183718299;
-				r.m_weights[3] = 0.08586459540761171;
-				r.m_weights[4] = 0.8368715210989366;
-				r.m_weights[5] = 0.6260064237790504;
-				r.m_weights[6] = 0.37744269410506603;
-				r.m_weights[7] = 0.1815587896179175;
-				r.m_weights[8] = 0.9986976429267801;
-				r.m_weights[9] = 0.495560822548336;
-				r.m_weights[10] = 0.6981926325844158;
-				r.m_weights[11] = 0.8547095270619104;
-				r.m_f1 = 0.288659793814433;
+				r.m_omega = 0.5904661218932129;
+				r.m_phi = 0.4460207191377288;
+				r.m_weights[0] = 0.15749016986027253;
+				r.m_weights[1] = 0.1732388147238011;
+				r.m_weights[2] = 0.29961538190594705;
+				r.m_weights[3] = 0.13048634967514372;
+				r.m_weights[4] = 0.8791197548240298;
+				r.m_weights[5] = 0.6118446998768333;
+				r.m_weights[6] = 0.4737233666244387;
+				r.m_weights[7] = 0.6016147527016733;
+				r.m_weights[8] = 0.9684922888926506;
+				r.m_weights[9] = 0.20485347972387502;
+				r.m_weights[10] = 0.551208521845968;
+				r.m_weights[11] = 0.9072829561101808;
+				r.m_f1 = 0.25263157894736843;
 				r.m_doManualMapping = false;
 				break;
 			}
 			case 1: {
 				r = new HuGMeParams();
-				r.m_omega = 0.1761901866434501;
-				r.m_phi = 0.16394935449302783;
-				r.m_weights[0] = 0.5047220145273752;
-				r.m_weights[1] = 0.6932549116486612;
-				r.m_weights[2] = 0.258104183718299;
-				r.m_weights[3] = 0.08586459540761171;
-				r.m_weights[4] = 0.8368715210989366;
-				r.m_weights[5] = 0.6260064237790504;
-				r.m_weights[6] = 0.37744269410506603;
-				r.m_weights[7] = 0.1815587896179175;
-				r.m_weights[8] = 0.9986976429267801;
-				r.m_weights[9] = 0.495560822548336;
-				r.m_weights[10] = 0.6981926325844158;
-				r.m_weights[11] = 0.8547095270619104;
+				r.m_omega = 0.595785053674361;
+				r.m_phi = 0.5851403502797796;
+				r.m_weights[0] = 0.19591330370354576;
+				r.m_weights[1] = 0.8657025259498891;
+				r.m_weights[2] = 0.2771497923252637;
+				r.m_weights[3] = 0.2003324595102004;
+				r.m_weights[4] = 0.7053972338453938;
+				r.m_weights[5] = 0.7843719607571148;
+				r.m_weights[6] = 0.39522684568430533;
+				r.m_weights[7] = 0.602706937644477;
+				r.m_weights[8] = 0.6004794213670446;
+				r.m_weights[9] = 0.7004696569954424;
+				r.m_weights[10] = 0.2640553136466155;
+				r.m_weights[11] = 0.7851617049421101;
 				r.m_f1 = 0.288659793814433;
 				r.m_doManualMapping = false;
 				break;
 			}
 			case 2: {
 				r = new HuGMeParams();
-				r.m_omega = 0.1761901866434501;
-				r.m_phi = 0.16394935449302783;
-				r.m_weights[0] = 0.5047220145273752;
-				r.m_weights[1] = 0.6932549116486612;
-				r.m_weights[2] = 0.258104183718299;
-				r.m_weights[3] = 0.08586459540761171;
-				r.m_weights[4] = 0.8368715210989366;
-				r.m_weights[5] = 0.6260064237790504;
-				r.m_weights[6] = 0.37744269410506603;
-				r.m_weights[7] = 0.1815587896179175;
-				r.m_weights[8] = 0.9986976429267801;
-				r.m_weights[9] = 0.495560822548336;
-				r.m_weights[10] = 0.6981926325844158;
-				r.m_weights[11] = 0.8547095270619104;
-				r.m_f1 = 0.288659793814433;
+				r.m_omega = 0.6460985346559934;
+				r.m_phi = 0.9244648740658021;
+				r.m_weights[0] = 0.1813198635896628;
+				r.m_weights[1] = 0.02270564320112911;
+				r.m_weights[2] = 0.9481574071122937;
+				r.m_weights[3] = 0.3280733616960072;
+				r.m_weights[4] = 0.39306401377816813;
+				r.m_weights[5] = 0.3659906579237022;
+				r.m_weights[6] = 0.3223557497928786;
+				r.m_weights[7] = 0.4106649555432348;
+				r.m_weights[8] = 0.8834937709251198;
+				r.m_weights[9] = 0.41933379423282824;
+				r.m_weights[10] = 0.25629607961702017;
+				r.m_weights[11] = 0.524233375456878;
+				r.m_f1 = 0.7681159420289854;
 				r.m_doManualMapping = false;
 				break;
 			}
@@ -81,43 +81,127 @@ public class CommonsImagingDump extends DumpBase {
 		switch (a_index) {
 			case 0: {
 				r = new NBParams();
-				r.m_doStemming = false;
-				r.m_doUseCDA = true;
-				r.m_doUseNodeText = true;
-				r.m_doUseNodeName = true;
-				r.m_doUseArchComponentName = true;
-				r.m_minWordSize = 4;
 				r.m_doWordCount = false;
-				r.m_threshold = 0.8814777135195535;
-				r.m_f1 = 0.8554216867469879;
+				r.m_threshold = 0.9263723631828762;
+				r.m_doStemming = false;
+				r.m_doUseCDA = false;
+				r.m_doUseNodeText = false;
+				r.m_doUseNodeName = true;
+				r.m_doUseArchComponentName = false;
+				r.m_minWordSize = 4;
+				r.m_f1 = 0.762589928057554;
 				r.m_doManualMapping = false;
 				break;
 			}
 			case 1: {
 				r = new NBParams();
-				r.m_doStemming = false;
+				r.m_doWordCount = true;
+				r.m_threshold = 0.8773759325747129;
+				r.m_doStemming = true;
 				r.m_doUseCDA = true;
-				r.m_doUseNodeText = true;
-				r.m_doUseNodeName = true;
-				r.m_doUseArchComponentName = true;
-				r.m_minWordSize = 4;
-				r.m_doWordCount = false;
-				r.m_threshold = 0.8814777135195535;
-				r.m_f1 = 0.8554216867469879;
+				r.m_doUseNodeText = false;
+				r.m_doUseNodeName = false;
+				r.m_doUseArchComponentName = false;
+				r.m_minWordSize = 1;
+				r.m_f1 = 0.5694444444444444;
 				r.m_doManualMapping = false;
 				break;
 			}
 			case 2: {
 				r = new NBParams();
+				r.m_doWordCount = false;
+				r.m_threshold = 0.9311492329296579;
 				r.m_doStemming = false;
 				r.m_doUseCDA = true;
 				r.m_doUseNodeText = true;
-				r.m_doUseNodeName = true;
+				r.m_doUseNodeName = false;
 				r.m_doUseArchComponentName = true;
-				r.m_minWordSize = 4;
-				r.m_doWordCount = false;
-				r.m_threshold = 0.8814777135195535;
-				r.m_f1 = 0.8554216867469879;
+				r.m_minWordSize = 3;
+				r.m_f1 = 0.8074534161490683;
+				r.m_doManualMapping = false;
+				break;
+			}
+		}
+		return r;
+	}
+	public IRParams getIRParams(int a_index) {
+		IRParams r = null;
+		switch (a_index) {
+			case 0: {
+				r = new IRParams();
+				r.m_doStemming = true;
+				r.m_doUseCDA = false;
+				r.m_doUseNodeText = true;
+				r.m_doUseNodeName = true;
+				r.m_doUseArchComponentName = false;
+				r.m_minWordSize = 2;
+				r.m_f1 = 0.21505376344086022;
+				r.m_doManualMapping = false;
+				break;
+			}
+			case 1: {
+				r = new IRParams();
+				r.m_doStemming = true;
+				r.m_doUseCDA = false;
+				r.m_doUseNodeText = true;
+				r.m_doUseNodeName = true;
+				r.m_doUseArchComponentName = false;
+				r.m_minWordSize = 2;
+				r.m_f1 = 0.21505376344086022;
+				r.m_doManualMapping = false;
+				break;
+			}
+			case 2: {
+				r = new IRParams();
+				r.m_doStemming = true;
+				r.m_doUseCDA = true;
+				r.m_doUseNodeText = true;
+				r.m_doUseNodeName = true;
+				r.m_doUseArchComponentName = false;
+				r.m_minWordSize = 2;
+				r.m_f1 = 0.4587155963302752;
+				r.m_doManualMapping = false;
+				break;
+			}
+		}
+		return r;
+	}
+	public IRParams getLSIParams(int a_index) {
+		IRParams r = null;
+		switch (a_index) {
+			case 0: {
+				r = new IRParams();
+				r.m_doStemming = true;
+				r.m_doUseCDA = false;
+				r.m_doUseNodeText = true;
+				r.m_doUseNodeName = true;
+				r.m_doUseArchComponentName = false;
+				r.m_minWordSize = 2;
+				r.m_f1 = 0.13333333333333333;
+				r.m_doManualMapping = false;
+				break;
+			}
+			case 1: {
+				r = new IRParams();
+				r.m_doStemming = true;
+				r.m_doUseCDA = false;
+				r.m_doUseNodeText = true;
+				r.m_doUseNodeName = true;
+				r.m_doUseArchComponentName = false;
+				r.m_minWordSize = 2;
+				r.m_f1 = 0.13333333333333333;
+				r.m_doManualMapping = false;
+				break;
+			}
+			case 2: {
+				r = new IRParams();
+				r.m_doStemming = true;
+				r.m_doUseCDA = true;
+				r.m_doUseNodeText = true;
+				r.m_doUseNodeName = true;
+				r.m_doUseArchComponentName = false;
+				r.m_minWordSize = 1;
+				r.m_f1 = 0.4038461538461538;
 				r.m_doManualMapping = false;
 				break;
 			}
@@ -138,6 +222,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n2 = m_g.createNode("org/apache/commons/imaging/common/itu_t4/T4_T6_Tables.java");
 		n2.setMapping("common");
+		n2.setClustering("common", "Initial");
 		dmClass c2 = new dmClass("org.apache.commons.imaging.common.itu_t4.T4_T6_Tables$Entry");
 		n2.addClass(c2);
 		m_classes.put("org.apache.commons.imaging.common.itu_t4.T4_T6_Tables$Entry", c2);
@@ -240,6 +325,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n13 = m_g.createNode("org/apache/commons/imaging/formats/tiff/taginfos/TagInfoAsciiOrByte.java");
 		n13.setMapping("tiff");
+		n13.setClustering("tiff", "Initial");
 		dmClass c19 = new dmClass("org.apache.commons.imaging.formats.tiff.taginfos.TagInfoAsciiOrByte");
 		n13.addClass(c19);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.taginfos.TagInfoAsciiOrByte", c19);
@@ -259,6 +345,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n15 = m_g.createNode("org/apache/commons/imaging/formats/tiff/photometricinterpreters/floatingpoint/PaletteEntryForRange.java");
 		n15.setMapping("tiff");
+		n15.setClustering("tiff", "Initial");
 		dmClass c22 = new dmClass("org.apache.commons.imaging.formats.tiff.photometricinterpreters.floatingpoint.PaletteEntryForRange");
 		n15.addClass(c22);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.photometricinterpreters.floatingpoint.PaletteEntryForRange", c22);
@@ -310,6 +397,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n19 = m_g.createNode("org/apache/commons/imaging/palette/MostPopulatedBoxesMedianCut.java");
 		n19.setMapping("palette");
+		n19.setClustering("palette", "Initial");
 		dmClass c31 = new dmClass("org.apache.commons.imaging.palette.MostPopulatedBoxesMedianCut");
 		n19.addClass(c31);
 		m_classes.put("org.apache.commons.imaging.palette.MostPopulatedBoxesMedianCut", c31);
@@ -345,7 +433,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n23 = m_g.createNode("org/apache/commons/imaging/common/BinaryFunctions.java");
 		n23.setMapping("common");
-		n23.setClustering("common", "Initial");
 		dmClass c36 = new dmClass("org.apache.commons.imaging.common.BinaryFunctions");
 		n23.addClass(c36);
 		m_classes.put("org.apache.commons.imaging.common.BinaryFunctions", c36);
@@ -404,6 +491,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n27 = m_g.createNode("org/apache/commons/imaging/formats/bmp/BmpWriterRgb.java");
 		n27.setMapping("bmp");
+		n27.setClustering("bmp", "Initial");
 		dmClass c47 = new dmClass("org.apache.commons.imaging.formats.bmp.BmpWriterRgb");
 		n27.addClass(c47);
 		m_classes.put("org.apache.commons.imaging.formats.bmp.BmpWriterRgb", c47);
@@ -465,7 +553,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n35 = m_g.createNode("org/apache/commons/imaging/formats/tiff/fieldtypes/FieldTypeFloat.java");
 		n35.setMapping("tiff");
-		n35.setClustering("tiff", "Initial");
 		dmClass c56 = new dmClass("org.apache.commons.imaging.formats.tiff.fieldtypes.FieldTypeFloat");
 		n35.addClass(c56);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.fieldtypes.FieldTypeFloat", c56);
@@ -481,6 +568,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n37 = m_g.createNode("org/apache/commons/imaging/formats/tiff/taginfos/TagInfoSShorts.java");
 		n37.setMapping("tiff");
+		n37.setClustering("tiff", "Initial");
 		dmClass c58 = new dmClass("org.apache.commons.imaging.formats.tiff.taginfos.TagInfoSShorts");
 		n37.addClass(c58);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.taginfos.TagInfoSShorts", c58);
@@ -504,6 +592,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n40 = m_g.createNode("org/apache/commons/imaging/palette/ColorCountComparator.java");
 		n40.setMapping("palette");
+		n40.setClustering("palette", "Initial");
 		dmClass c61 = new dmClass("org.apache.commons.imaging.palette.ColorCountComparator");
 		n40.addClass(c61);
 		m_classes.put("org.apache.commons.imaging.palette.ColorCountComparator", c61);
@@ -551,7 +640,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n45 = m_g.createNode("org/apache/commons/imaging/formats/tiff/constants/WangTagConstants.java");
 		n45.setMapping("tiff");
-		n45.setClustering("tiff", "Initial");
 		dmClass c69 = new dmClass("org.apache.commons.imaging.formats.tiff.constants.WangTagConstants");
 		n45.addClass(c69);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.constants.WangTagConstants", c69);
@@ -559,6 +647,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n46 = m_g.createNode("org/apache/commons/imaging/icc/IccTagType.java");
 		n46.setMapping("icc");
+		n46.setClustering("icc", "Initial");
 		dmClass c70 = new dmClass("org.apache.commons.imaging.icc.IccTagType");
 		n46.addClass(c70);
 		m_classes.put("org.apache.commons.imaging.icc.IccTagType", c70);
@@ -566,6 +655,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n47 = m_g.createNode("org/apache/commons/imaging/formats/tiff/taginfos/TagInfoGpsText.java");
 		n47.setMapping("tiff");
+		n47.setClustering("tiff", "Initial");
 		dmClass c71 = new dmClass("org.apache.commons.imaging.formats.tiff.taginfos.TagInfoGpsText");
 		n47.addClass(c71);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.taginfos.TagInfoGpsText", c71);
@@ -626,7 +716,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n51 = m_g.createNode("org/apache/commons/imaging/formats/tiff/taginfos/TagInfoShortOrRational.java");
 		n51.setMapping("tiff");
-		n51.setClustering("tiff", "Initial");
 		dmClass c83 = new dmClass("org.apache.commons.imaging.formats.tiff.taginfos.TagInfoShortOrRational");
 		n51.addClass(c83);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.taginfos.TagInfoShortOrRational", c83);
@@ -678,7 +767,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n54 = m_g.createNode("org/apache/commons/imaging/formats/png/chunks/PngChunkIdat.java");
 		n54.setMapping("png");
-		n54.setClustering("png", "Initial");
 		dmClass c93 = new dmClass("org.apache.commons.imaging.formats.png.chunks.PngChunkIdat");
 		n54.addClass(c93);
 		m_classes.put("org.apache.commons.imaging.formats.png.chunks.PngChunkIdat", c93);
@@ -774,7 +862,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n64 = m_g.createNode("org/apache/commons/imaging/formats/jpeg/JpegUtils.java");
 		n64.setMapping("jpeg");
-		n64.setClustering("jpeg", "Initial");
 		dmClass c107 = new dmClass("org.apache.commons.imaging.formats.jpeg.JpegUtils");
 		n64.addClass(c107);
 		m_classes.put("org.apache.commons.imaging.formats.jpeg.JpegUtils", c107);
@@ -790,6 +877,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n65 = m_g.createNode("org/apache/commons/imaging/formats/psd/datareaders/CompressedDataReader.java");
 		n65.setMapping("psd");
+		n65.setClustering("psd", "Initial");
 		dmClass c110 = new dmClass("org.apache.commons.imaging.formats.psd.datareaders.CompressedDataReader");
 		n65.addClass(c110);
 		m_classes.put("org.apache.commons.imaging.formats.psd.datareaders.CompressedDataReader", c110);
@@ -817,7 +905,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n68 = m_g.createNode("org/apache/commons/imaging/formats/tiff/write/TiffImageWriterLossless.java");
 		n68.setMapping("tiff");
-		n68.setClustering("tiff", "Initial");
 		dmClass c114 = new dmClass("org.apache.commons.imaging.formats.tiff.write.TiffImageWriterLossless");
 		n68.addClass(c114);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.write.TiffImageWriterLossless", c114);
@@ -837,6 +924,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n70 = m_g.createNode("org/apache/commons/imaging/internal/Debug.java");
 		n70.setMapping("internal");
+		n70.setClustering("internal", "Initial");
 		dmClass c117 = new dmClass("org.apache.commons.imaging.internal.Debug");
 		n70.addClass(c117);
 		m_classes.put("org.apache.commons.imaging.internal.Debug", c117);
@@ -890,6 +978,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n77 = m_g.createNode("org/apache/commons/imaging/formats/jpeg/segments/SofnSegment.java");
 		n77.setMapping("jpeg");
+		n77.setClustering("jpeg", "Initial");
 		dmClass c125 = new dmClass("org.apache.commons.imaging.formats.jpeg.segments.SofnSegment$Component");
 		n77.addClass(c125);
 		m_classes.put("org.apache.commons.imaging.formats.jpeg.segments.SofnSegment$Component", c125);
@@ -909,6 +998,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n79 = m_g.createNode("org/apache/commons/imaging/formats/icns/Rle24Compression.java");
 		n79.setMapping("icns");
+		n79.setClustering("icns", "Initial");
 		dmClass c128 = new dmClass("org.apache.commons.imaging.formats.icns.Rle24Compression");
 		n79.addClass(c128);
 		m_classes.put("org.apache.commons.imaging.formats.icns.Rle24Compression", c128);
@@ -923,6 +1013,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n81 = m_g.createNode("org/apache/commons/imaging/formats/tiff/TiffTags.java");
 		n81.setMapping("tiff");
+		n81.setClustering("tiff", "Initial");
 		dmClass c130 = new dmClass("org.apache.commons.imaging.formats.tiff.TiffTags");
 		n81.addClass(c130);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.TiffTags", c130);
@@ -930,7 +1021,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n82 = m_g.createNode("org/apache/commons/imaging/formats/jpeg/segments/DqtSegment.java");
 		n82.setMapping("jpeg");
-		n82.setClustering("jpeg", "Initial");
 		dmClass c131 = new dmClass("org.apache.commons.imaging.formats.jpeg.segments.DqtSegment");
 		n82.addClass(c131);
 		m_classes.put("org.apache.commons.imaging.formats.jpeg.segments.DqtSegment", c131);
@@ -942,7 +1032,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n83 = m_g.createNode("org/apache/commons/imaging/formats/png/transparencyfilters/TransparencyFilterTrueColor.java");
 		n83.setMapping("png");
-		n83.setClustering("png", "Initial");
 		dmClass c133 = new dmClass("org.apache.commons.imaging.formats.png.transparencyfilters.TransparencyFilterTrueColor");
 		n83.addClass(c133);
 		m_classes.put("org.apache.commons.imaging.formats.png.transparencyfilters.TransparencyFilterTrueColor", c133);
@@ -1001,6 +1090,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n88 = m_g.createNode("org/apache/commons/imaging/formats/xpm/XpmImageParser.java");
 		n88.setMapping("xpm");
+		n88.setClustering("xpm", "Initial");
 		dmClass c143 = new dmClass("org.apache.commons.imaging.formats.xpm.XpmImageParser");
 		n88.addClass(c143);
 		m_classes.put("org.apache.commons.imaging.formats.xpm.XpmImageParser", c143);
@@ -1055,6 +1145,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n93 = m_g.createNode("org/apache/commons/imaging/ImageFormats.java");
 		n93.setMapping("base");
+		n93.setClustering("base", "Initial");
 		dmClass c152 = new dmClass("org.apache.commons.imaging.ImageFormats");
 		n93.addClass(c152);
 		m_classes.put("org.apache.commons.imaging.ImageFormats", c152);
@@ -1083,6 +1174,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n97 = m_g.createNode("org/apache/commons/imaging/formats/pnm/PbmFileInfo.java");
 		n97.setMapping("pnm");
+		n97.setClustering("pnm", "Initial");
 		dmClass c156 = new dmClass("org.apache.commons.imaging.formats.pnm.PbmFileInfo");
 		n97.addClass(c156);
 		m_classes.put("org.apache.commons.imaging.formats.pnm.PbmFileInfo", c156);
@@ -1090,7 +1182,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n98 = m_g.createNode("org/apache/commons/imaging/formats/tiff/constants/GeoTiffTagConstants.java");
 		n98.setMapping("tiff");
-		n98.setClustering("tiff", "Initial");
 		dmClass c157 = new dmClass("org.apache.commons.imaging.formats.tiff.constants.GeoTiffTagConstants");
 		n98.addClass(c157);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.constants.GeoTiffTagConstants", c157);
@@ -1098,6 +1189,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n99 = m_g.createNode("org/apache/commons/imaging/formats/png/chunks/PngChunkPhys.java");
 		n99.setMapping("png");
+		n99.setClustering("png", "Initial");
 		dmClass c158 = new dmClass("org.apache.commons.imaging.formats.png.chunks.PngChunkPhys");
 		n99.addClass(c158);
 		m_classes.put("org.apache.commons.imaging.formats.png.chunks.PngChunkPhys", c158);
@@ -1192,6 +1284,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n111 = m_g.createNode("org/apache/commons/imaging/formats/png/chunks/PngChunkIhdr.java");
 		n111.setMapping("png");
+		n111.setClustering("png", "Initial");
 		dmClass c171 = new dmClass("org.apache.commons.imaging.formats.png.chunks.PngChunkIhdr");
 		n111.addClass(c171);
 		m_classes.put("org.apache.commons.imaging.formats.png.chunks.PngChunkIhdr", c171);
@@ -1226,7 +1319,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n113 = m_g.createNode("org/apache/commons/imaging/formats/icns/IcnsDecoder.java");
 		n113.setMapping("icns");
-		n113.setClustering("icns", "Initial");
 		dmClass c178 = new dmClass("org.apache.commons.imaging.formats.icns.IcnsDecoder");
 		n113.addClass(c178);
 		m_classes.put("org.apache.commons.imaging.formats.icns.IcnsDecoder", c178);
@@ -1234,7 +1326,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n114 = m_g.createNode("org/apache/commons/imaging/formats/pnm/PpmWriter.java");
 		n114.setMapping("pnm");
-		n114.setClustering("pnm", "Initial");
 		dmClass c179 = new dmClass("org.apache.commons.imaging.formats.pnm.PpmWriter");
 		n114.addClass(c179);
 		m_classes.put("org.apache.commons.imaging.formats.pnm.PpmWriter", c179);
@@ -1242,7 +1333,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n115 = m_g.createNode("org/apache/commons/imaging/formats/tiff/taginfos/TagInfoByte.java");
 		n115.setMapping("tiff");
-		n115.setClustering("tiff", "Initial");
 		dmClass c180 = new dmClass("org.apache.commons.imaging.formats.tiff.taginfos.TagInfoByte");
 		n115.addClass(c180);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.taginfos.TagInfoByte", c180);
@@ -1258,6 +1348,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n117 = m_g.createNode("org/apache/commons/imaging/icc/IccTag.java");
 		n117.setMapping("icc");
+		n117.setClustering("icc", "Initial");
 		dmClass c182 = new dmClass("org.apache.commons.imaging.icc.IccTag");
 		n117.addClass(c182);
 		m_classes.put("org.apache.commons.imaging.icc.IccTag", c182);
@@ -1273,7 +1364,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n119 = m_g.createNode("org/apache/commons/imaging/ColorTools.java");
 		n119.setMapping("base");
-		n119.setClustering("base", "Initial");
 		dmClass c184 = new dmClass("org.apache.commons.imaging.ColorTools");
 		n119.addClass(c184);
 		m_classes.put("org.apache.commons.imaging.ColorTools", c184);
@@ -1330,7 +1420,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n124 = m_g.createNode("org/apache/commons/imaging/palette/Palette.java");
 		n124.setMapping("palette");
-		n124.setClustering("palette", "Initial");
 		dmClass c194 = new dmClass("org.apache.commons.imaging.palette.Palette");
 		n124.addClass(c194);
 		m_classes.put("org.apache.commons.imaging.palette.Palette", c194);
@@ -1338,7 +1427,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n125 = m_g.createNode("org/apache/commons/imaging/formats/jpeg/iptc/IptcTypes.java");
 		n125.setMapping("jpeg");
-		n125.setClustering("jpeg", "Initial");
 		dmClass c195 = new dmClass("org.apache.commons.imaging.formats.jpeg.iptc.IptcTypes");
 		n125.addClass(c195);
 		m_classes.put("org.apache.commons.imaging.formats.jpeg.iptc.IptcTypes", c195);
@@ -1375,7 +1463,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n129 = m_g.createNode("org/apache/commons/imaging/formats/tiff/write/TiffOutputSet.java");
 		n129.setMapping("tiff");
-		n129.setClustering("tiff", "Initial");
 		dmClass c201 = new dmClass("org.apache.commons.imaging.formats.tiff.write.TiffOutputSet");
 		n129.addClass(c201);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.write.TiffOutputSet", c201);
@@ -1383,6 +1470,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n130 = m_g.createNode("org/apache/commons/imaging/palette/QuantizedPalette.java");
 		n130.setMapping("palette");
+		n130.setClustering("palette", "Initial");
 		dmClass c202 = new dmClass("org.apache.commons.imaging.palette.QuantizedPalette");
 		n130.addClass(c202);
 		m_classes.put("org.apache.commons.imaging.palette.QuantizedPalette", c202);
@@ -1414,7 +1502,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n134 = m_g.createNode("org/apache/commons/imaging/common/RationalNumber.java");
 		n134.setMapping("common");
-		n134.setClustering("common", "Initial");
 		dmClass c206 = new dmClass("org.apache.commons.imaging.common.RationalNumber$Option");
 		n134.addClass(c206);
 		m_classes.put("org.apache.commons.imaging.common.RationalNumber$Option", c206);
@@ -1441,6 +1528,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n136 = m_g.createNode("org/apache/commons/imaging/formats/tiff/taginfos/TagInfoSLongs.java");
 		n136.setMapping("tiff");
+		n136.setClustering("tiff", "Initial");
 		dmClass c211 = new dmClass("org.apache.commons.imaging.formats.tiff.taginfos.TagInfoSLongs");
 		n136.addClass(c211);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.taginfos.TagInfoSLongs", c211);
@@ -1448,6 +1536,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n137 = m_g.createNode("org/apache/commons/imaging/formats/tiff/fieldtypes/FieldTypeAscii.java");
 		n137.setMapping("tiff");
+		n137.setClustering("tiff", "Initial");
 		dmClass c212 = new dmClass("org.apache.commons.imaging.formats.tiff.fieldtypes.FieldTypeAscii");
 		n137.addClass(c212);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.fieldtypes.FieldTypeAscii", c212);
@@ -1455,7 +1544,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n138 = m_g.createNode("org/apache/commons/imaging/formats/png/transparencyfilters/TransparencyFilterIndexedColor.java");
 		n138.setMapping("png");
-		n138.setClustering("png", "Initial");
 		dmClass c213 = new dmClass("org.apache.commons.imaging.formats.png.transparencyfilters.TransparencyFilterIndexedColor");
 		n138.addClass(c213);
 		m_classes.put("org.apache.commons.imaging.formats.png.transparencyfilters.TransparencyFilterIndexedColor", c213);
@@ -1520,7 +1608,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n143 = m_g.createNode("org/apache/commons/imaging/color/ColorHsl.java");
 		n143.setMapping("color");
-		n143.setClustering("color", "Initial");
 		dmClass c225 = new dmClass("org.apache.commons.imaging.color.ColorHsl");
 		n143.addClass(c225);
 		m_classes.put("org.apache.commons.imaging.color.ColorHsl", c225);
@@ -1540,7 +1627,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n146 = m_g.createNode("org/apache/commons/imaging/formats/pnm/PpmFileInfo.java");
 		n146.setMapping("pnm");
-		n146.setClustering("pnm", "Initial");
 		dmClass c228 = new dmClass("org.apache.commons.imaging.formats.pnm.PpmFileInfo");
 		n146.addClass(c228);
 		m_classes.put("org.apache.commons.imaging.formats.pnm.PpmFileInfo", c228);
@@ -1563,6 +1649,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n149 = m_g.createNode("org/apache/commons/imaging/formats/jpeg/JpegImageMetadata.java");
 		n149.setMapping("jpeg");
+		n149.setClustering("jpeg", "Initial");
 		dmClass c231 = new dmClass("org.apache.commons.imaging.formats.jpeg.JpegImageMetadata");
 		n149.addClass(c231);
 		m_classes.put("org.apache.commons.imaging.formats.jpeg.JpegImageMetadata", c231);
@@ -1578,7 +1665,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n151 = m_g.createNode("org/apache/commons/imaging/formats/pnm/WhiteSpaceReader.java");
 		n151.setMapping("pnm");
-		n151.setClustering("pnm", "Initial");
 		dmClass c233 = new dmClass("org.apache.commons.imaging.formats.pnm.WhiteSpaceReader");
 		n151.addClass(c233);
 		m_classes.put("org.apache.commons.imaging.formats.pnm.WhiteSpaceReader", c233);
@@ -1639,6 +1725,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n159 = m_g.createNode("org/apache/commons/imaging/common/mylzw/MyLzwDecompressor.java");
 		n159.setMapping("common");
+		n159.setClustering("common", "Initial");
 		dmClass c241 = new dmClass("org.apache.commons.imaging.common.mylzw.MyLzwDecompressor$Listener");
 		n159.addClass(c241);
 		m_classes.put("org.apache.commons.imaging.common.mylzw.MyLzwDecompressor$Listener", c241);
@@ -1666,6 +1753,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n162 = m_g.createNode("org/apache/commons/imaging/common/BinaryFileParser.java");
 		n162.setMapping("common");
+		n162.setClustering("common", "Initial");
 		dmClass c245 = new dmClass("org.apache.commons.imaging.common.BinaryFileParser");
 		n162.addClass(c245);
 		m_classes.put("org.apache.commons.imaging.common.BinaryFileParser", c245);
@@ -1673,7 +1761,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n163 = m_g.createNode("org/apache/commons/imaging/ImageInfo.java");
 		n163.setMapping("base");
-		n163.setClustering("base", "Initial");
 		dmClass c246 = new dmClass("org.apache.commons.imaging.ImageInfo");
 		n163.addClass(c246);
 		m_classes.put("org.apache.commons.imaging.ImageInfo", c246);
@@ -1702,6 +1789,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n166 = m_g.createNode("org/apache/commons/imaging/formats/png/chunks/PngChunkScal.java");
 		n166.setMapping("png");
+		n166.setClustering("png", "Initial");
 		dmClass c251 = new dmClass("org.apache.commons.imaging.formats.png.chunks.PngChunkScal");
 		n166.addClass(c251);
 		m_classes.put("org.apache.commons.imaging.formats.png.chunks.PngChunkScal", c251);
@@ -1743,7 +1831,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n172 = m_g.createNode("org/apache/commons/imaging/formats/png/scanlinefilters/ScanlineFilterPaeth.java");
 		n172.setMapping("png");
-		n172.setClustering("png", "Initial");
 		dmClass c257 = new dmClass("org.apache.commons.imaging.formats.png.scanlinefilters.ScanlineFilterPaeth");
 		n172.addClass(c257);
 		m_classes.put("org.apache.commons.imaging.formats.png.scanlinefilters.ScanlineFilterPaeth", c257);
@@ -1782,7 +1869,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n177 = m_g.createNode("org/apache/commons/imaging/formats/jpeg/iptc/IptcType.java");
 		n177.setMapping("jpeg");
-		n177.setClustering("jpeg", "Initial");
 		dmClass c262 = new dmClass("org.apache.commons.imaging.formats.jpeg.iptc.IptcType");
 		n177.addClass(c262);
 		m_classes.put("org.apache.commons.imaging.formats.jpeg.iptc.IptcType", c262);
@@ -1803,6 +1889,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n180 = m_g.createNode("org/apache/commons/imaging/formats/tiff/taginfos/TagInfoUnknown.java");
 		n180.setMapping("tiff");
+		n180.setClustering("tiff", "Initial");
 		dmClass c265 = new dmClass("org.apache.commons.imaging.formats.tiff.taginfos.TagInfoUnknown");
 		n180.addClass(c265);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.taginfos.TagInfoUnknown", c265);
@@ -1825,7 +1912,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n183 = m_g.createNode("org/apache/commons/imaging/formats/tiff/photometricinterpreters/floatingpoint/PhotometricInterpreterFloat.java");
 		n183.setMapping("tiff");
-		n183.setClustering("tiff", "Initial");
 		dmClass c268 = new dmClass("org.apache.commons.imaging.formats.tiff.photometricinterpreters.floatingpoint.PhotometricInterpreterFloat");
 		n183.addClass(c268);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.photometricinterpreters.floatingpoint.PhotometricInterpreterFloat", c268);
@@ -1910,6 +1996,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n196 = m_g.createNode("org/apache/commons/imaging/palette/ColorGroupCut.java");
 		n196.setMapping("palette");
+		n196.setClustering("palette", "Initial");
 		dmClass c281 = new dmClass("org.apache.commons.imaging.palette.ColorGroupCut");
 		n196.addClass(c281);
 		m_classes.put("org.apache.commons.imaging.palette.ColorGroupCut", c281);
@@ -1932,7 +2019,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n199 = m_g.createNode("org/apache/commons/imaging/formats/tiff/constants/Rfc2301TagConstants.java");
 		n199.setMapping("tiff");
-		n199.setClustering("tiff", "Initial");
 		dmClass c284 = new dmClass("org.apache.commons.imaging.formats.tiff.constants.Rfc2301TagConstants");
 		n199.addClass(c284);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.constants.Rfc2301TagConstants", c284);
@@ -1980,6 +2066,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n205 = m_g.createNode("org/apache/commons/imaging/formats/psd/ImageResourceType.java");
 		n205.setMapping("psd");
+		n205.setClustering("psd", "Initial");
 		dmClass c290 = new dmClass("org.apache.commons.imaging.formats.psd.ImageResourceType");
 		n205.addClass(c290);
 		m_classes.put("org.apache.commons.imaging.formats.psd.ImageResourceType", c290);
@@ -1995,7 +2082,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n207 = m_g.createNode("org/apache/commons/imaging/formats/tiff/TiffContents.java");
 		n207.setMapping("tiff");
-		n207.setClustering("tiff", "Initial");
 		dmClass c292 = new dmClass("org.apache.commons.imaging.formats.tiff.TiffContents");
 		n207.addClass(c292);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.TiffContents", c292);
@@ -2044,6 +2130,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n214 = m_g.createNode("org/apache/commons/imaging/formats/tiff/taginfos/TagInfoRationals.java");
 		n214.setMapping("tiff");
+		n214.setClustering("tiff", "Initial");
 		dmClass c299 = new dmClass("org.apache.commons.imaging.formats.tiff.taginfos.TagInfoRationals");
 		n214.addClass(c299);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.taginfos.TagInfoRationals", c299);
@@ -2051,7 +2138,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n215 = m_g.createNode("org/apache/commons/imaging/formats/tiff/constants/Tiff4TagConstants.java");
 		n215.setMapping("tiff");
-		n215.setClustering("tiff", "Initial");
 		dmClass c300 = new dmClass("org.apache.commons.imaging.formats.tiff.constants.Tiff4TagConstants");
 		n215.addClass(c300);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.constants.Tiff4TagConstants", c300);
@@ -2096,6 +2182,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n220 = m_g.createNode("org/apache/commons/imaging/formats/tiff/constants/HylaFaxTagConstants.java");
 		n220.setMapping("tiff");
+		n220.setClustering("tiff", "Initial");
 		dmClass c307 = new dmClass("org.apache.commons.imaging.formats.tiff.constants.HylaFaxTagConstants");
 		n220.addClass(c307);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.constants.HylaFaxTagConstants", c307);
@@ -2103,6 +2190,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n221 = m_g.createNode("org/apache/commons/imaging/formats/jpeg/segments/JfifSegment.java");
 		n221.setMapping("jpeg");
+		n221.setClustering("jpeg", "Initial");
 		dmClass c308 = new dmClass("org.apache.commons.imaging.formats.jpeg.segments.JfifSegment");
 		n221.addClass(c308);
 		m_classes.put("org.apache.commons.imaging.formats.jpeg.segments.JfifSegment", c308);
@@ -2134,7 +2222,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n225 = m_g.createNode("org/apache/commons/imaging/formats/psd/dataparsers/DataParserLab.java");
 		n225.setMapping("psd");
-		n225.setClustering("psd", "Initial");
 		dmClass c313 = new dmClass("org.apache.commons.imaging.formats.psd.dataparsers.DataParserLab");
 		n225.addClass(c313);
 		m_classes.put("org.apache.commons.imaging.formats.psd.dataparsers.DataParserLab", c313);
@@ -2174,7 +2261,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n230 = m_g.createNode("org/apache/commons/imaging/formats/png/chunks/PngChunkText.java");
 		n230.setMapping("png");
-		n230.setClustering("png", "Initial");
 		dmClass c318 = new dmClass("org.apache.commons.imaging.formats.png.chunks.PngChunkText");
 		n230.addClass(c318);
 		m_classes.put("org.apache.commons.imaging.formats.png.chunks.PngChunkText", c318);
@@ -2238,6 +2324,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n238 = m_g.createNode("org/apache/commons/imaging/formats/jpeg/JpegImageParser.java");
 		n238.setMapping("jpeg");
+		n238.setClustering("jpeg", "Initial");
 		dmClass c327 = new dmClass("org.apache.commons.imaging.formats.jpeg.JpegImageParser");
 		n238.addClass(c327);
 		m_classes.put("org.apache.commons.imaging.formats.jpeg.JpegImageParser", c327);
@@ -2294,6 +2381,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n243 = m_g.createNode("org/apache/commons/imaging/formats/tiff/taginfos/TagInfoLong.java");
 		n243.setMapping("tiff");
+		n243.setClustering("tiff", "Initial");
 		dmClass c337 = new dmClass("org.apache.commons.imaging.formats.tiff.taginfos.TagInfoLong");
 		n243.addClass(c337);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.taginfos.TagInfoLong", c337);
@@ -2301,7 +2389,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n244 = m_g.createNode("org/apache/commons/imaging/common/BasicCParser.java");
 		n244.setMapping("common");
-		n244.setClustering("common", "Initial");
 		dmClass c338 = new dmClass("org.apache.commons.imaging.common.BasicCParser");
 		n244.addClass(c338);
 		m_classes.put("org.apache.commons.imaging.common.BasicCParser", c338);
@@ -2309,7 +2396,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n245 = m_g.createNode("org/apache/commons/imaging/formats/icns/IcnsType.java");
 		n245.setMapping("icns");
-		n245.setClustering("icns", "Initial");
 		dmClass c339 = new dmClass("org.apache.commons.imaging.formats.icns.IcnsType");
 		n245.addClass(c339);
 		m_classes.put("org.apache.commons.imaging.formats.icns.IcnsType", c339);
@@ -2335,6 +2421,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n249 = m_g.createNode("org/apache/commons/imaging/color/ColorCieLuv.java");
 		n249.setMapping("color");
+		n249.setClustering("color", "Initial");
 		dmClass c343 = new dmClass("org.apache.commons.imaging.color.ColorCieLuv");
 		n249.addClass(c343);
 		m_classes.put("org.apache.commons.imaging.color.ColorCieLuv", c343);
@@ -2370,7 +2457,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n253 = m_g.createNode("org/apache/commons/imaging/palette/ColorComponent.java");
 		n253.setMapping("palette");
-		n253.setClustering("palette", "Initial");
 		dmClass c348 = new dmClass("org.apache.commons.imaging.palette.ColorComponent");
 		n253.addClass(c348);
 		m_classes.put("org.apache.commons.imaging.palette.ColorComponent", c348);
@@ -2378,7 +2464,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n254 = m_g.createNode("org/apache/commons/imaging/formats/tiff/taginfos/TagInfoLongs.java");
 		n254.setMapping("tiff");
-		n254.setClustering("tiff", "Initial");
 		dmClass c349 = new dmClass("org.apache.commons.imaging.formats.tiff.taginfos.TagInfoLongs");
 		n254.addClass(c349);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.taginfos.TagInfoLongs", c349);
@@ -2401,7 +2486,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n257 = m_g.createNode("org/apache/commons/imaging/formats/png/chunks/PngChunkPlte.java");
 		n257.setMapping("png");
-		n257.setClustering("png", "Initial");
 		dmClass c352 = new dmClass("org.apache.commons.imaging.formats.png.chunks.PngChunkPlte");
 		n257.addClass(c352);
 		m_classes.put("org.apache.commons.imaging.formats.png.chunks.PngChunkPlte", c352);
@@ -2409,6 +2493,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n258 = m_g.createNode("org/apache/commons/imaging/formats/png/chunks/PngChunkItxt.java");
 		n258.setMapping("png");
+		n258.setClustering("png", "Initial");
 		dmClass c353 = new dmClass("org.apache.commons.imaging.formats.png.chunks.PngChunkItxt");
 		n258.addClass(c353);
 		m_classes.put("org.apache.commons.imaging.formats.png.chunks.PngChunkItxt", c353);
@@ -2431,7 +2516,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n261 = m_g.createNode("org/apache/commons/imaging/formats/tiff/taginfos/TagInfoDouble.java");
 		n261.setMapping("tiff");
-		n261.setClustering("tiff", "Initial");
 		dmClass c356 = new dmClass("org.apache.commons.imaging.formats.tiff.taginfos.TagInfoDouble");
 		n261.addClass(c356);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.taginfos.TagInfoDouble", c356);
@@ -2459,6 +2543,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n264 = m_g.createNode("org/apache/commons/imaging/formats/png/chunks/PngTextChunk.java");
 		n264.setMapping("png");
+		n264.setClustering("png", "Initial");
 		dmClass c360 = new dmClass("org.apache.commons.imaging.formats.png.chunks.PngTextChunk");
 		n264.addClass(c360);
 		m_classes.put("org.apache.commons.imaging.formats.png.chunks.PngTextChunk", c360);
@@ -2474,7 +2559,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n266 = m_g.createNode("org/apache/commons/imaging/common/bytesource/ByteSource.java");
 		n266.setMapping("common");
-		n266.setClustering("common", "Initial");
 		dmClass c362 = new dmClass("org.apache.commons.imaging.common.bytesource.ByteSource");
 		n266.addClass(c362);
 		m_classes.put("org.apache.commons.imaging.common.bytesource.ByteSource", c362);
@@ -2482,6 +2566,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n267 = m_g.createNode("org/apache/commons/imaging/formats/tiff/datareaders/DataReaderTiled.java");
 		n267.setMapping("tiff");
+		n267.setClustering("tiff", "Initial");
 		dmClass c363 = new dmClass("org.apache.commons.imaging.formats.tiff.datareaders.DataReaderTiled");
 		n267.addClass(c363);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.datareaders.DataReaderTiled", c363);
@@ -2489,6 +2574,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n268 = m_g.createNode("org/apache/commons/imaging/formats/rgbe/InfoHeaderReader.java");
 		n268.setMapping("rgbe");
+		n268.setClustering("rgbe", "Initial");
 		dmClass c364 = new dmClass("org.apache.commons.imaging.formats.rgbe.InfoHeaderReader");
 		n268.addClass(c364);
 		m_classes.put("org.apache.commons.imaging.formats.rgbe.InfoHeaderReader", c364);
@@ -2496,7 +2582,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n269 = m_g.createNode("org/apache/commons/imaging/formats/tiff/TiffElement.java");
 		n269.setMapping("tiff");
-		n269.setClustering("tiff", "Initial");
 		dmClass c365 = new dmClass("org.apache.commons.imaging.formats.tiff.TiffElement$DataElement");
 		n269.addClass(c365);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.TiffElement$DataElement", c365);
@@ -2512,7 +2597,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n270 = m_g.createNode("org/apache/commons/imaging/formats/jpeg/decoder/YCbCrConverter.java");
 		n270.setMapping("jpeg");
-		n270.setClustering("jpeg", "Initial");
 		dmClass c368 = new dmClass("org.apache.commons.imaging.formats.jpeg.decoder.YCbCrConverter");
 		n270.addClass(c368);
 		m_classes.put("org.apache.commons.imaging.formats.jpeg.decoder.YCbCrConverter", c368);
@@ -2528,6 +2612,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n272 = m_g.createNode("org/apache/commons/imaging/formats/png/FilterType.java");
 		n272.setMapping("png");
+		n272.setClustering("png", "Initial");
 		dmClass c370 = new dmClass("org.apache.commons.imaging.formats.png.FilterType");
 		n272.addClass(c370);
 		m_classes.put("org.apache.commons.imaging.formats.png.FilterType", c370);
@@ -2535,7 +2620,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n273 = m_g.createNode("org/apache/commons/imaging/formats/tiff/TiffHeader.java");
 		n273.setMapping("tiff");
-		n273.setClustering("tiff", "Initial");
 		dmClass c371 = new dmClass("org.apache.commons.imaging.formats.tiff.TiffHeader");
 		n273.addClass(c371);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.TiffHeader", c371);
@@ -2543,7 +2627,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n274 = m_g.createNode("org/apache/commons/imaging/formats/jpeg/segments/App14Segment.java");
 		n274.setMapping("jpeg");
-		n274.setClustering("jpeg", "Initial");
 		dmClass c372 = new dmClass("org.apache.commons.imaging.formats.jpeg.segments.App14Segment");
 		n274.addClass(c372);
 		m_classes.put("org.apache.commons.imaging.formats.jpeg.segments.App14Segment", c372);
@@ -2551,7 +2634,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n275 = m_g.createNode("org/apache/commons/imaging/formats/jpeg/segments/Segment.java");
 		n275.setMapping("jpeg");
-		n275.setClustering("jpeg", "Initial");
 		dmClass c373 = new dmClass("org.apache.commons.imaging.formats.jpeg.segments.Segment");
 		n275.addClass(c373);
 		m_classes.put("org.apache.commons.imaging.formats.jpeg.segments.Segment", c373);
@@ -2615,6 +2697,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n281 = m_g.createNode("org/apache/commons/imaging/common/BinaryOutputStream.java");
 		n281.setMapping("common");
+		n281.setClustering("common", "Initial");
 		dmClass c383 = new dmClass("org.apache.commons.imaging.common.BinaryOutputStream");
 		n281.addClass(c383);
 		m_classes.put("org.apache.commons.imaging.common.BinaryOutputStream", c383);
@@ -2622,6 +2705,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n282 = m_g.createNode("org/apache/commons/imaging/formats/png/scanlinefilters/ScanlineFilterNone.java");
 		n282.setMapping("png");
+		n282.setClustering("png", "Initial");
 		dmClass c384 = new dmClass("org.apache.commons.imaging.formats.png.scanlinefilters.ScanlineFilterNone");
 		n282.addClass(c384);
 		m_classes.put("org.apache.commons.imaging.formats.png.scanlinefilters.ScanlineFilterNone", c384);
@@ -2629,7 +2713,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n283 = m_g.createNode("org/apache/commons/imaging/formats/png/BitParser.java");
 		n283.setMapping("png");
-		n283.setClustering("png", "Initial");
 		dmClass c385 = new dmClass("org.apache.commons.imaging.formats.png.BitParser");
 		n283.addClass(c385);
 		m_classes.put("org.apache.commons.imaging.formats.png.BitParser", c385);
@@ -2637,6 +2720,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n284 = m_g.createNode("org/apache/commons/imaging/formats/tiff/constants/MicrosoftTagConstants.java");
 		n284.setMapping("tiff");
+		n284.setClustering("tiff", "Initial");
 		dmClass c386 = new dmClass("org.apache.commons.imaging.formats.tiff.constants.MicrosoftTagConstants");
 		n284.addClass(c386);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.constants.MicrosoftTagConstants", c386);
@@ -2660,6 +2744,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n287 = m_g.createNode("org/apache/commons/imaging/formats/png/transparencyfilters/TransparencyFilter.java");
 		n287.setMapping("png");
+		n287.setClustering("png", "Initial");
 		dmClass c389 = new dmClass("org.apache.commons.imaging.formats.png.transparencyfilters.TransparencyFilter");
 		n287.addClass(c389);
 		m_classes.put("org.apache.commons.imaging.formats.png.transparencyfilters.TransparencyFilter", c389);
@@ -2667,6 +2752,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n288 = m_g.createNode("org/apache/commons/imaging/formats/jpeg/iptc/IptcTypeLookup.java");
 		n288.setMapping("jpeg");
+		n288.setClustering("jpeg", "Initial");
 		dmClass c390 = new dmClass("org.apache.commons.imaging.formats.jpeg.iptc.IptcTypeLookup");
 		n288.addClass(c390);
 		m_classes.put("org.apache.commons.imaging.formats.jpeg.iptc.IptcTypeLookup", c390);
@@ -2679,7 +2765,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n290 = m_g.createNode("org/apache/commons/imaging/common/itu_t4/T4AndT6Compression.java");
 		n290.setMapping("common");
-		n290.setClustering("common", "Initial");
 		dmClass c392 = new dmClass("org.apache.commons.imaging.common.itu_t4.T4AndT6Compression");
 		n290.addClass(c392);
 		m_classes.put("org.apache.commons.imaging.common.itu_t4.T4AndT6Compression", c392);
@@ -2719,7 +2804,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n295 = m_g.createNode("org/apache/commons/imaging/formats/tiff/photometricinterpreters/PhotometricInterpreterCieLab.java");
 		n295.setMapping("tiff");
-		n295.setClustering("tiff", "Initial");
 		dmClass c397 = new dmClass("org.apache.commons.imaging.formats.tiff.photometricinterpreters.PhotometricInterpreterCieLab");
 		n295.addClass(c397);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.photometricinterpreters.PhotometricInterpreterCieLab", c397);
@@ -2756,7 +2840,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n300 = m_g.createNode("org/apache/commons/imaging/formats/tiff/constants/AliasSketchbookProTagConstants.java");
 		n300.setMapping("tiff");
-		n300.setClustering("tiff", "Initial");
 		dmClass c402 = new dmClass("org.apache.commons.imaging.formats.tiff.constants.AliasSketchbookProTagConstants");
 		n300.addClass(c402);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.constants.AliasSketchbookProTagConstants", c402);
@@ -2764,6 +2847,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n301 = m_g.createNode("org/apache/commons/imaging/formats/png/chunks/PngChunkGama.java");
 		n301.setMapping("png");
+		n301.setClustering("png", "Initial");
 		dmClass c403 = new dmClass("org.apache.commons.imaging.formats.png.chunks.PngChunkGama");
 		n301.addClass(c403);
 		m_classes.put("org.apache.commons.imaging.formats.png.chunks.PngChunkGama", c403);
@@ -2779,7 +2863,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n303 = m_g.createNode("org/apache/commons/imaging/formats/gif/GifHeaderInfo.java");
 		n303.setMapping("gif");
-		n303.setClustering("gif", "Initial");
 		dmClass c405 = new dmClass("org.apache.commons.imaging.formats.gif.GifHeaderInfo");
 		n303.addClass(c405);
 		m_classes.put("org.apache.commons.imaging.formats.gif.GifHeaderInfo", c405);
@@ -2787,6 +2870,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n304 = m_g.createNode("org/apache/commons/imaging/formats/psd/dataparsers/DataParserGrayscale.java");
 		n304.setMapping("psd");
+		n304.setClustering("psd", "Initial");
 		dmClass c406 = new dmClass("org.apache.commons.imaging.formats.psd.dataparsers.DataParserGrayscale");
 		n304.addClass(c406);
 		m_classes.put("org.apache.commons.imaging.formats.psd.dataparsers.DataParserGrayscale", c406);
@@ -2794,6 +2878,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n305 = m_g.createNode("org/apache/commons/imaging/formats/pnm/PnmWriter.java");
 		n305.setMapping("pnm");
+		n305.setClustering("pnm", "Initial");
 		dmClass c407 = new dmClass("org.apache.commons.imaging.formats.pnm.PnmWriter");
 		n305.addClass(c407);
 		m_classes.put("org.apache.commons.imaging.formats.pnm.PnmWriter", c407);
@@ -2817,6 +2902,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n308 = m_g.createNode("org/apache/commons/imaging/formats/bmp/PixelParserRle.java");
 		n308.setMapping("bmp");
+		n308.setClustering("bmp", "Initial");
 		dmClass c410 = new dmClass("org.apache.commons.imaging.formats.bmp.PixelParserRle");
 		n308.addClass(c410);
 		m_classes.put("org.apache.commons.imaging.formats.bmp.PixelParserRle", c410);
@@ -2837,6 +2923,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n311 = m_g.createNode("org/apache/commons/imaging/common/PackBits.java");
 		n311.setMapping("common");
+		n311.setClustering("common", "Initial");
 		dmClass c413 = new dmClass("org.apache.commons.imaging.common.PackBits");
 		n311.addClass(c413);
 		m_classes.put("org.apache.commons.imaging.common.PackBits", c413);
@@ -2896,6 +2983,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n320 = m_g.createNode("org/apache/commons/imaging/formats/tiff/photometricinterpreters/PhotometricInterpreterPalette.java");
 		n320.setMapping("tiff");
+		n320.setClustering("tiff", "Initial");
 		dmClass c422 = new dmClass("org.apache.commons.imaging.formats.tiff.photometricinterpreters.PhotometricInterpreterPalette");
 		n320.addClass(c422);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.photometricinterpreters.PhotometricInterpreterPalette", c422);
@@ -2911,6 +2999,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n322 = m_g.createNode("org/apache/commons/imaging/formats/psd/datareaders/UncompressedDataReader.java");
 		n322.setMapping("psd");
+		n322.setClustering("psd", "Initial");
 		dmClass c424 = new dmClass("org.apache.commons.imaging.formats.psd.datareaders.UncompressedDataReader");
 		n322.addClass(c424);
 		m_classes.put("org.apache.commons.imaging.formats.psd.datareaders.UncompressedDataReader", c424);
@@ -2926,6 +3015,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n324 = m_g.createNode("org/apache/commons/imaging/formats/tiff/photometricinterpreters/PhotometricInterpreterCmyk.java");
 		n324.setMapping("tiff");
+		n324.setClustering("tiff", "Initial");
 		dmClass c426 = new dmClass("org.apache.commons.imaging.formats.tiff.photometricinterpreters.PhotometricInterpreterCmyk");
 		n324.addClass(c426);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.photometricinterpreters.PhotometricInterpreterCmyk", c426);
@@ -2933,7 +3023,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n325 = m_g.createNode("org/apache/commons/imaging/ImagingConstants.java");
 		n325.setMapping("base");
-		n325.setClustering("base", "Initial");
 		dmClass c427 = new dmClass("org.apache.commons.imaging.ImagingConstants");
 		n325.addClass(c427);
 		m_classes.put("org.apache.commons.imaging.ImagingConstants", c427);
@@ -2949,7 +3038,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n327 = m_g.createNode("org/apache/commons/imaging/formats/tiff/constants/ExifTagConstants.java");
 		n327.setMapping("tiff");
-		n327.setClustering("tiff", "Initial");
 		dmClass c429 = new dmClass("org.apache.commons.imaging.formats.tiff.constants.ExifTagConstants");
 		n327.addClass(c429);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.constants.ExifTagConstants", c429);
@@ -2957,7 +3045,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n328 = m_g.createNode("org/apache/commons/imaging/formats/psd/dataparsers/DataParserCmyk.java");
 		n328.setMapping("psd");
-		n328.setClustering("psd", "Initial");
 		dmClass c430 = new dmClass("org.apache.commons.imaging.formats.psd.dataparsers.DataParserCmyk");
 		n328.addClass(c430);
 		m_classes.put("org.apache.commons.imaging.formats.psd.dataparsers.DataParserCmyk", c430);
@@ -2973,6 +3060,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n330 = m_g.createNode("org/apache/commons/imaging/formats/rgbe/RgbeInfo.java");
 		n330.setMapping("rgbe");
+		n330.setClustering("rgbe", "Initial");
 		dmClass c432 = new dmClass("org.apache.commons.imaging.formats.rgbe.RgbeInfo");
 		n330.addClass(c432);
 		m_classes.put("org.apache.commons.imaging.formats.rgbe.RgbeInfo", c432);
@@ -2990,6 +3078,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n333 = m_g.createNode("org/apache/commons/imaging/formats/tiff/write/TiffOutputDirectory.java");
 		n333.setMapping("tiff");
+		n333.setClustering("tiff", "Initial");
 		dmClass c435 = new dmClass("org.apache.commons.imaging.formats.tiff.write.TiffOutputDirectory");
 		n333.addClass(c435);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.write.TiffOutputDirectory", c435);
@@ -2997,7 +3086,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n334 = m_g.createNode("org/apache/commons/imaging/formats/gif/GifImageMetadata.java");
 		n334.setMapping("gif");
-		n334.setClustering("gif", "Initial");
 		dmClass c436 = new dmClass("org.apache.commons.imaging.formats.gif.GifImageMetadata");
 		n334.addClass(c436);
 		m_classes.put("org.apache.commons.imaging.formats.gif.GifImageMetadata", c436);
@@ -3005,7 +3093,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n335 = m_g.createNode("org/apache/commons/imaging/formats/tiff/photometricinterpreters/PhotometricInterpreterBiLevel.java");
 		n335.setMapping("tiff");
-		n335.setClustering("tiff", "Initial");
 		dmClass c437 = new dmClass("org.apache.commons.imaging.formats.tiff.photometricinterpreters.PhotometricInterpreterBiLevel");
 		n335.addClass(c437);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.photometricinterpreters.PhotometricInterpreterBiLevel", c437);
@@ -3013,7 +3100,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n336 = m_g.createNode("org/apache/commons/imaging/icc/IccProfileInfo.java");
 		n336.setMapping("icc");
-		n336.setClustering("icc", "Initial");
 		dmClass c438 = new dmClass("org.apache.commons.imaging.icc.IccProfileInfo");
 		n336.addClass(c438);
 		m_classes.put("org.apache.commons.imaging.icc.IccProfileInfo", c438);
@@ -3037,6 +3123,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n339 = m_g.createNode("org/apache/commons/imaging/common/FastByteArrayOutputStream.java");
 		n339.setMapping("common");
+		n339.setClustering("common", "Initial");
 		dmClass c441 = new dmClass("org.apache.commons.imaging.common.FastByteArrayOutputStream");
 		n339.addClass(c441);
 		m_classes.put("org.apache.commons.imaging.common.FastByteArrayOutputStream", c441);
@@ -3099,7 +3186,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n348 = m_g.createNode("org/apache/commons/imaging/formats/tiff/fieldtypes/FieldTypeByte.java");
 		n348.setMapping("tiff");
-		n348.setClustering("tiff", "Initial");
 		dmClass c450 = new dmClass("org.apache.commons.imaging.formats.tiff.fieldtypes.FieldTypeByte");
 		n348.addClass(c450);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.fieldtypes.FieldTypeByte", c450);
@@ -3107,7 +3193,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n349 = m_g.createNode("org/apache/commons/imaging/formats/jpeg/iptc/IptcConstants.java");
 		n349.setMapping("jpeg");
-		n349.setClustering("jpeg", "Initial");
 		dmClass c451 = new dmClass("org.apache.commons.imaging.formats.jpeg.iptc.IptcConstants");
 		n349.addClass(c451);
 		m_classes.put("org.apache.commons.imaging.formats.jpeg.iptc.IptcConstants", c451);
@@ -3147,7 +3232,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n354 = m_g.createNode("org/apache/commons/imaging/formats/tiff/photometricinterpreters/floatingpoint/PaletteEntry.java");
 		n354.setMapping("tiff");
-		n354.setClustering("tiff", "Initial");
 		dmClass c456 = new dmClass("org.apache.commons.imaging.formats.tiff.photometricinterpreters.floatingpoint.PaletteEntry");
 		n354.addClass(c456);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.photometricinterpreters.floatingpoint.PaletteEntry", c456);
@@ -3163,7 +3247,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n356 = m_g.createNode("org/apache/commons/imaging/palette/MedianCut.java");
 		n356.setMapping("palette");
-		n356.setClustering("palette", "Initial");
 		dmClass c458 = new dmClass("org.apache.commons.imaging.palette.MedianCut");
 		n356.addClass(c458);
 		m_classes.put("org.apache.commons.imaging.palette.MedianCut", c458);
@@ -3171,7 +3254,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n357 = m_g.createNode("org/apache/commons/imaging/formats/tiff/constants/OceScanjobTagConstants.java");
 		n357.setMapping("tiff");
-		n357.setClustering("tiff", "Initial");
 		dmClass c459 = new dmClass("org.apache.commons.imaging.formats.tiff.constants.OceScanjobTagConstants");
 		n357.addClass(c459);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.constants.OceScanjobTagConstants", c459);
@@ -3179,7 +3261,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n358 = m_g.createNode("org/apache/commons/imaging/formats/tiff/constants/TiffConstants.java");
 		n358.setMapping("tiff");
-		n358.setClustering("tiff", "Initial");
 		dmClass c460 = new dmClass("org.apache.commons.imaging.formats.tiff.constants.TiffConstants");
 		n358.addClass(c460);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.constants.TiffConstants", c460);
@@ -3208,6 +3289,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n362 = m_g.createNode("org/apache/commons/imaging/formats/tiff/taginfos/TagInfoShortOrLongOrRational.java");
 		n362.setMapping("tiff");
+		n362.setClustering("tiff", "Initial");
 		dmClass c464 = new dmClass("org.apache.commons.imaging.formats.tiff.taginfos.TagInfoShortOrLongOrRational");
 		n362.addClass(c464);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.taginfos.TagInfoShortOrLongOrRational", c464);
@@ -3215,6 +3297,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n363 = m_g.createNode("org/apache/commons/imaging/formats/png/PngImageInfo.java");
 		n363.setMapping("png");
+		n363.setClustering("png", "Initial");
 		dmClass c465 = new dmClass("org.apache.commons.imaging.formats.png.PngImageInfo");
 		n363.addClass(c465);
 		m_classes.put("org.apache.commons.imaging.formats.png.PngImageInfo", c465);
@@ -3222,6 +3305,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n364 = m_g.createNode("org/apache/commons/imaging/formats/jpeg/decoder/Dct.java");
 		n364.setMapping("jpeg");
+		n364.setClustering("jpeg", "Initial");
 		dmClass c466 = new dmClass("org.apache.commons.imaging.formats.jpeg.decoder.Dct");
 		n364.addClass(c466);
 		m_classes.put("org.apache.commons.imaging.formats.jpeg.decoder.Dct", c466);
@@ -3229,7 +3313,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n365 = m_g.createNode("org/apache/commons/imaging/formats/png/chunks/PngChunkZtxt.java");
 		n365.setMapping("png");
-		n365.setClustering("png", "Initial");
 		dmClass c467 = new dmClass("org.apache.commons.imaging.formats.png.chunks.PngChunkZtxt");
 		n365.addClass(c467);
 		m_classes.put("org.apache.commons.imaging.formats.png.chunks.PngChunkZtxt", c467);
@@ -3245,6 +3328,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n367 = m_g.createNode("org/apache/commons/imaging/formats/jpeg/iptc/IptcRecord.java");
 		n367.setMapping("jpeg");
+		n367.setClustering("jpeg", "Initial");
 		dmClass c469 = new dmClass("org.apache.commons.imaging.formats.jpeg.iptc.IptcRecord");
 		n367.addClass(c469);
 		m_classes.put("org.apache.commons.imaging.formats.jpeg.iptc.IptcRecord", c469);
@@ -3292,6 +3376,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n373 = m_g.createNode("org/apache/commons/imaging/common/RgbBufferedImageFactory.java");
 		n373.setMapping("common");
+		n373.setClustering("common", "Initial");
 		dmClass c475 = new dmClass("org.apache.commons.imaging.common.RgbBufferedImageFactory");
 		n373.addClass(c475);
 		m_classes.put("org.apache.commons.imaging.common.RgbBufferedImageFactory", c475);
@@ -3320,7 +3405,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n377 = m_g.createNode("org/apache/commons/imaging/formats/gif/ImageDescriptor.java");
 		n377.setMapping("gif");
-		n377.setClustering("gif", "Initial");
 		dmClass c479 = new dmClass("org.apache.commons.imaging.formats.gif.ImageDescriptor");
 		n377.addClass(c479);
 		m_classes.put("org.apache.commons.imaging.formats.gif.ImageDescriptor", c479);
@@ -3328,7 +3412,6 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n378 = m_g.createNode("org/apache/commons/imaging/formats/pcx/RleReader.java");
 		n378.setMapping("pcx");
-		n378.setClustering("pcx", "Initial");
 		dmClass c480 = new dmClass("org.apache.commons.imaging.formats.pcx.RleReader");
 		n378.addClass(c480);
 		m_classes.put("org.apache.commons.imaging.formats.pcx.RleReader", c480);
@@ -3352,6 +3435,7 @@ public class CommonsImagingDump extends DumpBase {
 
 		CNode n381 = m_g.createNode("org/apache/commons/imaging/formats/tiff/taginfos/TagInfoDirectory.java");
 		n381.setMapping("tiff");
+		n381.setClustering("tiff", "Initial");
 		dmClass c483 = new dmClass("org.apache.commons.imaging.formats.tiff.taginfos.TagInfoDirectory");
 		n381.addClass(c483);
 		m_classes.put("org.apache.commons.imaging.formats.tiff.taginfos.TagInfoDirectory", c483);

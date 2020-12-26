@@ -15,61 +15,61 @@ public class ProMDump extends DumpBase {
 		switch (a_index) {
 			case 0: {
 				r = new HuGMeParams();
-				r.m_omega = 0.9577784820238219;
-				r.m_phi = 0.31822149389152665;
-				r.m_weights[0] = 0.11578888712546453;
-				r.m_weights[1] = 0.4584754835567155;
-				r.m_weights[2] = 0.7840658564295959;
-				r.m_weights[3] = 0.9779973177524758;
-				r.m_weights[4] = 0.007124920407943436;
-				r.m_weights[5] = 0.015504122149058719;
-				r.m_weights[6] = 0.7145537272179219;
-				r.m_weights[7] = 0.8411568309530374;
-				r.m_weights[8] = 0.5860697561262788;
-				r.m_weights[9] = 0.7729769253903672;
-				r.m_weights[10] = 0.6988231574917688;
-				r.m_weights[11] = 0.8691313441046078;
-				r.m_f1 = 0.44186046511627913;
+				r.m_omega = 0.7485261195047185;
+				r.m_phi = 0.9435304625583503;
+				r.m_weights[0] = 0.7440602378293252;
+				r.m_weights[1] = 0.031177564944019576;
+				r.m_weights[2] = 0.1491086956995139;
+				r.m_weights[3] = 0.5646919772187894;
+				r.m_weights[4] = 0.0209398854077415;
+				r.m_weights[5] = 0.002681132255408336;
+				r.m_weights[6] = 0.8890348819561031;
+				r.m_weights[7] = 0.5967447698108443;
+				r.m_weights[8] = 0.8823850852246629;
+				r.m_weights[9] = 0.5828882797802841;
+				r.m_weights[10] = 0.8984108091615309;
+				r.m_weights[11] = 0.8866100198226985;
+				r.m_f1 = 0.6949152542372881;
 				r.m_doManualMapping = false;
 				break;
 			}
 			case 1: {
 				r = new HuGMeParams();
-				r.m_omega = 0.9577784820238219;
-				r.m_phi = 0.31822149389152665;
-				r.m_weights[0] = 0.11578888712546453;
-				r.m_weights[1] = 0.4584754835567155;
-				r.m_weights[2] = 0.7840658564295959;
-				r.m_weights[3] = 0.9779973177524758;
-				r.m_weights[4] = 0.007124920407943436;
-				r.m_weights[5] = 0.015504122149058719;
-				r.m_weights[6] = 0.7145537272179219;
-				r.m_weights[7] = 0.8411568309530374;
-				r.m_weights[8] = 0.5860697561262788;
-				r.m_weights[9] = 0.7729769253903672;
-				r.m_weights[10] = 0.6988231574917688;
-				r.m_weights[11] = 0.8691313441046078;
-				r.m_f1 = 0.44186046511627913;
+				r.m_omega = 0.6332755713811246;
+				r.m_phi = 0.23385545653909245;
+				r.m_weights[0] = 0.6654291339298597;
+				r.m_weights[1] = 0.15056581752595966;
+				r.m_weights[2] = 0.44318095135424773;
+				r.m_weights[3] = 0.44749437367694944;
+				r.m_weights[4] = 0.3071135684503171;
+				r.m_weights[5] = 0.8207962242673046;
+				r.m_weights[6] = 0.7098453951376876;
+				r.m_weights[7] = 0.6401051373702346;
+				r.m_weights[8] = 0.15444674341281306;
+				r.m_weights[9] = 0.30207443090381825;
+				r.m_weights[10] = 0.21513661202543022;
+				r.m_weights[11] = 0.9556023170595959;
+				r.m_f1 = 0.7966101694915254;
 				r.m_doManualMapping = false;
 				break;
 			}
 			case 2: {
 				r = new HuGMeParams();
-				r.m_omega = 0.9577784820238219;
-				r.m_phi = 0.31822149389152665;
-				r.m_weights[0] = 0.11578888712546453;
-				r.m_weights[1] = 0.4584754835567155;
-				r.m_weights[2] = 0.7840658564295959;
-				r.m_weights[3] = 0.9779973177524758;
-				r.m_weights[4] = 0.007124920407943436;
-				r.m_weights[5] = 0.015504122149058719;
-				r.m_weights[6] = 0.7145537272179219;
-				r.m_weights[7] = 0.8411568309530374;
-				r.m_weights[8] = 0.5860697561262788;
-				r.m_weights[9] = 0.7729769253903672;
-				r.m_weights[10] = 0.6988231574917688;
-				r.m_weights[11] = 0.8691313441046078;
-				r.m_f1 = 0.44186046511627913;
+				r.m_omega = 0.4218538027661699;
+				r.m_phi = 0.5185563952724185;
+				r.m_weights[0] = 0.41411197905519737;
+				r.m_weights[1] = 0.3643796261789951;
+				r.m_weights[2] = 0.4108754905186116;
+				r.m_weights[3] = 0.26780326487092176;
+				r.m_weights[4] = 0.5535179851330473;
+				r.m_weights[5] = 0.7470175504788696;
+				r.m_weights[6] = 0.14918649564905384;
+				r.m_weights[7] = 0.9053101207667166;
+				r.m_weights[8] = 0.6422016496824487;
+				r.m_weights[9] = 0.4062818297288421;
+				r.m_weights[10] = 0.8676166725440188;
+				r.m_weights[11] = 0.9955569953501976;
+				r.m_f1 = 0.8159999999999998;
 				r.m_doManualMapping = false;
 				break;
 			}
@@ -81,43 +81,127 @@ public class ProMDump extends DumpBase {
 		switch (a_index) {
 			case 0: {
 				r = new NBParams();
+				r.m_doWordCount = false;
+				r.m_threshold = 0.8386838194766966;
 				r.m_doStemming = true;
 				r.m_doUseCDA = true;
 				r.m_doUseNodeText = false;
-				r.m_doUseNodeName = false;
+				r.m_doUseNodeName = true;
 				r.m_doUseArchComponentName = false;
-				r.m_minWordSize = 2;
-				r.m_doWordCount = false;
-				r.m_threshold = 0.9419988976565584;
-				r.m_f1 = 0.6274509803921569;
+				r.m_minWordSize = 1;
+				r.m_f1 = 0.9545454545454546;
 				r.m_doManualMapping = false;
 				break;
 			}
 			case 1: {
 				r = new NBParams();
+				r.m_doWordCount = true;
+				r.m_threshold = 0.8313339131741967;
 				r.m_doStemming = true;
 				r.m_doUseCDA = true;
-				r.m_doUseNodeText = false;
-				r.m_doUseNodeName = false;
-				r.m_doUseArchComponentName = false;
-				r.m_minWordSize = 2;
-				r.m_doWordCount = false;
-				r.m_threshold = 0.9419988976565584;
-				r.m_f1 = 0.6274509803921569;
+				r.m_doUseNodeText = true;
+				r.m_doUseNodeName = true;
+				r.m_doUseArchComponentName = true;
+				r.m_minWordSize = 1;
+				r.m_f1 = 0.888888888888889;
 				r.m_doManualMapping = false;
 				break;
 			}
 			case 2: {
 				r = new NBParams();
+				r.m_doWordCount = true;
+				r.m_threshold = 0.9483973980467453;
+				r.m_doStemming = true;
+				r.m_doUseCDA = false;
+				r.m_doUseNodeText = true;
+				r.m_doUseNodeName = false;
+				r.m_doUseArchComponentName = true;
+				r.m_minWordSize = 1;
+				r.m_f1 = 0.7563025210084033;
+				r.m_doManualMapping = false;
+				break;
+			}
+		}
+		return r;
+	}
+	public IRParams getIRParams(int a_index) {
+		IRParams r = null;
+		switch (a_index) {
+			case 0: {
+				r = new IRParams();
+				r.m_doStemming = true;
+				r.m_doUseCDA = false;
+				r.m_doUseNodeText = true;
+				r.m_doUseNodeName = true;
+				r.m_doUseArchComponentName = true;
+				r.m_minWordSize = 2;
+				r.m_f1 = 0.8484848484848486;
+				r.m_doManualMapping = false;
+				break;
+			}
+			case 1: {
+				r = new IRParams();
 				r.m_doStemming = true;
 				r.m_doUseCDA = true;
-				r.m_doUseNodeText = false;
-				r.m_doUseNodeName = false;
-				r.m_doUseArchComponentName = false;
+				r.m_doUseNodeText = true;
+				r.m_doUseNodeName = true;
+				r.m_doUseArchComponentName = true;
+				r.m_minWordSize = 1;
+				r.m_f1 = 0.6363636363636364;
+				r.m_doManualMapping = false;
+				break;
+			}
+			case 2: {
+				r = new IRParams();
+				r.m_doStemming = true;
+				r.m_doUseCDA = false;
+				r.m_doUseNodeText = true;
+				r.m_doUseNodeName = true;
+				r.m_doUseArchComponentName = true;
+				r.m_minWordSize = 1;
+				r.m_f1 = 0.8484848484848486;
+				r.m_doManualMapping = false;
+				break;
+			}
+		}
+		return r;
+	}
+	public IRParams getLSIParams(int a_index) {
+		IRParams r = null;
+		switch (a_index) {
+			case 0: {
+				r = new IRParams();
+				r.m_doStemming = true;
+				r.m_doUseCDA = false;
+				r.m_doUseNodeText = true;
+				r.m_doUseNodeName = true;
+				r.m_doUseArchComponentName = true;
+				r.m_minWordSize = 1;
+				r.m_f1 = 0.6564885496183206;
+				r.m_doManualMapping = false;
+				break;
+			}
+			case 1: {
+				r = new IRParams();
+				r.m_doStemming = true;
+				r.m_doUseCDA = false;
+				r.m_doUseNodeText = true;
+				r.m_doUseNodeName = true;
+				r.m_doUseArchComponentName = true;
 				r.m_minWordSize = 2;
-				r.m_doWordCount = false;
-				r.m_threshold = 0.9419988976565584;
-				r.m_f1 = 0.6274509803921569;
+				r.m_f1 = 0.6564885496183206;
+				r.m_doManualMapping = false;
+				break;
+			}
+			case 2: {
+				r = new IRParams();
+				r.m_doStemming = true;
+				r.m_doUseCDA = false;
+				r.m_doUseNodeText = true;
+				r.m_doUseNodeName = true;
+				r.m_doUseArchComponentName = true;
+				r.m_minWordSize = 4;
+				r.m_f1 = 0.6564885496183206;
 				r.m_doManualMapping = false;
 				break;
 			}
@@ -135,6 +219,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n1 = m_g.createNode("org/processmining/framework/plugin/annotations/PluginCategory.java");
 		n1.setMapping("prom.framework");
+		n1.setClustering("prom.framework", "Initial");
 		dmClass c1 = new dmClass("org.processmining.framework.plugin.annotations.PluginCategory");
 		n1.addClass(c1);
 		m_classes.put("org.processmining.framework.plugin.annotations.PluginCategory", c1);
@@ -152,7 +237,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n4 = m_g.createNode("org/processmining/contexts/scripting/ScriptExecutor.java");
 		n4.setMapping("prom.domain.contexts");
-		n4.setClustering("prom.domain.contexts", "Initial");
 		dmClass c4 = new dmClass("org.processmining.contexts.scripting.ScriptExecutor");
 		n4.addClass(c4);
 		m_classes.put("org.processmining.contexts.scripting.ScriptExecutor", c4);
@@ -178,6 +262,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n7 = m_g.createNode("org/processmining/contexts/util/jgraph/PortLabelVertexView.java");
 		n7.setMapping("prom.domain.contexts");
+		n7.setClustering("prom.domain.contexts", "Initial");
 		dmClass c9 = new dmClass("org.processmining.contexts.util.jgraph.PortLabelVertexView$WrapperPortLabelRenderer");
 		n7.addClass(c9);
 		m_classes.put("org.processmining.contexts.util.jgraph.PortLabelVertexView$WrapperPortLabelRenderer", c9);
@@ -280,6 +365,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n18 = m_g.createNode("org/processmining/contexts/uitopia/packagemanager/PMIconCache.java");
 		n18.setMapping("prom.domain.contexts");
+		n18.setClustering("prom.domain.contexts", "Initial");
 		dmClass c27 = new dmClass("org.processmining.contexts.uitopia.packagemanager.PMIconCache");
 		n18.addClass(c27);
 		m_classes.put("org.processmining.contexts.uitopia.packagemanager.PMIconCache", c27);
@@ -287,6 +373,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n19 = m_g.createNode("org/processmining/framework/plugin/PluginParameterBinding.java");
 		n19.setMapping("prom.framework");
+		n19.setClustering("prom.framework", "Initial");
 		dmClass c28 = new dmClass("org.processmining.framework.plugin.PluginParameterBinding");
 		n19.addClass(c28);
 		m_classes.put("org.processmining.framework.plugin.PluginParameterBinding", c28);
@@ -302,6 +389,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n20 = m_g.createNode("org/processmining/framework/plugin/PluginContext.java");
 		n20.setMapping("prom.framework");
+		n20.setClustering("prom.framework", "Initial");
 		dmClass c31 = new dmClass("org.processmining.framework.plugin.PluginContext");
 		n20.addClass(c31);
 		m_classes.put("org.processmining.framework.plugin.PluginContext", c31);
@@ -314,6 +402,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n22 = m_g.createNode("org/processmining/contexts/uitopia/model/ProMView.java");
 		n22.setMapping("prom.domain.contexts");
+		n22.setClustering("prom.domain.contexts", "Initial");
 		dmClass c33 = new dmClass("org.processmining.contexts.uitopia.model.ProMView$ProMViewRunnable$1");
 		n22.addClass(c33);
 		m_classes.put("org.processmining.contexts.uitopia.model.ProMView$ProMViewRunnable$1", c33);
@@ -350,7 +439,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n25 = m_g.createNode("org/processmining/contexts/uitopia/packagemanager/PMMemoryView.java");
 		n25.setMapping("prom.domain.contexts");
-		n25.setClustering("prom.domain.contexts", "Initial");
 		dmClass c40 = new dmClass("org.processmining.contexts.uitopia.packagemanager.PMMemoryView$3");
 		n25.addClass(c40);
 		m_classes.put("org.processmining.contexts.uitopia.packagemanager.PMMemoryView$3", c40);
@@ -379,6 +467,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n27 = m_g.createNode("org/processmining/contexts/test/factory/FrameworkFactoryTest.java");
 		n27.setMapping("prom.domain.contexts");
+		n27.setClustering("prom.domain.contexts", "Initial");
 		dmClass c46 = new dmClass("org.processmining.contexts.test.factory.FrameworkFactoryTest");
 		n27.addClass(c46);
 		m_classes.put("org.processmining.contexts.test.factory.FrameworkFactoryTest", c46);
@@ -532,7 +621,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n40 = m_g.createNode("org/processmining/contexts/uitopia/model/ProMViewType.java");
 		n40.setMapping("prom.domain.contexts");
-		n40.setClustering("prom.domain.contexts", "Initial");
 		dmClass c76 = new dmClass("org.processmining.contexts.uitopia.model.ProMViewType");
 		n40.addClass(c76);
 		m_classes.put("org.processmining.contexts.uitopia.model.ProMViewType", c76);
@@ -570,7 +658,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n44 = m_g.createNode("org/processmining/contexts/test/PromTest.java");
 		n44.setMapping("prom.domain.contexts");
-		n44.setClustering("prom.domain.contexts", "Initial");
 		dmClass c83 = new dmClass("org.processmining.contexts.test.PromTest");
 		n44.addClass(c83);
 		m_classes.put("org.processmining.contexts.test.PromTest", c83);
@@ -603,7 +690,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n48 = m_g.createNode("org/processmining/contexts/uitopia/packagemanager/PMWorkspaceView.java");
 		n48.setMapping("prom.domain.contexts");
-		n48.setClustering("prom.domain.contexts", "Initial");
 		dmClass c88 = new dmClass("org.processmining.contexts.uitopia.packagemanager.PMWorkspaceView");
 		n48.addClass(c88);
 		m_classes.put("org.processmining.contexts.uitopia.packagemanager.PMWorkspaceView", c88);
@@ -629,7 +715,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n52 = m_g.createNode("org/processmining/contexts/uitopia/packagemanager/PMWorkspaceBrowser.java");
 		n52.setMapping("prom.domain.contexts");
-		n52.setClustering("prom.domain.contexts", "Initial");
 		dmClass c93 = new dmClass("org.processmining.contexts.uitopia.packagemanager.PMWorkspaceBrowser$4");
 		n52.addClass(c93);
 		m_classes.put("org.processmining.contexts.uitopia.packagemanager.PMWorkspaceBrowser$4", c93);
@@ -689,7 +774,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n56 = m_g.createNode("org/processmining/contexts/uitopia/packagemanager/PMFrame.java");
 		n56.setMapping("prom.domain.contexts");
-		n56.setClustering("prom.domain.contexts", "Initial");
 		dmClass c106 = new dmClass("org.processmining.contexts.uitopia.packagemanager.PMFrame");
 		n56.addClass(c106);
 		m_classes.put("org.processmining.contexts.uitopia.packagemanager.PMFrame", c106);
@@ -820,7 +904,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n64 = m_g.createNode("org/processmining/contexts/test/AllStandardScriptTests.java");
 		n64.setMapping("prom.domain.contexts");
-		n64.setClustering("prom.domain.contexts", "Initial");
 		dmClass c133 = new dmClass("org.processmining.contexts.test.AllStandardScriptTests");
 		n64.addClass(c133);
 		m_classes.put("org.processmining.contexts.test.AllStandardScriptTests", c133);
@@ -870,7 +953,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n72 = m_g.createNode("org/processmining/framework/util/Cast.java");
 		n72.setMapping("prom.framework");
-		n72.setClustering("prom.framework", "Initial");
 		dmClass c142 = new dmClass("org.processmining.framework.util.Cast");
 		n72.addClass(c142);
 		m_classes.put("org.processmining.framework.util.Cast", c142);
@@ -895,6 +977,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n75 = m_g.createNode("org/processmining/contexts/uitopia/model/ProMAction.java");
 		n75.setMapping("prom.domain.contexts");
+		n75.setClustering("prom.domain.contexts", "Initial");
 		dmClass c146 = new dmClass("org.processmining.contexts.uitopia.model.ProMAction");
 		n75.addClass(c146);
 		m_classes.put("org.processmining.contexts.uitopia.model.ProMAction", c146);
@@ -906,7 +989,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n76 = m_g.createNode("org/processmining/contexts/uitopia/packagemanager/PMPackageListBrowser.java");
 		n76.setMapping("prom.domain.contexts");
-		n76.setClustering("prom.domain.contexts", "Initial");
 		dmClass c148 = new dmClass("org.processmining.contexts.uitopia.packagemanager.PMPackageListBrowser");
 		n76.addClass(c148);
 		m_classes.put("org.processmining.contexts.uitopia.packagemanager.PMPackageListBrowser", c148);
@@ -974,6 +1056,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n83 = m_g.createNode("org/processmining/framework/plugin/events/ProgressEventListener.java");
 		n83.setMapping("prom.framework");
+		n83.setClustering("prom.framework", "Initial");
 		dmClass c161 = new dmClass("org.processmining.framework.plugin.events.ProgressEventListener");
 		n83.addClass(c161);
 		m_classes.put("org.processmining.framework.plugin.events.ProgressEventListener", c161);
@@ -990,7 +1073,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n85 = m_g.createNode("org/processmining/framework/providedobjects/ProvidedObjectManager.java");
 		n85.setMapping("prom.framework");
-		n85.setClustering("prom.framework", "Initial");
 		dmClass c164 = new dmClass("org.processmining.framework.providedobjects.ProvidedObjectManager");
 		n85.addClass(c164);
 		m_classes.put("org.processmining.framework.providedobjects.ProvidedObjectManager", c164);
@@ -1006,7 +1088,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n87 = m_g.createNode("org/processmining/contexts/uitopia/model/ProMCategory.java");
 		n87.setMapping("prom.domain.contexts");
-		n87.setClustering("prom.domain.contexts", "Initial");
 		dmClass c166 = new dmClass("org.processmining.contexts.uitopia.model.ProMCategory");
 		n87.addClass(c166);
 		m_classes.put("org.processmining.contexts.uitopia.model.ProMCategory", c166);
@@ -1027,6 +1108,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n90 = m_g.createNode("org/processmining/framework/plugin/ProMFuture.java");
 		n90.setMapping("prom.framework");
+		n90.setClustering("prom.framework", "Initial");
 		dmClass c169 = new dmClass("org.processmining.framework.plugin.ProMFuture");
 		n90.addClass(c169);
 		m_classes.put("org.processmining.framework.plugin.ProMFuture", c169);
@@ -1069,7 +1151,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n96 = m_g.createNode("org/processmining/contexts/cli/CLIPluginContext.java");
 		n96.setMapping("prom.domain.contexts");
-		n96.setClustering("prom.domain.contexts", "Initial");
 		dmClass c177 = new dmClass("org.processmining.contexts.cli.CLIPluginContext");
 		n96.addClass(c177);
 		m_classes.put("org.processmining.contexts.cli.CLIPluginContext", c177);
@@ -1082,7 +1163,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n98 = m_g.createNode("org/processmining/contexts/uitopia/packagemanager/PMListener.java");
 		n98.setMapping("prom.domain.contexts");
-		n98.setClustering("prom.domain.contexts", "Initial");
 		dmClass c179 = new dmClass("org.processmining.contexts.uitopia.packagemanager.PMListener");
 		n98.addClass(c179);
 		m_classes.put("org.processmining.contexts.uitopia.packagemanager.PMListener", c179);
@@ -1098,7 +1178,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n100 = m_g.createNode("org/processmining/framework/plugin/events/Logger.java");
 		n100.setMapping("prom.framework");
-		n100.setClustering("prom.framework", "Initial");
 		dmClass c181 = new dmClass("org.processmining.framework.plugin.events.Logger$ListenerList");
 		n100.addClass(c181);
 		m_classes.put("org.processmining.framework.plugin.events.Logger$ListenerList", c181);
@@ -1114,7 +1193,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n101 = m_g.createNode("org/processmining/framework/plugin/impl/ProgressBarImpl.java");
 		n101.setMapping("prom.framework");
-		n101.setClustering("prom.framework", "Initial");
 		dmClass c184 = new dmClass("org.processmining.framework.plugin.impl.ProgressBarImpl");
 		n101.addClass(c184);
 		m_classes.put("org.processmining.framework.plugin.impl.ProgressBarImpl", c184);
@@ -1122,7 +1200,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n102 = m_g.createNode("org/processmining/contexts/uitopia/packagemanager/PMMainView.java");
 		n102.setMapping("prom.domain.contexts");
-		n102.setClustering("prom.domain.contexts", "Initial");
 		dmClass c185 = new dmClass("org.processmining.contexts.uitopia.packagemanager.PMMainView");
 		n102.addClass(c185);
 		m_classes.put("org.processmining.contexts.uitopia.packagemanager.PMMainView", c185);
@@ -1199,6 +1276,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n112 = m_g.createNode("org/processmining/contexts/scripting/Signature.java");
 		n112.setMapping("prom.domain.contexts");
+		n112.setClustering("prom.domain.contexts", "Initial");
 		dmClass c198 = new dmClass("org.processmining.contexts.scripting.Signature");
 		n112.addClass(c198);
 		m_classes.put("org.processmining.contexts.scripting.Signature", c198);
@@ -1206,7 +1284,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n113 = m_g.createNode("org/processmining/contexts/util/ToolTipComboBoxRenderer.java");
 		n113.setMapping("prom.domain.contexts");
-		n113.setClustering("prom.domain.contexts", "Initial");
 		dmClass c199 = new dmClass("org.processmining.contexts.util.ToolTipComboBoxRenderer");
 		n113.addClass(c199);
 		m_classes.put("org.processmining.contexts.util.ToolTipComboBoxRenderer", c199);
@@ -1214,7 +1291,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n114 = m_g.createNode("org/processmining/contexts/uitopia/annotations/UIImportPlugin.java");
 		n114.setMapping("prom.domain.contexts");
-		n114.setClustering("prom.domain.contexts", "Initial");
 		dmClass c200 = new dmClass("org.processmining.contexts.uitopia.annotations.UIImportPlugin");
 		n114.addClass(c200);
 		m_classes.put("org.processmining.contexts.uitopia.annotations.UIImportPlugin", c200);
@@ -1227,7 +1303,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n116 = m_g.createNode("org/processmining/framework/connections/ConnectionID.java");
 		n116.setMapping("prom.framework");
-		n116.setClustering("prom.framework", "Initial");
 		dmClass c202 = new dmClass("org.processmining.framework.connections.ConnectionID");
 		n116.addClass(c202);
 		m_classes.put("org.processmining.framework.connections.ConnectionID", c202);
@@ -1270,6 +1345,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n121 = m_g.createNode("org/processmining/contexts/uitopia/packagemanager/PMPackageListModel.java");
 		n121.setMapping("prom.domain.contexts");
+		n121.setClustering("prom.domain.contexts", "Initial");
 		dmClass c209 = new dmClass("org.processmining.contexts.uitopia.packagemanager.PMPackageListModel$1");
 		n121.addClass(c209);
 		m_classes.put("org.processmining.contexts.uitopia.packagemanager.PMPackageListModel$1", c209);
@@ -1303,6 +1379,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n125 = m_g.createNode("org/processmining/framework/util/AutoHelpCommandLineParser.java");
 		n125.setMapping("prom.framework");
+		n125.setClustering("prom.framework", "Initial");
 		dmClass c215 = new dmClass("org.processmining.framework.util.AutoHelpCommandLineParser");
 		n125.addClass(c215);
 		m_classes.put("org.processmining.framework.util.AutoHelpCommandLineParser", c215);
@@ -1391,6 +1468,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n139 = m_g.createNode("org/processmining/framework/connections/ConnectionCannotBeObtained.java");
 		n139.setMapping("prom.framework");
+		n139.setClustering("prom.framework", "Initial");
 		dmClass c231 = new dmClass("org.processmining.framework.connections.ConnectionCannotBeObtained");
 		n139.addClass(c231);
 		m_classes.put("org.processmining.framework.connections.ConnectionCannotBeObtained", c231);
@@ -1418,6 +1496,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n144 = m_g.createNode("org/processmining/contexts/uitopia/packagemanager/PMPackage.java");
 		n144.setMapping("prom.domain.contexts");
+		n144.setClustering("prom.domain.contexts", "Initial");
 		dmClass c236 = new dmClass("org.processmining.contexts.uitopia.packagemanager.PMPackage$PMStatus");
 		n144.addClass(c236);
 		m_classes.put("org.processmining.contexts.uitopia.packagemanager.PMPackage$PMStatus", c236);
@@ -1429,7 +1508,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n145 = m_g.createNode("org/processmining/contexts/uitopia/packagemanager/PMSearchView.java");
 		n145.setMapping("prom.domain.contexts");
-		n145.setClustering("prom.domain.contexts", "Initial");
 		dmClass c238 = new dmClass("org.processmining.contexts.uitopia.packagemanager.PMSearchView");
 		n145.addClass(c238);
 		m_classes.put("org.processmining.contexts.uitopia.packagemanager.PMSearchView", c238);
@@ -1484,7 +1562,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n154 = m_g.createNode("org/processmining/contexts/cli/PromTestFramework.java");
 		n154.setMapping("prom.domain.contexts");
-		n154.setClustering("prom.domain.contexts", "Initial");
 		dmClass c248 = new dmClass("org.processmining.contexts.cli.PromTestFramework$1");
 		n154.addClass(c248);
 		m_classes.put("org.processmining.contexts.cli.PromTestFramework$1", c248);
@@ -1501,6 +1578,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n156 = m_g.createNode("org/processmining/framework/plugin/GlobalContext.java");
 		n156.setMapping("prom.framework");
+		n156.setClustering("prom.framework", "Initial");
 		dmClass c251 = new dmClass("org.processmining.framework.plugin.GlobalContext");
 		n156.addClass(c251);
 		m_classes.put("org.processmining.framework.plugin.GlobalContext", c251);
@@ -1644,6 +1722,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n180 = m_g.createNode("org/processmining/contexts/uitopia/annotations/UITopiaVariant.java");
 		n180.setMapping("prom.domain.contexts");
+		n180.setClustering("prom.domain.contexts", "Initial");
 		dmClass c276 = new dmClass("org.processmining.contexts.uitopia.annotations.UITopiaVariant");
 		n180.addClass(c276);
 		m_classes.put("org.processmining.contexts.uitopia.annotations.UITopiaVariant", c276);
@@ -1661,6 +1740,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n183 = m_g.createNode("org/processmining/framework/packages/PackageVersion.java");
 		n183.setMapping("prom.framework");
+		n183.setClustering("prom.framework", "Initial");
 		dmClass c279 = new dmClass("org.processmining.framework.packages.PackageVersion");
 		n183.addClass(c279);
 		m_classes.put("org.processmining.framework.packages.PackageVersion", c279);
@@ -1696,6 +1776,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n189 = m_g.createNode("org/processmining/framework/packages/UnknownPackageTypeException.java");
 		n189.setMapping("prom.framework");
+		n189.setClustering("prom.framework", "Initial");
 		dmClass c285 = new dmClass("org.processmining.framework.packages.UnknownPackageTypeException");
 		n189.addClass(c285);
 		m_classes.put("org.processmining.framework.packages.UnknownPackageTypeException", c285);
@@ -1708,6 +1789,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n191 = m_g.createNode("org/processmining/framework/providedobjects/ProvidedObjectID.java");
 		n191.setMapping("prom.framework");
+		n191.setClustering("prom.framework", "Initial");
 		dmClass c287 = new dmClass("org.processmining.framework.providedobjects.ProvidedObjectID");
 		n191.addClass(c287);
 		m_classes.put("org.processmining.framework.providedobjects.ProvidedObjectID", c287);
@@ -1740,7 +1822,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n196 = m_g.createNode("org/processmining/framework/packages/impl/CancelledException.java");
 		n196.setMapping("prom.framework");
-		n196.setClustering("prom.framework", "Initial");
 		dmClass c292 = new dmClass("org.processmining.framework.packages.impl.CancelledException");
 		n196.addClass(c292);
 		m_classes.put("org.processmining.framework.packages.impl.CancelledException", c292);
@@ -1808,6 +1889,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n207 = m_g.createNode("org/processmining/contexts/test/factory/FactoryTest.java");
 		n207.setMapping("prom.domain.contexts");
+		n207.setClustering("prom.domain.contexts", "Initial");
 		dmClass c304 = new dmClass("org.processmining.contexts.test.factory.FactoryTest");
 		n207.addClass(c304);
 		m_classes.put("org.processmining.contexts.test.factory.FactoryTest", c304);
@@ -1954,6 +2036,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n233 = m_g.createNode("org/processmining/framework/plugin/PluginDescriptor.java");
 		n233.setMapping("prom.framework");
+		n233.setClustering("prom.framework", "Initial");
 		dmClass c331 = new dmClass("org.processmining.framework.plugin.PluginDescriptor");
 		n233.addClass(c331);
 		m_classes.put("org.processmining.framework.plugin.PluginDescriptor", c331);
@@ -2026,6 +2109,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n245 = m_g.createNode("org/processmining/framework/plugin/PluginExecutionResult.java");
 		n245.setMapping("prom.framework");
+		n245.setClustering("prom.framework", "Initial");
 		dmClass c344 = new dmClass("org.processmining.framework.plugin.PluginExecutionResult");
 		n245.addClass(c344);
 		m_classes.put("org.processmining.framework.plugin.PluginExecutionResult", c344);
@@ -2068,7 +2152,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n251 = m_g.createNode("org/processmining/framework/plugin/PluginContextID.java");
 		n251.setMapping("prom.framework");
-		n251.setClustering("prom.framework", "Initial");
 		dmClass c351 = new dmClass("org.processmining.framework.plugin.PluginContextID");
 		n251.addClass(c351);
 		m_classes.put("org.processmining.framework.plugin.PluginContextID", c351);
@@ -2076,7 +2159,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n252 = m_g.createNode("org/processmining/contexts/cli/CLI.java");
 		n252.setMapping("prom.domain.contexts");
-		n252.setClustering("prom.domain.contexts", "Initial");
 		dmClass c352 = new dmClass("org.processmining.contexts.cli.CLI");
 		n252.addClass(c352);
 		m_classes.put("org.processmining.contexts.cli.CLI", c352);
@@ -2104,7 +2186,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n257 = m_g.createNode("org/processmining/contexts/util/StringVisualizer.java");
 		n257.setMapping("prom.domain.contexts");
-		n257.setClustering("prom.domain.contexts", "Initial");
 		dmClass c357 = new dmClass("org.processmining.contexts.util.StringVisualizer");
 		n257.addClass(c357);
 		m_classes.put("org.processmining.contexts.util.StringVisualizer", c357);
@@ -2216,7 +2297,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n275 = m_g.createNode("org/processmining/framework/ProMID.java");
 		n275.setMapping("prom.framework");
-		n275.setClustering("prom.framework", "Initial");
 		dmClass c376 = new dmClass("org.processmining.framework.ProMID");
 		n275.addClass(c376);
 		m_classes.put("org.processmining.framework.ProMID", c376);
@@ -2257,6 +2337,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n282 = m_g.createNode("org/processmining/framework/packages/Repository.java");
 		n282.setMapping("prom.framework");
+		n282.setClustering("prom.framework", "Initial");
 		dmClass c383 = new dmClass("org.processmining.framework.packages.Repository");
 		n282.addClass(c383);
 		m_classes.put("org.processmining.framework.packages.Repository", c383);
@@ -2272,6 +2353,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n284 = m_g.createNode("org/processmining/framework/plugin/impl/DependsOnUnknownException.java");
 		n284.setMapping("prom.framework");
+		n284.setClustering("prom.framework", "Initial");
 		dmClass c385 = new dmClass("org.processmining.framework.plugin.impl.DependsOnUnknownException");
 		n284.addClass(c385);
 		m_classes.put("org.processmining.framework.plugin.impl.DependsOnUnknownException", c385);
@@ -2345,7 +2427,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n291 = m_g.createNode("org/processmining/framework/plugin/annotations/Bootable.java");
 		n291.setMapping("prom.framework");
-		n291.setClustering("prom.framework", "Initial");
 		dmClass c398 = new dmClass("org.processmining.framework.plugin.annotations.Bootable");
 		n291.addClass(c398);
 		m_classes.put("org.processmining.framework.plugin.annotations.Bootable", c398);
@@ -2370,7 +2451,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n295 = m_g.createNode("org/processmining/framework/util/collection/HashMultiSet.java");
 		n295.setMapping("prom.framework");
-		n295.setClustering("prom.framework", "Initial");
 		dmClass c402 = new dmClass("org.processmining.framework.util.collection.HashMultiSet");
 		n295.addClass(c402);
 		m_classes.put("org.processmining.framework.util.collection.HashMultiSet", c402);
@@ -2390,6 +2470,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n298 = m_g.createNode("org/processmining/framework/packages/PackageStateReport.java");
 		n298.setMapping("prom.framework");
+		n298.setClustering("prom.framework", "Initial");
 		dmClass c405 = new dmClass("org.processmining.framework.packages.PackageStateReport");
 		n298.addClass(c405);
 		m_classes.put("org.processmining.framework.packages.PackageStateReport", c405);
@@ -2397,6 +2478,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n299 = m_g.createNode("org/processmining/framework/util/socket/ServiceEnvironment.java");
 		n299.setMapping("prom.framework");
+		n299.setClustering("prom.framework", "Initial");
 		dmClass c406 = new dmClass("org.processmining.framework.util.socket.ServiceEnvironment");
 		n299.addClass(c406);
 		m_classes.put("org.processmining.framework.util.socket.ServiceEnvironment", c406);
@@ -2437,6 +2519,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n304 = m_g.createNode("org/processmining/framework/plugin/events/FutureListener.java");
 		n304.setMapping("prom.framework");
+		n304.setClustering("prom.framework", "Initial");
 		dmClass c412 = new dmClass("org.processmining.framework.plugin.events.FutureListener");
 		n304.addClass(c412);
 		m_classes.put("org.processmining.framework.plugin.events.FutureListener", c412);
@@ -2448,6 +2531,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n305 = m_g.createNode("org/processmining/framework/plugin/events/NameChangeListener.java");
 		n305.setMapping("prom.framework");
+		n305.setClustering("prom.framework", "Initial");
 		dmClass c414 = new dmClass("org.processmining.framework.plugin.events.NameChangeListener$ListenerList");
 		n305.addClass(c414);
 		m_classes.put("org.processmining.framework.plugin.events.NameChangeListener$ListenerList", c414);
@@ -2459,6 +2543,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n306 = m_g.createNode("org/processmining/framework/util/ui/TypeToggleButton.java");
 		n306.setMapping("prom.framework");
+		n306.setClustering("prom.framework", "Initial");
 		dmClass c416 = new dmClass("org.processmining.framework.util.ui.TypeToggleButton$2");
 		n306.addClass(c416);
 		m_classes.put("org.processmining.framework.util.ui.TypeToggleButton$2", c416);
@@ -2484,7 +2569,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n309 = m_g.createNode("org/processmining/framework/util/ui/SlickerConsole.java");
 		n309.setMapping("prom.framework");
-		n309.setClustering("prom.framework", "Initial");
 		dmClass c421 = new dmClass("org.processmining.framework.util.ui.SlickerConsole$1");
 		n309.addClass(c421);
 		m_classes.put("org.processmining.framework.util.ui.SlickerConsole$1", c421);
@@ -2504,6 +2588,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n311 = m_g.createNode("org/processmining/framework/providedobjects/ProvidedObject.java");
 		n311.setMapping("prom.framework");
+		n311.setClustering("prom.framework", "Initial");
 		dmClass c424 = new dmClass("org.processmining.framework.providedobjects.ProvidedObject");
 		n311.addClass(c424);
 		m_classes.put("org.processmining.framework.providedobjects.ProvidedObject", c424);
@@ -2511,6 +2596,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n312 = m_g.createNode("org/processmining/framework/util/progress/XProgressListener.java");
 		n312.setMapping("prom.framework");
+		n312.setClustering("prom.framework", "Initial");
 		dmClass c425 = new dmClass("org.processmining.framework.util.progress.XProgressListener");
 		n312.addClass(c425);
 		m_classes.put("org.processmining.framework.util.progress.XProgressListener", c425);
@@ -2518,7 +2604,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n313 = m_g.createNode("org/processmining/framework/plugin/impl/AbstractPluginDescriptor.java");
 		n313.setMapping("prom.framework");
-		n313.setClustering("prom.framework", "Initial");
 		dmClass c426 = new dmClass("org.processmining.framework.plugin.impl.AbstractPluginDescriptor$1");
 		n313.addClass(c426);
 		m_classes.put("org.processmining.framework.plugin.impl.AbstractPluginDescriptor$1", c426);
@@ -2546,7 +2631,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n315 = m_g.createNode("org/processmining/framework/plugin/annotations/KeepInProMCache.java");
 		n315.setMapping("prom.framework");
-		n315.setClustering("prom.framework", "Initial");
 		dmClass c431 = new dmClass("org.processmining.framework.plugin.annotations.KeepInProMCache");
 		n315.addClass(c431);
 		m_classes.put("org.processmining.framework.plugin.annotations.KeepInProMCache", c431);
@@ -2607,6 +2691,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n323 = m_g.createNode("org/processmining/framework/connections/impl/ConnectionManagerImpl.java");
 		n323.setMapping("prom.framework");
+		n323.setClustering("prom.framework", "Initial");
 		dmClass c439 = new dmClass("org.processmining.framework.connections.impl.ConnectionManagerImpl");
 		n323.addClass(c439);
 		m_classes.put("org.processmining.framework.connections.impl.ConnectionManagerImpl", c439);
@@ -2669,7 +2754,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n332 = m_g.createNode("org/processmining/framework/plugin/impl/PluginExecutionResultImpl.java");
 		n332.setMapping("prom.framework");
-		n332.setClustering("prom.framework", "Initial");
 		dmClass c448 = new dmClass("org.processmining.framework.plugin.impl.PluginExecutionResultImpl");
 		n332.addClass(c448);
 		m_classes.put("org.processmining.framework.plugin.impl.PluginExecutionResultImpl", c448);
@@ -2681,6 +2765,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n333 = m_g.createNode("org/processmining/framework/util/search/ExpandCollection.java");
 		n333.setMapping("prom.framework");
+		n333.setClustering("prom.framework", "Initial");
 		dmClass c450 = new dmClass("org.processmining.framework.util.search.ExpandCollection");
 		n333.addClass(c450);
 		m_classes.put("org.processmining.framework.util.search.ExpandCollection", c450);
@@ -2688,6 +2773,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n334 = m_g.createNode("org/processmining/framework/util/ui/ExpandButton.java");
 		n334.setMapping("prom.framework");
+		n334.setClustering("prom.framework", "Initial");
 		dmClass c451 = new dmClass("org.processmining.framework.util.ui.ExpandButton");
 		n334.addClass(c451);
 		m_classes.put("org.processmining.framework.util.ui.ExpandButton", c451);
@@ -2704,7 +2790,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n336 = m_g.createNode("org/processmining/framework/util/search/MultiThreadedSearcher.java");
 		n336.setMapping("prom.framework");
-		n336.setClustering("prom.framework", "Initial");
 		dmClass c454 = new dmClass("org.processmining.framework.util.search.MultiThreadedSearcher");
 		n336.addClass(c454);
 		m_classes.put("org.processmining.framework.util.search.MultiThreadedSearcher", c454);
@@ -2712,7 +2797,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n337 = m_g.createNode("org/processmining/framework/plugin/impl/PluginContextIDImpl.java");
 		n337.setMapping("prom.framework");
-		n337.setClustering("prom.framework", "Initial");
 		dmClass c455 = new dmClass("org.processmining.framework.plugin.impl.PluginContextIDImpl");
 		n337.addClass(c455);
 		m_classes.put("org.processmining.framework.plugin.impl.PluginContextIDImpl", c455);
@@ -2811,6 +2895,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n349 = m_g.createNode("org/processmining/framework/abstractplugins/ZipFilter.java");
 		n349.setMapping("prom.framework");
+		n349.setClustering("prom.framework", "Initial");
 		dmClass c473 = new dmClass("org.processmining.framework.abstractplugins.ZipFilter");
 		n349.addClass(c473);
 		m_classes.put("org.processmining.framework.abstractplugins.ZipFilter", c473);
@@ -2854,7 +2939,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n356 = m_g.createNode("org/processmining/framework/plugin/IncorrectReturnTypeException.java");
 		n356.setMapping("prom.framework");
-		n356.setClustering("prom.framework", "Initial");
 		dmClass c480 = new dmClass("org.processmining.framework.plugin.IncorrectReturnTypeException");
 		n356.addClass(c480);
 		m_classes.put("org.processmining.framework.plugin.IncorrectReturnTypeException", c480);
@@ -2862,7 +2946,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n357 = m_g.createNode("org/processmining/framework/util/progress/XProgressBarListener.java");
 		n357.setMapping("prom.framework");
-		n357.setClustering("prom.framework", "Initial");
 		dmClass c481 = new dmClass("org.processmining.framework.util.progress.XProgressBarListener");
 		n357.addClass(c481);
 		m_classes.put("org.processmining.framework.util.progress.XProgressBarListener", c481);
@@ -2886,6 +2969,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n360 = m_g.createNode("org/processmining/framework/util/IconLoader.java");
 		n360.setMapping("prom.framework");
+		n360.setClustering("prom.framework", "Initial");
 		dmClass c484 = new dmClass("org.processmining.framework.util.IconLoader");
 		n360.addClass(c484);
 		m_classes.put("org.processmining.framework.util.IconLoader", c484);
@@ -2893,6 +2977,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n361 = m_g.createNode("org/processmining/framework/plugin/annotations/Plugin.java");
 		n361.setMapping("prom.framework");
+		n361.setClustering("prom.framework", "Initial");
 		dmClass c485 = new dmClass("org.processmining.framework.plugin.annotations.Plugin");
 		n361.addClass(c485);
 		m_classes.put("org.processmining.framework.plugin.annotations.Plugin", c485);
@@ -2924,6 +3009,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n365 = m_g.createNode("org/processmining/framework/util/socket/Service.java");
 		n365.setMapping("prom.framework");
+		n365.setClustering("prom.framework", "Initial");
 		dmClass c489 = new dmClass("org.processmining.framework.util.socket.Service$ConnectionHandlerRunnable");
 		n365.addClass(c489);
 		m_classes.put("org.processmining.framework.util.socket.Service$ConnectionHandlerRunnable", c489);
@@ -2935,6 +3021,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n366 = m_g.createNode("org/processmining/framework/util/progress/XMonitoredInputStream.java");
 		n366.setMapping("prom.framework");
+		n366.setClustering("prom.framework", "Initial");
 		dmClass c491 = new dmClass("org.processmining.framework.util.progress.XMonitoredInputStream");
 		n366.addClass(c491);
 		m_classes.put("org.processmining.framework.util.progress.XMonitoredInputStream", c491);
@@ -3005,7 +3092,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n376 = m_g.createNode("org/processmining/framework/util/ArrayUtils.java");
 		n376.setMapping("prom.framework");
-		n376.setClustering("prom.framework", "Initial");
 		dmClass c501 = new dmClass("org.processmining.framework.util.ArrayUtils");
 		n376.addClass(c501);
 		m_classes.put("org.processmining.framework.util.ArrayUtils", c501);
@@ -3013,6 +3099,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n377 = m_g.createNode("org/processmining/framework/util/collection/WeakKeyValueMap.java");
 		n377.setMapping("prom.framework");
+		n377.setClustering("prom.framework", "Initial");
 		dmClass c502 = new dmClass("org.processmining.framework.util.collection.WeakKeyValueMap");
 		n377.addClass(c502);
 		m_classes.put("org.processmining.framework.util.collection.WeakKeyValueMap", c502);
@@ -3033,6 +3120,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n380 = m_g.createNode("org/processmining/framework/providedobjects/impl/ProvidedObjectIDImpl.java");
 		n380.setMapping("prom.framework");
+		n380.setClustering("prom.framework", "Initial");
 		dmClass c505 = new dmClass("org.processmining.framework.providedobjects.impl.ProvidedObjectIDImpl");
 		n380.addClass(c505);
 		m_classes.put("org.processmining.framework.providedobjects.impl.ProvidedObjectIDImpl", c505);
@@ -3047,7 +3135,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n382 = m_g.createNode("org/processmining/framework/plugin/impl/PluginDescriptorImpl.java");
 		n382.setMapping("prom.framework");
-		n382.setClustering("prom.framework", "Initial");
 		dmClass c507 = new dmClass("org.processmining.framework.plugin.impl.PluginDescriptorImpl");
 		n382.addClass(c507);
 		m_classes.put("org.processmining.framework.plugin.impl.PluginDescriptorImpl", c507);
@@ -3063,7 +3150,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n384 = m_g.createNode("org/processmining/framework/plugin/impl/PluginDescriptorIDImpl.java");
 		n384.setMapping("prom.framework");
-		n384.setClustering("prom.framework", "Initial");
 		dmClass c509 = new dmClass("org.processmining.framework.plugin.impl.PluginDescriptorIDImpl");
 		n384.addClass(c509);
 		m_classes.put("org.processmining.framework.plugin.impl.PluginDescriptorIDImpl", c509);
@@ -3081,6 +3167,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n387 = m_g.createNode("org/processmining/framework/util/search/DepthFirstExpandCollection.java");
 		n387.setMapping("prom.framework");
+		n387.setClustering("prom.framework", "Initial");
 		dmClass c512 = new dmClass("org.processmining.framework.util.search.DepthFirstExpandCollection");
 		n387.addClass(c512);
 		m_classes.put("org.processmining.framework.util.search.DepthFirstExpandCollection", c512);
@@ -3088,7 +3175,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n388 = m_g.createNode("org/processmining/framework/abstractplugins/AbstractImportPlugin.java");
 		n388.setMapping("prom.framework");
-		n388.setClustering("prom.framework", "Initial");
 		dmClass c513 = new dmClass("org.processmining.framework.abstractplugins.AbstractImportPlugin");
 		n388.addClass(c513);
 		m_classes.put("org.processmining.framework.abstractplugins.AbstractImportPlugin", c513);
@@ -3106,6 +3192,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n391 = m_g.createNode("org/processmining/framework/util/collection/AbstractMultiSet.java");
 		n391.setMapping("prom.framework");
+		n391.setClustering("prom.framework", "Initial");
 		dmClass c516 = new dmClass("org.processmining.framework.util.collection.AbstractMultiSet");
 		n391.addClass(c516);
 		m_classes.put("org.processmining.framework.util.collection.AbstractMultiSet", c516);
@@ -3126,6 +3213,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n394 = m_g.createNode("org/processmining/framework/util/search/MultiThreadedSearchWorker.java");
 		n394.setMapping("prom.framework");
+		n394.setClustering("prom.framework", "Initial");
 		dmClass c519 = new dmClass("org.processmining.framework.util.search.MultiThreadedSearchWorker");
 		n394.addClass(c519);
 		m_classes.put("org.processmining.framework.util.search.MultiThreadedSearchWorker", c519);
@@ -3206,6 +3294,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n406 = m_g.createNode("org/processmining/models/graphbased/undirected/AbstractUndirectedEdge.java");
 		n406.setMapping("prom.domain.models");
+		n406.setClustering("prom.domain.models", "Initial");
 		dmClass c531 = new dmClass("org.processmining.models.graphbased.undirected.AbstractUndirectedEdge");
 		n406.addClass(c531);
 		m_classes.put("org.processmining.models.graphbased.undirected.AbstractUndirectedEdge", c531);
@@ -3223,6 +3312,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n409 = m_g.createNode("org/processmining/models/shapes/RoundedRect.java");
 		n409.setMapping("prom.domain.models");
+		n409.setClustering("prom.domain.models", "Initial");
 		dmClass c534 = new dmClass("org.processmining.models.shapes.RoundedRect");
 		n409.addClass(c534);
 		m_classes.put("org.processmining.models.shapes.RoundedRect", c534);
@@ -3230,6 +3320,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n410 = m_g.createNode("org/processmining/models/graphbased/directedhypergraph/AbstractDirectedHypergraph.java");
 		n410.setMapping("prom.domain.models");
+		n410.setClustering("prom.domain.models", "Initial");
 		dmClass c535 = new dmClass("org.processmining.models.graphbased.directedhypergraph.AbstractDirectedHypergraph");
 		n410.addClass(c535);
 		m_classes.put("org.processmining.models.graphbased.directedhypergraph.AbstractDirectedHypergraph", c535);
@@ -3252,14 +3343,12 @@ public class ProMDump extends DumpBase {
 
 		CNode n413 = m_g.createNode("org/processmining/models/semantics/ExecutionInformation.java");
 		n413.setMapping("prom.domain.models");
-		n413.setClustering("prom.domain.models", "Initial");
 		dmClass c538 = new dmClass("org.processmining.models.semantics.ExecutionInformation");
 		n413.addClass(c538);
 		m_classes.put("org.processmining.models.semantics.ExecutionInformation", c538);
 
 		CNode n414 = m_g.createNode("org/processmining/models/shapes/Decorated.java");
 		n414.setMapping("prom.domain.models");
-		n414.setClustering("prom.domain.models", "Initial");
 		dmClass c539 = new dmClass("org.processmining.models.shapes.Decorated");
 		n414.addClass(c539);
 		m_classes.put("org.processmining.models.shapes.Decorated", c539);
@@ -3267,6 +3356,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n415 = m_g.createNode("org/processmining/models/shapes/Gate.java");
 		n415.setMapping("prom.domain.models");
+		n415.setClustering("prom.domain.models", "Initial");
 		dmClass c540 = new dmClass("org.processmining.models.shapes.Gate");
 		n415.addClass(c540);
 		m_classes.put("org.processmining.models.shapes.Gate", c540);
@@ -3290,7 +3380,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n418 = m_g.createNode("org/processmining/models/graphbased/directedhypergraph/AbstractDirectedHypergraphNode.java");
 		n418.setMapping("prom.domain.models");
-		n418.setClustering("prom.domain.models", "Initial");
 		dmClass c544 = new dmClass("org.processmining.models.graphbased.directedhypergraph.AbstractDirectedHypergraphNode");
 		n418.addClass(c544);
 		m_classes.put("org.processmining.models.graphbased.directedhypergraph.AbstractDirectedHypergraphNode", c544);
@@ -3298,6 +3387,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n419 = m_g.createNode("org/processmining/models/graphbased/directed/DirectedGraph.java");
 		n419.setMapping("prom.domain.models");
+		n419.setClustering("prom.domain.models", "Initial");
 		dmClass c545 = new dmClass("org.processmining.models.graphbased.directed.DirectedGraph");
 		n419.addClass(c545);
 		m_classes.put("org.processmining.models.graphbased.directed.DirectedGraph", c545);
@@ -3320,7 +3410,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n422 = m_g.createNode("org/processmining/models/semantics/IllegalTransitionException.java");
 		n422.setMapping("prom.domain.models");
-		n422.setClustering("prom.domain.models", "Initial");
 		dmClass c548 = new dmClass("org.processmining.models.semantics.IllegalTransitionException");
 		n422.addClass(c548);
 		m_classes.put("org.processmining.models.semantics.IllegalTransitionException", c548);
@@ -3359,6 +3448,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n427 = m_g.createNode("org/processmining/models/graphbased/Expandable.java");
 		n427.setMapping("prom.domain.models");
+		n427.setClustering("prom.domain.models", "Initial");
 		dmClass c553 = new dmClass("org.processmining.models.graphbased.Expandable");
 		n427.addClass(c553);
 		m_classes.put("org.processmining.models.graphbased.Expandable", c553);
@@ -3366,7 +3456,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n428 = m_g.createNode("org/processmining/models/graphbased/directedhypergraph/AbstractDirectedIncomingHyperedge.java");
 		n428.setMapping("prom.domain.models");
-		n428.setClustering("prom.domain.models", "Initial");
 		dmClass c554 = new dmClass("org.processmining.models.graphbased.directedhypergraph.AbstractDirectedIncomingHyperedge");
 		n428.addClass(c554);
 		m_classes.put("org.processmining.models.graphbased.directedhypergraph.AbstractDirectedIncomingHyperedge", c554);
@@ -3448,6 +3537,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n437 = m_g.createNode("org/processmining/models/graphbased/directed/AbstractDirectedGraphNode.java");
 		n437.setMapping("prom.domain.models");
+		n437.setClustering("prom.domain.models", "Initial");
 		dmClass c566 = new dmClass("org.processmining.models.graphbased.directed.AbstractDirectedGraphNode");
 		n437.addClass(c566);
 		m_classes.put("org.processmining.models.graphbased.directed.AbstractDirectedGraphNode", c566);
@@ -3503,7 +3593,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n441 = m_g.createNode("org/processmining/models/connections/GraphLayoutConnection.java");
 		n441.setMapping("prom.domain.models");
-		n441.setClustering("prom.domain.models", "Initial");
 		dmClass c576 = new dmClass("org.processmining.models.connections.GraphLayoutConnection$Listener");
 		n441.addClass(c576);
 		m_classes.put("org.processmining.models.connections.GraphLayoutConnection$Listener", c576);
@@ -3581,7 +3670,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n450 = m_g.createNode("org/processmining/models/graphbased/directed/DirectedGraphElement.java");
 		n450.setMapping("prom.domain.models");
-		n450.setClustering("prom.domain.models", "Initial");
 		dmClass c587 = new dmClass("org.processmining.models.graphbased.directed.DirectedGraphElement");
 		n450.addClass(c587);
 		m_classes.put("org.processmining.models.graphbased.directed.DirectedGraphElement", c587);
@@ -3597,7 +3685,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n452 = m_g.createNode("org/processmining/models/graphbased/AbstractGraphEdge.java");
 		n452.setMapping("prom.domain.models");
-		n452.setClustering("prom.domain.models", "Initial");
 		dmClass c589 = new dmClass("org.processmining.models.graphbased.AbstractGraphEdge");
 		n452.addClass(c589);
 		m_classes.put("org.processmining.models.graphbased.AbstractGraphEdge", c589);
@@ -3613,6 +3700,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n454 = m_g.createNode("org/processmining/models/graphbased/ViewSpecificAttributeMap.java");
 		n454.setMapping("prom.domain.models");
+		n454.setClustering("prom.domain.models", "Initial");
 		dmClass c591 = new dmClass("org.processmining.models.graphbased.ViewSpecificAttributeMap");
 		n454.addClass(c591);
 		m_classes.put("org.processmining.models.graphbased.ViewSpecificAttributeMap", c591);
@@ -3620,7 +3708,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n455 = m_g.createNode("org/processmining/models/graphbased/AbstractGraphNode.java");
 		n455.setMapping("prom.domain.models");
-		n455.setClustering("prom.domain.models", "Initial");
 		dmClass c592 = new dmClass("org.processmining.models.graphbased.AbstractGraphNode");
 		n455.addClass(c592);
 		m_classes.put("org.processmining.models.graphbased.AbstractGraphNode", c592);
@@ -3628,7 +3715,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n456 = m_g.createNode("org/processmining/models/shapes/Polygon.java");
 		n456.setMapping("prom.domain.models");
-		n456.setClustering("prom.domain.models", "Initial");
 		dmClass c593 = new dmClass("org.processmining.models.shapes.Polygon");
 		n456.addClass(c593);
 		m_classes.put("org.processmining.models.shapes.Polygon", c593);
@@ -3636,7 +3722,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n457 = m_g.createNode("org/processmining/models/graphbased/EdgeID.java");
 		n457.setMapping("prom.domain.models");
-		n457.setClustering("prom.domain.models", "Initial");
 		dmClass c594 = new dmClass("org.processmining.models.graphbased.EdgeID");
 		n457.addClass(c594);
 		m_classes.put("org.processmining.models.graphbased.EdgeID", c594);
@@ -3649,7 +3734,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n459 = m_g.createNode("org/processmining/models/graphbased/directedhypergraph/DirectedIncomingHyperedge.java");
 		n459.setMapping("prom.domain.models");
-		n459.setClustering("prom.domain.models", "Initial");
 		dmClass c596 = new dmClass("org.processmining.models.graphbased.directedhypergraph.DirectedIncomingHyperedge");
 		n459.addClass(c596);
 		m_classes.put("org.processmining.models.graphbased.directedhypergraph.DirectedIncomingHyperedge", c596);
@@ -3685,7 +3769,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n464 = m_g.createNode("org/processmining/models/graphbased/directedhypergraph/DirectedHypergraphElement.java");
 		n464.setMapping("prom.domain.models");
-		n464.setClustering("prom.domain.models", "Initial");
 		dmClass c602 = new dmClass("org.processmining.models.graphbased.directedhypergraph.DirectedHypergraphElement");
 		n464.addClass(c602);
 		m_classes.put("org.processmining.models.graphbased.directedhypergraph.DirectedHypergraphElement", c602);
@@ -3716,6 +3799,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n468 = m_g.createNode("org/processmining/models/graphbased/undirected/AbstractUndirectedNode.java");
 		n468.setMapping("prom.domain.models");
+		n468.setClustering("prom.domain.models", "Initial");
 		dmClass c606 = new dmClass("org.processmining.models.graphbased.undirected.AbstractUndirectedNode");
 		n468.addClass(c606);
 		m_classes.put("org.processmining.models.graphbased.undirected.AbstractUndirectedNode", c606);
@@ -3723,6 +3807,7 @@ public class ProMDump extends DumpBase {
 
 		CNode n469 = m_g.createNode("org/processmining/models/shapes/Octagon.java");
 		n469.setMapping("prom.domain.models");
+		n469.setClustering("prom.domain.models", "Initial");
 		dmClass c607 = new dmClass("org.processmining.models.shapes.Octagon");
 		n469.addClass(c607);
 		m_classes.put("org.processmining.models.shapes.Octagon", c607);
@@ -3730,7 +3815,6 @@ public class ProMDump extends DumpBase {
 
 		CNode n470 = m_g.createNode("org/processmining/plugins/ShowPackageOverviewPlugin.java");
 		n470.setMapping("prom.domain.plugins");
-		n470.setClustering("prom.domain.plugins", "Initial");
 		dmClass c608 = new dmClass("org.processmining.plugins.ShowPackageOverviewPlugin");
 		n470.addClass(c608);
 		m_classes.put("org.processmining.plugins.ShowPackageOverviewPlugin", c608);
