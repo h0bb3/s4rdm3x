@@ -2,6 +2,7 @@ package se.lnu.siq.s4rdm3x.experiments.regression.dumps;
 
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
+import se.lnu.siq.s4rdm3x.experiments.ExperimentRunner;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 
@@ -10,17 +11,31 @@ import java.util.HashMap;
 
 public class DumpBase {
 
-    public static class HuGMeParams {
-        public double m_omega, m_phi;
-        public boolean m_doManualMapping;
-        public double m_weights[] = new double[dmDependency.Type.values().length];
+    public static class Params {
         public double m_f1 = -1;
+        public boolean m_doManualMapping;
+    }
+
+    public static class HuGMeParams extends Params {
+        public double m_omega, m_phi;
+
+        public double m_weights[] = new double[dmDependency.Type.values().length];
+    }
+
+    public static class NBParams extends Params {
+        public boolean m_doStemming;
+        public boolean m_doUseCDA;
+        public boolean m_doUseNodeText;
+        public boolean m_doUseNodeName;
+        public boolean m_doUseArchComponentName;
+        public int m_minWordSize;
+        public boolean m_doWordCount;
+        public double m_threshold;
     }
 
     public CGraph m_g = new CGraph();
     public ArchDef m_a = new ArchDef();
     public HashMap<String, dmClass> m_classes = new HashMap<>();
-    public ArrayList<Double> m_scores = new ArrayList<>();
 
     public void d(dmClass a_source, dmClass a_target, dmDependency.Type a_dt, int[] a_lines) {
         for (int i : a_lines) {
@@ -29,10 +44,6 @@ public class DumpBase {
     }
     public void d(dmClass a_source, dmClass a_target, dmDependency.Type a_dt, int a_line) {
         a_source.addDependency(a_target, a_dt, a_line);
-    }
-
-    public double getF1Score(int i) {
-        return m_scores.get(i);
     }
 
     public HuGMeParams generateHugMeParams() {
@@ -48,7 +59,28 @@ public class DumpBase {
         return ret;
     }
 
+    public NBParams generateNBParams() {
+        java.util.Random r = new java.util.Random();
+        NBParams ret = new NBParams();
+        ret.m_doManualMapping = false;
+
+        ret.m_doStemming = r.nextBoolean();
+        ret.m_doUseCDA = r.nextBoolean();
+        ret.m_doUseNodeText = r.nextBoolean();
+        ret.m_doUseNodeName = r.nextBoolean();
+        ret.m_doUseArchComponentName = r.nextBoolean();
+        ret.m_minWordSize = r.nextInt(4) + 1;
+        ret.m_threshold = 0.8 + r.nextDouble() * 0.19;
+        ret.m_doWordCount = r.nextBoolean();
+
+        return ret;
+    }
+
     public HuGMeParams getHuGMeParams(int a_index) {
+        return null;
+    }
+
+    public NBParams getNBParams(int a_index) {
         return null;
     }
 }

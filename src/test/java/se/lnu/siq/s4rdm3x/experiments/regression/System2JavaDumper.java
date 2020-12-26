@@ -27,7 +27,7 @@ public class System2JavaDumper {
     DumpBase m_shadow;
 
 
-    void dump(PrintStream a_out, String a_className, CGraph a_g, ArchDef a_a, DumpBase.HuGMeParams[] a_tests) {
+    void dump(PrintStream a_out, String a_className, CGraph a_g, ArchDef a_a, DumpBase.HuGMeParams[] a_hugmeTests, DumpBase.NBParams[] a_nbTests) {
 
         m_out = a_out;
         m_tc = 0;
@@ -40,7 +40,7 @@ public class System2JavaDumper {
         ps("import se.lnu.siq.s4rdm3x.dmodel.dmDependency");
         ps("import java.util.HashMap");
 
-        createClassBlock(a_className, a_g, a_a, a_tests);
+        createClassBlock(a_className, a_g, a_a, a_hugmeTests, a_nbTests);
     }
 
     private void pln(String a_str) {
@@ -82,19 +82,63 @@ public class System2JavaDumper {
         pbs(access + " " + a_returnType + " " + a_methodName);
     }
 
-    private void createClassBlock(String a_className, CGraph a_g, ArchDef a_a, DumpBase.HuGMeParams [] a_scores) {
+    private void createClassBlock(String a_className, CGraph a_g, ArchDef a_a, DumpBase.HuGMeParams [] a_hugmeTests, DumpBase.NBParams[] a_nbTests) {
         pbs("public class " + a_className + " extends DumpBase");
         m_shadow = new DumpBase();
 
         createConstructorBlock(a_className);
 
-        create_getHuGMeParams(a_scores);
+        create_getHuGMeParams(a_hugmeTests);
+        create_getNBParams(a_nbTests);
 
         createNodesMethod(a_g.getNodes());
 
         createArchMethod(a_a);
 
         pbe();
+    }
+
+    private void create_getNBParams(DumpBase.NBParams [] a_scores) {
+        DumpBase db = new DumpBase();
+
+        pms("getNBParams(int a_index)", false, "NBParams");
+
+        ps("NBParams r = null");
+        pbs("switch (a_index)");
+        for (int sIx = 0; sIx < a_scores.length; sIx++) {
+            DumpBase.NBParams p = a_scores[0];
+            pbs("case " + sIx + ":");
+            ps("r = new NBParams()");
+            createParamFields(p);
+            ps("break");
+            pbe();
+        }
+        pbe();
+
+        ps("return r");
+
+        pbe();
+    }
+
+    private void createParamFields(DumpBase.Params a_params) {
+        for (Field f : a_params.getClass().getFields()) {
+            try {
+                if (f.getType().equals(double.class)) {
+                    ps("r." + f.getName() + " = " + f.getDouble(a_params));
+                } else if (f.getType().equals(boolean.class)) {
+                    ps("r." + f.getName() + " = " + f.getBoolean(a_params));
+                } else if (f.getType().equals(double[].class)) {
+                    double[] a = (double[]) f.get(a_params);
+                    for (int i = 0; i < a.length; i++) {
+                        ps("r." + f.getName() + "[" + i + "] = " + a[i]);
+                    }
+                } else if (f.getType().equals(int.class)) {
+                    ps("r." + f.getName() + " = " + f.getInt(a_params));
+                }
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void create_getHuGMeParams(DumpBase.HuGMeParams [] a_scores) {
@@ -108,22 +152,7 @@ public class System2JavaDumper {
             DumpBase.HuGMeParams p = a_scores[0];
             pbs("case " + sIx + ":");
             ps("r = new HuGMeParams()");
-            for (Field f : p.getClass().getFields()) {
-                try {
-                    if (f.getType().equals(double.class)) {
-                        ps("r." + f.getName() + " = " + f.getDouble(p));
-                    } else if (f.getType().equals(boolean.class)) {
-                        ps("r." + f.getName() + " = " + f.getBoolean(p));
-                    } else if (f.getType().equals(double[].class)) {
-                        double[] a = (double[]) f.get(p);
-                        for (int i = 0; i < a.length; i++) {
-                            ps("r." + f.getName() + "[" + i + "] = " + a[i]);
-                        }
-                    }
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                }
-            }
+            createParamFields(p);
             ps("break");
             pbe();
         }

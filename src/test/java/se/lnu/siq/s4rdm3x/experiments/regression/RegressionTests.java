@@ -22,6 +22,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class RegressionTests {
 
     static final int g_HuGMe_test_count = 3;
+    static final int g_nb_test_count = 3;
+
     @Test
     public void testTeammates_HuGMe() {
         DumpBase db = new TeammatesDump();
@@ -45,6 +47,17 @@ class RegressionTests {
     }
 
     @Test
+    public void testProM_NB() {
+        DumpBase db = new ProMDump();
+        ArchDef a = db.m_a;
+        CGraph g = db.m_g;
+        for (int i = 0; i < g_nb_test_count; i++) {
+            assertEquals(db.getNBParams(i).m_f1, runNBExperiment(g, a, db.getNBParams(i)), "Regression test " + i + " for ProM failed.");
+            a.cleanNodeClusters(g.getNodes(), true);
+        }
+    }
+
+    @Test
     public void testCommonsImg_HuGMe() {
         DumpBase db = new CommonsImagingDump();
         ArchDef a = db.m_a;
@@ -55,15 +68,15 @@ class RegressionTests {
         }
     }
 
-    private double runHuGMExperiment(CGraph a_g, ArchDef a_arch, Map<dmDependency.Type, ExperimentRunner.RandomDoubleVariable> dw) {
-        HuGMeExperimentRun exp = new HuGMeExperimentRun(false, new ExperimentRunner.RandomDoubleVariable(0, 0), new ExperimentRunner.RandomDoubleVariable(1, 0), dw);
-        final ExperimentRunData.BasicRunData rd = exp.createNewRunData(new Random());
-        rd.m_totalMapped = a_arch.getMappedNodeCount(a_g.getNodes());
-        a_arch.getClusteredNodes(a_g.getNodes(), ArchDef.Component.ClusteringType.Initial).forEach(n -> rd.addInitialClusteredNode(n));
-        rd.m_initialClusteringPercent = (double) rd.getInitialClusteringNodeCount() / (double) rd.m_totalMapped;
-        while (!exp.runClustering(a_g, a_arch));
-
-        return rd.calcF1Score();
+    @Test
+    public void testCommonsImg_NB() {
+        DumpBase db = new CommonsImagingDump();
+        ArchDef a = db.m_a;
+        CGraph g = db.m_g;
+        for (int i = 0; i < g_nb_test_count; i++) {
+            assertEquals(db.getNBParams(i).m_f1, runNBExperiment(g, a, db.getNBParams(i)), "Regression test " + i + " for CommonsImaging failed.");
+            a.cleanNodeClusters(g.getNodes(), true);
+        }
     }
 
     private double runHuGMExperiment(CGraph a_g, ArchDef a_arch, DumpBase.HuGMeParams a_params) {
@@ -73,7 +86,27 @@ class RegressionTests {
             dw.put(dmDependency.Type.values()[i], new ExperimentRunner.RandomDoubleVariable(a_params.m_weights[i], 0));
         }
 
-        HuGMeExperimentRun exp = new HuGMeExperimentRun(false, new ExperimentRunner.RandomDoubleVariable(a_params.m_omega, 0), new ExperimentRunner.RandomDoubleVariable(a_params.m_phi, 0), dw);
+        HuGMeExperimentRun exp = new HuGMeExperimentRun(a_params.m_doManualMapping, new ExperimentRunner.RandomDoubleVariable(a_params.m_omega, 0), new ExperimentRunner.RandomDoubleVariable(a_params.m_phi, 0), dw);
+        final ExperimentRunData.BasicRunData rd = exp.createNewRunData(new Random());
+        rd.m_totalMapped = a_arch.getMappedNodeCount(a_g.getNodes());
+        a_arch.getClusteredNodes(a_g.getNodes(), ArchDef.Component.ClusteringType.Initial).forEach(n -> rd.addInitialClusteredNode(n));
+        rd.m_initialClusteringPercent = (double) rd.getInitialClusteringNodeCount() / (double) rd.m_totalMapped;
+        while (!exp.runClustering(a_g, a_arch));
+
+        return rd.calcF1Score();
+    }
+
+    private double runNBExperiment(CGraph a_g, ArchDef a_arch, DumpBase.NBParams a_params) {
+
+        IRExperimentRunBase.Data irData = new IRExperimentRunBase.Data();
+        irData.doStemming(new ExperimentRunner.RandomBoolVariable(a_params.m_doStemming));
+        irData.doUseArchComponentName(new ExperimentRunner.RandomBoolVariable(a_params.m_doUseArchComponentName));
+        irData.doUseCDA(new ExperimentRunner.RandomBoolVariable(a_params.m_doUseCDA));
+        irData.doUseNodeName(new ExperimentRunner.RandomBoolVariable(a_params.m_doUseNodeName));
+        irData.doUseNodeText(new ExperimentRunner.RandomBoolVariable(a_params.m_doUseNodeText));
+
+        NBMapperExperimentRun exp = new NBMapperExperimentRun(a_params.m_doManualMapping, irData, new ExperimentRunner.RandomBoolVariable(a_params.m_doWordCount),  new ExperimentRunner.RandomDoubleVariable(a_params.m_threshold, 0));
+
         final ExperimentRunData.BasicRunData rd = exp.createNewRunData(new Random());
         rd.m_totalMapped = a_arch.getMappedNodeCount(a_g.getNodes());
         a_arch.getClusteredNodes(a_g.getNodes(), ArchDef.Component.ClusteringType.Initial).forEach(n -> rd.addInitialClusteredNode(n));
@@ -149,17 +182,24 @@ class RegressionTests {
             InitialSetGenerator isg = new InitialSetGenerator();
             isg.assignInitialClusters(g, a, 0.75, new Rand(), r);
 
-            // TODO: we could now calculate the magic numbers needed and add to the corresponding dump
+
             DumpBase db = new DumpBase();
-            DumpBase.HuGMeParams [] tests = new DumpBase.HuGMeParams[g_HuGMe_test_count];
+            DumpBase.HuGMeParams [] hugmeTests = new DumpBase.HuGMeParams[g_HuGMe_test_count];
             for (int i = 0; i < g_HuGMe_test_count; i++) {
-                tests[i] = db.generateHugMeParams();
-                tests[i].m_f1 = runHuGMExperiment(g, a, tests[i]);
+                hugmeTests[i] = db.generateHugMeParams();
+                hugmeTests[i].m_f1 = runHuGMExperiment(g, a, hugmeTests[i]);
+                a.cleanNodeClusters(g.getNodes(), true);
+            }
+
+            DumpBase.NBParams [] nbTests = new DumpBase.NBParams[g_nb_test_count];
+            for (int i = 0; i < g_HuGMe_test_count; i++) {
+                nbTests[i] = db.generateNBParams();
+                nbTests[i].m_f1 = runNBExperiment(g, a, nbTests[i]);
                 a.cleanNodeClusters(g.getNodes(), true);
             }
 
             File out = new File("C:/hobbe/projects/coding/github/s4rdm3x/src/test/java/se/lnu/siq/s4rdm3x/experiments/regression/dumps/" + className +".java");
-            s2jd.dump(new PrintStream(out), className, g, a, tests);
+            s2jd.dump(new PrintStream(out), className, g, a, hugmeTests, nbTests);
 
             Comparator cgc = new Comparator();
             cgc.assertEquals(g, s2jd.m_shadow.m_g);
