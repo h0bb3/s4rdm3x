@@ -9,6 +9,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class DumpBase {
+
+    public static class HuGMeParams {
+        public double m_omega, m_phi;
+        public boolean m_doManualMapping;
+        public double m_weights[] = new double[dmDependency.Type.values().length];
+        public double m_f1 = -1;
+    }
+
     public CGraph m_g = new CGraph();
     public ArchDef m_a = new ArchDef();
     public HashMap<String, dmClass> m_classes = new HashMap<>();
@@ -25,5 +33,22 @@ public class DumpBase {
 
     public double getF1Score(int i) {
         return m_scores.get(i);
+    }
+
+    public HuGMeParams generateHugMeParams() {
+        java.util.Random r = new java.util.Random();
+        HuGMeParams ret = new HuGMeParams();
+        ret.m_doManualMapping = false;
+        ret.m_omega = r.nextDouble();
+        ret.m_phi = r.nextDouble();
+        for (int i = 0; i < ret.m_weights.length; i++) {
+            ret.m_weights[i] = r.nextDouble();
+        }
+
+        return ret;
+    }
+
+    public HuGMeParams getHuGMeParams(int a_index) {
+        return null;
     }
 }

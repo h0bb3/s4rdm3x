@@ -20,86 +20,60 @@ import static org.junit.jupiter.api.Assertions.*;
 
 
 class RegressionTests {
+
+    static final int g_HuGMe_test_count = 3;
     @Test
-    public void testTeammates_HugMe_1() {
-        DumpBase teammates = new TeammatesDump();
-        ArchDef a = teammates.m_a;
-        CGraph g = teammates.m_g;
-
-        assertEquals(teammates.getF1Score(0), runHuGMExperiment(g, a, getDW_1()));
-    }
-
-    @Test
-    public void testTeammates_HugMe_2() {
-        DumpBase teammates = new TeammatesDump();
-        ArchDef a = teammates.m_a;
-        CGraph g = teammates.m_g;
-        assertEquals(teammates.getF1Score(1), runHuGMExperiment(g, a, getDW_2()));
-    }
-
-    @Test
-    public void testTeammates_HugMe_3() {
-        DumpBase teammates = new TeammatesDump();
-        ArchDef a = teammates.m_a;
-        CGraph g = teammates.m_g;
-        assertEquals(teammates.getF1Score(2), runHuGMExperiment(g, a, getDW_3()));
-    }
-
-    @Test
-    public void testProM_HugMe_1() {
-        DumpBase prom = new ProMDump();
-        ArchDef a = prom.m_a;
-        CGraph g = prom.m_g;
-        assertEquals(prom.getF1Score(0), runHuGMExperiment(g, a, getDW_1()));
-    }
-
-    @Test
-    public void testProM_HugMe_2() {
-        DumpBase prom = new ProMDump();
-        ArchDef a = prom.m_a;
-        CGraph g = prom.m_g;
-        assertEquals(prom.getF1Score(1), runHuGMExperiment(g, a, getDW_2()));
-    }
-
-    @Test
-    public void testProM_HugMe_3() {
-        DumpBase prom = new ProMDump();
-        ArchDef a = prom.m_a;
-        CGraph g = prom.m_g;
-        assertEquals(prom.getF1Score(2), runHuGMExperiment(g, a, getDW_3()));
-    }
-
-    public Map<dmDependency.Type, ExperimentRunner.RandomDoubleVariable> getDW_1() {
-        Map<dmDependency.Type, ExperimentRunner.RandomDoubleVariable> dw = new HashMap<>();
-        for (dmDependency.Type t : dmDependency.Type.values()) {
-            dw.put(t, new ExperimentRunner.RandomDoubleVariable(1.0, 0));
+    public void testTeammates_HuGMe() {
+        DumpBase db = new TeammatesDump();
+        ArchDef a = db.m_a;
+        CGraph g = db.m_g;
+        for (int i = 0; i < g_HuGMe_test_count; i++) {
+            assertEquals(db.getHuGMeParams(i).m_f1, runHuGMExperiment(g, a, db.getHuGMeParams(i)), "Regression test " + i + " for Teammates failed.");
+            a.cleanNodeClusters(g.getNodes(), true);
         }
-
-        return dw;
     }
 
-    public Map<dmDependency.Type, ExperimentRunner.RandomDoubleVariable> getDW_2() {
-        Map<dmDependency.Type, ExperimentRunner.RandomDoubleVariable> dw = new HashMap<>();
-        for (dmDependency.Type t : dmDependency.Type.values()) {
-            dw.put(t, new ExperimentRunner.RandomDoubleVariable(0.0, 0));
+    @Test
+    public void testProM_HuGMe() {
+        DumpBase db = new ProMDump();
+        ArchDef a = db.m_a;
+        CGraph g = db.m_g;
+        for (int i = 0; i < g_HuGMe_test_count; i++) {
+            assertEquals(db.getHuGMeParams(i).m_f1, runHuGMExperiment(g, a, db.getHuGMeParams(i)), "Regression test " + i + " for ProM failed.");
+            a.cleanNodeClusters(g.getNodes(), true);
         }
-        dw.put(dmDependency.Type.Extends, new ExperimentRunner.RandomDoubleVariable(1.0, 0));
-        dw.put(dmDependency.Type.Implements, new ExperimentRunner.RandomDoubleVariable(0.07479101885668538, 0));
-        dw.put(dmDependency.Type.Field, new ExperimentRunner.RandomDoubleVariable( 0.10568346526641301,  0));
-        return dw;
     }
 
-    public Map<dmDependency.Type, ExperimentRunner.RandomDoubleVariable> getDW_3() {
-        Map<dmDependency.Type, ExperimentRunner.RandomDoubleVariable> dw = new HashMap<>();
-        for (dmDependency.Type t : dmDependency.Type.values()) {
-            dw.put(t, new ExperimentRunner.RandomDoubleVariable(0.0, 0));
+    @Test
+    public void testCommonsImg_HuGMe() {
+        DumpBase db = new CommonsImagingDump();
+        ArchDef a = db.m_a;
+        CGraph g = db.m_g;
+        for (int i = 0; i < g_HuGMe_test_count; i++) {
+            assertEquals(db.getHuGMeParams(i).m_f1, runHuGMExperiment(g, a, db.getHuGMeParams(i)), "Regression test " + i + " for CommonsImaging failed.");
+            a.cleanNodeClusters(g.getNodes(), true);
         }
-        dw.put(dmDependency.Type.Extends, new ExperimentRunner.RandomDoubleVariable(1.0, 0));
-        return dw;
     }
 
     private double runHuGMExperiment(CGraph a_g, ArchDef a_arch, Map<dmDependency.Type, ExperimentRunner.RandomDoubleVariable> dw) {
         HuGMeExperimentRun exp = new HuGMeExperimentRun(false, new ExperimentRunner.RandomDoubleVariable(0, 0), new ExperimentRunner.RandomDoubleVariable(1, 0), dw);
+        final ExperimentRunData.BasicRunData rd = exp.createNewRunData(new Random());
+        rd.m_totalMapped = a_arch.getMappedNodeCount(a_g.getNodes());
+        a_arch.getClusteredNodes(a_g.getNodes(), ArchDef.Component.ClusteringType.Initial).forEach(n -> rd.addInitialClusteredNode(n));
+        rd.m_initialClusteringPercent = (double) rd.getInitialClusteringNodeCount() / (double) rd.m_totalMapped;
+        while (!exp.runClustering(a_g, a_arch));
+
+        return rd.calcF1Score();
+    }
+
+    private double runHuGMExperiment(CGraph a_g, ArchDef a_arch, DumpBase.HuGMeParams a_params) {
+
+        Map<dmDependency.Type, ExperimentRunner.RandomDoubleVariable> dw = new HashMap<>();
+        for (int i = 0; i < dmDependency.Type.values().length; i++) {
+            dw.put(dmDependency.Type.values()[i], new ExperimentRunner.RandomDoubleVariable(a_params.m_weights[i], 0));
+        }
+
+        HuGMeExperimentRun exp = new HuGMeExperimentRun(false, new ExperimentRunner.RandomDoubleVariable(a_params.m_omega, 0), new ExperimentRunner.RandomDoubleVariable(a_params.m_phi, 0), dw);
         final ExperimentRunData.BasicRunData rd = exp.createNewRunData(new Random());
         rd.m_totalMapped = a_arch.getMappedNodeCount(a_g.getNodes());
         a_arch.getClusteredNodes(a_g.getNodes(), ArchDef.Component.ClusteringType.Initial).forEach(n -> rd.addInitialClusteredNode(n));
@@ -155,14 +129,14 @@ class RegressionTests {
         try {
            System2JavaDumper s2jd = new System2JavaDumper();
 
-            FileBased system = new FileBased("C:/hObbE/projects/coding/github/s4rdm3x/data/systems/ProM6.9/ProM_6_9.sysmdl");
-            String className = "ProMDump";
+            //FileBased system = new FileBased("C:/hObbE/projects/coding/github/s4rdm3x/data/systems/ProM6.9/ProM_6_9.sysmdl");
+            //String className = "ProMDump";
 
             //FileBased system = new FileBased("C:/hObbE/projects/coding/github/s4rdm3x/data/systems/teammates/teammates.sysmdl");
             //String className = "TeammatesDump";
 
-            //FileBased system = new FileBased("C:/hObbE/projects/coding/github/s4rdm3x/data/systems/commons-imaging/commons-imaging.sysmdl");
-            //String className = "CommonsImagingDump";
+            FileBased system = new FileBased("C:/hObbE/projects/coding/github/s4rdm3x/data/systems/commons-imaging/commons-imaging.sysmdl");
+            String className = "CommonsImagingDump";
 
             CGraph g = new CGraph();
             system.load(g);
@@ -176,16 +150,16 @@ class RegressionTests {
             isg.assignInitialClusters(g, a, 0.75, new Rand(), r);
 
             // TODO: we could now calculate the magic numbers needed and add to the corresponding dump
-            double [] scores = new double[3];
-            scores[0] = runHuGMExperiment(g, a, getDW_1());
-            a.cleanNodeClusters(g.getNodes(), true);
-            scores[1] = runHuGMExperiment(g, a, getDW_2());
-            a.cleanNodeClusters(g.getNodes(), true);
-            scores[2] = runHuGMExperiment(g, a, getDW_3());
-            a.cleanNodeClusters(g.getNodes(), true);
+            DumpBase db = new DumpBase();
+            DumpBase.HuGMeParams [] tests = new DumpBase.HuGMeParams[g_HuGMe_test_count];
+            for (int i = 0; i < g_HuGMe_test_count; i++) {
+                tests[i] = db.generateHugMeParams();
+                tests[i].m_f1 = runHuGMExperiment(g, a, tests[i]);
+                a.cleanNodeClusters(g.getNodes(), true);
+            }
 
             File out = new File("C:/hobbe/projects/coding/github/s4rdm3x/src/test/java/se/lnu/siq/s4rdm3x/experiments/regression/dumps/" + className +".java");
-            s2jd.dump(new PrintStream(out), className, g, a, scores);
+            s2jd.dump(new PrintStream(out), className, g, a, tests);
 
             Comparator cgc = new Comparator();
             cgc.assertEquals(g, s2jd.m_shadow.m_g);

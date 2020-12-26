@@ -2,12 +2,14 @@ package se.lnu.siq.s4rdm3x.experiments.regression;
 
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
+import se.lnu.siq.s4rdm3x.experiments.HuGMeExperimentRun;
 import se.lnu.siq.s4rdm3x.experiments.regression.dumps.DumpBase;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 
 import java.io.*;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -25,7 +27,7 @@ public class System2JavaDumper {
     DumpBase m_shadow;
 
 
-    void dump(PrintStream a_out, String a_className, CGraph a_g, ArchDef a_a, double[] a_scores) {
+    void dump(PrintStream a_out, String a_className, CGraph a_g, ArchDef a_a, DumpBase.HuGMeParams[] a_tests) {
 
         m_out = a_out;
         m_tc = 0;
@@ -38,7 +40,7 @@ public class System2JavaDumper {
         ps("import se.lnu.siq.s4rdm3x.dmodel.dmDependency");
         ps("import java.util.HashMap");
 
-        createClassBlock(a_className, a_g, a_a, a_scores);
+        createClassBlock(a_className, a_g, a_a, a_tests);
     }
 
     private void pln(String a_str) {
@@ -73,18 +75,61 @@ public class System2JavaDumper {
 
     // print method start
     private void pms(String a_methodName) {
-        pbs("private void " + a_methodName);
+        pms(a_methodName, false, "void");
+    }
+    private void pms(String a_methodName, boolean a_isPrivate, String a_returnType) {
+        String access = a_isPrivate ? "private" : "public";
+        pbs(access + " " + a_returnType + " " + a_methodName);
     }
 
-    private void createClassBlock(String a_className, CGraph a_g, ArchDef a_a, double[] a_scores) {
+    private void createClassBlock(String a_className, CGraph a_g, ArchDef a_a, DumpBase.HuGMeParams [] a_scores) {
         pbs("public class " + a_className + " extends DumpBase");
         m_shadow = new DumpBase();
 
-        createConstructorBlock(a_className, a_scores);
+        createConstructorBlock(a_className);
+
+        create_getHuGMeParams(a_scores);
 
         createNodesMethod(a_g.getNodes());
 
         createArchMethod(a_a);
+
+        pbe();
+    }
+
+    private void create_getHuGMeParams(DumpBase.HuGMeParams [] a_scores) {
+        DumpBase db = new DumpBase();
+
+        pms("getHuGMeParams(int a_index)", false, "HuGMeParams");
+
+        ps("HuGMeParams r = null");
+        pbs("switch (a_index)");
+        for (int sIx = 0; sIx < a_scores.length; sIx++) {
+            DumpBase.HuGMeParams p = a_scores[0];
+            pbs("case " + sIx + ":");
+            ps("r = new HuGMeParams()");
+            for (Field f : p.getClass().getFields()) {
+                try {
+                    if (f.getType().equals(double.class)) {
+                        ps("r." + f.getName() + " = " + f.getDouble(p));
+                    } else if (f.getType().equals(boolean.class)) {
+                        ps("r." + f.getName() + " = " + f.getBoolean(p));
+                    } else if (f.getType().equals(double[].class)) {
+                        double[] a = (double[]) f.get(p);
+                        for (int i = 0; i < a.length; i++) {
+                            ps("r." + f.getName() + "[" + i + "] = " + a[i]);
+                        }
+                    }
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+            ps("break");
+            pbe();
+        }
+        pbe();
+
+        ps("return r");
 
         pbe();
     }
@@ -404,16 +449,11 @@ public class System2JavaDumper {
         return m_dmClassNames.get(a_c);
     }
 
-    private void createConstructorBlock(String a_className, double[] a_scores) {
+    private void createConstructorBlock(String a_className) {
         pbs("public " + a_className +"()");
 
         ps("createNodes()");
         ps("createArch()");
-        for (double s : a_scores) {
-            ps("m_scores.add(" + s + ")");
-            m_shadow.m_scores.add(s);
-        }
-
 
         pbe();
     }
