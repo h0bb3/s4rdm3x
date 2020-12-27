@@ -64,6 +64,15 @@ public class CNode {
         m_tags.addAll(a_node.m_tags);
     }
 
+    public dmClass getClassByName(String a_name) {
+        for (dmClass c : m_classes) {
+            if (c.getName().equals(a_name)) {
+                return c;
+            }
+        }
+
+        return null;
+    }
 
 
     public static class MetricMap extends HashMap<String, Double> {}
