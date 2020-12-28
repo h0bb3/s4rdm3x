@@ -36,18 +36,18 @@ javaCodeGeneration
 
 # mapping
 # <high_level_module> <regular_expression>
-application org\.argouml\.application\.*
+application org\.argouml\.application(?!(\.api|\.modules))\.*
 diagrams org\.argouml\.uml\.diagram\.*
 notation org\.argouml\.notation\.*
 explorer org\.argouml\.ui\.explorer\.*
 javaCodeGeneration org\.argouml\.language\.java\.*
-codeGeneration org\.argouml\.language\.*
+codeGeneration org\.argouml\.language(?!(\.java))\.*
 reverseEngineering org\.argouml\.uml\.reveng\.*
 persistence org\.argouml\.persistence\.*
 profile org\.argouml\.profile\.*
 help org\.argouml\.help\.*
 moduleLoader org\.argouml\.moduleloader|org\.argouml\.application\.modules|org\.argouml\.application\.api
-gui org\.argouml\.ui\.*
+gui org\.argouml\.ui(?!(\.explorer))\.*
 model org\.argouml\.model\.*
 internationalization org\.argouml\.i18n\.*
 taskManagement org\.argouml\.taskmgmt\.*
