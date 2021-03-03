@@ -19,6 +19,11 @@ import java.util.List;
 public class NBMapper extends IRMapperBase {
 
     private boolean m_addRawArchitectureTrainingData = false;
+    private Classifier nbClassifier;
+
+    public Classifier getClassifier() {
+        return nbClassifier;
+    }
 
 
     public void doStemming(boolean a_doStemming) {
@@ -128,7 +133,8 @@ public class NBMapper extends IRMapperBase {
 
         m_consideredNodes = orphans.size();
 
-        Classifier nbClassifier = new Classifier(); // avg 23% wrong
+        // avg 23% wrong
+        nbClassifier = new Classifier();
 
         try {
 
