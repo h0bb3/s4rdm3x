@@ -1,5 +1,6 @@
 package se.lnu.siq.s4rdm3x.experiments;
 
+import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
 import se.lnu.siq.s4rdm3x.util.CSVFile;
 
 import java.io.IOException;
@@ -37,6 +38,11 @@ public class RundDataCSVFileSaver extends CSVFile {
         // parameters for HuGMe
         row.add("omega");
         row.add("phi");
+
+        for (dmDependency.Type dt : dmDependency.Type.values()) {
+            row.add("dw_" + dt);
+        }
+
 
         // parameters for all IR mappers
         row.add("stemming");
@@ -83,23 +89,36 @@ public class RundDataCSVFileSaver extends CSVFile {
             row.add("HuGMe:" + rd.m_mapperName);
             row.add("" + rd.m_omega);
             row.add("" + rd.m_phi);
+
+
+            for (dmDependency.Type dt : dmDependency.Type.values()) {
+               row.add(""  + rd.m_weights.getWeight(dt));
+            }
         }
 
         if (a_rd instanceof ExperimentRunData.NBMapperData){
             ExperimentRunData.NBMapperData rd = (ExperimentRunData.NBMapperData)a_rd;
             row.add("NaiveBayes:" + rd.m_mapperName);
             row.add("-1");row.add("-1");    //hugme params
+            for (dmDependency.Type dt : dmDependency.Type.values()) {
+                row.add("X");
+            }
+
             addIRMapperData(row, rd);
             row.add("" + rd.m_threshold);
             row.add("" + (rd.m_doWordCount ? "Y" : "N"));
         } else if (a_rd instanceof ExperimentRunData.IRMapperData) {
             ExperimentRunData.IRMapperData rd = (ExperimentRunData.IRMapperData)a_rd;
             row.add("LSI_IR:" + rd.m_mapperName);
-            row.add("-1");row.add("-1");    // hugme params
+            row.add("-1");row.add("-1");  //hugme params
+            for (dmDependency.Type dt : dmDependency.Type.values()) {
+                row.add("X");
+            }
             addIRMapperData(row, rd);
 
             row.add("-1");row.add("X");    // threshold wordcount
         } else {
+            // this is for fill out the ir stuff when we have hugme
             row.add("X");row.add("X");row.add("X");row.add("X");row.add("X");row.add("-1");    // ir data
             row.add("-1");row.add("X"); // nb data
         }

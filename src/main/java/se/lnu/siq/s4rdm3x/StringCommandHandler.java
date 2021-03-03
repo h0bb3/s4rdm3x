@@ -183,6 +183,11 @@ public class StringCommandHandler {
                 c.run(graph);
                 for (CNode sn : c.m_nodes) {
                     ret.add(sn.getName());
+
+                    sn.getClasses().forEach(cl -> {
+                        ret.add(sep + cl.getClassName() + ":" + cl.getLineCount());
+                    });
+
                     for (CNode tn : c.m_nodes) {
                         if (sn != tn) {
                             for (dmDependency d : sn.getDependencies(tn)) {
@@ -191,8 +196,14 @@ public class StringCommandHandler {
                         }
                     }
                 }
-            }
-            else if (in.startsWith("//")) {
+            } else if (in.startsWith("print_moduledependencies")) {
+                ReportModuleDependencies c = new ReportModuleDependencies();
+                c.run(graph, m_arch);
+                ret.add("type" + sep + "internal" + sep + "external");
+                for(dmDependency.Type t : dmDependency.Type.values()) {
+                    ret.add(t + sep + c.countInternalDeps(t) + sep + c.countExternalDeps(t));
+                }
+            } else if (in.startsWith("//")) {
                 // skip comment
             } else if (in.startsWith("info")) {
 

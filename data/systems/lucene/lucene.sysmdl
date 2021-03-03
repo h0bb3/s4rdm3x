@@ -20,13 +20,13 @@ util
 document
 # mapping
 # <high_level_module> <regular_expression>
-queryparser org.apache.lucene.queryParser.*
-search org.apache.lucene.search.*
-index org.apache.lucene.index.*
-store org.apache.lucene.store.*
-analysis org.apache.lucene.(analysis|collation).*
-util org.apache.lucene.(util|message).*
-document org.apache.lucene.document.*
+queryparser org\.apache\.lucene\.queryParser\.*
+search org\.apache\.lucene\.search\.*
+index org\.apache\.lucene\.index\.*
+store org\.apache\.lucene\.store\.*
+analysis org\.apache\.lucene\.(analysis|collation)\.*
+util org\.apache\.lucene\.(util|message)\.*
+document org\.apache\.lucene\.document\.*
 # relations
 # <source_module> <target_module>
 queryparser search

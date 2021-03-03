@@ -11,21 +11,22 @@ public class ArchCreator {
     public void mapArch(ArchDef a_arch, SystemModelReader a_model, CGraph a_g) throws System.NoMappedNodesException{
         for (SystemModelReader.Mapping mapping : a_model.m_mappings) {
             ArchDef.Component c = a_arch.getComponent(mapping.m_moduleName);
-            Selector.Pat p = new Selector.Pat(mapping.m_regexp);
+            if (c != null) {
+                Selector.Pat p = new Selector.Pat(mapping.m_regexp);
 
-            for (CNode n : a_g.getNodes()) {
-                if (p.isSelected(n)) {
-                    ArchDef.Component oldMapping = a_arch.getMappedComponent(n);
-                    if (oldMapping != null) {
-                        // we already have a mapping
-                        if (!mapping.m_regexp.contains(".*")) {
-                            oldMapping.unmap(n);
-                            c.mapToNode(n);
+                for (CNode n : a_g.getNodes()) {
+                    if (p.isSelected(n)) {
+                        ArchDef.Component oldMapping = a_arch.getMappedComponent(n);
+                        if (oldMapping != null) {
+                            if (c != oldMapping) {
+                                java.lang.System.err.println("Warning: Old mapping exists for node: was " + n.getName() + " -> " + oldMapping.getName() + " now mapped to: " + c.getName() + " (Make sure this is what you want...)");
+                            }
                         }
-                    } else {
                         c.mapToNode(n);
                     }
                 }
+            } else {
+                java.lang.System.err.println("Error: Could not find component with name: " + mapping.m_moduleName + " for system: " + a_model.m_name);
             }
         }
 
@@ -91,10 +92,10 @@ public class ArchCreator {
             from = arch.getComponent(relation.m_moduleNameFrom);
             to = arch.getComponent(relation.m_moduleNameTo);
             if (from == null) {
-                throw new NullPointerException("Could not find component: " + relation.m_moduleNameFrom + " on line: " + relation.m_line);
+                throw new NullPointerException("Could not find component: " + relation.m_moduleNameFrom + " -> " + a_model.m_id + ": " + relation.m_line);
             }
             if (to == null) {
-                throw new NullPointerException("Could not find component: " + relation.m_moduleNameTo + " on line: " + relation.m_line);
+                throw new NullPointerException("Could not find component: " + relation.m_moduleNameTo + " -> " + a_model.m_id + ": " + relation.m_line);
             }
             from.addDependencyTo(to);
         }
@@ -102,18 +103,15 @@ public class ArchCreator {
         return arch;
     }
 
-    public SystemModelReader createSystemModel(ArchDef a_arch, Iterable<CNode> a_nodesToMap) {
+    public SystemModelReader createSystemModel(ArchDef a_arch, Iterable<CNode> a_nodesToMap, String a_name) {
         SystemModelReader ret = new SystemModelReader();
 
-        ret.m_name = "created system";
+        ret.m_name = a_name;
 
         for (ArchDef.Component c : a_arch.getComponents()) {
 
-            SystemModelReader.Module module = new SystemModelReader.Module();
-            module.m_name = c.getName();
+            SystemModelReader.Module module = new SystemModelReader.Module(c.getName());
             ret.m_modules.add(module);
-
-
 
             for (ArchDef.Component to : a_arch.getComponents()) {
                 if (c.allowedDependency(to)) {
@@ -125,14 +123,10 @@ public class ArchCreator {
                 }
             }
 
-
             for (CNode n : a_nodesToMap) {
                 if (c.isMappedTo(n)) {
-                    SystemModelReader.Mapping m = new SystemModelReader.Mapping();
-
-                    m.m_moduleName = c.getName();
-                    //m.m_regexp = n.getName();
-                    m.m_regexp = n.getLogicName();
+                    String regexp = n.getLogicName() + "(?!.)";  // we use exact matching
+                    SystemModelReader.Mapping m = new SystemModelReader.Mapping(c.getName(), regexp);
 
                     ret.m_mappings.add(m);
                 }
@@ -140,6 +134,5 @@ public class ArchCreator {
         }
 
         return ret;
-
     }
 }

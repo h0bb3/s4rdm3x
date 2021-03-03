@@ -4,6 +4,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
 import se.lnu.siq.s4rdm3x.experiments.metric.Metric;
 import se.lnu.siq.s4rdm3x.experiments.metric.MetricFactory;
 import se.lnu.siq.s4rdm3x.experiments.metric.Rand;
@@ -13,12 +14,18 @@ import se.lnu.siq.s4rdm3x.experiments.system.System;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Result;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ExperimentXMLPersistence {
 
@@ -56,15 +63,22 @@ public class ExperimentXMLPersistence {
     }
 
     public ArrayList<ExperimentRunner> loadExperimentRunners(String a_fileName, ListenerB a_callback) throws Exception {
-        ArrayList<ExperimentRunner> ret = new ArrayList<>();
-
         File inputFile = new File(a_fileName);
-        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+        DocumentBuilder dBuilder = getDocumentBuilder();
         Document doc = dBuilder.parse(inputFile);
         doc.getDocumentElement().normalize();
 
 
+        return getExperimentRunners(a_callback, doc);
+    }
+
+    private DocumentBuilder getDocumentBuilder() throws ParserConfigurationException {
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        return dbFactory.newDocumentBuilder();
+    }
+
+    private ArrayList<ExperimentRunner> getExperimentRunners(ListenerB a_callback, Document doc) throws Exception {
+        ArrayList<ExperimentRunner> ret = new ArrayList<>();
         NodeList nodes = doc.getElementsByTagName("runner");
         for (int nIx = 0 ; nIx < nodes.getLength(); nIx++) {
             Node n = nodes.item(nIx);
@@ -73,14 +87,28 @@ public class ExperimentXMLPersistence {
                 ret.add(exp);
             }
         }
-
         return ret;
     }
 
+    public ArrayList<ExperimentRunner> loadExperimentRunners(InputStream a_in, ListenerB a_callback) throws Exception {
+
+        DocumentBuilder dBuilder = getDocumentBuilder();
+        Document doc = dBuilder.parse(a_in);
+        doc.getDocumentElement().normalize();
+
+        return getExperimentRunners(a_callback, doc);
+    }
+
+    public void saveExperiments(Iterable<ExperimentRunner> a_runners, OutputStream a_out, ListenerB a_listener) throws Exception {
+        saveExperiments(a_runners, new StreamResult(a_out), a_listener);
+    }
 
     public void saveExperiments(Iterable<ExperimentRunner> a_runners, String a_fileName, ListenerB a_listener) throws Exception {
-        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+        saveExperiments(a_runners, new StreamResult(new File(a_fileName)), a_listener);
+    }
+
+    private void saveExperiments(Iterable<ExperimentRunner> a_runners, Result a_result, ListenerB a_listener) throws Exception {
+        DocumentBuilder dBuilder = getDocumentBuilder();
         Document doc = dBuilder.newDocument();
 
         // root element
@@ -92,13 +120,13 @@ public class ExperimentXMLPersistence {
             rootElement.appendChild(exrElement);
 
         }
-
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
         Transformer transformer = transformerFactory.newTransformer();
         DOMSource source = new DOMSource(doc);
-        StreamResult result = new StreamResult(new File(a_fileName));
-        transformer.transform(source, result);
+        transformer.transform(source, a_result);
     }
+
+
 
     private ExperimentRunner elementToRunner(Element a_runner, ListenerB a_listener) throws Exception {
         ExperimentRunner.RandomDoubleVariable initialSetSize = elementToRandomDouble(a_runner, "initialSetSize");
@@ -209,10 +237,12 @@ public class ExperimentXMLPersistence {
             ret = new NBMapperExperimentRun(useManualMapping, irData, wordcount, threshold);
         } else if (type.equals("hugme")) {
 
+            Map<dmDependency.Type, ExperimentRunner.RandomDoubleVariable> dw = elementToDependencyWeightsMap(a_exr);
             ExperimentRunner.RandomDoubleVariable omega = elementToRandomDouble(a_exr, "omega");
             ExperimentRunner.RandomDoubleVariable phi = elementToRandomDouble(a_exr, "phi");
 
-            ret = new HuGMeExperimentRun(useManualMapping, omega, phi);
+
+            ret = new HuGMeExperimentRun(useManualMapping, omega, phi, dw);
         } else if (type.equals("irattract")) {
             IRExperimentRunBase.Data irData = elementToIRData(a_exr);
             ret = new IRAttractExperimentRun(useManualMapping, irData);
@@ -231,6 +261,35 @@ public class ExperimentXMLPersistence {
         return ret;
     }
 
+    private Map<dmDependency.Type, ExperimentRunner.RandomDoubleVariable> elementToDependencyWeightsMap(Element a_exr) {
+
+        if (a_exr.getElementsByTagName("dependencyweights").getLength() != 1) {
+            return null;
+        }
+
+        Element weights = (Element)(a_exr.getElementsByTagName("dependencyweights").item(0));
+        Map<dmDependency.Type, ExperimentRunner.RandomDoubleVariable> ret = new HashMap<>();
+
+        for(dmDependency.Type dt : dmDependency.Type.values()) {
+            if (weights.getElementsByTagName(dt.toString()).getLength() == 1) {
+                ret.put(dt, elementToRandomDouble(weights, dt.toString()));
+            }
+        }
+
+        return ret;
+    }
+
+    private Element dependencyWeightsMapToElement(Document a_doc, Map<dmDependency.Type, ExperimentRunner.RandomDoubleVariable> a_dw) {
+        Element ret = a_doc.createElement("dependencyweights");
+
+        for(dmDependency.Type dt : dmDependency.Type.values()) {
+            if (a_dw.containsKey(dt)) {
+                ret.appendChild(randomDoubleToElement(a_doc, a_dw.get(dt), dt.toString()));
+            }
+        }
+
+        return ret;
+    }
 
 
     private boolean getBoolAttribute(Element a_parent, String a_attributeName) {
@@ -322,6 +381,9 @@ public class ExperimentXMLPersistence {
             HuGMeExperimentRun hugexr = (HuGMeExperimentRun)a_exr;
             exrNode.appendChild(randomDoubleToElement(a_doc, hugexr.getOmega(), "omega"));
             exrNode.appendChild(randomDoubleToElement(a_doc, hugexr.getPhi(), "phi"));
+            if (hugexr.getDependencyWeights() != null) {
+                exrNode.appendChild(dependencyWeightsMapToElement(a_doc, hugexr.getDependencyWeights()));
+            }
         } else if (a_exr instanceof IRAttractExperimentRun) {
             exrNode.setAttribute("type", "irattract");
             //IRAttractExperimentRun irexr = (IRAttractExperimentRun)a_exr;

@@ -19,7 +19,7 @@ public class SaveArch {
 
     public void run(CGraph a_g) throws IOException {
         ArchCreator ac = new ArchCreator();
-        SystemModelReader sr = ac.createSystemModel(m_arch, a_g.getNodes());
+        SystemModelReader sr = ac.createSystemModel(m_arch, a_g.getNodes(), "generated");
         sr.writeFile(m_file);
     }
 

@@ -35,21 +35,21 @@ client.scripts
 
 # mapping
 # <high_level_module> <regular_expression>
-common.util teammates.common.util.*
-common.exception teammates.common.exception.*
-common.dataTransfer teammates.common.datatransfer.*
-ui.automated teammates.ui.automated.*
-ui.controller teammates.ui.controller.*
-ui.view teammates.ui(!?(.datatransfer|.pagedata|.template)).*
-logic.core teammates.logic.core.*
-logic.api teammates.logic.api.*
-logic.backdoor teammates.logic.backdoor.*
-storage.entity teammates.storage.entity.*
-storage.api teammates.storage.api.*
-storage.search teammates.storage.search.*
-testDriver teammates.test.*
-client.remoteAPI teammates.client.remoteapi.*
-client.scripts teammates.client.scripts.*
+common.util teammates\.common\.util\.*
+common.exception teammates\.common\.exception\.*
+common.dataTransfer teammates\.common\.datatransfer\.*
+ui.automated teammates\.ui\.automated\.*
+ui.controller teammates\.ui\.controller\.*
+ui.view teammates\.ui(!?(\.datatransfer|\.pagedata|\.template))\.*
+logic.core teammates\.logic\.core\.*
+logic.api teammates\.logic\.api\.*
+logic.backdoor teammates\.logic\.backdoor\.*
+storage.entity teammates\.storage\.entity\.*
+storage.api teammates\.storage\.api\.*
+storage.search teammates\.storage\.search\.*
+testDriver teammates\.test\.*
+client.remoteAPI teammates\.client\.remoteapi\.*
+client.scripts teammates\.client\.scripts\.*
 
 # relations
 # <source_module> <target_module>

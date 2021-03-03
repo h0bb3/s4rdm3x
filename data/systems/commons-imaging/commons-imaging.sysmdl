@@ -35,27 +35,27 @@ palette
 
 # mapping
 # <high_level_module> <regular_expression>
-common org.apache.commons.imaging.common.*
-bmp org.apache.commons.imaging.formats.bmp.*
-dcx org.apache.commons.imaging.formats.dcx.*
-gif org.apache.commons.imaging.formats.gif.*
-icns org.apache.commons.imaging.formats.icns.*
-ico org.apache.commons.imaging.formats.ico.*
-jpeg org.apache.commons.imaging.formats.jpeg.*
-color org.apache.commons.imaging.color.*
-pcx org.apache.commons.imaging.formats.pcx.*
-png org.apache.commons.imaging.formats.png.*
-pnm org.apache.commons.imaging.formats.pnm.*
-psd org.apache.commons.imaging.formats.psd.*
-rgbe org.apache.commons.imaging.formats.rgbe.*
-tiff org.apache.commons.imaging.formats.tiff.*
-wbmp org.apache.commons.imaging.formats.wbmp.*
-xbm org.apache.commons.imaging.formats.xbm.*
-xpm org.apache.commons.imaging.formats.xpm.*
-icc org.apache.commons.imaging.formats.icc.*
-internal org.apache.commons.imaging.internal.*
-palette org.apache.commons.imaging.palette.*
-base org.apache.commons.imaging(?!(.common|.formats|.internal|.palette)).*
+common org\.apache\.commons\.imaging\.common\.*
+bmp org\.apache\.commons\.imaging\.formats\.bmp\.*
+dcx org\.apache\.commons\.imaging\.formats\.dcx\.*
+gif org\.apache\.commons\.imaging\.formats\.gif\.*
+icns org\.apache\.commons\.imaging\.formats\.icns\.*
+ico org\.apache\.commons\.imaging\.formats\.ico\.*
+jpeg org\.apache\.commons\.imaging\.formats\.jpeg\.*
+color org\.apache\.commons\.imaging\.color\.*
+pcx org\.apache\.commons\.imaging\.formats\.pcx\.*
+png org\.apache\.commons\.imaging\.formats\.png\.*
+pnm org\.apache\.commons\.imaging\.formats\.pnm\.*
+psd org\.apache\.commons\.imaging\.formats\.psd\.*
+rgbe org\.apache\.commons\.imaging\.formats\.rgbe\.*
+tiff org\.apache\.commons\.imaging\.formats\.tiff\.*
+wbmp org\.apache\.commons\.imaging\.formats\.wbmp\.*
+xbm org\.apache\.commons\.imaging\.formats\.xbm\.*
+xpm org\.apache\.commons\.imaging\.formats\.xpm\.*
+icc org\.apache\.commons\.imaging\.icc\.*
+internal org\.apache\.commons\.imaging\.internal\.*
+palette org\.apache\.commons\.imaging\.palette\.*
+base org\.apache\.commons\.imaging(?!(\.common|\.formats|\.internal|\.palette|\.color|\.icc))\.*
 
 # relations
 # <source_module> <target_module>

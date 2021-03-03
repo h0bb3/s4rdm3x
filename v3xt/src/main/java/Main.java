@@ -75,7 +75,7 @@ public class Main {
         }
 
         Vec2i pos = new Vec2i(30);
-        window = new GlfwWindow(1280, 720, "Visual 3xperiment Tool", NULL, pos, true);
+        window = new GlfwWindow(1280, 720, "Visual 3Xperiment Tool", NULL, pos, true);
         window.makeContextCurrent();
         //window.init(true);
 

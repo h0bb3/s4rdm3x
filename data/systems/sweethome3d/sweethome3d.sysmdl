@@ -20,15 +20,15 @@ sweetHome3DApplet
 sweetHome3DApplication
 # mapping
 # <high_level_module> <regular_expression>
-sweetHome3DModel com.eteks.sweethome3d.model.*
-sweetHome3DTools com.eteks.sweethome3d.tools.*
-sweetHome3DPlugin com.eteks.sweethome3d.plugin.*
-sweetHome3DViewController com.eteks.sweethome3d.viewcontroller.*
-sweetHome3DSwing com.eteks.sweethome3d.swing.*
-sweetHome3DJava3D com.eteks.sweethome3d.j3d.*
-sweetHome3DIO com.eteks.sweethome3d.io.*
-sweetHome3DApplet com.eteks.sweethome3d.applet.*
-sweetHome3DApplication com.eteks.sweethome3d(?!(.model|.tools|.plugin|.viewcontroller|.j3d|.io|.applet)).*
+sweetHome3DModel com\.eteks\.sweethome3d\.model\.*
+sweetHome3DTools com\.eteks\.sweethome3d\.tools\.*
+sweetHome3DPlugin com\.eteks\.sweethome3d\.plugin\.*
+sweetHome3DViewController com\.eteks\.sweethome3d\.viewcontroller\.*
+sweetHome3DSwing com\.eteks\.sweethome3d\.swing\.*
+sweetHome3DJava3D com\.eteks\.sweethome3d\.j3d\.*
+sweetHome3DIO com\.eteks\.sweethome3d\.io\.*
+sweetHome3DApplet com\.eteks\.sweethome3d\.applet\.*
+sweetHome3DApplication com\.eteks\.sweethome3d(?!(\.model|\.tools|\.plugin|\.viewcontroller|\.j3d|\.io|\.applet|\.*swing))\.*
 # relations
 # <source_module> <target_module>
 sweetHome3DTools sweetHome3DModel

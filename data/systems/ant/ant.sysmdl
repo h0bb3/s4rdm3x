@@ -30,22 +30,22 @@ mail
 bzip2
 # mapping
 # <high_level_module> <regular_expression>
-optional org.apache.tools.ant.taskdefs.optional.*	# no files match this
-compilers org.apache.tools.ant.taskdefs.compilers.*
-condition org.apache.tools.ant.taskdefs.condition.*
-rmic org.apache.tools.ant.taskdefs.rmic.*
-cvslib org.apache.tools.ant.taskdefs.cvslib.*
-email org.apache.tools.ant.taskdefs.email.*
-repository org.apache.tools.ant.taskdefs.repository.*	# no files match this
-taskdefs org.apache.tools.ant.taskdefs(?!(.optional|.compilers|.condition|.rmic|.cvslib|.email|.repository)).*
-listener org.apache.tools.ant.listener.*
-types org.apache.tools.ant.types.*
-ant org.apache.tools.ant(?!(.taskdefs|.listener|.types|.util|.filters|.helper|.input|.launch|.loader|.dispatch|.property)).*
-ant.util org.apache.tools.ant.util.*
-zip org.apache.tools.zip.*
-tar org.apache.tools.tar.*
-mail org.apache.tools.mail.*
-bzip2 org.apache.tools.bzip2.*
+optional org\.apache\.tools\.ant\.taskdefs\.optional\..*	# no files match this
+compilers org\.apache\.tools\.ant\.taskdefs\.compilers\..*
+condition org\.apache\.tools\.ant\.taskdefs\.condition\..*
+rmic org\.apache\.tools\.ant\.taskdefs\.rmic\..*
+cvslib org\.apache\.tools\.ant\.taskdefs\.cvslib\..*
+email org\.apache\.tools\.ant\.taskdefs\.email\..*
+repository org\.apache\.tools\.ant\.taskdefs\.repository\..*	# no files match this
+taskdefs org\.apache\.tools\.ant\.taskdefs(?!(\.optional|\.compilers|\.condition|\.rmic|\.cvslib|\.email|\.repository))\..*
+listener org\.apache\.tools\.ant\.listener\..*
+types org\.apache\.tools\.ant\.types\..*
+ant org\.apache\.tools\.ant(?!(\.taskdefs|\.listener|\.types|\.util|\.filters|\.helper|\.input|\.launch|\.loader|\.dispatch|\.property))\..*
+ant.util org\.apache\.tools\.ant\.util\..*
+zip org\.apache\.tools\.zip\..*
+tar org\.apache\.tools\.tar\..*
+mail org\.apache\.tools\.mail\..*
+bzip2 org\.apache\.tools\.bzip2\..*
 # relations
 # <source_module> <target_module>
 optional taskdefs

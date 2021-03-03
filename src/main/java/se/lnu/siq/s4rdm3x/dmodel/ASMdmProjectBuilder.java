@@ -52,6 +52,15 @@ public class ASMdmProjectBuilder extends ClassVisitor {
         m_doPrint = true;
     }
 
+    public ASMdmProjectBuilder(dmProject a_project) {
+        super(g_opcodes);
+
+        m_project = a_project;
+        m_currentClass = null;
+        m_tabs = 0;
+        m_doPrint = true;
+    }
+
     public void dontPrint() {
         m_doPrint = false;
     }
@@ -305,9 +314,13 @@ public class ASMdmProjectBuilder extends ClassVisitor {
                             m_currentClass.addText(name);
                         } else {
 
-                            println("Type.getType: " + Type.getType(desc).getClassName());
-                            addLocalVar(Type.getType(desc).getClassName(), index);
-                            m_currentClass.addText(name);
+                            if (name.charAt(name.length() - 1) == '$') {
+                                println("Skipping internal arr$ local variable");
+                            } else {
+                                println("Type.getType: " + Type.getType(desc).getClassName());
+                                addLocalVar(Type.getType(desc).getClassName(), index);
+                                m_currentClass.addText(name);
+                            }
                         }
                     } else {
                         println("Local Variable (skipped): " + desc + " " + name + " " + index);

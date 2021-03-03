@@ -2,14 +2,23 @@ package se.lnu.siq.s4rdm3x.model.cmd.util;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 
-public class    SystemModelReader {
+public class SystemModelReader {
     public static class Module {
+        public Module(String a_name) {
+            m_name = a_name;
+        }
         public String m_name;
     }
     public static class Mapping {
         public String m_moduleName;
         public String m_regexp;
+
+        public Mapping(String a_moduleName, String a_regexp) {
+            m_moduleName = a_moduleName;
+            m_regexp = a_regexp;
+        }
     }
     public static class Relation {
         public String m_moduleNameFrom;
@@ -22,6 +31,7 @@ public class    SystemModelReader {
     public ArrayList<Mapping> m_initialMappings = new ArrayList<>();    // this is a possible initial set of clustered nodes.
     public ArrayList<Relation> m_relations = new ArrayList<>();
     public String m_name = "undefined name";
+    public String m_id = "unknown id";  // This is a unique identifier of the model, i.e. possibly the file name, this is used to faciliate error messages and debugging.
     public ArrayList<String> m_jars = new ArrayList<>();
     public ArrayList<String> m_roots = new ArrayList<>();
     private String m_metrics = "undefined metrics file";
@@ -46,28 +56,27 @@ public class    SystemModelReader {
 
     private void handleLine(String a_line, Context a_context) {
         String splitter = "\\s+";   // split on any number of white space characters
+        String [] parts = a_line.split(splitter);
+
+        // remove possible empty first slot i.e. tabs in the beginning of the row
+        if ((parts[0] == null || parts[0].length() == 0)) {
+            parts = Arrays.copyOfRange(parts, 1, parts.length);
+        }
+        a_line = "don't use me there may be comments in the string use parts[0]";
         switch (a_context) {
             case Module: {
-                Module m = new Module();
-                m.m_name = a_line;
+                Module m = new Module(parts[0]);
                 m_modules.add(m);
             } break;
             case Mapping: {
-                String [] parts = a_line.split(splitter);
-                Mapping m = new Mapping();
-                m.m_moduleName = parts[0];
-                m.m_regexp = parts[1];
+                Mapping m = new Mapping(parts[0], parts[1]);
                 m_mappings.add(m);
             } break;
             case InitialMapping: {
-                String [] parts = a_line.split(splitter);
-                Mapping m = new Mapping();
-                m.m_moduleName = parts[0];
-                m.m_regexp = parts[1];
+                Mapping m = new Mapping(parts[0], parts[1]);
                 m_initialMappings.add(m);
             } break;
             case Relation: {
-                String [] parts = a_line.split(splitter);
                 Relation r = new Relation();
                 r.m_moduleNameFrom = parts[0];
                 r.m_moduleNameTo = parts[1];
@@ -75,22 +84,24 @@ public class    SystemModelReader {
                 m_relations.add(r);
             } break;
             case Name: {
-                m_name = a_line;
+                m_name = parts[0];
             } break;
             case Jar: {
-                m_jars.add(a_line);
+                m_jars.add(parts[0]);
             } break;
             case Roots: {
-                m_roots.add(a_line);
+                m_roots.add(parts[0]);
             } break;
             case Metrics: {
-                m_metrics = a_line;
+                m_metrics = parts[0];
             } break;
         }
     }
 
     public boolean readFile(String a_file) {
         Context context = Context.None;
+
+        m_id = a_file;
 
         try (BufferedReader br = new BufferedReader(new FileReader(a_file))) {
             String line;
@@ -125,6 +136,8 @@ public class    SystemModelReader {
     }
 
     public void writeFile(String a_file) throws IOException {
+
+        m_id = a_file;
 
         BufferedWriter bw = new BufferedWriter(new FileWriter(a_file));
 

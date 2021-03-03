@@ -3,9 +3,12 @@ package experimenting;
 import glm_.vec4.Vec4;
 import gui.ImGuiWrapper;
 import gui.JavaProperty;
+import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
 import se.lnu.siq.s4rdm3x.experiments.*;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import static experimenting.ExperimentRunnerViewThread.*;
 
@@ -23,6 +26,9 @@ public class MapperView {
     // hugme experiment parameters
     ExperimentRunner.RandomDoubleVariable m_omega = new ExperimentRunner.RandomDoubleVariable(0.5, 0.5);
     ExperimentRunner.RandomDoubleVariable m_phi = new ExperimentRunner.RandomDoubleVariable(0.5, 0.5);
+    boolean m_doUseDependencyWeights = false;
+    Map<dmDependency.Type, ExperimentRunner.RandomDoubleVariable> m_dependencyWeights = new HashMap<>();
+
     private int m_experimentIx;
     private String m_name = "";
     private Vec4 m_currentColor = new Vec4(0.75, 0.75, 0.75, 1);
@@ -53,10 +59,14 @@ public class MapperView {
         m_name = new String(a_toBeCopied.m_name);
         m_experimentIx = a_toBeCopied.m_experimentIx;
         m_useManualmapping = a_toBeCopied.m_useManualmapping;
+        m_doUseDependencyWeights = a_toBeCopied.m_doUseDependencyWeights;
+        for (dmDependency.Type dt : a_toBeCopied.m_dependencyWeights.keySet()) {
+            m_dependencyWeights.put(dt, new ExperimentRunner.RandomDoubleVariable(a_toBeCopied.m_dependencyWeights.get(dt)));
+        }
     }
 
     /**
-     * @param a_exr A new ExperimentRun the parameters of the MapperView shuld be set to match this new experiment.
+     * @param a_exr A new ExperimentRun the parameters of the MapperView should be set to match this new experiment.
      */
     void setExperiment(ExperimentRun a_exr) {
 
@@ -77,6 +87,13 @@ public class MapperView {
             HuGMeExperimentRun hugme = (HuGMeExperimentRun)a_exr;
             m_omega = hugme.getOmega();
             m_phi = hugme.getPhi();
+            m_dependencyWeights = new HashMap<>();
+            if (hugme.getDependencyWeights() != null) {
+                for (dmDependency.Type dt : hugme.getDependencyWeights().keySet()) {
+                    m_dependencyWeights.put(dt, new ExperimentRunner.RandomDoubleVariable(hugme.getDependencyWeights().get(dt)));
+                    m_doUseDependencyWeights = true;
+                }
+            }
             m_experimentIx = g_hugmemapper_ex;
         } else if (a_exr instanceof IRAttractExperimentRun) {
             m_experimentIx = g_irattract_ex;
@@ -142,6 +159,70 @@ public class MapperView {
                 } else if (m_experimentIx == g_hugmemapper_ex) {
                     m_omega = doRandomDoubleVariable(a_imgui, "Omega Threshold", m_omega);
                     m_phi = doRandomDoubleVariable(a_imgui, "Phi", m_phi);
+
+                    {
+                        boolean[] useDependencyWeights = {m_doUseDependencyWeights};
+                        if (a_imgui.imgui().checkbox("Use Dependency Weights##" + m_id, useDependencyWeights)) {
+                            m_doUseDependencyWeights = useDependencyWeights[0];
+                        }
+                    }
+
+
+
+                    if (!m_doUseDependencyWeights) {
+                        a_imgui.pushDisableWidgets();
+                    }
+
+                    a_imgui.imgui().indent(3);
+                    if (a_imgui.collapsingHeader("Dependency Weights##" + m_id, 0)) {
+
+                        for (dmDependency.Type dt : dmDependency.Type.values()) {
+                            ExperimentRunner.RandomDoubleVariable weight;
+                            if (m_dependencyWeights.containsKey(dt)) {
+                                weight = m_dependencyWeights.get(dt);
+                            } else {
+                                weight = new ExperimentRunner.RandomDoubleVariable(1.0, 0.0);
+                                m_dependencyWeights.put(dt, weight);
+                            }
+
+                            m_dependencyWeights.replace(dt, doRandomDoubleVariable(a_imgui, dt.toString(), weight, -1, 1));
+                        }
+
+                        if (a_imgui.button("Set to 0##" + m_id, 0)) {
+                            m_dependencyWeights.values().forEach(v -> v.set(0, 0));
+                        }
+
+                        a_imgui.sameLine(0);
+
+                        if (a_imgui.button("Set to 1##" + m_id, 0)) {
+                            m_dependencyWeights.values().forEach(v -> v.set(1, 0));
+                        }
+                        a_imgui.sameLine(0);
+                        if (a_imgui.button("Set to Paper##" + m_id, 0)) {
+                            // from Automated clustering to support the reflexion method
+                            // v, variable; m, method or routine; c, class; i, interface; t, type (including class and interface)
+                            //  m calls m 2
+                            //  m uses v 1
+                            //  m sets v 3          // I do not really know what this one is
+                            //  c implements i 1
+                            //  v of-type t 1
+                            //  m has-parameter-of-type t 1
+                            //  t inherits t 1
+
+                            m_dependencyWeights.values().forEach(v -> v.set(1.0/3, 0));
+                            m_dependencyWeights.get(dmDependency.Type.MethodCall).set(2.0/3, 0);
+                            m_dependencyWeights.get(dmDependency.Type.OwnFieldUse).set(3.0/3, 0);   // aproximates sets
+                            m_dependencyWeights.get(dmDependency.Type.FieldUse).set(3.0/3, 0);      // aproximates sets
+
+                        }
+                    }
+                    a_imgui.imgui().indent(-3);
+
+                    if (!m_doUseDependencyWeights) {
+                        a_imgui.popDisableWidgets();
+                    }
+
+
                 } else if (m_experimentIx == g_irattract_ex) {
                     // add parameters here
                 }
@@ -233,7 +314,11 @@ public class MapperView {
         if (m_experimentIx == g_nbmapper_ex) {
             m_experimentRun = new NBMapperExperimentRun(m_useManualmapping, m_irData, m_doWordCount, m_threshold);
         } else if (m_experimentIx == g_hugmemapper_ex) {
-            m_experimentRun = new HuGMeExperimentRun(m_useManualmapping, m_omega, m_phi);
+            if (m_doUseDependencyWeights) {
+                m_experimentRun = new HuGMeExperimentRun(m_useManualmapping, m_omega, m_phi, m_dependencyWeights);
+            } else {
+                m_experimentRun = new HuGMeExperimentRun(m_useManualmapping, m_omega, m_phi);
+            }
         } else if (m_experimentIx == g_irattract_ex) {
             m_experimentRun = new IRAttractExperimentRun(m_useManualmapping, m_irData);
         } else if ( m_experimentIx == g_lsiattract_ex) {

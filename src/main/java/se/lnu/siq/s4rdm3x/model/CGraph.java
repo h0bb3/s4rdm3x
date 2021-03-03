@@ -57,6 +57,16 @@ public class CGraph {
         return null;
     }
 
+    public CNode getNodeByName(String a_name) {
+        for (CNode n : m_nodes) {
+            if (n.getName().contentEquals(a_name)) {
+                return n;
+            }
+        }
+
+        return null;
+    }
+
     public CNode getNodeByLogicName(String a_logicName) {
         for (CNode n : m_nodes) {
             if (n.getLogicName().contentEquals(a_logicName)) {
