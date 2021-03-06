@@ -167,6 +167,11 @@ public class IRAttractMapper extends IRMapperBase {
         return ret;
     }
 
+    private Vector<WordVector> m_trainingData;
+    Vector<WordVector> getTrainingData() {
+        return m_trainingData;
+    }
+
     public void run(CGraph a_g) {
 
         ArrayList<OrphanNode> orphans = getOrphanNodes(a_g);
@@ -177,16 +182,16 @@ public class IRAttractMapper extends IRMapperBase {
 
         final double smoothing = 0.0;
 
-        Vector<WordVector> trainingData = getTrainingData(initiallyMapped, m_arch, stemmer);
-        for (WordVector wv : trainingData) {
+        m_trainingData = getTrainingData(initiallyMapped, m_arch, stemmer);
+        for (WordVector wv : m_trainingData) {
             for (String word : wv.getWords()) {
                 if (!wordDocumentFrequency.containsKey(word)) {
-                    Double f = getDocumentFrequency(word, trainingData);
+                    Double f = getDocumentFrequency(word, m_trainingData);
                     wordDocumentFrequency.put(word, f);
                 }
             }
         }
-        trainingData.forEach(wv -> wv.maximumTFNormalization(smoothing));
+        m_trainingData.forEach(wv -> wv.maximumTFNormalization(smoothing));
         //trainingData.forEach(wv -> wv.binaryTFNormalization());
         //trainingData.forEach(wv -> wv.wordCountTFNormalization());
         //trainingData.forEach(wv->wv.iDF(m_arch.getComponentCount(), wordDocumentFrequency));
@@ -212,7 +217,7 @@ public class IRAttractMapper extends IRMapperBase {
                 //words.binaryTFNormalization();
                 //words.wordCountTFNormalization();
                 //words.iDF(m_arch.getComponentCount(), wordDocumentFrequency);
-                attraction[i] = words.cosDistance(trainingData.get(i));
+                attraction[i] = words.cosDistance(m_trainingData.get(i));
             }
 
             orphanNode.setAttractions(attraction);
@@ -280,7 +285,7 @@ public class IRAttractMapper extends IRMapperBase {
         ret.forEach(wordVector -> wordVector.applyWeight(m_cdaWeight));
 
 
-        // add the node words and component nams to the mapped document of the node
+        // add the node words and component names to the mapped document of the node
         for (ClusteredNode n : a_nodes) {
             int cIx = a_arch.getComponentIx(n.getClusteredComponent());
             Vector<String> words = getWords(n.get(), a_stemmer);

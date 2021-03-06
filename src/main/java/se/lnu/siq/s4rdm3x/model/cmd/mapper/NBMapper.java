@@ -137,7 +137,6 @@ public class NBMapper extends IRMapperBase {
         nbClassifier = new Classifier();
 
         try {
-
             nbClassifier.buildClassifier(trainingData);
 
             adjustClassProbabilities(initiallyMapped, nbClassifier);
@@ -285,6 +284,24 @@ public class NBMapper extends IRMapperBase {
                 }
             }
         }
+
+        // add all possible cda word combinations - this is a test
+        // this will possibly give better use of the CDA terms as missing terms are not counted as 1 in the probabilities
+        // this does not work well given this implementation as it adds an instance to each class. A better implementation would just add the words to the
+        // vocabulary but currently this seems hard to do in weka.
+        /*if (doUseCDA()) {
+
+            for (ArchDef.Component fromC : a_arch.getComponents()) {
+                String allCdaCombos = "";
+                for (ArchDef.Component toC : a_arch.getComponents()) {
+                    for (dmDependency.Type dt : dmDependency.Type.values()) {
+                        allCdaCombos += getComponentComponentRelationString(fromC.getName(), dt, toC.getName()) + " ";
+                    }
+                }
+
+                data.add(createDenseInstance(features, 2, components.indexOf(fromC.getName()), allCdaCombos, 1.0));
+            }
+        }*/
 
         // add the node stuff
         String relations = "";
