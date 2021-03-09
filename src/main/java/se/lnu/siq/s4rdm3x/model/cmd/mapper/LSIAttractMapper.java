@@ -314,7 +314,7 @@ public class LSIAttractMapper extends IRMapperBase {
     public void runBittenCourt(CGraph a_g) {
 
         // Basically this is what I could get from the Bittencourt paper
-        // however it does not make sense from a mathematical point of view as typically LSI works on really large matrices i.e. many documents.
+        // however it is questionable as typically LSI works on really large matrices i.e. many documents.
         // more specifically the paper mentions:
         // "In this paper, we also investigate the utility of an attraction function based on LSI, called LSIAttract, that is based on a reduced vector space with one hundred dimensions.
         //
@@ -558,7 +558,9 @@ public class LSIAttractMapper extends IRMapperBase {
         if (a_words.length() > 0) {
             String[] words = a_words.split(" ");
             for (int i = 0; i < words.length; i++) {
-                a_target.add(words[i]);
+                if (words[i].length() > 0) {
+                    a_target.add(words[i]);
+                }
             }
         }
     }

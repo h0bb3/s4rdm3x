@@ -135,7 +135,7 @@ public class CommonsImagingDump extends DumpBase {
 				r.m_doUseNodeName = true;
 				r.m_doUseArchComponentName = false;
 				r.m_minWordSize = 2;
-				r.m_f1 = 0.21505376344086022;
+				r.m_f1 = 0.6;
 				r.m_doManualMapping = false;
 				break;
 			}
@@ -147,7 +147,7 @@ public class CommonsImagingDump extends DumpBase {
 				r.m_doUseNodeName = true;
 				r.m_doUseArchComponentName = false;
 				r.m_minWordSize = 2;
-				r.m_f1 = 0.21505376344086022;
+				r.m_f1 = 0.6;
 				r.m_doManualMapping = false;
 				break;
 			}
@@ -159,7 +159,7 @@ public class CommonsImagingDump extends DumpBase {
 				r.m_doUseNodeName = true;
 				r.m_doUseArchComponentName = false;
 				r.m_minWordSize = 2;
-				r.m_f1 = 0.4587155963302752;
+				r.m_f1 = 0.6;
 				r.m_doManualMapping = false;
 				break;
 			}
@@ -177,7 +177,7 @@ public class CommonsImagingDump extends DumpBase {
 				r.m_doUseNodeName = true;
 				r.m_doUseArchComponentName = false;
 				r.m_minWordSize = 2;
-				r.m_f1 = 0.13333333333333333;
+				r.m_f1 = 0.21505376344086022;
 				r.m_doManualMapping = false;
 				break;
 			}
@@ -189,7 +189,7 @@ public class CommonsImagingDump extends DumpBase {
 				r.m_doUseNodeName = true;
 				r.m_doUseArchComponentName = false;
 				r.m_minWordSize = 2;
-				r.m_f1 = 0.13333333333333333;
+				r.m_f1 = 0.21505376344086022;
 				r.m_doManualMapping = false;
 				break;
 			}
@@ -201,7 +201,7 @@ public class CommonsImagingDump extends DumpBase {
 				r.m_doUseNodeName = true;
 				r.m_doUseArchComponentName = false;
 				r.m_minWordSize = 1;
-				r.m_f1 = 0.4038461538461538;
+				r.m_f1 = 0.4587155963302752;
 				r.m_doManualMapping = false;
 				break;
 			}

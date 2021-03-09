@@ -183,6 +183,28 @@ public class IRAttractMapper extends IRMapperBase {
         final double smoothing = 0.0;
 
         m_trainingData = getTrainingData(initiallyMapped, m_arch, stemmer);
+
+
+        // Bittencourt mentions "relative term weights" in the paper but there is no real definition to what is meant
+        // as the normalized cos distance is ued most normalziation schemes has no real effect using the document relative term weights i.e. dividing by the max term weight per document has no effect.
+        // it is specifically mentioned that tf-idf is NOT used.
+
+        // makes the term weights relative to the max term weight in the whole training data.
+        // this has no real effect
+        //double maxTermFrequency = 0;
+        /*for(WordVector wv : m_trainingData) {
+            double maxWVTermFrequency = wv.getMaxTermFrequency();
+            if (maxTermFrequency < maxWVTermFrequency) {
+                maxTermFrequency = maxWVTermFrequency;
+            }
+        }
+        final double invMaxTermFrequency = 1.0 / maxTermFrequency;
+        m_trainingData.forEach(wv -> wv.applyWeight(invMaxTermFrequency));*/
+
+        // m_trainingData.forEach(wv -> wv.maximumTFNormalization(smoothing)); - this actually does nothing as the normalized cos distance is used.
+        //m_trainingData.forEach(wv -> wv.binaryTFNormalization());
+        //m_trainingData.forEach(wv -> wv.wordCountTFNormalization());
+
         for (WordVector wv : m_trainingData) {
             for (String word : wv.getWords()) {
                 if (!wordDocumentFrequency.containsKey(word)) {
@@ -191,10 +213,7 @@ public class IRAttractMapper extends IRMapperBase {
                 }
             }
         }
-        m_trainingData.forEach(wv -> wv.maximumTFNormalization(smoothing));
-        //trainingData.forEach(wv -> wv.binaryTFNormalization());
-        //trainingData.forEach(wv -> wv.wordCountTFNormalization());
-        //trainingData.forEach(wv->wv.iDF(m_arch.getComponentCount(), wordDocumentFrequency));
+        m_trainingData.forEach(wv->wv.iDF(m_arch.getComponentCount(), wordDocumentFrequency));
 
 
 
@@ -213,10 +232,11 @@ public class IRAttractMapper extends IRMapperBase {
                     names.forEach(w -> words.add(w));
                 });
 
-                words.maximumTFNormalization(smoothing);
+                //words.applyWeight(invMaxTermFrequency);
+                //words.maximumTFNormalization(smoothing); this does nothing as the normalized cosine distance is used.
                 //words.binaryTFNormalization();
                 //words.wordCountTFNormalization();
-                //words.iDF(m_arch.getComponentCount(), wordDocumentFrequency);
+                words.iDF(m_arch.getComponentCount(), wordDocumentFrequency);
                 attraction[i] = words.cosDistance(m_trainingData.get(i));
             }
 
