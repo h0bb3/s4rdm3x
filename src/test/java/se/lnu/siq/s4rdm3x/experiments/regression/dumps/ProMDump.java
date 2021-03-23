@@ -159,7 +159,7 @@ public class ProMDump extends DumpBase {
 				r.m_doUseNodeName = true;
 				r.m_doUseArchComponentName = true;
 				r.m_minWordSize = 1;
-				r.m_f1 = 0.8333333333333334;
+				r.m_f1 = 0.8484848484848486;
 				r.m_doManualMapping = false;
 				break;
 			}
