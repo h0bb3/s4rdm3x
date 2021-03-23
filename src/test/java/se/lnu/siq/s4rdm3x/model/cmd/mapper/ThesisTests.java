@@ -87,10 +87,10 @@ public class ThesisTests {
       Vector<IRAttractMapper.WordVector> sutTD = sut.getTrainingData();
       CNode o = g.getNodeByName("o");
 
-      //assertEquals(2.0/3 / (Math.sqrt(2) * Math.sqrt(11.0/9)), o.getAttractions()[0], 0.000001);
-      //assertEquals(3.0/3 / (Math.sqrt(2) * Math.sqrt(2)), o.getAttractions()[1], 0.000001);
-      //assertEquals(0, o.getAttractions()[2], 0.000001);
-      //assertEquals(0, o.getAttractions()[3], 0.000001);
+      assertEquals(2.0/3 / (Math.sqrt(2) * Math.sqrt(11.0/9)), o.getAttractions()[0], 0.000001);
+      assertEquals(3.0/3 / (Math.sqrt(2) * Math.sqrt(2)), o.getAttractions()[1], 0.000001);
+      assertEquals(0, o.getAttractions()[2], 0.000001);
+      assertEquals(0, o.getAttractions()[3], 0.000001);
 
    }
 
