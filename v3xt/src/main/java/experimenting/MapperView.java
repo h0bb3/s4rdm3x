@@ -99,6 +99,8 @@ public class MapperView {
             m_experimentIx = g_irattract_ex;
         } else if (a_exr instanceof LSIAttractExperimentRun) {
             m_experimentIx = g_lsiattract_ex;
+        } else if (a_exr instanceof NNMapperExperimentRun) {
+            m_experimentIx = g_nnmapper_ex;
         }
 
         m_name = a_exr.getName();
@@ -134,7 +136,7 @@ public class MapperView {
             a_imgui.imgui().colorEdit3("Plot Color##" + m_id, m_currentColor, 0);
 
             {
-                String[] experiments = {"Naive Bayes Mapping", "HuGMe", "IRAttract", "LSIAttract"};
+                String[] experiments = {"Naive Bayes Mapping", "HuGMe", "IRAttract", "LSIAttract", "Naive Name Mapping"};
                 int[] exIx = {m_experimentIx};
                 if (a_imgui.imgui().combo("Experiment Type" + "##" + m_id, exIx, Arrays.asList(experiments), experiments.length)) {
                     m_experimentIx = exIx[0];
@@ -323,6 +325,8 @@ public class MapperView {
             m_experimentRun = new IRAttractExperimentRun(m_useManualmapping, m_irData);
         } else if ( m_experimentIx == g_lsiattract_ex) {
             m_experimentRun = new LSIAttractExperimentRun(m_useManualmapping, m_irData);
+        } else if (m_experimentIx == g_nnmapper_ex) {
+            m_experimentRun = new NNMapperExperimentRun(m_useManualmapping);
         }
 
         m_experimentRun.setName(getName());

@@ -9,54 +9,54 @@ com.eteks.sweethome3d.
 
 
 # modules
-sweetHome3DModel
-sweetHome3DTools
-sweetHome3DPlugin
-sweetHome3DViewController
-sweetHome3DSwing
-sweetHome3DJava3D
-sweetHome3DIO
-sweetHome3DApplet
-sweetHome3DApplication
+model
+tools
+plugin
+viewcontroller
+swing
+j3d
+io
+applet
+sweetHome3d
 # mapping
 # <high_level_module> <regular_expression>
-sweetHome3DModel com\.eteks\.sweethome3d\.model\.*
-sweetHome3DTools com\.eteks\.sweethome3d\.tools\.*
-sweetHome3DPlugin com\.eteks\.sweethome3d\.plugin\.*
-sweetHome3DViewController com\.eteks\.sweethome3d\.viewcontroller\.*
-sweetHome3DSwing com\.eteks\.sweethome3d\.swing\.*
-sweetHome3DJava3D com\.eteks\.sweethome3d\.j3d\.*
-sweetHome3DIO com\.eteks\.sweethome3d\.io\.*
-sweetHome3DApplet com\.eteks\.sweethome3d\.applet\.*
-sweetHome3DApplication com\.eteks\.sweethome3d(?!(\.model|\.tools|\.plugin|\.viewcontroller|\.j3d|\.io|\.applet|\.*swing))\.*
+model com\.eteks\.sweethome3d\.model\.*
+tools com\.eteks\.sweethome3d\.tools\.*
+plugin com\.eteks\.sweethome3d\.plugin\.*
+viewcontroller com\.eteks\.sweethome3d\.viewcontroller\.*
+swing com\.eteks\.sweethome3d\.swing\.*
+j3d com\.eteks\.sweethome3d\.j3d\.*
+io com\.eteks\.sweethome3d\.io\.*
+applet com\.eteks\.sweethome3d\.applet\.*
+sweetHome3d com\.eteks\.sweethome3d(?!(\.model|\.tools|\.plugin|\.viewcontroller|\.j3d|\.io|\.applet|\.*swing))\.*
 # relations
 # <source_module> <target_module>
-sweetHome3DTools sweetHome3DModel
-sweetHome3DPlugin sweetHome3DModel
-sweetHome3DPlugin sweetHome3DTools
-sweetHome3DViewController sweetHome3DModel
-sweetHome3DViewController sweetHome3DTools
-sweetHome3DViewController sweetHome3DPlugin
-sweetHome3DJava3D sweetHome3DModel
-sweetHome3DJava3D sweetHome3DTools
-sweetHome3DSwing sweetHome3DModel
-sweetHome3DSwing sweetHome3DTools
-sweetHome3DSwing sweetHome3DPlugin
-sweetHome3DSwing sweetHome3DViewController
-sweetHome3DSwing sweetHome3DJava3D
-sweetHome3DIO sweetHome3DModel
-sweetHome3DIO sweetHome3DTools
-sweetHome3DApplet sweetHome3DModel
-sweetHome3DApplet sweetHome3DTools
-sweetHome3DApplet sweetHome3DPlugin
-sweetHome3DApplet sweetHome3DViewController
-sweetHome3DApplet sweetHome3DJava3D
-sweetHome3DApplet sweetHome3DSwing
-sweetHome3DApplet sweetHome3DIO
-sweetHome3DApplication sweetHome3DModel
-sweetHome3DApplication sweetHome3DTools
-sweetHome3DApplication sweetHome3DPlugin
-sweetHome3DApplication sweetHome3DViewController
-sweetHome3DApplication sweetHome3DJava3D
-sweetHome3DApplication sweetHome3DSwing
-sweetHome3DApplication sweetHome3DIO
+tools model
+plugin model
+plugin tools
+viewcontroller model
+viewcontroller tools
+viewcontroller plugin
+j3d model
+j3d tools
+swing model
+swing tools
+swing plugin
+swing viewcontroller
+swing j3d
+io model
+io tools
+applet model
+applet tools
+applet plugin
+applet viewcontroller
+applet j3d
+applet swing
+applet io
+sweetHome3d model
+sweetHome3d tools
+sweetHome3d plugin
+sweetHome3d viewcontroller
+sweetHome3d j3d
+sweetHome3d swing
+sweetHome3d io

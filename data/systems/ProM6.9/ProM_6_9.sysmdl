@@ -11,28 +11,28 @@ ProM-Plugins-6.9.67.jar
 org/processmining/
 
 # modules
-prom.framework
-prom.domain.contexts
-prom.domain.models
-prom.domain.plugins
+framework
+contexts
+models
+plugins
 #prom.packages
 #log
 #apacheutils
 
 # mapping
 # <high_level_module> <regular_expression>
-prom.framework org\.processmining\.framework\.*
-prom.domain.contexts org\.processmining\.contexts\.*
-prom.domain.models org\.processmining\.models\.*
-prom.domain.plugins org\.processmining\.plugins\.*
+framework org\.processmining\.framework\.*
+contexts org\.processmining\.contexts\.*
+models org\.processmining\.models\.*
+plugins org\.processmining\.plugins\.*
 
 # relations
 # <source_module> <target_module>
-prom.domain.contexts prom.framework
-prom.domain.models prom.framework
-prom.domain.plugins prom.framework
-prom.domain.plugins prom.domain.contexts
-prom.domain.plugins prom.domain.models
+contexts framework
+models framework
+plugins framework
+plugins contexts
+plugins models
 #prom.packages prom.framework
 #prom.packages prom.domain.plugins
 #prom.packages prom.domain.contexts
@@ -43,15 +43,15 @@ prom.domain.plugins prom.domain.models
 
 
 # initial mapping
-prom.framework org.processmining.framework.plugin.PluginManager
-prom.framework org.processmining.framework.providedobjects.ProvidedObjectManager
-prom.framework org.processmining.framework.packages.PackageManager
-prom.framework org.processmining.framework.GenericPluginContext
-prom.domain.contexts org.processmining.contexts.uitopia.UIPluginContext
-prom.domain.contexts org.processmining.contexts.uitopia.hub.ProMResourceManager
-prom.domain.contexts org.processmining.contexts.uitopia.hub.ProMActionManager
-prom.domain.contexts org.processmining.contexts.UI
-prom.domain.models org.processmining.models.graphbased.directed.AbstractDirectedGraph
-prom.domain.plugins org.processmining.plugins.ShowPackageOverviewPlugin
+framework org.processmining.framework.plugin.PluginManager
+framework org.processmining.framework.providedobjects.ProvidedObjectManager
+framework org.processmining.framework.packages.PackageManager
+framework org.processmining.framework.GenericPluginContext
+contexts org.processmining.contexts.uitopia.UIPluginContext
+contexts org.processmining.contexts.uitopia.hub.ProMResourceManager
+contexts org.processmining.contexts.uitopia.hub.ProMActionManager
+contexts org.processmining.contexts.UI
+models org.processmining.models.graphbased.directed.AbstractDirectedGraph
+plugins org.processmining.plugins.ShowPackageOverviewPlugin
 #prom.packages org.processmining.framework.impl.AbstractPluginContext
 

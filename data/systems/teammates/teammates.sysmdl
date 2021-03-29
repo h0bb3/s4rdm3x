@@ -26,7 +26,7 @@ logic.backdoor
 storage.entity
 storage.api
 storage.search
-testDriver
+test
 #testDriver.pageobjects
 #testDriver.cases
 #testDriver.cases.browsertests
@@ -47,14 +47,14 @@ logic.backdoor teammates\.logic\.backdoor\.*
 storage.entity teammates\.storage\.entity\.*
 storage.api teammates\.storage\.api\.*
 storage.search teammates\.storage\.search\.*
-testDriver teammates\.test\.*
+test teammates\.test\.*
 client.remoteAPI teammates\.client\.remoteapi\.*
 client.scripts teammates\.client\.scripts\.*
 
 # relations
 # <source_module> <target_module>
-testDriver client.remoteAPI
-testDriver client.scripts
+test client.remoteAPI
+test client.scripts
 
 client.remoteAPI common.util
 client.remoteAPI common.exception
@@ -65,10 +65,10 @@ client.scripts common.dataTransfer
 client.scripts client.remoteAPI
 client.scripts logic.backdoor
 
-testDriver common.util
-testDriver common.exception
-testDriver common.dataTransfer
-testDriver logic.backdoor
+test common.util
+test common.exception
+test common.dataTransfer
+test logic.backdoor
 
 ui.automated common.util
 ui.automated common.exception

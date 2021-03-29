@@ -81,6 +81,10 @@ public class ExperimentRunData {
         }*/
     }
 
+    public static class NaiveNameData extends BasicRunData {
+        // we don't have any parameters for this one...
+    }
+
     public static class HuGMEData extends BasicRunData {
         public double m_omega;                      // specific for HuGMe
         public double m_phi;                     // specific for HuGMe

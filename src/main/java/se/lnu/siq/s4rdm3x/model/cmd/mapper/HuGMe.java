@@ -104,8 +104,6 @@ public class HuGMe extends MapperBase {
         for (OrphanNode n : candidates) {
             double attractions[] = new double[m_arch.getComponentCount()];
             for (int i = 0; i < m_arch.getComponentCount(); i++) {
-                // TODO: Implement weights for different types of relations
-                //attractions[i] = CountAttract(n, clusters.get(i));
                 attractions[i] = CountAttractP(n, i, clusters);
             }
             n.setAttractions(attractions);

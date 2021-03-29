@@ -16,8 +16,8 @@ application
 diagrams
 notation
 explorer
-codeGeneration
-reverseEngineering
+language	# codeGeneration
+reveng		# reverseEngineering
 persistence
 profile
 help
@@ -30,7 +30,7 @@ configuration
 swingExtensions
 ocl
 critics
-javaCodeGeneration
+java	# javaCodeGeneration
 
 #profile, help, taskManagement, configuration do not exist in the mapping.
 
@@ -40,9 +40,9 @@ application org\.argouml\.application(?!(\.api|\.modules))\.*
 diagrams org\.argouml\.uml\.diagram\.*
 notation org\.argouml\.notation\.*
 explorer org\.argouml\.ui\.explorer\.*
-javaCodeGeneration org\.argouml\.language\.java\.*
-codeGeneration org\.argouml\.language(?!(\.java))\.*
-reverseEngineering org\.argouml\.uml\.reveng\.*
+java org\.argouml\.language\.java\.*
+language org\.argouml\.language(?!(\.java))\.*
+reveng org\.argouml\.uml\.reveng\.*
 persistence org\.argouml\.persistence\.*
 profile org\.argouml\.profile\.*
 help org\.argouml\.help\.*
@@ -61,8 +61,8 @@ critics org\.argouml\.cognitive\.*
 application diagrams
 application notation
 application explorer
-application codeGeneration
-application reverseEngineering
+application language
+application reveng
 application persistence
 application profile
 application help
@@ -75,7 +75,7 @@ application configuration
 application swingExtensions
 application ocl
 application critics
-application javaCodeGeneration
+application java
 diagrams notation
 diagrams gui
 diagrams model
@@ -94,17 +94,17 @@ explorer internationalization
 explorer taskManagement
 explorer configuration
 explorer swingExtensions
-codeGeneration moduleLoader
-codeGeneration model
-codeGeneration internationalization
-codeGeneration taskManagement
-codeGeneration configuration
-codeGeneration swingExtensions
-reverseEngineering model
-reverseEngineering internationalization
-reverseEngineering taskManagement
-reverseEngineering configuration
-reverseEngineering swingExtensions
+language moduleLoader
+language model
+language internationalization
+language taskManagement
+language configuration
+language swingExtensions
+reveng model
+reveng internationalization
+reveng taskManagement
+reveng configuration
+reveng swingExtensions
 persistence model
 persistence internationalization
 persistence taskManagement
@@ -129,10 +129,10 @@ gui internationalization
 gui taskManagement
 gui configuration
 gui swingExtensions
-javaCodeGeneration codeGeneration
-javaCodeGeneration reverseEngineering
-javaCodeGeneration moduleLoader
-javaCodeGeneration model
+java language
+java reveng
+java moduleLoader
+java model
 ocl moduleLoader
 ocl model
 critics moduleLoader

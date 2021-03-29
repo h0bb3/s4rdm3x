@@ -23,7 +23,7 @@ taskdefs
 listener
 types
 ant
-ant.util
+util
 zip
 tar
 mail
@@ -41,7 +41,7 @@ taskdefs org\.apache\.tools\.ant\.taskdefs(?!(\.optional|\.compilers|\.condition
 listener org\.apache\.tools\.ant\.listener\..*
 types org\.apache\.tools\.ant\.types\..*
 ant org\.apache\.tools\.ant(?!(\.taskdefs|\.listener|\.types|\.util|\.filters|\.helper|\.input|\.launch|\.loader|\.dispatch|\.property))\..*
-ant.util org\.apache\.tools\.ant\.util\..*
+util org\.apache\.tools\.ant\.util\..*
 zip org\.apache\.tools\.zip\..*
 tar org\.apache\.tools\.tar\..*
 mail org\.apache\.tools\.mail\..*
@@ -52,7 +52,7 @@ optional taskdefs
 optional listener
 optional types
 optional ant
-optional ant.util
+optional util
 optional zip
 optional tar
 optional mail
@@ -61,7 +61,7 @@ compilers taskdefs
 compilers listener
 compilers types
 compilers ant
-compilers ant.util
+compilers util
 compilers zip
 compilers tar
 compilers mail
@@ -70,7 +70,7 @@ condition taskdefs
 condition listener
 condition types
 condition ant
-condition ant.util
+condition util
 condition zip
 condition tar
 condition mail
@@ -79,7 +79,7 @@ rmic taskdefs
 rmic listener
 rmic types
 rmic ant
-rmic ant.util
+rmic util
 rmic zip
 rmic tar
 rmic mail
@@ -88,7 +88,7 @@ cvslib taskdefs
 cvslib listener
 cvslib types
 cvslib ant
-cvslib ant.util
+cvslib util
 cvslib zip
 cvslib tar
 cvslib mail
@@ -97,7 +97,7 @@ email taskdefs
 email listener
 email types
 email ant
-email ant.util
+email util
 email zip
 email tar
 email mail
@@ -106,7 +106,7 @@ repository taskdefs
 repository listener
 repository types
 repository ant
-repository ant.util
+repository util
 repository zip
 repository tar
 repository mail
@@ -114,19 +114,19 @@ repository bzip2
 taskdefs listener
 taskdefs types
 taskdefs ant
-taskdefs ant.util
+taskdefs util
 taskdefs zip
 taskdefs tar
 taskdefs mail
 taskdefs bzip2
 listener ant
-listener ant.util
+listener util
 listener zip
 listener tar
 listener mail
 listener bzip2
 types ant
-types ant.util
+types util
 types zip
 types tar
 types mail
@@ -135,9 +135,9 @@ ant zip
 ant tar
 ant mail
 ant bzip2
-ant ant.util
-ant.util zip
-ant.util tar
-ant.util mail
-ant.util bzip2
-ant.util ant
+ant util
+util zip
+util tar
+util mail
+util bzip2
+util ant

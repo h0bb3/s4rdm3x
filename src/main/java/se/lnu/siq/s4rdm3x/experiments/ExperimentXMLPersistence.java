@@ -241,7 +241,6 @@ public class ExperimentXMLPersistence {
             ExperimentRunner.RandomDoubleVariable omega = elementToRandomDouble(a_exr, "omega");
             ExperimentRunner.RandomDoubleVariable phi = elementToRandomDouble(a_exr, "phi");
 
-
             ret = new HuGMeExperimentRun(useManualMapping, omega, phi, dw);
         } else if (type.equals("irattract")) {
             IRExperimentRunBase.Data irData = elementToIRData(a_exr);
@@ -251,6 +250,8 @@ public class ExperimentXMLPersistence {
             IRExperimentRunBase.Data irData = elementToIRData(a_exr);
             ret = new LSIAttractExperimentRun(useManualMapping, irData);
 
+        } else if (type.equals("nnmapper")) {
+            ret = new NNMapperExperimentRun(useManualMapping);
         } else {
             throw new Exception("Unknown mapping experiment: " + type);
         }
@@ -389,6 +390,8 @@ public class ExperimentXMLPersistence {
             //IRAttractExperimentRun irexr = (IRAttractExperimentRun)a_exr;
         } else if (a_exr instanceof LSIAttractExperimentRun) {
             exrNode.setAttribute("type", "lsiattract");
+        } else if (a_exr instanceof NNMapperExperimentRun) {
+            exrNode.setAttribute("type", "nnmapper");
         }
 
         // Here we save the IRBase data
