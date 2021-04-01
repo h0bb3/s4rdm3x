@@ -10,6 +10,29 @@ import static org.junit.jupiter.api.Assertions.*;
 class statsTest {
 
     @Test
+    void typeValue() {
+        ArrayList<Integer> in = new ArrayList<>();
+        in.add(3);
+        assertEquals(3, stats.getTypeValue(in));
+
+        in.clear();
+        in.add(2);in.add(3);in.add(3);
+        assertEquals(3, stats.getTypeValue(in));
+
+        in.clear();
+        in.add(3);in.add(2);in.add(3);
+        assertEquals(3, stats.getTypeValue(in));
+
+        in.clear();
+        in.add(2);in.add(1);in.add(3);
+        assertEquals(1, stats.getTypeValue(in));
+
+        in.clear();
+        in.add(2);in.add(1);in.add(3);;in.add(1);
+        assertEquals(1, stats.getTypeValue(in));
+    }
+
+    @Test
     void variance() {
         assertEquals(28.333333333333332, stats.variance(new double[]{1, 3, 4, 7, 17, 10}));
         assertEquals(0, stats.variance(new double[]{6, 6, 6, 6, 6, 6}));

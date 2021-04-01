@@ -45,6 +45,10 @@ public class MapperBase {
         m_arch = a_arch;
     }
 
+    public void clearAutoClusterings() {
+        m_autoClusteredOrphans.clear();
+    }
+
 
     public static class DependencyWeights {
         Map<dmDependency.Type, Double> m_weights = new HashMap<>();

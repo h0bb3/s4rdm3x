@@ -27,9 +27,9 @@ storage.entity
 storage.api
 storage.search
 test
-#testDriver.pageobjects
-#testDriver.cases
-#testDriver.cases.browsertests
+#test.pageobjects
+#test.cases
+#test.cases.browsertests
 client.remoteAPI
 client.scripts
 

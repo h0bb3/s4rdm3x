@@ -13,7 +13,7 @@ import java.util.Random;
  */
 public class NBMapperExperimentRun extends IRExperimentRunBase {
 
-    private ExperimentRunData.NBMapperData m_exData;
+    protected ExperimentRunData.NBMapperData m_exData;
 
     RandomBoolVariable m_doWordCount;
     ExperimentRunner.RandomDoubleVariable m_threshold;

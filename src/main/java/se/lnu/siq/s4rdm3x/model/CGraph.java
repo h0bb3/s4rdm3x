@@ -91,4 +91,13 @@ public class CGraph {
     public void removeNode(CNode a_node) {
         m_nodes.remove(a_node);
     }
+
+    // creates a new graph with a copy of all nodes
+    public CGraph cloneNodes() {
+       CGraph ret = new CGraph();
+
+       m_nodes.forEach(n -> ret.m_nodes.add(new CNode(n)));
+
+       return ret;
+    }
 }

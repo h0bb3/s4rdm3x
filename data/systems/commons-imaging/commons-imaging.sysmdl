@@ -11,7 +11,7 @@ org/apache/commons/imaging/
 #commons-imaging-file-metrics.csv
 
 # modules
-base
+imaging
 color
 common
 bmp
@@ -55,32 +55,32 @@ xpm org\.apache\.commons\.imaging\.formats\.xpm\.*
 icc org\.apache\.commons\.imaging\.icc\.*
 internal org\.apache\.commons\.imaging\.internal\.*
 palette org\.apache\.commons\.imaging\.palette\.*
-base org\.apache\.commons\.imaging(?!(\.common|\.formats|\.internal|\.palette|\.color|\.icc))\.*
+imaging org\.apache\.commons\.imaging(?!(\.common|\.formats|\.internal|\.palette|\.color|\.icc))\.*
 
 # relations
 # <source_module> <target_module>
 
-base base
-base bmp
-base gif
-base jpeg
-base png
-base psd
-base tiff
-bmp base
+imaging imaging
+imaging bmp
+imaging gif
+imaging jpeg
+imaging png
+imaging psd
+imaging tiff
+bmp imaging
 bmp jpeg
-common base
-jpeg base
+common imaging
+jpeg imaging
 jpeg common
 jpeg gif
 jpeg jpeg
 jpeg tiff
-png base
-psd base
+png imaging
+psd imaging
 psd gif
 psd jpeg
 psd psd
-tiff base
+tiff imaging
 tiff common
 tiff gif
 tiff jpeg

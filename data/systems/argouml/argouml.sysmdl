@@ -13,7 +13,7 @@ org/argouml/
 
 # modules
 application
-diagrams
+diagram
 notation
 explorer
 language	# codeGeneration
@@ -22,22 +22,22 @@ persistence
 profile
 help
 moduleLoader
-gui
+ui
 model
-internationalization
-taskManagement
+i18n
+taskmgmt
 configuration
-swingExtensions
+swingext
 ocl
-critics
+cognitive
 java	# javaCodeGeneration
 
-#profile, help, taskManagement, configuration do not exist in the mapping.
+#profile, help, taskmgmt, configuration do not exist in the mapping.
 
 # mapping
 # <high_level_module> <regular_expression>
 application org\.argouml\.application(?!(\.api|\.modules))\.*
-diagrams org\.argouml\.uml\.diagram\.*
+diagram org\.argouml\.uml\.diagram\.*
 notation org\.argouml\.notation\.*
 explorer org\.argouml\.ui\.explorer\.*
 java org\.argouml\.language\.java\.*
@@ -47,18 +47,18 @@ persistence org\.argouml\.persistence\.*
 profile org\.argouml\.profile\.*
 help org\.argouml\.help\.*
 moduleLoader org\.argouml\.moduleloader|org\.argouml\.application\.modules|org\.argouml\.application\.api
-gui org\.argouml\.ui(?!(\.explorer))\.*
+ui org\.argouml\.ui(?!(\.explorer))\.*
 model org\.argouml\.model\.*
-internationalization org\.argouml\.i18n\.*
-taskManagement org\.argouml\.taskmgmt\.*
+i18n org\.argouml\.i18n\.*
+taskmgmt org\.argouml\.taskmgmt\.*
 configuration org\.argouml\.configuration\.*
-swingExtensions org\.argouml\.swingext\.*
+swingext org\.argouml\.swingext\.*
 ocl org\.argouml\.ocl\.*
-critics org\.argouml\.cognitive\.*
+cognitive org\.argouml\.cognitive\.*
 
 # relations
 # <source_module> <target_module>
-application diagrams
+application diagram
 application notation
 application explorer
 application language
@@ -67,73 +67,73 @@ application persistence
 application profile
 application help
 application moduleLoader
-application gui
+application ui
 application model
-application internationalization
-application taskManagement
+application i18n
+application taskmgmt
 application configuration
-application swingExtensions
+application swingext
 application ocl
-application critics
+application cognitive
 application java
-diagrams notation
-diagrams gui
-diagrams model
-diagrams internationalization
-diagrams taskManagement
-diagrams configuration
-diagrams swingExtensions
+diagram notation
+diagram ui
+diagram model
+diagram i18n
+diagram taskmgmt
+diagram configuration
+diagram swingext
 notation model
-notation internationalization
-notation taskManagement
+notation i18n
+notation taskmgmt
 notation configuration
-notation swingExtensions
-explorer gui
+notation swingext
+explorer ui
 explorer model
-explorer internationalization
-explorer taskManagement
+explorer i18n
+explorer taskmgmt
 explorer configuration
-explorer swingExtensions
+explorer swingext
 language moduleLoader
 language model
-language internationalization
-language taskManagement
+language i18n
+language taskmgmt
 language configuration
-language swingExtensions
+language swingext
 reveng model
-reveng internationalization
-reveng taskManagement
+reveng i18n
+reveng taskmgmt
 reveng configuration
-reveng swingExtensions
+reveng swingext
 persistence model
-persistence internationalization
-persistence taskManagement
+persistence i18n
+persistence taskmgmt
 persistence configuration
-persistence swingExtensions
+persistence swingext
 profile model
-profile internationalization
-profile taskManagement
+profile i18n
+profile taskmgmt
 profile configuration
-profile swingExtensions
+profile swingext
 help model
-help internationalization
-help taskManagement
+help i18n
+help taskmgmt
 help configuration
-help swingExtensions
+help swingext
 moduleLoader model
-moduleLoader internationalization
-moduleLoader taskManagement
+moduleLoader i18n
+moduleLoader taskmgmt
 moduleLoader configuration
-moduleLoader swingExtensions
-gui internationalization
-gui taskManagement
-gui configuration
-gui swingExtensions
+moduleLoader swingext
+ui i18n
+ui taskmgmt
+ui configuration
+ui swingext
 java language
 java reveng
 java moduleLoader
 java model
 ocl moduleLoader
 ocl model
-critics moduleLoader
-critics model
+cognitive moduleLoader
+cognitive model
