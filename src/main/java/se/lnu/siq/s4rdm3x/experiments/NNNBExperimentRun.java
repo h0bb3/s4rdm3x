@@ -92,7 +92,7 @@ public class NNNBExperimentRun extends NBMapperExperimentRun {
          }
 
          m_exData.m_totalManuallyClustered += c.m_manuallyMappedNodes;
-         m_exData.m_totalAutoWrong  += c.m_autoWrong;
+         m_exData.m_totalAutoWrong  += autoWrong;
          m_exData.m_totalFailedClusterings  += c.m_failedMappings;
 
          m_exData.m_initialClusteringPercent = c.getAutoClusteredOrphanCount() / (double)m_exData.m_totalMapped;

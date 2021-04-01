@@ -57,11 +57,11 @@ public class NaiveNameMatcher extends MapperBase {
    public void run(CGraph a_g) {
       ArrayList<OrphanNode> unmapped = getOrphanNodes(a_g);
 
-      StringTreeNode root = new StringTreeNode();
+      //StringTreeNode root = new StringTreeNode();
 
-      for (OrphanNode o : unmapped) {
-         root.add(o);
-      }
+      //for (OrphanNode o : unmapped) {
+      //   root.add(o);
+      //}
 
 
       for (OrphanNode o : unmapped) {
