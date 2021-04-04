@@ -98,17 +98,21 @@ public abstract class IRMapperBase extends MapperBase {
     }
 
     /**
-     * @param a_c component to words from (currently only name)
+     * @param a_c component to get words from (name and keywords)
      * @param a_stemmer stemmer to use (null if none)
      * @return a list of component words separated by space, de-camel-cased and stemmed
      */
     protected String getArchComponentWords(ArchDef.Component a_c, Stemmer a_stemmer) {
-        String ret = "";
+        StringBuilder ret = new StringBuilder();
         if (m_doUseArchComponentName) {
-            ret = deCamelCase(a_c.getName(), 0, a_stemmer);
+            ret.append(deCamelCase(a_c.getName(), 0, a_stemmer));
+            for(String kw : a_c.getKeywords()) {
+                ret.append(deCamelCase(kw, 0, a_stemmer));
+            }
+
         }
 
-        return ret;
+        return ret.toString();
     }
 
     /**

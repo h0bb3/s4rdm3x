@@ -67,10 +67,8 @@ public class NNNBExperimentRun extends NBMapperExperimentRun {
          System.out.println("precision: " + (double)tp / (double)(tp + fp));
          System.out.println("recall: " + (double)tp / (double)(tp + fn));
 
-         // this actually seems to be good enough for a starting set.
-         // we could try to improve further by actually removing some stuff.
 
-         return true;
+         return false;
       } else {
 
          NBMapper c = new NBMapper(arch, doUseManualMapping(), m_exData.m_doUseCDA, m_exData.m_doUseNodeText, m_exData.m_doUseNodeName, m_exData.m_doUseArchComponentName, m_exData.m_minWordSize, null, m_thresholdValue);
