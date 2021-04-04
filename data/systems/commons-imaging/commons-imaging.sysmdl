@@ -14,21 +14,21 @@ org/apache/commons/imaging/
 imaging
 color
 common
-bmp
-dcx
-gif
-icns
-ico
-jpeg
-pcx
-png
-pnm
-psd
-rgbe
-tiff
-wbmp
-xbm
-xpm
+formats.bmp
+formats.dcx
+formats.gif
+formats.icns
+formats.ico
+formats.jpeg
+formats.pcx
+formats.png
+formats.pnm
+formats.psd
+formats.rgbe
+formats.tiff
+formats.wbmp
+formats.xbm
+formats.xpm
 icc
 internal
 palette
@@ -36,22 +36,22 @@ palette
 # mapping
 # <high_level_module> <regular_expression>
 common org\.apache\.commons\.imaging\.common\.*
-bmp org\.apache\.commons\.imaging\.formats\.bmp\.*
-dcx org\.apache\.commons\.imaging\.formats\.dcx\.*
-gif org\.apache\.commons\.imaging\.formats\.gif\.*
-icns org\.apache\.commons\.imaging\.formats\.icns\.*
-ico org\.apache\.commons\.imaging\.formats\.ico\.*
-jpeg org\.apache\.commons\.imaging\.formats\.jpeg\.*
+formats.bmp org\.apache\.commons\.imaging\.formats\.bmp\.*
+formats.dcx org\.apache\.commons\.imaging\.formats\.dcx\.*
+formats.gif org\.apache\.commons\.imaging\.formats\.gif\.*
+formats.icns org\.apache\.commons\.imaging\.formats\.icns\.*
+formats.ico org\.apache\.commons\.imaging\.formats\.ico\.*
+formats.jpeg org\.apache\.commons\.imaging\.formats\.jpeg\.*
 color org\.apache\.commons\.imaging\.color\.*
-pcx org\.apache\.commons\.imaging\.formats\.pcx\.*
-png org\.apache\.commons\.imaging\.formats\.png\.*
-pnm org\.apache\.commons\.imaging\.formats\.pnm\.*
-psd org\.apache\.commons\.imaging\.formats\.psd\.*
-rgbe org\.apache\.commons\.imaging\.formats\.rgbe\.*
-tiff org\.apache\.commons\.imaging\.formats\.tiff\.*
-wbmp org\.apache\.commons\.imaging\.formats\.wbmp\.*
-xbm org\.apache\.commons\.imaging\.formats\.xbm\.*
-xpm org\.apache\.commons\.imaging\.formats\.xpm\.*
+formats.pcx org\.apache\.commons\.imaging\.formats\.pcx\.*
+formats.png org\.apache\.commons\.imaging\.formats\.png\.*
+formats.pnm org\.apache\.commons\.imaging\.formats\.pnm\.*
+formats.psd org\.apache\.commons\.imaging\.formats\.psd\.*
+formats.rgbe org\.apache\.commons\.imaging\.formats\.rgbe\.*
+formats.tiff org\.apache\.commons\.imaging\.formats\.tiff\.*
+formats.wbmp org\.apache\.commons\.imaging\.formats\.wbmp\.*
+formats.xbm org\.apache\.commons\.imaging\.formats\.xbm\.*
+formats.xpm org\.apache\.commons\.imaging\.formats\.xpm\.*
 icc org\.apache\.commons\.imaging\.icc\.*
 internal org\.apache\.commons\.imaging\.internal\.*
 palette org\.apache\.commons\.imaging\.palette\.*
@@ -61,27 +61,27 @@ imaging org\.apache\.commons\.imaging(?!(\.common|\.formats|\.internal|\.palette
 # <source_module> <target_module>
 
 imaging imaging
-imaging bmp
-imaging gif
-imaging jpeg
-imaging png
-imaging psd
-imaging tiff
-bmp imaging
-bmp jpeg
+imaging formats.bmp
+imaging formats.gif
+imaging formats.jpeg
+imaging formats.png
+imaging formats.psd
+imaging formats.tiff
+formats.bmp imaging
+formats.bmp formats.jpeg
 common imaging
-jpeg imaging
-jpeg common
-jpeg gif
-jpeg jpeg
-jpeg tiff
-png imaging
-psd imaging
-psd gif
-psd jpeg
-psd psd
-tiff imaging
-tiff common
-tiff gif
-tiff jpeg
-tiff tiff
+formats.jpeg imaging
+formats.jpeg common
+formats.jpeg formats.gif
+formats.jpeg formats.jpeg
+formats.jpeg formats.tiff
+formats.png imaging
+formats.psd imaging
+formats.psd formats.gif
+formats.psd formats.jpeg
+formats.psd formats.psd
+formats.tiff imaging
+formats.tiff common
+formats.tiff formats.gif
+formats.tiff formats.jpeg
+formats.tiff formats.tiff
