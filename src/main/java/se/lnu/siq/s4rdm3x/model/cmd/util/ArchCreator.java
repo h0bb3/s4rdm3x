@@ -84,7 +84,7 @@ public class ArchCreator {
         ArchDef arch = new ArchDef();
 
         for (SystemModelReader.Module module : a_model.m_modules) {
-            arch.addComponent(module.m_name);
+            arch.addComponent(module.m_name, module.m_keyWords);
         }
 
         for (SystemModelReader.Relation relation : a_model.m_relations) {

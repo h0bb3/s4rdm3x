@@ -14,24 +14,25 @@ test.teammates.
 
 
 # modules
-common.util
-common.exception
-common.dataTransfer
-ui.automated
-ui.controller
-ui.view
-logic.core
-logic.api
-logic.backdoor
-storage.entity
-storage.api
-storage.search
-test
-#test.pageobjects
-#test.cases
-#test.cases.browsertests
-client.remoteAPI
-client.scripts
+common.util				util				
+common.exception		exception
+common.dataTransfer		datatransfer
+ui.automated			automated
+ui.controller			controller
+ui.view					ui page
+logic.core				core
+logic.api				logic api
+logic.backdoor			backdoor
+storage.entity			entity
+storage.api				storage api
+storage.search			search
+testDriver				test test
+client.remoteAPI		remoteapi
+client.scripts			scripts scripts
+
+#testDriver.pageobjects
+#testDriver.cases
+#testDriver.cases.browsertests
 
 # mapping
 # <high_level_module> <regular_expression>
@@ -47,14 +48,14 @@ logic.backdoor teammates\.logic\.backdoor\.*
 storage.entity teammates\.storage\.entity\.*
 storage.api teammates\.storage\.api\.*
 storage.search teammates\.storage\.search\.*
-test teammates\.test\.*
+testDriver teammates\.test\.*
 client.remoteAPI teammates\.client\.remoteapi\.*
 client.scripts teammates\.client\.scripts\.*
 
 # relations
 # <source_module> <target_module>
-test client.remoteAPI
-test client.scripts
+testDriver client.remoteAPI
+testDriver client.scripts
 
 client.remoteAPI common.util
 client.remoteAPI common.exception
@@ -65,10 +66,10 @@ client.scripts common.dataTransfer
 client.scripts client.remoteAPI
 client.scripts logic.backdoor
 
-test common.util
-test common.exception
-test common.dataTransfer
-test logic.backdoor
+testDriver common.util
+testDriver common.exception
+testDriver common.dataTransfer
+testDriver logic.backdoor
 
 ui.automated common.util
 ui.automated common.exception

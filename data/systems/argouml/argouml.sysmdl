@@ -12,128 +12,130 @@ org/argouml/
 #argouml-file-metrics.csv
 
 # modules
-application
-diagram
-notation
-explorer
-language	# codeGeneration
-reveng		# reverseEngineering
-persistence
-profile
-help
-moduleLoader.api
-ui
-model
-i18n
-taskmgmt
-configuration
-swingext
-ocl
-cognitive
-java	# javaCodeGeneration
+application				application application
+diagrams				diagram diagram
+notation				notation
+explorer				explorer
+codeGeneration			language language language code generation 
+javaCodeGeneration		language code generation java java
+reverseEngineering		reveng reveng reveng
+persistence				persistence
+moduleLoader			moduleloader modules module api api
+gui						ui
+model					model
+internationalization	i18n
+swingExtensions			swingext
+ocl						ocl
+critics					cognitive cognitive
 
-#profile, help, taskmgmt, configuration do not exist in the mapping.
+taskManagement			taskmgmt							# nothing mapped to this one
+configuration			configuration						# nothing mapped to this one
+profile					profile								# nothing mapped to this one
+help					help								# nothing mapped to this one
+
+
+#profile, help, taskManagement, configuration do not exist in the mapping.
 
 # mapping
 # <high_level_module> <regular_expression>
-application org\.argouml\.application(?!(\.api|\.modules))\.*
-diagram org\.argouml\.uml\.diagram\.*
+application org\.argouml\.application(?!(\.api)|(.modules))\.*\.*
+diagrams org\.argouml\.uml\.diagram\.*
 notation org\.argouml\.notation\.*
 explorer org\.argouml\.ui\.explorer\.*
-java org\.argouml\.language\.java\.*
-language org\.argouml\.language(?!(\.java))\.*
-reveng org\.argouml\.uml\.reveng\.*
+javaCodeGeneration org\.argouml\.language\.java\.*
+codeGeneration org\.argouml\.language(?!(\.java))\.*
+reverseEngineering org\.argouml\.uml\.reveng\.*
 persistence org\.argouml\.persistence\.*
 profile org\.argouml\.profile\.*
 help org\.argouml\.help\.*
-moduleLoader.api org\.argouml\.moduleloader|org\.argouml\.application\.modules|org\.argouml\.application\.api
-ui org\.argouml\.ui(?!(\.explorer))\.*
+moduleLoader org\.argouml\.moduleloader|org\.argouml\.application\.modules|org\.argouml\.application\.api
+gui org\.argouml\.ui(?!(\.explorer))\.*
 model org\.argouml\.model\.*
-i18n org\.argouml\.i18n\.*
-taskmgmt org\.argouml\.taskmgmt\.*
+internationalization org\.argouml\.i18n\.*
+taskManagement org\.argouml\.taskmgmt\.*
 configuration org\.argouml\.configuration\.*
-swingext org\.argouml\.swingext\.*
+swingExtensions org\.argouml\.swingext\.*
 ocl org\.argouml\.ocl\.*
-cognitive org\.argouml\.cognitive\.*
+critics org\.argouml\.cognitive\.*
 
 # relations
 # <source_module> <target_module>
-application diagram
+application diagrams
 application notation
 application explorer
-application language
-application reveng
+application codeGeneration
+application reverseEngineering
 application persistence
 application profile
 application help
-application moduleLoader.api
-application ui
+application moduleLoader
+application gui
 application model
-application i18n
-application taskmgmt
+application internationalization
+application taskManagement
 application configuration
-application swingext
+application swingExtensions
 application ocl
-application cognitive
-application java
-diagram notation
-diagram ui
-diagram model
-diagram i18n
-diagram taskmgmt
-diagram configuration
-diagram swingext
+application critics
+application javaCodeGeneration
+diagrams notation
+diagrams gui
+diagrams model
+diagrams internationalization
+diagrams taskManagement
+diagrams configuration
+diagrams swingExtensions
 notation model
-notation i18n
-notation taskmgmt
+notation internationalization
+notation taskManagement
 notation configuration
-notation swingext
-explorer ui
+notation swingExtensions
+explorer gui
 explorer model
-explorer i18n
-explorer taskmgmt
+explorer internationalization
+explorer taskManagement
 explorer configuration
-explorer swingext
-language moduleLoader.api
-language model
-language i18n
-language taskmgmt
-language configuration
-language swingext
-reveng model
-reveng i18n
-reveng taskmgmt
-reveng configuration
-reveng swingext
+explorer swingExtensions
+codeGeneration moduleLoader
+codeGeneration model
+codeGeneration internationalization
+codeGeneration taskManagement
+codeGeneration configuration
+codeGeneration swingExtensions
+reverseEngineering model
+reverseEngineering internationalization
+reverseEngineering taskManagement
+reverseEngineering configuration
+reverseEngineering swingExtensions
 persistence model
-persistence i18n
-persistence taskmgmt
+persistence internationalization
+persistence taskManagement
 persistence configuration
-persistence swingext
+persistence swingExtensions
 profile model
-profile i18n
-profile taskmgmt
+profile internationalization
+profile taskManagement
 profile configuration
-profile swingext
+profile swingExtensions
 help model
-help i18n
-help taskmgmt
+help internationalization
+help taskManagement
 help configuration
-help swingext
-moduleLoader.api model
-moduleLoader.api i18n
-moduleLoader.api taskmgmt
-moduleLoader.api configuration
-moduleLoader.api swingext
-ui i18n
-ui taskmgmt
-ui configuration
-ui swingext
-java language
-java reveng
-java moduleLoader.api
-java model
-ocl moduleLoader.api
+help swingExtensions
+moduleLoader model
+moduleLoader internationalization
+moduleLoader taskManagement
+moduleLoader configuration
+moduleLoader swingExtensions
+gui internationalization
+gui taskManagement
+gui configuration
+gui swingExtensions
+javaCodeGeneration codeGeneration
+javaCodeGeneration reverseEngineering
+javaCodeGeneration moduleLoader
+javaCodeGeneration model
+ocl moduleLoader
 ocl model
-cognitive moduleLoader.api
-cognitive model
+critics moduleLoader
+critics model

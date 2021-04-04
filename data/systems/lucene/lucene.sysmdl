@@ -11,13 +11,13 @@ org.apache.lucene
 #lucene-file-metrics.csv
 
 # modules
-queryparser
-search
-index
-store
-analysis
-util
-document
+queryparser queryparser
+search search
+index index
+store store
+analysis analysis
+util util
+document document
 # mapping
 # <high_level_module> <regular_expression>
 queryparser org\.apache\.lucene\.queryParser\.*

@@ -11,10 +11,10 @@ ProM-Plugins-6.9.67.jar
 org/processmining/
 
 # modules
-framework
-contexts
-models
-plugins
+framework	framework
+contexts	contexts
+models		models
+plugins		plugins
 #prom.packages
 #log
 #apacheutils

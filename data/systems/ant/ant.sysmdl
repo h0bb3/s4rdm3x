@@ -11,23 +11,26 @@ org.apache.tools
 # metrics file
 #ant-file-metrics.csv
 
-# modules
-optional	# no mappings exist for this one
-compilers
-condition
-rmic
-cvslib
-email
-repository	# no mappings exist for this one
-taskdefs
-listener
-types
-ant
-util
-zip
-tar
-mail
-bzip2
+# modules [keyword keyword]
+
+optional optional			# no mappings exist for this one
+repository	repository		# no mappings exist for this one
+
+compilers compiler compiler compilers compilers
+condition condition
+rmic rmic
+cvslib cvslib 
+email email
+taskdefs taskdefs
+listener listener
+types types
+ant ant
+util util
+zip zip
+tar tar
+mail mail
+bzip2 bzip2
+
 # mapping
 # <high_level_module> <regular_expression>
 optional org\.apache\.tools\.ant\.taskdefs\.optional\..*	# no files match this

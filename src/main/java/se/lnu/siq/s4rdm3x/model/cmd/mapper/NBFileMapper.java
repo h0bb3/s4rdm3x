@@ -11,6 +11,7 @@ import weka.core.stemmers.Stemmer;
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.StringToWordVector;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -80,6 +81,7 @@ public class NBFileMapper {
         m_filter.setOutputWordCounts(false);
         m_filter.setTFTransform(false);
         m_filter.setIDFTransform(false);
+        m_filter.setOutputWordCounts(true);
         setMappingThreshold(a_mappingThreshold);
     }
 
@@ -245,19 +247,27 @@ public class NBFileMapper {
         }
     }
 
+    List<String> getWords(Iterable<String> a_words, Stemmer a_stemmer, int a_tupleSize) {
+        ArrayList<String> words = new ArrayList<>();
+
+        a_words.forEach(w -> words.add(w));
+
+        return getWords(words, a_stemmer, a_tupleSize);
+    }
+
     List<String> getWords(List<String> a_words, Stemmer a_stemmer, int a_tupleSize) {
         List<String> ret = createTuples(a_words, 1);
 
-        if (a_tupleSize > 1 && a_words.size() > 1) {
-            ret.addAll(createTuples(a_words, a_tupleSize));
-        }
+        //if (a_tupleSize > 1 && a_words.size() > 1) {
+        //    ret.addAll(createTuples(a_words, a_tupleSize));
+        //}
 
         return ret;
     }
 
-    private String toString(List<String> a_words, String a_delimeter) {
+    private String toString(List<String> a_words, String a_delimiter) {
         StringBuilder b = new StringBuilder();
-        for (int i = 0; i < a_words.size(); i++, b.append(a_delimeter)) {
+        for (int i = 0; i < a_words.size(); i++, b.append(a_delimiter)) {
             b.append(a_words.get(i));
         }
 
@@ -290,9 +300,9 @@ public class NBFileMapper {
     }
 
     private List<String> getNodeWords(CNode a_node, Stemmer a_stemmer, int a_tupleSize) {
-        List<String> parts = Arrays.asList(a_node.getLogicName().split("\\."));
-        List<String> fileNameParts = deCamelCase(parts.get(parts.size() - 1), 0, a_stemmer);
-        parts = getWords(parts, a_stemmer, a_tupleSize);
+        List<String> nameParts = Arrays.asList(a_node.getLogicName().split("\\."));
+        List<String> fileNameParts = deCamelCase(nameParts.get(nameParts.size() - 1), 0, a_stemmer);
+        List<String> parts = getWords(nameParts, a_stemmer, a_tupleSize);
 
         // the last part is special as it is the filename, we could use deCamelCasing for this
 
@@ -306,11 +316,19 @@ public class NBFileMapper {
             parts.addAll(fileNameParts);
         }
 
+        // now we add extra words for each step in the file path. i.e lower level words will be counted more
+        for (int i = 1; i < nameParts.size() - 1; i++) {
+            for (int j = i; j < nameParts.size() - 1; j++) {
+                parts.add(nameParts.get(j));
+            }
+        }
+
         return parts;
     }
 
     private List<String> getArchComponentWords(ArchDef.Component c, Stemmer a_stemmer, int a_tupleSize) {
-        return getWords(Arrays.asList(c.getName().toLowerCase().split("\\.")), a_stemmer, a_tupleSize);
+        //return getWords(Arrays.asList(c.getName().toLowerCase().split("\\.")), a_stemmer, a_tupleSize);
+        return getWords(c.getKeywords(), a_stemmer, a_tupleSize);
     }
 
     private List<String> createTuples(List<String> a_parts, int a_size) {

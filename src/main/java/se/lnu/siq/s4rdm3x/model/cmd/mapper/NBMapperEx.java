@@ -19,10 +19,11 @@ import java.util.List;
 public class NBMapperEx extends IRMapperBase {
 
     private boolean m_addRawArchitectureTrainingData = false;
-    private Classifier nbClassifier;
+    private Classifier m_nbClassifier;
+    private SnowballStemmer m_stemmer;
 
     public Classifier getClassifier() {
-        return nbClassifier;
+        return m_nbClassifier;
     }
 
 
@@ -105,6 +106,36 @@ public class NBMapperEx extends IRMapperBase {
         return m_filter;
     }
 
+    public void buildClassifier(CGraph a_g) {
+        ArrayList<ClusteredNode> initiallyMapped = getInitiallyMappedNodes(a_g);
+
+        m_stemmer = null;
+        if (m_doStemm) {
+            m_stemmer = new weka.core.stemmers.SnowballStemmer();
+            do {
+                try {
+                    Thread.sleep(100);
+                } catch (Exception e) {
+
+                }
+            } while (!(m_stemmer).stemmerTipText().contains("english"));  // when using multiple threads this is apparently needed...
+        }
+
+        weka.core.Instances trainingData = getTrainingData(initiallyMapped, m_arch, getFilter(), m_stemmer);
+
+
+        // avg 23% wrong
+        m_nbClassifier = new Classifier();
+        try {
+            m_nbClassifier.buildClassifier(trainingData);
+            adjustClassProbabilities(initiallyMapped, m_nbClassifier);
+        } catch (Exception e) {
+            System.out.println(e.toString());
+            e.printStackTrace();
+        }
+
+    }
+
     public void run(CGraph a_g) {
 
         // get the mapped nodes
@@ -117,29 +148,9 @@ public class NBMapperEx extends IRMapperBase {
         ArrayList<OrphanNode> orphans = getOrphanNodes(a_g);
         ArrayList<ClusteredNode> initiallyMapped = getInitiallyMappedNodes(a_g);
 
-        weka.core.stemmers.Stemmer stemmer = null;
-        if (m_doStemm) {
-            stemmer = new weka.core.stemmers.SnowballStemmer();
-            do {
-                try {
-                    Thread.sleep(100);
-                } catch (Exception e) {
-
-                }
-            } while (!((SnowballStemmer) stemmer).stemmerTipText().contains("english"));  // when using multiple threads this is apparently needed...
-        }
-
-        weka.core.Instances trainingData = getTrainingData(initiallyMapped, m_arch, getFilter(), stemmer);
 
         m_consideredNodes = orphans.size();
-
-        // avg 23% wrong
-        nbClassifier = new Classifier();
-
         try {
-            nbClassifier.buildClassifier(trainingData);
-
-            adjustClassProbabilities(initiallyMapped, nbClassifier);
 
             //System.out.print(" the expression for the input data as per algorithm is ");
             //System.out.println(nbClassifier);
@@ -149,11 +160,9 @@ public class NBMapperEx extends IRMapperBase {
 
                 for (int i = 0; i < m_arch.getComponentCount(); i++) {
 //                    double index = nbClassifier.classifyInstance(data.instance(i));
-                    Instances data = getPredictionDataForNode(orphanNode, initiallyMapped, m_arch.getComponentNames(), m_arch.getComponent(i), getFilter(), stemmer);
+                    Instances data = getPredictionDataForNode(orphanNode, initiallyMapped, m_arch.getComponentNames(), m_arch.getComponent(i), getFilter(), m_stemmer);
 
-
-
-                    double [] distribution = nbClassifier.distributionForInstance(data.instance(0));
+                    double [] distribution = m_nbClassifier.distributionForInstance(data.instance(0));
                     /*System.out.print("[");
                     for (int dIx = 0; dIx < distribution.length; dIx++) {
                         System.out.print(distribution[dIx] + " ");
