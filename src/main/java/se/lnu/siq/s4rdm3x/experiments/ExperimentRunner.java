@@ -70,6 +70,10 @@ public class ExperimentRunner {
         return m_suas.size();
     }
 
+    public boolean canRun() {
+        return !(m_suas.size() < 1 || m_experiments.size() < 1);
+    }
+
 
     public enum State {
       Running,
@@ -261,6 +265,7 @@ public class ExperimentRunner {
     public interface RunListener {
         public ExperimentRunData.BasicRunData OnRunInit(ExperimentRunData.BasicRunData a_rd, CGraph a_g, ArchDef a_arch);
         public void OnRunCompleted(ExperimentRunData.BasicRunData a_rd, CGraph a_g, ArchDef a_arch, ExperimentRun a_source);
+        public void onExperimentEnd();
     }
 
     public void setRunListener(RunListener a_listener) {
@@ -268,6 +273,16 @@ public class ExperimentRunner {
     }
 
     public void run(CGraph a_g) {
+
+        // do we have anything to analyze?
+        if (!canRun()) {
+            m_currentState = State.Idle;
+            m_state = State.Idle;
+            if (m_listener != null) {
+                m_listener.onExperimentEnd();
+            }
+            return;
+        }
 
         class GraphArchitecturePair {
             public CGraph m_g;
@@ -443,6 +458,10 @@ public class ExperimentRunner {
         }
 
         m_currentState = State.Idle;
+
+        if (m_listener != null) {
+            m_listener.onExperimentEnd();
+        }
     }
 
 
