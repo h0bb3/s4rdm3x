@@ -110,6 +110,13 @@ class ExperimentRunnerViewThread extends Thread {
                     }
 
                 }
+
+                @Override
+                public void onExperimentEnd() {
+                    m_experiment = null;
+                }
+
+
             });
 
 
@@ -589,7 +596,11 @@ class ExperimentRunnerViewThread extends Thread {
         //m_fs = new RunFileSaver(m_sua.getName(), m_metric.getName(), m_doSaveMappings);
 
         //m_exr.setRunListener(m_fs);
-        m_experiment.run(graph);
+        if (m_experiment.canRun()) {
+            m_experiment.run(graph);
+        } else {
+            m_experiment = null;
+        }
     }
 
     public ExperimentRunner.State getExState() {

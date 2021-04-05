@@ -135,6 +135,11 @@ public class RunFileSaver implements ExperimentRunner.RunListener {
         m_runCount++;
     }
 
+    @Override
+    public void onExperimentEnd() {
+
+    }
+
     private void writeHeader() {
         try {
             m_saver.writeHeader();

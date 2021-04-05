@@ -95,7 +95,7 @@ public class CGraph {
     public int getNodeCount() {
        return m_nodes.size();
     }
-    
+
     // creates a new graph with a copy of all nodes
     public CGraph cloneNodes() {
        CGraph ret = new CGraph();
