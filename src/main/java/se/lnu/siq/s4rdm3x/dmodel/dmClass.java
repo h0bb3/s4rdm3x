@@ -11,6 +11,8 @@ public class dmClass {
 
     public double get;
 
+
+
     public static class Method {
 
         static class DependencyLine {
@@ -161,6 +163,10 @@ public class dmClass {
         } else {
             return fileName.substring(0, m_name.indexOf('$')) + ".java";
         }
+    }
+
+    public String[] getFileNameParts() {
+        return getFileName().split("/");
     }
 
     public boolean isInner() {

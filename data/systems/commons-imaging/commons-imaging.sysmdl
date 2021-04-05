@@ -11,27 +11,27 @@ org/apache/commons/imaging/
 #commons-imaging-file-metrics.csv
 
 # modules
-base
-color
-common
-bmp
-dcx
-gif
-icns
-ico
-jpeg
-pcx
-png
-pnm
-psd
-rgbe
-tiff
-wbmp
-xbm
-xpm
-icc
-internal
-palette
+base imaging
+color color
+common common
+bmp bmp
+dcx dcx
+gif gif
+icns icns
+ico ico
+jpeg jpeg
+pcx pcx
+png png
+pnm pnm
+psd psd
+rgbe rgbe
+tiff tiff
+wbmp wbmp
+xbm xbm
+xpm xpm
+icc icc
+internal internal
+palette palette
 
 # mapping
 # <high_level_module> <regular_expression>

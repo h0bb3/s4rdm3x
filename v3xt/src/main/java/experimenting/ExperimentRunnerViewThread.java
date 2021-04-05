@@ -33,6 +33,8 @@ class ExperimentRunnerViewThread extends Thread {
     static final int g_hugmemapper_ex = 1;
     static final int g_irattract_ex = 2;
     static final int g_lsiattract_ex = 3;
+    static final int g_nnmapper_ex = 4;
+    static final int g_nnnbmapper_ex = 5;
     int m_experimentIx = 0;
 
 

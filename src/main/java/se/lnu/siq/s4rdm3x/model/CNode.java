@@ -282,6 +282,11 @@ public class CNode {
     public String getFileName() {
         return m_classes.get(0).getFileName();
     }
+
+    public String[] getFileNameParts() {
+        return m_classes.get(0).getFileNameParts();
+    }
+
     public String getName() { return m_name; }
 
     public Iterable<dmClass> getClasses() {

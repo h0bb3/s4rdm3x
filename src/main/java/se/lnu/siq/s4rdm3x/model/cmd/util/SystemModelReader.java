@@ -7,9 +7,10 @@ import java.util.Arrays;
 public class SystemModelReader {
     public static class Module {
         public Module(String a_name) {
-            m_name = a_name;
+            m_name = a_name;m_keyWords = new ArrayList<>();
         }
         public String m_name;
+        public ArrayList<String> m_keyWords;
     }
     public static class Mapping {
         public String m_moduleName;
@@ -31,7 +32,7 @@ public class SystemModelReader {
     public ArrayList<Mapping> m_initialMappings = new ArrayList<>();    // this is a possible initial set of clustered nodes.
     public ArrayList<Relation> m_relations = new ArrayList<>();
     public String m_name = "undefined name";
-    public String m_id = "unknown id";  // This is a unique identifier of the model, i.e. possibly the file name, this is used to faciliate error messages and debugging.
+    public String m_id = "unknown id";  // This is a unique identifier of the model, i.e. possibly the file name, this is used to facilitate error messages and debugging.
     public ArrayList<String> m_jars = new ArrayList<>();
     public ArrayList<String> m_roots = new ArrayList<>();
     private String m_metrics = "undefined metrics file";
@@ -66,6 +67,13 @@ public class SystemModelReader {
         switch (a_context) {
             case Module: {
                 Module m = new Module(parts[0]);
+                for (int i = 1; i < parts.length; i++) {
+                    if (parts[i].startsWith("#")) {
+                        // rest of line is comment
+                        break;
+                    }
+                    m.m_keyWords.add(parts[i]);
+                }
                 m_modules.add(m);
             } break;
             case Mapping: {

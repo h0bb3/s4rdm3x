@@ -92,8 +92,16 @@ public class CGraph {
         m_nodes.remove(a_node);
     }
 
-
     public int getNodeCount() {
-        return m_nodes.size();
+       return m_nodes.size();
+    }
+    
+    // creates a new graph with a copy of all nodes
+    public CGraph cloneNodes() {
+       CGraph ret = new CGraph();
+
+       m_nodes.forEach(n -> ret.m_nodes.add(new CNode(n)));
+
+       return ret;
     }
 }

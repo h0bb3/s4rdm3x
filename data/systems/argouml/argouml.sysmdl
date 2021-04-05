@@ -12,31 +12,33 @@ org/argouml/
 #argouml-file-metrics.csv
 
 # modules
-application
-diagrams
-notation
-explorer
-codeGeneration
-reverseEngineering
-persistence
-profile
-help
-moduleLoader
-gui
-model
-internationalization
-taskManagement
-configuration
-swingExtensions
-ocl
-critics
-javaCodeGeneration
+application				application application
+diagrams				diagram diagram
+notation				notation
+explorer				explorer
+codeGeneration			language language language code generation 
+javaCodeGeneration		language code generation java java
+reverseEngineering		reveng reveng reveng					# we need to strenghten reveng as it has sub packages named as other module keywords (java, ui)
+persistence				persistence
+moduleLoader			moduleloader modules module api api
+gui						ui
+model					model
+internationalization	i18n
+swingExtensions			swingext
+ocl						ocl
+critics					cognitive cognitive
+
+taskManagement			taskmgmt							# nothing mapped to this one
+configuration			configuration						# nothing mapped to this one
+profile					profile								# nothing mapped to this one
+help					help								# nothing mapped to this one
+
 
 #profile, help, taskManagement, configuration do not exist in the mapping.
 
 # mapping
 # <high_level_module> <regular_expression>
-application org\.argouml\.application(?!(\.api|\.modules))\.*
+application org\.argouml\.application(?!(\.api)|(.modules))\.*\.*
 diagrams org\.argouml\.uml\.diagram\.*
 notation org\.argouml\.notation\.*
 explorer org\.argouml\.ui\.explorer\.*

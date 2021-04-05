@@ -4,6 +4,34 @@ import java.util.*;
 
 public class stats {
 
+    // returns the lowest most common value
+    public static int getTypeValue(ArrayList<Integer> a_unsortedValues) {
+
+        ArrayList<Integer> sorted = new ArrayList<>(a_unsortedValues);
+        sorted.sort(Integer::compareTo);
+        int typeValue = -1;
+        int currentTypeValue = -1;
+        int typeValueCount = 0;
+        int currentCount = 0;
+
+        for (int i = 0; i < sorted.size(); i++) {
+            if (sorted.get(i) != currentTypeValue) {
+                if (currentCount > typeValueCount) {
+                    typeValue = currentTypeValue;
+                    typeValueCount = currentCount;
+                }
+                currentTypeValue = sorted.get(i);
+                currentCount = 0;
+            }
+            currentCount++;
+        }
+
+        if (currentCount > typeValueCount) {
+            typeValue = sorted.get(sorted.size() - 1);
+        }
+
+        return typeValue;
+    }
 
     public static double sum(final double[] a_values) {
         double sum = 0;

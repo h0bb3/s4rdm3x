@@ -99,6 +99,10 @@ public class MapperView {
             m_experimentIx = g_irattract_ex;
         } else if (a_exr instanceof LSIAttractExperimentRun) {
             m_experimentIx = g_lsiattract_ex;
+        } else if (a_exr instanceof NNMapperExperimentRun) {
+            m_experimentIx = g_nnmapper_ex;
+        } else if (a_exr instanceof NNNBExperimentRun) {
+            m_experimentIx = g_nnnbmapper_ex;
         }
 
         m_name = a_exr.getName();
@@ -134,7 +138,7 @@ public class MapperView {
             a_imgui.imgui().colorEdit3("Plot Color##" + m_id, m_currentColor, 0);
 
             {
-                String[] experiments = {"Naive Bayes Mapping", "HuGMe", "IRAttract", "LSIAttract"};
+                String[] experiments = {"Naive Bayes Mapping", "HuGMe", "IRAttract", "LSIAttract", "Naive Name Mapping", "NN + NB Mapping"};
                 int[] exIx = {m_experimentIx};
                 if (a_imgui.imgui().combo("Experiment Type" + "##" + m_id, exIx, Arrays.asList(experiments), experiments.length)) {
                     m_experimentIx = exIx[0];
@@ -143,7 +147,7 @@ public class MapperView {
 
             a_imgui.imgui().indent(3);
             {
-                if (m_experimentIx == g_nbmapper_ex || m_experimentIx == g_irattract_ex || m_experimentIx == g_lsiattract_ex) {
+                if (m_experimentIx == g_nbmapper_ex || m_experimentIx == g_irattract_ex || m_experimentIx == g_lsiattract_ex || m_experimentIx == g_nnnbmapper_ex) {
 
                     m_irData.doStemming(doRandomBoolVariable(a_imgui, "Use Stemming", m_irData.doStemming()));
                     m_irData.doUseCDA(doRandomBoolVariable(a_imgui, "Use CDA", m_irData.doUseCDA()));
@@ -152,7 +156,7 @@ public class MapperView {
                     m_irData.doUseArchComponentName(doRandomBoolVariable(a_imgui, "Use Architecture Name", m_irData.doUseArchComponentName()));
                     m_irData.minWordSize(doRandomIntVariable(a_imgui, "Min Word Length", m_irData.minWordSize()));
 
-                    if (m_experimentIx == g_nbmapper_ex) {
+                    if (m_experimentIx == g_nbmapper_ex || m_experimentIx == g_nnnbmapper_ex) {
                         m_doWordCount = doRandomBoolVariable(a_imgui, "Use Word Counts", m_doWordCount);
                         m_threshold = doRandomDoubleVariable(a_imgui, "Threshold", m_threshold, 0, 1);
                     }
@@ -323,6 +327,10 @@ public class MapperView {
             m_experimentRun = new IRAttractExperimentRun(m_useManualmapping, m_irData);
         } else if ( m_experimentIx == g_lsiattract_ex) {
             m_experimentRun = new LSIAttractExperimentRun(m_useManualmapping, m_irData);
+        } else if (m_experimentIx == g_nnmapper_ex) {
+            m_experimentRun = new NNMapperExperimentRun(m_useManualmapping);
+        } else if (m_experimentIx == g_nnnbmapper_ex) {
+            m_experimentRun = new NNNBExperimentRun(m_useManualmapping, m_irData, m_doWordCount, m_threshold);
         }
 
         m_experimentRun.setName(getName());

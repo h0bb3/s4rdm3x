@@ -9,15 +9,15 @@ com.eteks.sweethome3d.
 
 
 # modules
-sweetHome3DModel
-sweetHome3DTools
-sweetHome3DPlugin
-sweetHome3DViewController
-sweetHome3DSwing
-sweetHome3DJava3D
-sweetHome3DIO
-sweetHome3DApplet
-sweetHome3DApplication
+sweetHome3DModel 			model
+sweetHome3DTools			tools
+sweetHome3DPlugin			plugin
+sweetHome3DViewController	viewcontroller
+sweetHome3DSwing			swing
+sweetHome3DJava3D			j3d
+sweetHome3DIO				io
+sweetHome3DApplet			applet
+sweetHome3DApplication		sweethome3d
 # mapping
 # <high_level_module> <regular_expression>
 sweetHome3DModel com\.eteks\.sweethome3d\.model\.*

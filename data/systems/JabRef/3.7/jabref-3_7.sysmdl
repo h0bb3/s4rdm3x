@@ -1,4 +1,4 @@
-# this is the system model witout guiapi and db
+# this is the system model without guiapi and db
 
 # name
 JabRef_37_1
@@ -13,12 +13,12 @@ JabRef-3.7.jar
 net/sf/jabref/
 
 # modules
-globals
-preferences
-model
-logic
-gui
-cli
+globals globals
+preferences preferences prefs
+model model shared dbms
+logic logic shared
+gui gui
+cli cli
 
 
 # mapping: <package>.* maps all classes in <package> except for those which are explicitly listed in another mapping

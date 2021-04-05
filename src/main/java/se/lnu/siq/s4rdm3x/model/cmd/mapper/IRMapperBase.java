@@ -77,38 +77,42 @@ public abstract class IRMapperBase extends MapperBase {
      * @return a string with all ir words from a node (text and name) separated by space, words are de-camel-cased and stemmed
      */
     String getNodeWords(CNode a_node, Stemmer a_stemmer) {
-        String ret = "";
+        StringBuilder ret = new StringBuilder();
+
         if (m_doUseNodeText) {
             for (dmClass c : a_node.getClasses()) {
                 for (String t : c.getTexts()) {
                     if (!isStopWord(t)) {
-                        ret += deCamelCase(t, m_minWordLength, a_stemmer) + " ";
+                        ret.append(deCamelCase(t, m_minWordLength, a_stemmer));
+                        ret.append(" ");
                     }
                 }
             }
         }
 
         if (m_doUseNodeName) {
-            ret += deCamelCase(a_node.getLogicName().replace(".", " "), 0, a_stemmer);
+            ret.append(deCamelCase(a_node.getLogicName().replace(".", " "), 0, a_stemmer));
         }
 
-        ret = ret.trim();
-
-        return ret;
+        return ret.toString().trim();
     }
 
     /**
-     * @param a_c component to words from (currently only name)
+     * @param a_c component to get words from (name and keywords)
      * @param a_stemmer stemmer to use (null if none)
      * @return a list of component words separated by space, de-camel-cased and stemmed
      */
     protected String getArchComponentWords(ArchDef.Component a_c, Stemmer a_stemmer) {
-        String ret = "";
+        StringBuilder ret = new StringBuilder();
         if (m_doUseArchComponentName) {
-            ret = deCamelCase(a_c.getName(), 0, a_stemmer);
+            ret.append(deCamelCase(a_c.getName(), 0, a_stemmer));
+            for(String kw : a_c.getKeywords()) {
+                ret.append(deCamelCase(kw, 0, a_stemmer));
+            }
+
         }
 
-        return ret;
+        return ret.toString();
     }
 
     /**
@@ -147,23 +151,23 @@ public abstract class IRMapperBase extends MapperBase {
     }
 
     private String getDependencyStringToNode(CNode a_to, String a_nodeComponentName, Iterable<ClusteredNode> a_froms) {
-        String relations = "";
+        StringBuilder relations = new StringBuilder();
+
         for (ClusteredNode from : a_froms) {
             if (a_to != from.get()) {
                 for (dmDependency d : from.getDependencies(a_to)) {
                     for (int i = 0; i < d.getCount(); i++) {
                         // to nodes should only be added if different components or there will be double counts
                         if (!from.getClusteringComponentName().equals(a_nodeComponentName)) {
-                            relations += getComponentComponentRelationString(from.getClusteringComponentName(), d.getType(), a_nodeComponentName) + " ";//from.getMapping().replace(".", "") + d.getType() + a_nodeComponentName.replace(".", "") + " ";
+                            relations.append(getComponentComponentRelationString(from.getClusteringComponentName(), d.getType(), a_nodeComponentName));
+                            relations.append(" ");//from.getMapping().replace(".", "") + d.getType() + a_nodeComponentName.replace(".", "") + " ";
                         }
                     }
                 }
             }
         }
 
-        relations = relations.trim();
-
-        return relations;
+        return relations.toString().trim();
 
     }
 
@@ -182,20 +186,19 @@ public abstract class IRMapperBase extends MapperBase {
     }
 
     private String getDependencyStringFromNode(CNode a_from, String a_nodeComponentName, Iterable<ClusteredNode> a_tos) {
-        String relations = "";
+        StringBuilder relations = new StringBuilder();
         for (ClusteredNode to : a_tos) {
             if (!to.equals(a_from)) {
                 for (dmDependency d : a_from.getDependencies(to.get())) {
                     for (int i = 0; i < d.getCount(); i++) {
-                        relations += getComponentComponentRelationString(a_nodeComponentName, d.getType(), to.getClusteringComponentName()) + " ";
+                        relations.append(getComponentComponentRelationString(a_nodeComponentName, d.getType(), to.getClusteringComponentName()));
+                        relations.append(" ");
                     }
                 }
             }
         }
 
-        relations = relations.trim();
-
-        return relations;
+        return relations.toString().trim();
     }
 
 
@@ -206,7 +209,7 @@ public abstract class IRMapperBase extends MapperBase {
      * @return a string will all words separated by space
      */
     public String deCamelCase(String a_string, int a_minLength, weka.core.stemmers.Stemmer a_stemmer) {
-        String ret = "";
+        StringBuilder ret = new StringBuilder();
         for (int i = 0; i < 10; i++) {
             a_string = a_string.replace("" + i, " ");
         }
@@ -222,12 +225,13 @@ public abstract class IRMapperBase extends MapperBase {
                         w = a_stemmer.stem(w);
                     }
 
-                    ret += w + " ";
+                    ret.append(w);
+                    ret.append(" ");
                 }
             }
         }
 
-        return ret.trim();
+        return ret.toString().trim();
     }
 
     /**

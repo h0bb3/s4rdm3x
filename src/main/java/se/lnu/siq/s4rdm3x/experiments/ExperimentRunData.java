@@ -27,6 +27,10 @@ public class ExperimentRunData {
         private ArrayList<CNode> m_initialClustering = new ArrayList<>();
         private ArrayList<CNode> m_autoClustered = new ArrayList<>();
 
+        public void clearInitialClustering() {
+            m_initialClustering.clear();
+            m_initialClusteringPercent = 0;
+        }
         public void addInitialClusteredNode(CNode a_node) {
             m_initialClustering.add(new CNode(a_node));
         }
@@ -79,6 +83,10 @@ public class ExperimentRunData {
                 addInitialClusteredNode(n);
             }
         }*/
+    }
+
+    public static class NaiveNameData extends BasicRunData {
+        // we don't have any parameters for this one...
     }
 
     public static class HuGMEData extends BasicRunData {

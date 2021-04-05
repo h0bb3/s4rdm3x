@@ -123,6 +123,20 @@ public class RundDataCSVFileSaver extends CSVFile {
             row.add("-1");row.add("X"); // nb data
         }
 
+        if (a_rd instanceof ExperimentRunData.NaiveNameData) {
+            row.add("NaiveName:" + a_rd.m_mapperName);
+
+            // add all empty hugme parameters
+            row.add("-1");row.add("-1");
+            for (dmDependency.Type dt : dmDependency.Type.values()) {
+                row.add("X");
+            }
+
+            // add empty ir parameters
+            row.add("X");row.add("X");row.add("X");row.add("X");row.add("X");row.add("-1");    // ir data
+            row.add("-1");row.add("X"); // nb data
+        }
+
         writeRow(row);
     }
 
