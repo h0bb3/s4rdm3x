@@ -403,17 +403,14 @@ public class ExperimentsView implements ExperimentRunnerViewThread.DataListener 
 
             if (a_imgui.beginTooltip()) {
                 a_imgui.text("Experiment:\t" + exd.m_source.getName());
-                //a_imgui.text("Mapper:\t" + exd.m_source.getMapper());
-                //a_imgui.text("Experiment:\t" + "farre");
                 a_imgui.text("System:\t" + exd.m_data.m_system.getName());
-                a_imgui.text("Metric:\t" + exd.m_data.m_metric.getName());
                 a_imgui.text("Size:\t" + exd.m_data.m_totalMapped);
                 a_imgui.text("Initial:\t" + exd.m_data.getInitialClusteringNodeCount());
                 a_imgui.text("A. Clustered:\t" + exd.m_data.getAutoClusteredNodeCount());
                 a_imgui.text("A. Failed:\t\t" + exd.m_data.m_totalAutoWrong);
+                a_imgui.text("M. Clustered:\t" + exd.m_data.m_totalManuallyClustered);
+                a_imgui.text("M. Failed:\t\t" + exd.m_data.m_totalFailedClusterings);
                 a_imgui.text("Iterations:\t\t" + exd.m_data.m_iterations);
-//                a_imgui.text("M. Clustered:\t" + exd.m_data.m_totalManuallyClustered);
-//                a_imgui.text("M. Failed:\t\t" + exd.m_data.m_totalFailedClusterings);
                 a_imgui.endTooltip();
             }
 
