@@ -7,6 +7,7 @@ import se.lnu.siq.s4rdm3x.experiments.ExperimentRunner;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
+import se.lnu.siq.s4rdm3x.stats;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -66,7 +67,7 @@ public class DumpBase {
         ret.m_omega = r.nextDouble();
         ret.m_phi = r.nextDouble();
         for (int i = 0; i < ret.m_weights.length; i++) {
-            ret.m_weights[i] = r.nextDouble();
+            ret.m_weights[i] = stats.round(r.nextDouble(), 2);
         }
 
         return ret;
@@ -77,14 +78,23 @@ public class DumpBase {
         IRParams ret = new IRParams();
         ret.m_doManualMapping = false;
 
-        ret.m_doStemming = true;    // irmapper needs this or it will often map nothing
+        ret.m_doStemming = r.nextBoolean();    // irmapper needs this or it will often map nothing
         ret.m_doUseCDA = r.nextBoolean();
-        ret.m_doUseNodeText = true; // LSI and IRmappers need this or they will most likely not map anything
-        ret.m_doUseNodeName = true;    // irmapper needs this or it will often map nothing
-        ret.m_doUseArchComponentName = true;    // irmapper needs this or it will often map nothing
+        ret.m_doUseNodeText = r.nextBoolean(); // LSI and IRmappers need this or they will most likely not map anything
+        ret.m_doUseNodeName = r.nextBoolean();    // irmapper needs this or it will often map nothing
+        ret.m_doUseArchComponentName = r.nextBoolean();    // irmapper needs this or it will often map nothing
         ret.m_minWordSize = r.nextInt(4) + 1;
+
+        // we need some information extracted
+        boolean allFalse = !ret.m_doUseCDA &&  !ret.m_doUseNodeText && !ret.m_doUseNodeName && !ret.m_doUseArchComponentName;
+        if (allFalse) {
+            return generateIRParams();
+        }
+
         return ret;
     }
+
+
 
     public NBParams generateNBParams() {
         java.util.Random r = new java.util.Random();
@@ -97,7 +107,7 @@ public class DumpBase {
         ret.m_doUseNodeName = r.nextBoolean();
         ret.m_doUseArchComponentName = r.nextBoolean();
         ret.m_minWordSize = r.nextInt(4) + 1;
-        ret.m_threshold = 0.8 + r.nextDouble() * 0.19;
+        ret.m_threshold = stats.round(0.8 + r.nextDouble() * 0.19, 2);
         ret.m_doWordCount = r.nextBoolean();
 
         return ret;

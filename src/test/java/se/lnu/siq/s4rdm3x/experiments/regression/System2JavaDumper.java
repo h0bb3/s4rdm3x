@@ -164,6 +164,10 @@ public class System2JavaDumper {
         ps("m_a = new ArchDef()");
         for (ArchDef.Component c : a_a.getComponents()) {
             ps("ArchDef.Component c" + a_a.getComponentIx(c) + " = m_a.addComponent(\"" + c.getName() + "\")");
+            // add all the keywords of the architecture.
+            for (String keyword : c.getKeywords()) {
+                ps("c" + a_a.getComponentIx(c) + ".addKeyword(\"" + keyword + "\")");
+            }
         }
 
         for (ArchDef.Component c : a_a.getComponents()) {

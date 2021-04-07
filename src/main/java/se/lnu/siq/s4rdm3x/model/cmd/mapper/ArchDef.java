@@ -86,6 +86,10 @@ public class ArchDef {
          Initial
       }
 
+      public void addKeyword(String a_keyword) {
+         m_keyWords.add(a_keyword);
+      }
+
       public Component.ClusteringType getClusteringType(CNode a_n) {
          String type = a_n.getClusteringType();
          if (type.contentEquals(Component.ClusteringType.Manual.toString())) {

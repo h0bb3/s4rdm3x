@@ -26,10 +26,7 @@ class RegressionTests {
     static final int g_ir_test_count = 3;
     static final int g_lsi_test_count = 3;
 
-
-
-
-    //@Test
+    @Test
     public void testProM_HuGMe() {
         DumpBase db = new ProMDump();
         ArchDef a = db.m_a;
@@ -40,7 +37,7 @@ class RegressionTests {
         }
     }
 
-    //@Test
+    @Test
     public void testProM_NB() {
         DumpBase db = new ProMDump();
         ArchDef a = db.m_a;
@@ -51,7 +48,7 @@ class RegressionTests {
         }
     }
 
-    //@Test
+    @Test
     public void testProM_IR() {
         DumpBase db = new ProMDump();
         ArchDef a = db.m_a;
@@ -62,7 +59,7 @@ class RegressionTests {
         }
     }
 
-    //@Test
+    @Test
     public void testProM_LSI() {
         DumpBase db = new ProMDump();
         ArchDef a = db.m_a;
@@ -74,7 +71,7 @@ class RegressionTests {
     }
 
 
-    //@Test
+    @Test
     public void testCommonsImg_HuGMe() {
         DumpBase db = new CommonsImagingDump();
         ArchDef a = db.m_a;
@@ -85,7 +82,7 @@ class RegressionTests {
         }
     }
 
-   // @Test
+    @Test
     public void testCommonsImg_NB() {
         DumpBase db = new CommonsImagingDump();
         ArchDef a = db.m_a;
@@ -96,7 +93,7 @@ class RegressionTests {
         }
     }
 
-    //@Test
+    @Test
     public void testCommonsImg_IR() {
         DumpBase db = new CommonsImagingDump();
         ArchDef a = db.m_a;
@@ -107,7 +104,7 @@ class RegressionTests {
         }
     }
 
-    //@Test
+    @Test
     public void testCommonsImg_LSI() {
         DumpBase db = new CommonsImagingDump();
         ArchDef a = db.m_a;
@@ -118,7 +115,7 @@ class RegressionTests {
         }
     }
 
-    //@Test
+    @Test
     public void testTeammates_HuGMe() {
         DumpBase db = new TeammatesDump();
         ArchDef a = db.m_a;
@@ -129,18 +126,18 @@ class RegressionTests {
         }
     }
 
-    //@Test
+    @Test
     public void testTeammates_NB() {
         DumpBase db = new TeammatesDump();
         ArchDef a = db.m_a;
         CGraph g = db.m_g;
         for (int i = 0; i < g_nb_test_count; i++) {
-            assertEquals(db.getNBParams(i).m_f1, runNBExperiment(g, a, db.getNBParams(i)), "Regression test " + i + " for Teammates failed.");
+            assertEquals(db.getNBParams(i).m_f1, runNBExperiment(g, a, db.getNBParams(i)), 0.01,"Regression test " + i + " for Teammates failed.");
             a.cleanNodeClusters(g.getNodes(), true);
         }
     }
 
-    //@Test
+    @Test
     public void testTeammates_IR() {
         DumpBase db = new TeammatesDump();
         ArchDef a = db.m_a;
@@ -151,7 +148,7 @@ class RegressionTests {
         }
     }
 
-    //@Test
+    @Test
     public void testTeammates_LSI() {
         DumpBase db = new TeammatesDump();
         ArchDef a = db.m_a;
@@ -262,7 +259,7 @@ class RegressionTests {
         java.lang.System.out.println(s2jd.escape(expected));
     }
 
-    //@Test // decomment only when you want to generate new dumps in development to add system dumps
+    @Test // decomment only when you want to generate new dumps in development to add system dumps
     public void dumpSystem() {
         try {
            System2JavaDumper s2jd = new System2JavaDumper();
@@ -270,11 +267,11 @@ class RegressionTests {
             //FileBased system = new FileBased("C:/hObbE/projects/coding/github/s4rdm3x/data/systems/ProM6.9/ProM_6_9.sysmdl");
             //String className = "ProMDump";
 
-            //FileBased system = new FileBased("C:/hObbE/projects/coding/github/s4rdm3x/data/systems/teammates/teammates.sysmdl");
-            //String className = "TeammatesDump";
+            FileBased system = new FileBased("C:/hObbE/projects/coding/github/s4rdm3x/data/systems/teammates/teammates.sysmdl");
+            String className = "TeammatesDump";
 
-            FileBased system = new FileBased("C:/hObbE/projects/coding/github/s4rdm3x/data/systems/commons-imaging/commons-imaging.sysmdl");
-            String className = "CommonsImagingDump";
+            //FileBased system = new FileBased("C:/hObbE/projects/coding/github/s4rdm3x/data/systems/commons-imaging/commons-imaging.sysmdl");
+            //String className = "CommonsImagingDump";
 
             CGraph g = new CGraph();
             system.load(g);
@@ -285,10 +282,11 @@ class RegressionTests {
             rm.assignMetric(a.getMappedNodes(g.getNodes()));
 
             InitialSetGenerator isg = new InitialSetGenerator();
-            isg.assignInitialClusters(g, a, 0.25, new Rand(), r);
-
+            isg.assignInitialClustersPerComponent(g, a, 0.75, new Rand(), r);
 
             DumpBase db = new DumpBase();
+
+
             DumpBase.HuGMeParams [] hugmeTests = new DumpBase.HuGMeParams[g_HuGMe_test_count];
             for (int i = 0; i < g_HuGMe_test_count; i++) {
                 hugmeTests[i] = db.generateHugMeParams();
@@ -302,12 +300,11 @@ class RegressionTests {
                 nbTests[i].m_f1 = runNBExperiment(g, a, nbTests[i]);
                 a.cleanNodeClusters(g.getNodes(), true);
             }
-
             DumpBase.IRParams [] irTests = new DumpBase.IRParams[g_ir_test_count];
             for (int i = 0; i < g_ir_test_count; i++) {
-                irTests[i] = db.generateIRParams();
-                irTests[i].m_f1 = runIRExperiment(g, a, irTests[i]);
-                a.cleanNodeClusters(g.getNodes(), true);
+               irTests[i] = db.generateIRParams();
+               irTests[i].m_f1 = runIRExperiment(g, a, irTests[i]);
+               a.cleanNodeClusters(g.getNodes(), true);
             }
 
             DumpBase.IRParams [] lsiTests = new DumpBase.IRParams[g_lsi_test_count];

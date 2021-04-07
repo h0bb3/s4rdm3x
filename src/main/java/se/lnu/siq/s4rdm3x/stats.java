@@ -1,8 +1,20 @@
 package se.lnu.siq.s4rdm3x;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 
 public class stats {
+
+
+    // rounds a double to a number of decimals
+    public static double round(double value, int decimalPlaces) {
+        if (decimalPlaces < 0) throw new IllegalArgumentException();
+
+        BigDecimal bd = BigDecimal.valueOf(value);
+        bd = bd.setScale(decimalPlaces, RoundingMode.HALF_UP);
+        return bd.doubleValue();
+    }
 
     // returns the lowest most common value
     public static int getTypeValue(ArrayList<Integer> a_unsortedValues) {
