@@ -12,6 +12,7 @@ import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 
 import java.io.File;
 import java.io.PrintStream;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -315,7 +316,7 @@ class RegressionTests {
             }
 
             File out = new File("C:/hobbe/projects/coding/github/s4rdm3x/src/test/java/se/lnu/siq/s4rdm3x/experiments/regression/dumps/" + className +".java");
-            s2jd.dump(new PrintStream(out), className, g, a, hugmeTests, nbTests, irTests, lsiTests);
+            s2jd.dump(new PrintStream(out, "UTF8"), className, g, a, hugmeTests, nbTests, irTests, lsiTests);
 
             Comparator cgc = new Comparator();
             cgc.assertEquals(g, s2jd.m_shadow.m_g);

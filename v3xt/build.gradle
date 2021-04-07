@@ -11,7 +11,8 @@ group 'v3xt'
 sourceCompatibility = 1.8
 version '1.0-SNAPSHOT'
 
-
+compileJava.options.encoding = "UTF-8"
+compileTestJava.options.encoding = "UTF-8"
 
 repositories {
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
