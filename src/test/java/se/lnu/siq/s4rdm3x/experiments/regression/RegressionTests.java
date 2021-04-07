@@ -259,7 +259,7 @@ class RegressionTests {
         java.lang.System.out.println(s2jd.escape(expected));
     }
 
-    @Test // decomment only when you want to generate new dumps in development to add system dumps
+    //@Test // decomment only when you want to generate new dumps in development to add system dumps
     public void dumpSystem() {
         try {
            System2JavaDumper s2jd = new System2JavaDumper();

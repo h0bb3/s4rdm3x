@@ -243,9 +243,25 @@ public class System2JavaDumper {
         }
     }
 
+    public static String removePeskyCharacters(String s) {
+        // '‘' 8216
+        // '’' 8217
+        // for some reason these two characters did not want to play nicely as strings
+        final String replace1 = new String(new char[] {(char)8216});
+        final String replace2 = new String(new char[]{(char)8217});
+
+        return s.replace(replace1, "")       // just remove this one seems to mess things up on github when running tests
+                .replace(replace2, "");       // dito
+    }
 
     public String escape(String s){
-        return s.replace("\\", "\\\\")
+        // '‘' 8216
+        // '’' 8217
+        // for some reason these two characters did not want to play nicely as strings
+        final String replace1 = new String(new char[] {(char)8216});
+        final String replace2 = new String(new char[]{(char)8217});
+        //String replace = "‘";
+        return  s.replace("\\", "\\\\")
                 .replace("\t", "\\t")
                 .replace("\b", "\\b")
                 .replace("\n", "\\n")
@@ -325,7 +341,7 @@ public class System2JavaDumper {
 
                 for (String t : c.getTexts()) {
                     // TODO: there could be other things than needs to be escaped
-                    String text = escape(t);//.replace("\\", "\\\\").replace("\n", "\\n").replace("\r", "\\r").replace("\"", "\\\"");
+                    String text = escape(removePeskyCharacters(t));
                     ps("a_c.addText(\"" + text + "\")");
                     shadowClass.addText(deEscape(text));
                 }
