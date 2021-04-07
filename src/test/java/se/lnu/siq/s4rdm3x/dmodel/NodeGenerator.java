@@ -25,11 +25,21 @@ public class NodeGenerator {
         }
     }
 
+    public static dmClass createClass(final String a_name, dmFile.dmDirectory a_root) {
+        return new dmClass(a_name, a_root.createFile(dmClass.toJavaSourceFile(a_name)));
+    }
+
+    public static dmClass createClass(final String a_name) {
+        dmFile.dmDirectory root = new dmFile.dmDirectory("root", null);
+        dmClass ret = new dmClass(a_name, root.createFile(dmClass.toJavaSourceFile(a_name)));
+        return ret;
+    }
+
 
     public CGraph getGraph1() {
         CGraph ret = new CGraph();
 
-        dmClass c1 = new dmClass("c1");
+        dmClass c1 = createClass("c1");
         setInstructionCount(c1.addMethod("m1", false, false), 17);
         setInstructionCount(c1.addMethod("m2", false, false), 17);
 
@@ -45,12 +55,12 @@ public class NodeGenerator {
     public CGraph getGraph2() {
         CGraph ret = new CGraph();
 
-        dmClass c1 = new dmClass("c1");
+        dmClass c1 = createClass("c1");
         dmClass.Method m1 = c1.addMethod("m1", false, false);
         setInstructionCount(m1, 17);
         setBranchStatementCount(m1, 9);
 
-        dmClass c2 = new dmClass("c2");
+        dmClass c2 = createClass("c2");
         m1 = c2.addMethod("m1", false, false);
         setInstructionCount(m1, 17);
         setBranchStatementCount(m1, 6);
@@ -75,9 +85,10 @@ public class NodeGenerator {
     public CNode loadNode(String a_javaClassName) {
         CGraph g = loadGraph("/" + g_classesDir + a_javaClassName + ".class");
 
-        dmClass c = new dmClass(a_javaClassName);
-
-        CNode a = g.searchNode(".*/" + c.getFileName().replace("/", ".").replace(".", "\\.")).get(0);
+        // We need to find the correct node
+        dmClass c = createClass(g_classesDir + a_javaClassName);
+        String searchPattern =  c.getFileName();
+        CNode a = g.searchNode(searchPattern).get(0);
 
         return a;
     }
@@ -114,13 +125,25 @@ public class NodeGenerator {
         CGraph ret = a_g;
         String[] edgeIds = a_edgesAsNodePairs;
         HashMap<String, dmClass> classes = new HashMap<>();
+
+        dmFile.dmDirectory root = null;
+        if (a_g.getNodeCount() > 0) {
+            for (CNode n : a_g.getNodes()) {
+                for (dmClass c : n.getClasses()) {
+                    root = c.getFile().getRoot();
+                }
+            }
+        }
+        if (root == null) {
+            root = new dmFile.dmDirectory("root", null);
+        }
         for (String id : edgeIds) {
             String first = id.substring(0, 1), second = id.substring(1, 2);
             if (!classes.containsKey(first)) {
-                classes.put(first, new dmClass(first));
+                classes.put(first, createClass(first, root));
             }
             if (!classes.containsKey(second)) {
-                classes.put(second, new dmClass(second));
+                classes.put(second, createClass(second, root));
             }
 
             dmClass cFirst = classes.get(first);

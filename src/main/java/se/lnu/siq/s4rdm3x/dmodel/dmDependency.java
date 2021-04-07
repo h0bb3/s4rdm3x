@@ -44,6 +44,8 @@ public class dmDependency {
         OwnFieldUse,   // use of self fields
         FieldUse,   // use of field in some other class
         Throws,     // throws defined exceptions in method headers
+        Physical_Horizontal, // defined in the same directory
+        Physical_Vertical, // defined as a one level parent - child directory relation
         Unknown
     }
 

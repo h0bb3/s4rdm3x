@@ -75,7 +75,7 @@ public class ASMdmProjectBuilder extends ClassVisitor {
         a_targetName = stripArrayBrackets(a_targetName);
 
         a_targetName = a_targetName.replace('/', '.');
-        dmClass destClass = m_project.addClass(a_targetName);
+        dmClass destClass = m_project.addJavaClass(a_targetName);
         if (destClass != null) {
             if (a_method == null) {
                 m_currentClass.addDependency(destClass, a_type, m_currentLine);
@@ -94,7 +94,7 @@ public class ASMdmProjectBuilder extends ClassVisitor {
         m_tabs = 1;
         m_currentLine = 1;
 
-        m_currentClass = m_project.addClass(name);
+        m_currentClass = m_project.addJavaClass(name);
         if (m_currentClass != null) {
             if (superName != null) {
                 println("Extends: " + superName);

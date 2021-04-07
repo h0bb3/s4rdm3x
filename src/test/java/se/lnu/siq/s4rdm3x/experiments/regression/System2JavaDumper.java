@@ -429,11 +429,8 @@ public class System2JavaDumper {
         }
 
         for (dmClass c : a_n.getClasses()) {
-            ps("dmClass " + className(c) + " = new dmClass(\"" + c.getName() + "\")");    // create class
-            ps(nodeFunctionName(a_n) + ".addClass(" + className(c) + ")");           // add class to node
-            n.addClass(new dmClass(c.getName()));
-
-            ps("m_classes.put(\"" + c.getName() + "\", " + className(c) + ")");
+            ps("dmClass " + className(c) + " = createClass(\"" + c.getName() + "\", " + nodeFunctionName(a_n) + ")");    // create class
+            n.addClass(new dmClass(c.getName(), m_shadow.m_root.createFile(dmClass.toJavaSourceFile(c.getName()))));
             if (hasText(a_n)) {
                 ps(className(c) + "_texts(" + className(c) + ")");                              // call the node text functions
             }

@@ -2,8 +2,10 @@ package se.lnu.siq.s4rdm3x.experiments.regression.dumps;
 
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
+import se.lnu.siq.s4rdm3x.dmodel.dmFile;
 import se.lnu.siq.s4rdm3x.experiments.ExperimentRunner;
 import se.lnu.siq.s4rdm3x.model.CGraph;
+import se.lnu.siq.s4rdm3x.model.CNode;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
 
 import java.util.ArrayList;
@@ -39,6 +41,14 @@ public class DumpBase {
     public CGraph m_g = new CGraph();
     public ArchDef m_a = new ArchDef();
     public HashMap<String, dmClass> m_classes = new HashMap<>();
+    public dmFile.dmDirectory m_root = new dmFile.dmDirectory("root", null);
+
+    protected dmClass createClass(final String a_name, CNode a_parentNode) {
+        dmClass ret =  new dmClass(a_name, m_root.createFile(dmClass.toJavaSourceFile(a_name)));
+        a_parentNode.addClass(ret);
+        m_classes.put(a_name, ret);
+        return ret;
+    }
 
     public void d(dmClass a_source, dmClass a_target, dmDependency.Type a_dt, int[] a_lines) {
         for (int i : a_lines) {

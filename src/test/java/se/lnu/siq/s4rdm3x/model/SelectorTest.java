@@ -1,7 +1,7 @@
 package se.lnu.siq.s4rdm3x.model;
 
 import org.junit.jupiter.api.Test;
-import se.lnu.siq.s4rdm3x.dmodel.dmClass;
+import se.lnu.siq.s4rdm3x.dmodel.NodeGenerator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -12,7 +12,7 @@ class SelectorTest {
         Selector.Pat sut = new Selector.Pat("org\\.lang\\..*");
         CNode n1 = new CNode("n1", -1);
 
-        n1.addClass(new dmClass("org.lang.myclass"));
+        n1.addClass(NodeGenerator.createClass("org.lang.myclass"));
 
         assertTrue(sut.isSelected(n1));
     }
@@ -22,7 +22,7 @@ class SelectorTest {
         Selector.Pat sut = new Selector.Pat("org\\.lang\\.myclass");
         CNode n1 = new CNode("n1", -1);
 
-        n1.addClass(new dmClass("org.lang.myclass"));
+        n1.addClass(NodeGenerator.createClass("org.lang.myclass"));
 
         assertTrue(sut.isSelected(n1));
     }
@@ -32,7 +32,7 @@ class SelectorTest {
         Selector.Pat sut = new Selector.Pat("org\\.lang\\..*");
         CNode n1 = new CNode("n1", -1);
 
-        n1.addClass(new dmClass("org.langmyclass"));
+        n1.addClass(NodeGenerator.createClass(("org.langmyclass")));
 
         assertFalse(sut.isSelected(n1));
     }
@@ -42,7 +42,7 @@ class SelectorTest {
         Selector.Pat sut = new Selector.Pat("org\\.apache\\.tools\\.ant\\.taskdefs(?!(\\.optional|\\.compilers|\\.condition|\\.rmic|\\.cvslib|\\.email|\\.repository))\\.*");
         CNode n1 = new CNode("n1", -1);
 
-        n1.addClass(new dmClass("org.apache.tools.ant.taskdefs.Javadoc"));
+        n1.addClass(NodeGenerator.createClass("org.apache.tools.ant.taskdefs.Javadoc"));
 
         assertTrue(sut.isSelected(n1));
     }

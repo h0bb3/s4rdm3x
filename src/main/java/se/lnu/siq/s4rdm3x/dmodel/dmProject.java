@@ -10,6 +10,7 @@ public class dmProject {
     private List<BlackListItem> m_blackList;
     private Map<Object, dmClass> m_constants;
     private Map<Object, List<dmClassLinePair>> m_constantDependencies;
+    private dmFile.dmDirectory m_rootDir;
 
     public boolean trackConstantDeps() {
         return m_trackConstantDeps;
@@ -49,6 +50,7 @@ public class dmProject {
         m_constants = new HashMap<>();
         m_constantDependencies = new HashMap<>();
         m_trackConstantDeps = false;
+        m_rootDir = new dmFile.dmDirectory("root", null);
 
     }
 
@@ -135,8 +137,15 @@ public class dmProject {
         return ret;
     }
 
-    public dmClass addClass(String a_name) {
-        return addClass(new dmClass(a_name));
+    public dmClass addJavaClass(String a_logicalName) {
+        // create directory structure and add the file / dirs etc
+        dmFile f = addFile(dmClass.toJavaSourceFile(a_logicalName));
+        return addClass(new dmClass(a_logicalName, f));
+    }
+
+    private dmFile addFile(String [] a_parts) {
+        dmFile f = m_rootDir.createFile(a_parts);
+        return f;
     }
 
     public Iterable<dmClass> getClasses() {
