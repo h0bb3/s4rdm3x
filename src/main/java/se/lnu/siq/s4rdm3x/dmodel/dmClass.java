@@ -302,14 +302,17 @@ public class dmClass {
         return m_name.compareTo(a_className) == 0;
     }
 
-    public void addFileDependency(dmClass a_target, dmDependency.Type a_type) {
-        if (!a_type.isFileBased) {
-            throw new IllegalArgumentException("dmDependency.Type a_type must have isFileBased == true was: " + a_type);
-        }
+    public void addHorizontalFileDependency(dmClass a_target) {
 
-        // File dependencies do not have a direction so add to both classes as first class dependencies
-        addDependency(a_target, a_type, -1);
-        a_target.addDependency(this, a_type, -1);
+        // horizontal dependencies do not have a direction so add to both classes as first class dependencies
+        addDependency(a_target, dmDependency.Type.File_Horizontal, -1);
+        a_target.addDependency(this, dmDependency.Type.File_Horizontal, -1);
+    }
+
+    public void addVerticalFileDependency(dmClass a_subDirClass) {
+
+        // vertical point from higher level to lower level
+        addDependency(a_subDirClass, dmDependency.Type.File_Vertical, -1);
     }
 
     public void addDependency(String a_className, dmDependency.Type a_type) {

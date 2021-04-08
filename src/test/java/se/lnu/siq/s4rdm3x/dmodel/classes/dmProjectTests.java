@@ -68,15 +68,15 @@ public class dmProjectTests {
 
       // both classes point at each other
       assertEquals(c2, c1.getDependencies().iterator().next().getTarget());
-      assertEquals(c1, c2.getDependencies().iterator().next().getTarget());
+      assertEquals(c1, c2.getIncomingDependencies().iterator().next().getSource());
 
       // correct type
       assertEquals(dmDependency.Type.File_Vertical, c1.getDependencies().iterator().next().getType());
-      assertEquals(dmDependency.Type.File_Vertical, c2.getDependencies().iterator().next().getType());
+      assertEquals(dmDependency.Type.File_Vertical, c2.getIncomingDependencies().iterator().next().getType());
 
       // correct number
       assertEquals(1, c1.getDependencies().iterator().next().getCount());
-      assertEquals(1, c2.getDependencies().iterator().next().getCount());
+      assertEquals(1, c2.getIncomingDependencies().iterator().next().getCount());
 
    }
 
@@ -91,35 +91,49 @@ public class dmProjectTests {
 
       sut.addFileDependencies();
 
-      assertTrue(hasDirectDependency(c1, dmDependency.Type.File_Horizontal, c2));
-      assertTrue(hasDirectDependency(c2, dmDependency.Type.File_Horizontal, c1));
+      assertTrue(hasDependencyTarget(c1.getDependencies(), dmDependency.Type.File_Horizontal, c2));
+      assertTrue(hasDependencyTarget(c2.getDependencies(), dmDependency.Type.File_Horizontal, c1));
+      assertTrue(hasDependencySource(c1.getIncomingDependencies(), dmDependency.Type.File_Horizontal, c2));
+      assertTrue(hasDependencySource(c2.getIncomingDependencies(), dmDependency.Type.File_Horizontal, c1));
 
-      assertTrue(hasDirectDependency(c1, dmDependency.Type.File_Vertical, c3));
-      assertTrue(hasDirectDependency(c1, dmDependency.Type.File_Vertical, c4));
-      assertTrue(!hasDirectDependency(c1, dmDependency.Type.File_Horizontal, c3));
-      assertTrue(!hasDirectDependency(c1, dmDependency.Type.File_Horizontal, c4));
 
-      assertTrue(hasDirectDependency(c2, dmDependency.Type.File_Vertical, c3));
-      assertTrue(hasDirectDependency(c2, dmDependency.Type.File_Vertical, c4));
-      assertTrue(!hasDirectDependency(c2, dmDependency.Type.File_Horizontal, c3));
-      assertTrue(!hasDirectDependency(c2, dmDependency.Type.File_Horizontal, c4));
+      assertTrue(hasDependencyTarget(c1.getDependencies(), dmDependency.Type.File_Vertical, c3));
+      assertTrue(hasDependencyTarget(c1.getDependencies(), dmDependency.Type.File_Vertical, c4));
+      assertTrue(!hasDependencyTarget(c1.getDependencies(), dmDependency.Type.File_Horizontal, c3));
+      assertTrue(!hasDependencyTarget(c1.getDependencies(), dmDependency.Type.File_Horizontal, c4));
 
-      assertTrue(hasDirectDependency(c3, dmDependency.Type.File_Vertical, c1));
-      assertTrue(hasDirectDependency(c3, dmDependency.Type.File_Vertical, c2));
-      assertTrue(!hasDirectDependency(c3, dmDependency.Type.File_Horizontal, c1));
-      assertTrue(!hasDirectDependency(c3, dmDependency.Type.File_Horizontal, c2));
+      assertTrue(hasDependencyTarget(c2.getDependencies(), dmDependency.Type.File_Vertical, c3));
+      assertTrue(hasDependencyTarget(c2.getDependencies(), dmDependency.Type.File_Vertical, c4));
+      assertTrue(!hasDependencyTarget(c2.getDependencies(), dmDependency.Type.File_Horizontal, c3));
+      assertTrue(!hasDependencyTarget(c2.getDependencies(), dmDependency.Type.File_Horizontal, c4));
 
-      assertTrue(hasDirectDependency(c4, dmDependency.Type.File_Vertical, c1));
-      assertTrue(hasDirectDependency(c4, dmDependency.Type.File_Vertical, c2));
-      assertTrue(!hasDirectDependency(c4, dmDependency.Type.File_Horizontal, c1));
-      assertTrue(!hasDirectDependency(c4, dmDependency.Type.File_Horizontal, c2));
+      assertTrue(hasDependencySource(c3.getIncomingDependencies(), dmDependency.Type.File_Vertical, c1));
+      assertTrue(hasDependencySource(c3.getIncomingDependencies(), dmDependency.Type.File_Vertical, c2));
+      assertTrue(!hasDependencyTarget(c3.getDependencies(), dmDependency.Type.File_Horizontal, c1));
+      assertTrue(!hasDependencyTarget(c3.getDependencies(), dmDependency.Type.File_Horizontal, c2));
 
-      assertTrue(hasDirectDependency(c3, dmDependency.Type.File_Horizontal, c4));
-      assertTrue(hasDirectDependency(c4, dmDependency.Type.File_Horizontal, c3));
+      assertTrue(hasDependencySource(c4.getIncomingDependencies(), dmDependency.Type.File_Vertical, c1));
+      assertTrue(hasDependencySource(c4.getIncomingDependencies(), dmDependency.Type.File_Vertical, c2));
+      assertTrue(!hasDependencyTarget(c4.getDependencies(), dmDependency.Type.File_Horizontal, c1));
+      assertTrue(!hasDependencyTarget(c4.getDependencies(), dmDependency.Type.File_Horizontal, c2));
+
+      assertTrue(hasDependencyTarget(c3.getDependencies(), dmDependency.Type.File_Horizontal, c4));
+      assertTrue(hasDependencyTarget(c4.getDependencies(), dmDependency.Type.File_Horizontal, c3));
    }
 
-   private boolean hasDirectDependency(dmClass a_from, dmDependency.Type a_type, dmClass a_target) {
-      for (dmDependency d : a_from.getDependencies()) {
+   private boolean hasDependencySource(Iterable<dmDependency> a_deps, dmDependency.Type a_type, dmClass a_source) {
+
+      for (dmDependency d : a_deps) {
+         if (d.getSource() == a_source && d.getType() == a_type) {
+            return true;
+         }
+      }
+
+      return false;
+   }
+
+   private boolean hasDependencyTarget(Iterable<dmDependency> a_deps, dmDependency.Type a_type, dmClass a_target) {
+      for (dmDependency d : a_deps) {
          if (d.getTarget() == a_target && d.getType() == a_type) {
             return true;
          }

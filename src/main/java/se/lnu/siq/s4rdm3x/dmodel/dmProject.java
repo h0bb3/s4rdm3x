@@ -54,13 +54,13 @@ public class dmProject {
     private void addVerticalFileDependency(dmFile a_f1, dmFile a_f2) {
         dmClass c1 = getClass(a_f1);
         dmClass c2 = getClass(a_f2);
-        c1.addFileDependency(c2, dmDependency.Type.File_Vertical);
+        c1.addVerticalFileDependency(c2);
     }
 
     private void addHorizontalFileDependency(dmFile a_f1, dmFile a_f2) {
         dmClass c1 = getClass(a_f1);
         dmClass c2 = getClass(a_f2);
-        c1.addFileDependency(c2, dmDependency.Type.File_Horizontal);
+        c1.addHorizontalFileDependency(c2);
     }
 
     private dmClass getClass(dmFile a_f1) {
