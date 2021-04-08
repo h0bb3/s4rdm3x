@@ -133,7 +133,7 @@ class RegressionTests {
         ArchDef a = db.m_a;
         CGraph g = db.m_g;
         for (int i = 0; i < g_nb_test_count; i++) {
-            assertEquals(db.getNBParams(i).m_f1, runNBExperiment(g, a, db.getNBParams(i)), 0.01,"Regression test " + i + " for Teammates failed.");
+            assertEquals(db.getNBParams(i).m_f1, runNBExperiment(g, a, db.getNBParams(i)),"Regression test " + i + " for Teammates failed.");
             a.cleanNodeClusters(g.getNodes(), true);
         }
     }
@@ -268,11 +268,11 @@ class RegressionTests {
             //FileBased system = new FileBased("C:/hObbE/projects/coding/github/s4rdm3x/data/systems/ProM6.9/ProM_6_9.sysmdl");
             //String className = "ProMDump";
 
-            FileBased system = new FileBased("C:/hObbE/projects/coding/github/s4rdm3x/data/systems/teammates/teammates.sysmdl");
-            String className = "TeammatesDump";
+            //FileBased system = new FileBased("C:/hObbE/projects/coding/github/s4rdm3x/data/systems/teammates/teammates.sysmdl");
+            //String className = "TeammatesDump";
 
-            //FileBased system = new FileBased("C:/hObbE/projects/coding/github/s4rdm3x/data/systems/commons-imaging/commons-imaging.sysmdl");
-            //String className = "CommonsImagingDump";
+            FileBased system = new FileBased("C:/hObbE/projects/coding/github/s4rdm3x/data/systems/commons-imaging/commons-imaging.sysmdl");
+            String className = "CommonsImagingDump";
 
             CGraph g = new CGraph();
             system.load(g);

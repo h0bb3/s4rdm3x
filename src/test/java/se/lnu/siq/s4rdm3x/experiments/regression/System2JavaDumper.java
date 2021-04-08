@@ -244,14 +244,17 @@ public class System2JavaDumper {
     }
 
     public static String removePeskyCharacters(String s) {
+        // when setting the encoding in when both saving the file and for gradle this turns out to be fixed
         // '‘' 8216
         // '’' 8217
         // for some reason these two characters did not want to play nicely as strings
-        final String replace1 = new String(new char[] {(char)8216});
-        final String replace2 = new String(new char[]{(char)8217});
+        //final String replace1 = new String(new char[] {(char)8216});
+        //final String replace2 = new String(new char[]{(char)8217});
 
-        return s.replace(replace1, "")       // just remove this one seems to mess things up on github when running tests
-                .replace(replace2, "");       // dito
+        //return s.replace(replace1, "")       // just remove this one seems to mess things up on github when running tests
+        //        .replace(replace2, "");       // dito
+
+        return s;
     }
 
     public String escape(String s){
