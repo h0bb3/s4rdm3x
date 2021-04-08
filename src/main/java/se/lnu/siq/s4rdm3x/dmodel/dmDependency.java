@@ -51,7 +51,7 @@ public class dmDependency {
         File_Vertical(true), // defined as a one level parent - child directory relation
         Unknown(false);
 
-        final boolean isFileBased;
+        public final boolean isFileBased;
         Type(boolean a_isFileBased) {
             isFileBased = a_isFileBased;
         }

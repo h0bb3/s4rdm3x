@@ -16,7 +16,7 @@ public class HuGMeTests {
     @Test
     void testCountAttractP() {
         NodeGenerator ng = new NodeGenerator();
-        CGraph g = ng.generateGraph(dmDependency.Type.Returns, new String [] {"AB", "AB", "AB", "AB", "BA", "BA", "BA", "BA"});
+        CGraph g = ng.generateGraph(dmDependency.Type.Returns, new String [] {"AB", "AB", "AB", "AB", "AB", "BA", "BA", "BA"});
         ArrayList<ArrayList<MapperBase.ClusteredNode>> clusters = new ArrayList<>();
         ArchDef arch = new ArchDef();
         ArchDef.Component cA = arch.addComponent("A");
@@ -37,13 +37,45 @@ public class HuGMeTests {
         clusters.add(new ArrayList<>());
         clusters.add(new ArrayList<>());
 
+        clusters.get(1).add(b);
+
+        final double othersWeight = 0.75;
+        HuGMe sut = new HuGMeManual(10, othersWeight, arch);
+
+        assertEquals(8.0 - 5 * 1.0 - 3 * othersWeight, sut.CountAttractP(a, 0, clusters));   // B -> A this means 5 deps are in violation and 3 are just against cohesion principle
+        assertEquals(8.0, sut.CountAttractP(a, 1, clusters));   // a has all relations to b so attraction should be maximal
+        assertEquals(8.0 - 8 * 1.0, sut.CountAttractP(a, 2, clusters));
+    }
+
+
+    @Test
+    void testCountAttractPHorizontalFileDeps() {
+        NodeGenerator ng = new NodeGenerator();
+        CGraph g = ng.generateGraph(dmDependency.Type.File_Vertical, new String [] {"AB"});
+        ArrayList<ArrayList<MapperBase.ClusteredNode>> clusters = new ArrayList<>();
+        ArchDef arch = new ArchDef();
+        ArchDef.Component cA = arch.addComponent("A");
+        ArchDef.Component cB = arch.addComponent("B");
+        cA.addDependencyTo(cB);
+
+        cA.mapToNode(g.getNode("A"));
+
+        cB.mapToNode(g.getNode("B"));
+        cB.clusterToNode(g.getNode("B"), ArchDef.Component.ClusteringType.Initial);
+
+        MapperBase.OrphanNode a = new MapperBase.OrphanNode(g.getNode("A"), arch);   // a is the orphan
+        MapperBase.ClusteredNode b = new MapperBase.ClusteredNode(g.getNode("B"), arch);   // b is the mapped node
+
+        clusters.add(new ArrayList<>());
+        clusters.add(new ArrayList<>());
+
         clusters.get(0).add(b);
 
-        HuGMe sut = new HuGMeManual(10, 0.75, arch);
+        HuGMe sut = new HuGMeManual(10, 0.0, arch);
 
-        assertEquals(8.0, sut.CountAttractP(a, 0, clusters));
+        // File dependencies should not incur violations so the violation count will always be 0 hence the same attraction
+        assertEquals(1.0, sut.CountAttractP(a, 0, clusters));
         assertEquals(1.0, sut.CountAttractP(a, 1, clusters));
-        assertEquals(1.0, sut.CountAttractP(a, 2, clusters));
     }
 
     @Test
