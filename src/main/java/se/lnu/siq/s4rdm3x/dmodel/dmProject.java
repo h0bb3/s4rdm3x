@@ -22,6 +22,60 @@ public class dmProject {
 
     private boolean m_trackConstantDeps;
 
+    public void addFileDependencies() {
+        addFileDependencies(m_rootDir);
+    }
+
+    private void addFileDependencies(dmFile.dmDirectory a_dir) {
+        addHorizontalClasses(a_dir.getFiles());
+        for (dmFile.dmDirectory dir : a_dir.getDirectories()) {
+            addVerticalClasses(a_dir.getFiles(), dir.getFiles());
+            addFileDependencies(dir);
+        }
+    }
+
+    private void addVerticalClasses(Iterable<dmFile> a_files1, Iterable<dmFile> a_files2) {
+        for (dmFile f1 : a_files1) {
+            for (dmFile f2 : a_files2) {
+                addVerticalFileDependency(f1, f2);
+            }
+        }
+    }
+
+    private void addHorizontalClasses(Iterable<dmFile> a_files) {
+        Iterator<dmFile> fromIt = a_files.iterator();
+
+        while(fromIt.hasNext()) {
+            dmFile from = fromIt.next();
+            fromIt.forEachRemaining(to -> addHorizontalFileDependency(from, to));
+        }
+    }
+
+    private void addVerticalFileDependency(dmFile a_f1, dmFile a_f2) {
+        dmClass c1 = getClass(a_f1);
+        dmClass c2 = getClass(a_f2);
+        c1.addFileDependency(c2, dmDependency.Type.File_Vertical);
+    }
+
+    private void addHorizontalFileDependency(dmFile a_f1, dmFile a_f2) {
+        dmClass c1 = getClass(a_f1);
+        dmClass c2 = getClass(a_f2);
+        c1.addFileDependency(c2, dmDependency.Type.File_Horizontal);
+    }
+
+    private dmClass getClass(dmFile a_f1) {
+        for (dmClass c : m_classes.values()) {
+            if (c.getFile() == a_f1) {
+                return c;
+            }
+        }
+        return null;
+    }
+
+    public dmFile.dmDirectory getRootDirectory() {
+        return m_rootDir;
+    }
+
     private static class dmClassLinePair {
         public dmClass m_class;
         int m_line;
@@ -139,8 +193,11 @@ public class dmProject {
 
     public dmClass addJavaClass(String a_logicalName) {
         // create directory structure and add the file / dirs etc
-        dmFile f = addFile(dmClass.toJavaSourceFile(a_logicalName));
-        return addClass(new dmClass(a_logicalName, f));
+        if (!isBlackListed(a_logicalName)) {
+            dmFile f = addFile(dmClass.toJavaSourceFile(a_logicalName));
+            return addClass(new dmClass(a_logicalName, f));
+        }
+        return null;
     }
 
     private dmFile addFile(String [] a_parts) {

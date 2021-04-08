@@ -302,11 +302,24 @@ public class dmClass {
         return m_name.compareTo(a_className) == 0;
     }
 
+    public void addFileDependency(dmClass a_target, dmDependency.Type a_type) {
+        if (!a_type.isFileBased) {
+            throw new IllegalArgumentException("dmDependency.Type a_type must have isFileBased == true was: " + a_type);
+        }
+
+        // File dependencies do not have a direction so add to both classes as first class dependencies
+        addDependency(a_target, a_type, -1);
+        a_target.addDependency(this, a_type, -1);
+    }
+
     public void addDependency(String a_className, dmDependency.Type a_type) {
         addDependency(a_className, a_type, -1);
     }
 
     public void addDependency(String a_className, dmDependency.Type a_type, int a_line) {
+        if (a_type.isFileBased) {
+            throw new IllegalArgumentException("dmDependency.Type a_type must not have isFileBased == true was: " + a_type);
+        }
         for (dmDependency d : m_deps) {
             if (d.getTarget().getName().compareTo(a_className) == 0 && d.getType() == a_type) {
                 d.addLine(a_line);

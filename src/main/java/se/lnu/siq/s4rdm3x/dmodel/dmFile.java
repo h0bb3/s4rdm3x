@@ -77,6 +77,22 @@ public class dmFile {
 
          return root == null ? this : root;
       }
+
+      public Iterable<dmFile> getFiles() {
+         return m_files;
+      }
+
+      public Iterable<dmDirectory> getDirectories() {
+         return m_subDirs;
+      }
+
+      public int fileCount() {
+         return m_files.size();
+      }
+
+      public int directoryCount() {
+         return m_subDirs.size();
+      }
    }
 
    public dmDirectory getRoot() {

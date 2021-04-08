@@ -29,24 +29,32 @@ public class dmDependency {
     }
 
     public void addLine(int a_line) {
+        if (m_type.isFileBased && m_lines.size() > 0) {
+            throw new RuntimeException("There can only be one file dependency per type.");
+        }
         m_lines.add(a_line);
     }
 
     public enum Type {
-        Extends,
-        Implements,
-        Field,
-        Argument,
-        Returns,
-        LocalVar,   // def of local var other than self
-        MethodCall, // call on other class than self
-        ConstructorCall,   // calls new on an object including self
-        OwnFieldUse,   // use of self fields
-        FieldUse,   // use of field in some other class
-        Throws,     // throws defined exceptions in method headers
-        Physical_Horizontal, // defined in the same directory
-        Physical_Vertical, // defined as a one level parent - child directory relation
-        Unknown
+        Extends(false),
+        Implements(false),
+        Field(false),
+        Argument(false),
+        Returns(false),
+        LocalVar(false),   // def of local var other than self
+        MethodCall(false), // call on other class than self
+        ConstructorCall(false),   // calls new on an object including self
+        OwnFieldUse(false),   // use of self fields
+        FieldUse(false),   // use of field in some other class
+        Throws(false),     // throws defined exceptions in method headers
+        File_Horizontal (true), // defined in the same directory
+        File_Vertical(true), // defined as a one level parent - child directory relation
+        Unknown(false);
+
+        final boolean isFileBased;
+        Type(boolean a_isFileBased) {
+            isFileBased = a_isFileBased;
+        }
     }
 
     private dmClass m_target;
