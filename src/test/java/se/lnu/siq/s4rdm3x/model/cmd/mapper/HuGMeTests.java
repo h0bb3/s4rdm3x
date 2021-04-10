@@ -51,7 +51,7 @@ public class HuGMeTests {
     @Test
     void testCountAttractPHorizontalFileDeps() {
         NodeGenerator ng = new NodeGenerator();
-        CGraph g = ng.generateGraph(dmDependency.Type.File_Vertical, new String [] {"AB"});
+        CGraph g = ng.generateGraph(dmDependency.Type.File_Horizontal, new String [] {"AB"});
         ArrayList<ArrayList<MapperBase.ClusteredNode>> clusters = new ArrayList<>();
         ArchDef arch = new ArchDef();
         ArchDef.Component cA = arch.addComponent("A");

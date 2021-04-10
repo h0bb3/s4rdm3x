@@ -17,6 +17,7 @@ public class dmClass {
 
 
 
+
     public static class Method {
 
         static class DependencyLine {
@@ -164,7 +165,7 @@ public class dmClass {
     }
 
     public static String [] toJavaSourceFile(String a_logicalName) {
-        int innerIndex = a_logicalName.lastIndexOf('$');
+        int innerIndex = a_logicalName.indexOf('$');
         return innerIndex < 0 ? a_logicalName.split("\\.") : a_logicalName.substring(0, innerIndex).split("\\.");
     }
 
@@ -302,7 +303,16 @@ public class dmClass {
         return m_name.compareTo(a_className) == 0;
     }
 
+    public boolean acceptFileDependency() {
+        return !isInner();
+    }
+
     public void addHorizontalFileDependency(dmClass a_target) {
+        // we don't add file dependencies for inner classes
+        // as these are part of the outer class in the same file
+        if (!acceptFileDependency() || !a_target.acceptFileDependency()) {
+            throw  new IllegalArgumentException("Both dmClass objects must accept file dependencies. use accceptFileDependency() to check");
+        }
 
         // horizontal dependencies do not have a direction so add to both classes as first class dependencies
         addDependency(a_target, dmDependency.Type.File_Horizontal, -1);
@@ -310,9 +320,14 @@ public class dmClass {
     }
 
     public void addVerticalFileDependency(dmClass a_subDirClass) {
-
+        // we don't add file dependencies for inner classes
+        // as these are part of the outer class in the same file
+        if (!acceptFileDependency() || !a_subDirClass.acceptFileDependency()) {
+            throw  new IllegalArgumentException("Both dmClass objects must accept file dependencies. use accceptFileDependency() to check");
+        }
         // vertical point from higher level to lower level
-        addDependency(a_subDirClass, dmDependency.Type.File_Vertical, -1);
+        addDependency(a_subDirClass, dmDependency.Type.File_LevelDown, -1);
+        a_subDirClass.addDependency(this, dmDependency.Type.File_LevelUp, -1);
     }
 
     public void addDependency(String a_className, dmDependency.Type a_type) {

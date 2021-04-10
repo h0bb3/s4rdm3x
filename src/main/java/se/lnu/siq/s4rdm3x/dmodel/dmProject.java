@@ -65,7 +65,7 @@ public class dmProject {
 
     private dmClass getClass(dmFile a_f1) {
         for (dmClass c : m_classes.values()) {
-            if (c.getFile() == a_f1) {
+            if (c.getFile() == a_f1 && c.acceptFileDependency()) {
                 return c;
             }
         }
@@ -74,6 +74,10 @@ public class dmProject {
 
     public dmFile.dmDirectory getRootDirectory() {
         return m_rootDir;
+    }
+
+    public int getClassCount() {
+        return m_classes.size();
     }
 
     private static class dmClassLinePair {
@@ -176,13 +180,13 @@ public class dmProject {
     }
 
     public dmClass addClass(dmClass a_c) {
-        dmClass ret = a_c;
+
 
         if (isBlackListed(a_c.getName())) {
             return null;
         }
 
-        ret = findClass(ret.getName());
+        dmClass ret = findClass(a_c.getName());
         if (ret == null) {
             m_classes.put(a_c.getName(), a_c);
             ret = a_c;
@@ -195,7 +199,14 @@ public class dmProject {
         // create directory structure and add the file / dirs etc
         if (!isBlackListed(a_logicalName)) {
             dmFile f = addFile(dmClass.toJavaSourceFile(a_logicalName));
-            return addClass(new dmClass(a_logicalName, f));
+            dmClass ret = addClass(new dmClass(a_logicalName, f));
+            if (ret.isInner()) {
+                // make sure we have an outer class
+                String[] parts = dmClass.toJavaSourceFile(a_logicalName);
+                String name = String.join(".", parts);
+                addClass(new dmClass(name, f));
+            }
+            return ret;
         }
         return null;
     }

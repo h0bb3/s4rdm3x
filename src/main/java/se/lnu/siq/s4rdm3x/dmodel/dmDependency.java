@@ -48,7 +48,8 @@ public class dmDependency {
         FieldUse(false),   // use of field in some other class
         Throws(false),     // throws defined exceptions in method headers
         File_Horizontal (true), // defined in the same directory
-        File_Vertical(true), // defined as a one level parent - child directory relation
+        File_LevelUp(true), // from file in lower level directory to file in higher level dir (one level)
+        File_LevelDown(true), // from file in height level directory to file in lower level dir (one level)
         Unknown(false);
 
         public final boolean isFileBased;

@@ -248,7 +248,7 @@ public class HuGMe extends MapperBase {
         double cCount = 0;
         for (ClusteredNode nTo : a_cluster) {
             cCount += a_node.getDependencyCount(nTo, m_weights, !a_violationFromNode) * a_weightFromNode; //m_fic.getFanIn(nTo, a_node) * a_weightFromNode;
-            cCount += nTo.getDependencyCount(a_node, m_weights, !a_violationFromNode) * a_weightFromCluster;//m_fic.getFanIn(a_node, nTo) * a_weightFromCluster;
+            cCount += nTo.getDependencyCount(a_node, m_weights, !a_violationFromCluster) * a_weightFromCluster;//m_fic.getFanIn(a_node, nTo) * a_weightFromCluster;
         }
 
         count = cCount;

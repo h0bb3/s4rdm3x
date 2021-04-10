@@ -86,6 +86,8 @@ public class FileBased extends System {
             }
         }
 
+        c.getProject().addFileDependencies();
+
 
         return true;
     }

@@ -50,8 +50,6 @@ public class JarProjectLoader {
             }
         }
 
-        builder.getProject().addFileDependencies();
-
         return builder.getProject();
     }
 
