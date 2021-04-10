@@ -458,10 +458,10 @@ public class System2JavaDumper {
                 ps(className(c) + "_texts(" + className(c) + ")");                              // call the node text functions
             }
 
-            // methods are not added this may limit the usefullness of the regressions i.e. checking some metrics.
+            // methods are not added this may limit the usefulness of the regressions i.e. checking some metrics.
             // problem is that there is currently no way of adding a method without also adding the method name as a text
             // in addition the dependencies for the methods will require some special treatment.
-            // possbily this could be fixed by adding the methods stuff last and removing the text from the node first, and having a lookup of dependencies.
+            // possibly this could be fixed by adding the methods stuff last and removing the text from the node first, and having a lookup of dependencies.
             /*for (dmClass.Method m : c.getMethods()) {
                 c.addDependency();
 
