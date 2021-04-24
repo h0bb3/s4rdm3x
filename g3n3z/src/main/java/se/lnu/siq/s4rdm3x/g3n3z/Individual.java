@@ -151,23 +151,25 @@ public class Individual implements Comparable<Individual> {
     private double runExperimentGetF1Score(int a_totalPossibleOrphans) {
         double ret = 0;
         int clusterFails = 0;
-        int actualOrphans = 0;
+        int autoClusteredOrphans = 0;
 
         HuGMe exp;
         do {
             exp = createExperiment();
             exp.run(m_graph);
             clusterFails += exp.m_autoWrong;
-            actualOrphans += exp.getAutoClusteredOrphanCount();
+            autoClusteredOrphans += exp.getAutoClusteredOrphanCount();
         } while (exp.getAutoClusteredOrphanCount() > 0);
 
         double precision = 0;
-        if (actualOrphans > 0) {
-            precision = (double) (actualOrphans - clusterFails) / (double) actualOrphans;
+        double truePositive = autoClusteredOrphans - clusterFails;
+        double falseNegatives = a_totalPossibleOrphans - autoClusteredOrphans;
+        if (autoClusteredOrphans > 0) {
+            precision = (double) truePositive / (double) autoClusteredOrphans;
         }
         double recall = 0;
         if (a_totalPossibleOrphans > 0) {
-            recall = (double)(actualOrphans - clusterFails) / (double)a_totalPossibleOrphans;
+            recall = truePositive / (truePositive + falseNegatives);
         }
 
         if (precision > 0 || recall > 0) {
