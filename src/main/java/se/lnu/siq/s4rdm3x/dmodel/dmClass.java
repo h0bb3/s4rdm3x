@@ -160,6 +160,8 @@ public class dmClass {
         m_file = a_file;
     }
 
+
+
     public Collection<dmDependency> getIncomingDependencies() {
         return Collections.unmodifiableCollection(m_incomingDeps);
     }
@@ -305,6 +307,12 @@ public class dmClass {
 
     public boolean acceptFileDependency() {
         return !isInner();
+    }
+
+    public static boolean createsDoubleFileDependencies() {
+        // this one is true as long as file dependencies are created in both classes
+        // see implementation of addHorizontalFileDependency & addVerticalFileDependency
+        return true;
     }
 
     public void addHorizontalFileDependency(dmClass a_target) {

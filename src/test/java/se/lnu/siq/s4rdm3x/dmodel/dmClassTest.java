@@ -3,6 +3,7 @@ package se.lnu.siq.s4rdm3x.dmodel;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class dmClassTest {
 
@@ -26,5 +27,19 @@ public class dmClassTest {
       assertEquals(1, parts.length);
       assertEquals("a", parts[0]);
 
+   }
+
+   public static boolean createsDoubleFileDependencies() {
+      dmClass c1 = new dmClass("c1", new dmFile("f1", new dmFile.dmDirectory("")));
+      dmClass c2 = new dmClass("c2", new dmFile("f2", new dmFile.dmDirectory("")));
+
+      c1.addVerticalFileDependency(c2);
+      c1.addHorizontalFileDependency(c2);
+      return (c1.getDependencyCount() + c2.getDependencyCount()) == 4;
+   }
+
+   @Test
+   public void doubleFileDependenciesTest() {
+      assertEquals(dmClass.createsDoubleFileDependencies(), createsDoubleFileDependencies());
    }
 }

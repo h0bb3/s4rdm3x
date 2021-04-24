@@ -1,5 +1,7 @@
 package se.lnu.siq.s4rdm3x.model.cmd.mapper;
 
+import se.lnu.siq.s4rdm3x.dmodel.dmClass;
+import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
 
@@ -29,7 +31,12 @@ public class HuGMe extends MapperBase {
         m_arch = a_arch;
 
         m_weights = new DependencyWeights(a_dw);
+        if (dmClass.createsDoubleFileDependencies()) {
+            m_weights.halfFileWeights();
+        }
     }
+
+
 
     public HuGMe(double a_filterThreshold, double a_violationWeight, boolean a_doManualMapping, ArchDef a_arch) {
         super(a_doManualMapping, a_arch);
@@ -38,8 +45,14 @@ public class HuGMe extends MapperBase {
         m_arch = a_arch;
 
         m_weights = new DependencyWeights(1.0);
+        if (dmClass.createsDoubleFileDependencies()) {
+            m_weights.halfFileWeights();
+        }
     }
 
+    public DependencyWeights getDependencyWeights() {
+        return new DependencyWeights(m_weights);
+    }
 
     public void run(CGraph a_g) {
         final String [] originalMappingTags = m_arch.getComponentNames();

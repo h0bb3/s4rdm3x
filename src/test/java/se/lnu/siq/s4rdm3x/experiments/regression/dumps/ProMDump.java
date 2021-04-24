@@ -32,7 +32,7 @@ public class ProMDump extends DumpBase {
 				r.m_weights[12] = 0.53;
 				r.m_weights[13] = 0.36;
 				r.m_weights[14] = 0.21;
-				r.m_f1 = 0.9374999999999999;
+				r.m_f1 = 0.9523809523809523;
 				r.m_doManualMapping = false;
 				break;
 			}
@@ -55,7 +55,7 @@ public class ProMDump extends DumpBase {
 				r.m_weights[12] = 0.97;
 				r.m_weights[13] = 0.56;
 				r.m_weights[14] = 0.67;
-				r.m_f1 = 0.9531249999999999;
+				r.m_f1 = 0.9606299212598426;
 				r.m_doManualMapping = false;
 				break;
 			}
@@ -78,7 +78,7 @@ public class ProMDump extends DumpBase {
 				r.m_weights[12] = 0.63;
 				r.m_weights[13] = 0.11;
 				r.m_weights[14] = 0.26;
-				r.m_f1 = 0.9531249999999999;
+				r.m_f1 = 0.9606299212598426;
 				r.m_doManualMapping = false;
 				break;
 			}
@@ -112,7 +112,7 @@ public class ProMDump extends DumpBase {
 				r.m_doUseNodeName = true;
 				r.m_doUseArchComponentName = false;
 				r.m_minWordSize = 3;
-				r.m_f1 = 0.9047619047619048;
+				r.m_f1 = 0.9268292682926829;
 				r.m_doManualMapping = false;
 				break;
 			}
@@ -126,7 +126,7 @@ public class ProMDump extends DumpBase {
 				r.m_doUseNodeName = false;
 				r.m_doUseArchComponentName = true;
 				r.m_minWordSize = 2;
-				r.m_f1 = 0.6666666666666667;
+				r.m_f1 = 0.6930693069306931;
 				r.m_doManualMapping = false;
 				break;
 			}
@@ -144,7 +144,7 @@ public class ProMDump extends DumpBase {
 				r.m_doUseNodeName = true;
 				r.m_doUseArchComponentName = false;
 				r.m_minWordSize = 1;
-				r.m_f1 = 0.8636363636363636;
+				r.m_f1 = 0.9268292682926829;
 				r.m_doManualMapping = false;
 				break;
 			}
@@ -156,7 +156,7 @@ public class ProMDump extends DumpBase {
 				r.m_doUseNodeName = true;
 				r.m_doUseArchComponentName = false;
 				r.m_minWordSize = 2;
-				r.m_f1 = 0.8636363636363636;
+				r.m_f1 = 0.9268292682926829;
 				r.m_doManualMapping = false;
 				break;
 			}
@@ -168,7 +168,7 @@ public class ProMDump extends DumpBase {
 				r.m_doUseNodeName = true;
 				r.m_doUseArchComponentName = false;
 				r.m_minWordSize = 1;
-				r.m_f1 = 0.8636363636363636;
+				r.m_f1 = 0.9268292682926829;
 				r.m_doManualMapping = false;
 				break;
 			}
@@ -186,7 +186,7 @@ public class ProMDump extends DumpBase {
 				r.m_doUseNodeName = false;
 				r.m_doUseArchComponentName = false;
 				r.m_minWordSize = 4;
-				r.m_f1 = 0.9545454545454546;
+				r.m_f1 = 0.9767441860465117;
 				r.m_doManualMapping = false;
 				break;
 			}
@@ -198,7 +198,7 @@ public class ProMDump extends DumpBase {
 				r.m_doUseNodeName = true;
 				r.m_doUseArchComponentName = true;
 				r.m_minWordSize = 4;
-				r.m_f1 = 0.9696969696969697;
+				r.m_f1 = 0.9846153846153847;
 				r.m_doManualMapping = false;
 				break;
 			}
@@ -210,7 +210,7 @@ public class ProMDump extends DumpBase {
 				r.m_doUseNodeName = false;
 				r.m_doUseArchComponentName = false;
 				r.m_minWordSize = 4;
-				r.m_f1 = 0.9545454545454546;
+				r.m_f1 = 0.9767441860465117;
 				r.m_doManualMapping = false;
 				break;
 			}

@@ -2,6 +2,7 @@ package se.lnu.siq.s4rdm3x.model.cmd.mapper;
 
 import org.junit.jupiter.api.Test;
 import se.lnu.siq.s4rdm3x.dmodel.NodeGenerator;
+import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
@@ -10,6 +11,8 @@ import se.lnu.siq.s4rdm3x.stats;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static se.lnu.siq.s4rdm3x.dmodel.dmClassTest.createsDoubleFileDependencies;
 
 public class HuGMeTests {
 
@@ -119,6 +122,42 @@ public class HuGMeTests {
         HuGMe sut = new HuGMe(0, 0.75, false, arch);
         assertEquals(1.0, sut.CountAttractP(o, 0, clusters));
         assertEquals(0.25, sut.CountAttractP(o, 1, clusters));
+    }
+
+    @Test
+    void testDependencyWeightHalving() {
+        double initial = 0.5;
+        MapperBase.DependencyWeights dw = new MapperBase.DependencyWeights(initial);
+        HuGMe sut = new HuGMe(0, 0, false, null, dw);
+
+        final double factor = dmClass.createsDoubleFileDependencies() ? 0.5 : 1.0;
+
+        dw = sut.getDependencyWeights();
+        for (dmDependency.Type t : dmDependency.Type.values()) {
+            if (t.isFileBased) {
+                assertEquals(initial * factor, dw.getWeight(t));
+            } else {
+                assertEquals(initial, dw.getWeight(t));
+            }
+        }
+    }
+
+    @Test
+    void testDependencyWeightHalving2() {
+        double initial = 1.0;
+        MapperBase.DependencyWeights dw = new MapperBase.DependencyWeights(initial);
+        HuGMe sut = new HuGMe(0, 0, false, null);
+
+        final double factor = dmClass.createsDoubleFileDependencies() ? 0.5 : 1.0;
+
+        dw = sut.getDependencyWeights();
+        for (dmDependency.Type t : dmDependency.Type.values()) {
+            if (t.isFileBased) {
+                assertEquals(initial * factor, dw.getWeight(t));
+            } else {
+                assertEquals(initial, dw.getWeight(t));
+            }
+        }
     }
 
     @Test

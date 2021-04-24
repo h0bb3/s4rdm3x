@@ -76,6 +76,17 @@ public class MapperBase {
         public void setWeight(dmDependency.Type a_dep, double a_w) {
             m_weights.replace(a_dep, a_w);
         }
+
+        // this is used to half the weight of all file based weights
+        // this is highly dependant on creating double linked file dependencies
+        // thus halving their value would give a more realistic count.
+        public void halfFileWeights() {
+            for (dmDependency.Type t : dmDependency.Type.values()) {
+                if (t.isFileBased) {
+                    setWeight(t, getWeight(t) * 0.5);
+                }
+            }
+        }
     }
 
     protected static class NodeBase {
