@@ -48,6 +48,7 @@ public class LoadJar {
             n.addClass(c);
         }
 
+        //m_project.addFileDependencies();
     }
 
     public dmProject getProject() {
