@@ -68,14 +68,26 @@ public class ExperimentRunData {
 
         public double calcAutoPrecision() {
             if (m_autoClustered.size() > 0) {
-                return (m_autoClustered.size() - m_totalAutoWrong) / (double) m_autoClustered.size();
+                return (getAutoTruePositives()) / (double) m_autoClustered.size();
             } else {
                 return 0;
             }
         }
 
+        private int getAutoTruePositives() {
+            return m_autoClustered.size() - m_totalAutoWrong;
+        }
+        // eg. stuff that should have been clustered but was not
+        private int getAutoFalseNegatives() {
+            return m_totalMapped - m_initialClustering.size() - m_totalManuallyClustered - m_autoClustered.size();
+        }
+
         public double calcAutoRecall() {
-            return (m_autoClustered.size() - m_totalAutoWrong) / (double)(m_totalMapped - m_initialClustering.size() - m_totalManuallyClustered);
+
+            double truePositives = getAutoTruePositives();
+            double falseNegatives = getAutoFalseNegatives();
+
+            return truePositives / (double)(truePositives + falseNegatives);
         }
 
         /*public void addInitialClusteredNodes(Iterable<? extends CNode> a_nodes) {
