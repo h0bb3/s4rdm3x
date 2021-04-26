@@ -61,12 +61,15 @@ public class RundDataCSVFileSaver extends CSVFile {
     }
 
     public void writeData(Iterable<? extends ExperimentRunData.BasicRunData> a_data) throws IOException {
+        ArrayList<Iterable<String>> stringRows = new ArrayList<>();
         for (ExperimentRunData.BasicRunData d : a_data) {
-            writeData(d);
+            stringRows.add(toStrings(d));
         }
+
+        writeRows(stringRows);
     }
 
-    public void writeData(ExperimentRunData.BasicRunData a_rd) throws IOException {
+    private ArrayList<String> toStrings(ExperimentRunData.BasicRunData a_rd) {
         ArrayList<String> row = new ArrayList<>();
         row.add(a_rd.m_date);
         row.add("" + a_rd.m_time);
@@ -92,7 +95,7 @@ public class RundDataCSVFileSaver extends CSVFile {
 
 
             for (dmDependency.Type dt : dmDependency.Type.values()) {
-               row.add(""  + rd.m_weights.getWeight(dt));
+                row.add(""  + rd.m_weights.getWeight(dt));
             }
         }
 
@@ -137,7 +140,11 @@ public class RundDataCSVFileSaver extends CSVFile {
             row.add("-1");row.add("X"); // nb data
         }
 
-        writeRow(row);
+        return row;
+    }
+
+    public void writeData(ExperimentRunData.BasicRunData a_rd) throws IOException {
+        writeRow(toStrings(a_rd));
     }
 
     private void addIRMapperData(ArrayList<String> a_row, ExperimentRunData.IRMapperData a_ird) {
