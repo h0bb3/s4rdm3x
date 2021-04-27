@@ -33,11 +33,9 @@ public class Individual implements Comparable<Individual> {
         m_weights = new MapperBase.DependencyWeights(1.0);
         m_seed = a_randomSeed;
         m_rand = new Random(m_seed);
-        final double [] weights = new double[] {0, 0.25, 0.5, 0.75, 1.0};
 
         for (dmDependency.Type t : dmDependency.Type.values()) {
-            //m_weights.setWeight(t, m_rand.nextDouble());
-            m_weights.setWeight(t, weights[m_rand.nextInt(weights.length)]);
+            m_weights.setWeight(t, m_rand.nextDouble());
         }
         m_eliteGeneration = 0;
     }
