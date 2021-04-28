@@ -53,6 +53,7 @@ public class HuGMeTests {
 
     @Test
     void testCountAttractPHorizontalFileDeps() {
+        final double factor = dmClass.createsDoubleFileDependencies() ? 0.5 : 1.0;
         NodeGenerator ng = new NodeGenerator();
         CGraph g = ng.generateGraph(dmDependency.Type.File_Horizontal, new String [] {"AB"});
         ArrayList<ArrayList<MapperBase.ClusteredNode>> clusters = new ArrayList<>();
@@ -77,8 +78,8 @@ public class HuGMeTests {
         HuGMe sut = new HuGMeManual(10, 0.0, arch);
 
         // File dependencies should not incur violations so the violation count will always be 0 hence the same attraction
-        assertEquals(1.0, sut.CountAttractP(a, 0, clusters));
-        assertEquals(1.0, sut.CountAttractP(a, 1, clusters));
+        assertEquals(1.0 * factor, sut.CountAttractP(a, 0, clusters));
+        assertEquals(1.0 * factor, sut.CountAttractP(a, 1, clusters));
     }
 
     @Test
