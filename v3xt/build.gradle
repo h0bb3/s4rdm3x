@@ -42,7 +42,8 @@ dependencies {
     //implementation 'com.github.kotlin-graphics:glm:v1.0.1'
 
     //implementation 'com.github.kotlin-graphics:glm:-SNAPSHOT'   // version 1.0.1 seems to be too old, but it is also the latest release.
-    implementation 'com.github.kotlin-graphics:glm:9cb1ce84bf'
+    //implementation 'com.github.kotlin-graphics:glm:9cb1ce84bf'
+    implementation 'com.github.kotlin-graphics:glm:jdk8-SNAPSHOT'
     implementation 'com.github.kotlin-graphics:uno-sdk:v0.7.7'
     implementation 'com.github.kotlin-graphics:gln:v0.4.9'
 

@@ -3,7 +3,7 @@
 plugins {
     id 'java'
     id "com.github.johnrengelman.shadow" version "5.2.0"
-    id "maven"
+    id "maven-publish"
 }
 
 // jitpack
@@ -15,8 +15,6 @@ ext {
 
 sourceCompatibility = 1.8
 version '1.0-SNAPSHOT'
-
-
 
 repositories {
     mavenCentral()
@@ -45,12 +43,13 @@ sourceSets {
 dependencies {
     testImplementation('org.junit.jupiter:junit-jupiter:5.6.0')
 
-    compile files('lib/asm-6.2.1.jar', 'lib/asm-util-6.2.1.jar')
-    compile files('lib/weka-stable-3.8.3.jar')
+    //compileOnly fileTree(include: ['*.jar'], dir: 'lib')
+    implementation files('lib/asm-6.2.1.jar', 'lib/asm-util-6.2.1.jar')
+    implementation files('lib/weka-stable-3.8.3.jar')
 
 
     // this is for core dependencies
-    runtime files('lib/snowball.jar', 'lib/bounce-0.18.jar')
+    runtimeOnly files('lib/snowball.jar', 'lib/bounce-0.18.jar')
 }
 
 test {
