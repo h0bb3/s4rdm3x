@@ -1,0 +1,158 @@
+# this is the model of Jittac
+
+
+# name
+Jittac
+
+# jar
+se.kau.cs.jittac.core.jar
+se.kau.cs.jittac.eclipse.jar
+
+# root-packages
+se.kau.cs.jittac
+
+
+# modules
+architecture-model 		am
+resource-mapp 			model mapping
+impl-model 				im
+report 					report
+jdt-build				builders
+eclipse-resource-mapp	mapping eclipse
+eclipse-ui				ui
+eclipse-code-support	codesupport
+eclipse-main			eclipse nature
+
+# mapping
+# <high_level_module> <regular_expression>
+
+architecture-model		se\.kau\.cs\.jittac\.model\.am\.AbstractArchitectureElement$
+architecture-model		se\.kau\.cs\.jittac\.model\.am\.ArchitectureModel$
+architecture-model		se\.kau\.cs\.jittac\.model\.am\.Component$
+architecture-model		se\.kau\.cs\.jittac\.model\.am\.Connector$
+architecture-model		se\.kau\.cs\.jittac\.model\.am\.IArchitectureElement$
+architecture-model		se\.kau\.cs\.jittac\.model\.am\.events\.AbstractArchitectureModelChangeListener$
+architecture-model		se\.kau\.cs\.jittac\.model\.am\.events\.ComponentNameChangeEvent$
+architecture-model		se\.kau\.cs\.jittac\.model\.am\.events\.ConnectorReferencesAddedEvent$
+architecture-model		se\.kau\.cs\.jittac\.model\.am\.events\.ConnectorReferencesRemovedEvent$
+architecture-model		se\.kau\.cs\.jittac\.model\.am\.events\.ConnectorStateChangeEvent$
+architecture-model		se\.kau\.cs\.jittac\.model\.am\.events\.IArchitectureModelChangeListener$
+architecture-model		se\.kau\.cs\.jittac\.model\.am\.events\.IArchitectureModelVisitor$
+architecture-model		se\.kau\.cs\.jittac\.model\.am\.events\.ArchitectureModelChangeEvent$
+architecture-model		se\.kau\.cs\.jittac\.model\.am\.events\.ComponentAdditionEvent$
+architecture-model		se\.kau\.cs\.jittac\.model\.am\.events\.ComponentRemovalEvent$
+architecture-model		se\.kau\.cs\.jittac\.model\.am\.events\.ConnectorAdditionEvent$
+architecture-model		se\.kau\.cs\.jittac\.model\.am\.events\.ConnectorRemovalEvent$
+architecture-model		se\.kau\.cs\.jittac\.model\.am\.io\.ArchitectureModelReader$
+architecture-model		se\.kau\.cs\.jittac\.model\.am\.io\.ArchitectureModelWriter$
+
+resource-mapp		se\.kau\.cs\.jittac\.model\.mapping\.AbstractJittacProject$
+resource-mapp		se\.kau\.cs\.jittac\.model\.mapping\.AbstractMappableElement$
+resource-mapp		se\.kau\.cs\.jittac\.model\.mapping\.ArchitectureMapping$
+resource-mapp		se\.kau\.cs\.jittac\.model\.mapping\.IJittacProject$
+resource-mapp		se\.kau\.cs\.jittac\.model\.mapping\.IJittacResource$
+resource-mapp		se\.kau\.cs\.jittac\.model\.mapping\.IJittacResourceFactory$
+resource-mapp		se\.kau\.cs\.jittac\.model\.mapping\.IMappableElement$
+resource-mapp		se\.kau\.cs\.jittac\.model\.mapping\.JittacResourceModelRegistry$
+resource-mapp		se\.kau\.cs\.jittac\.model\.mapping\.AbstractJittacResource$
+resource-mapp		se\.kau\.cs\.jittac\.model\.mapping\.events\.AbstractArchitectureMappingChangeListener$
+resource-mapp		se\.kau\.cs\.jittac\.model\.mapping\.events\.IArchitectureMappingChangeListener$
+resource-mapp		se\.kau\.cs\.jittac\.model\.mapping\.events\.ManagedProjectAddedEvent$
+resource-mapp		se\.kau\.cs\.jittac\.model\.mapping\.events\.ManagedProjectRemovedEvent$
+resource-mapp		se\.kau\.cs\.jittac\.model\.mapping\.events\.MappingAdditionEvent$
+resource-mapp		se\.kau\.cs\.jittac\.model\.mapping\.events\.MappingRemovalEvent$
+resource-mapp		se\.kau\.cs\.jittac\.model\.mapping\.events\.ArchitectureMappingChangeEvent$
+
+impl-model		se\.kau\.cs\.jittac\.model\.im\.BuildUnit$
+impl-model		se\.kau\.cs\.jittac\.model\.im\.IImplementationModel$							
+impl-model		se\.kau\.cs\.jittac\.model\.im\.IImplementationModelElement$							
+impl-model		se\.kau\.cs\.jittac\.model\.im\.ImplementationModel$							
+impl-model		se\.kau\.cs\.jittac\.model\.im\.ImplementationModelFactory$							
+impl-model		se\.kau\.cs\.jittac\.model\.im\.ImplementationModelFactoryRegistry$							
+impl-model		se\.kau\.cs\.jittac\.model\.im\.ImplementationModelPartition$							
+impl-model		se\.kau\.cs\.jittac\.model\.im\.ImplementationModelPartitionType$														
+impl-model		se\.kau\.cs\.jittac\.model\.im\.IXReference$							
+impl-model		se\.kau\.cs\.jittac\.model\.im\.IXReferenceType$	
+impl-model		se\.kau\.cs\.jittac\.model\.im\.ImplementationModelBuilder$
+impl-model		se\.kau\.cs\.jittac\.model\.im\.events\.AbstractBuildEventListener$							
+impl-model		se\.kau\.cs\.jittac\.model\.im\.events\.BuildEndEvent$							
+impl-model		se\.kau\.cs\.jittac\.model\.im\.events\.BuildEventListener$							
+impl-model		se\.kau\.cs\.jittac\.model\.im\.events\.IImplementationChangeListener$							
+impl-model		se\.kau\.cs\.jittac\.model\.im\.events\.XReferenceChangeDeltaEvent$	
+impl-model		se\.kau\.cs\.jittac\.model\.im\.events\.BuildEvent$
+impl-model		se\.kau\.cs\.jittac\.model\.im\.events\.BuildStartEvent$
+impl-model		se\.kau\.cs\.jittac\.model\.im\.io\.ImplementationModelReader$							
+impl-model		se\.kau\.cs\.jittac\.model\.im\.io\.ImplementationModelWriter$
+
+report			se\.kau\.cs\.jittac\.model\.report\.PlainTextViolationReporter$
+report			se\.kau\.cs\.jittac\.model\.report\.ReporterUtils$
+
+jdt-build		se\.kau\.cs\.jittac\.eclipse\.Activator$
+jdt-build		se\.kau\.cs\.jittac\.eclipse\.builders\.jdt\.commands\.BaseHandler$
+jdt-build		se\.kau\.cs\.jittac\.eclipse\.builders\.jdt\.commands\.DisableJavaCodeAnalysisHandler$
+jdt-build		se\.kau\.cs\.jittac\.eclipse\.builders\.jdt\.commands\.EnableJavaCodeAnalysisHandler$
+jdt-build		se\.kau\.cs\.jittac\.eclipse\.builders\.jdt\.JDTJavaImplementationModelPartitionType$
+jdt-build		se\.kau\.cs\.jittac\.eclipse\.builders\.jdt\.JDTJavaReferenceCodeInformation$
+jdt-build		se\.kau\.cs\.jittac\.eclipse\.builders\.jdt\.JavaASTHandler$
+jdt-build		se\.kau\.cs\.jittac\.eclipse\.builders\.jdt\.JavaASTProcessorSH$
+jdt-build		se\.kau\.cs\.jittac\.eclipse\.builders\.jdt\.JavaImplementationModelBuilder$
+jdt-build		se\.kau\.cs\.jittac\.eclipse\.builders\.jdt\.JDTImplementationModelFactory$
+jdt-build		se\.kau\.cs\.jittac\.eclipse\.builders\.jdt\.JDTJavaModelElement$
+jdt-build		se\.kau\.cs\.jittac\.eclipse\.builders\.jdt\.JDTJavaReference$
+jdt-build		se\.kau\.cs\.jittac\.eclipse\.builders\.jdt\.util\.Projects$
+
+eclipse-resource-mapp		se\.kau\.cs\.jittac\.model\.mapping\.eclipse\.EclipseJittacProject$
+eclipse-resource-mapp		se\.kau\.cs\.jittac\.model\.mapping\.eclipse\.EclipseJittacResource$
+eclipse-resource-mapp		se\.kau\.cs\.jittac\.model\.mapping\.eclipse\.EclipseJittacResourceFactory$
+
+eclipse-ui		se\.kau\.cs\.jittac\.eclipse\.ui\.ArchitectureModelModule$
+eclipse-ui		se\.kau\.cs\.jittac\.eclipse\.ui\.ArchitectureModelPropertyPage$
+eclipse-ui		se\.kau\.cs\.jittac\.eclipse\.ui\.ArchitectureModelModuleUI$
+eclipse-ui		se\.kau\.cs\.jittac\.eclipse\.ui\.editors\.ArchitectureModelEditor$
+eclipse-ui		se\.kau\.cs\.jittac\.eclipse\.ui\.editors\.ArchitectureModelOutlineAdapterFactory$
+eclipse-ui		se\.kau\.cs\.jittac\.eclipse\.ui\.editors\.ArchitectureModelOutlinePage$
+eclipse-ui		se\.kau\.cs\.jittac\.eclipse\.ui\.models\.ItemCreationModel$
+eclipse-ui		se\.kau\.cs\.jittac\.eclipse\.ui\.operations\.MarkConnectorAsEnvisagedOperation$
+eclipse-ui		se\.kau\.cs\.jittac\.eclipse\.ui\.operations\.SetComponentNameOperation$
+eclipse-ui		se\.kau\.cs\.jittac\.eclipse\.ui\.parts\.ArchitectureModelAnchorProvider$
+eclipse-ui		se\.kau\.cs\.jittac\.eclipse\.ui\.parts\.ArchitectureModelPart$
+eclipse-ui		se\.kau\.cs\.jittac\.eclipse\.ui\.parts\.ArchitectureModelPartsFactory$
+eclipse-ui		se\.kau\.cs\.jittac\.eclipse\.ui\.parts\.ComponentPart$
+eclipse-ui		se\.kau\.cs\.jittac\.eclipse\.ui\.parts\.ConnectorGeometricOutlineProvider$
+eclipse-ui		se\.kau\.cs\.jittac\.eclipse\.ui\.parts\.ConnectorPart$
+eclipse-ui		se\.kau\.cs\.jittac\.eclipse\.ui\.parts\.ConnectorSelectionFeedbackPart$
+eclipse-ui		se\.kau\.cs\.jittac\.eclipse\.ui\.parts\.CreateConnectorFeedbackPart$
+eclipse-ui		se\.kau\.cs\.jittac\.eclipse\.ui\.parts\.CreateConnectorFeedbackPartBehavior$
+eclipse-ui		se\.kau\.cs\.jittac\.eclipse\.ui\.parts\.CreateConnectorFeedbackPartFactory$
+eclipse-ui		se\.kau\.cs\.jittac\.eclipse\.ui\.parts\.HoverFeedbackPartFactory$
+eclipse-ui		se\.kau\.cs\.jittac\.eclipse\.ui\.parts\.SelectionColorProvider$
+eclipse-ui		se\.kau\.cs\.jittac\.eclipse\.ui\.policies\.AbortConnectorCreationStrokeHandler$
+eclipse-ui		se\.kau\.cs\.jittac\.eclipse\.ui\.policies\.ComponentOnDragHandler$
+eclipse-ui		se\.kau\.cs\.jittac\.eclipse\.ui\.policies\.CreateComponentOnClickHandler$
+eclipse-ui		se\.kau\.cs\.jittac\.eclipse\.ui\.policies\.CreateConnectorOnClickHandler$
+eclipse-ui		se\.kau\.cs\.jittac\.eclipse\.ui\.policies\.ShowArchitectureElementContextMenuOnClickHandler$
+eclipse-ui		se\.kau\.cs\.jittac\.eclipse\.ui\.policies\.ShowArchitectureModelContextMenuOnClickHandler$
+eclipse-ui		se\.kau\.cs\.jittac\.eclipse\.ui\.views\.ArchitectureModelView$
+eclipse-ui		se\.kau\.cs\.jittac\.eclipse\.ui\.views\.BrowserView$
+eclipse-ui		se\.kau\.cs\.jittac\.eclipse\.ui\.views\.ReferenceTableView$
+eclipse-ui		se\.kau\.cs\.jittac\.eclipse\.ui\.visuals\.ComponentVisual$
+eclipse-ui		se\.kau\.cs\.jittac\.eclipse\.ui\.visuals\.ConnectorVisual$
+eclipse-ui		se\.kau\.cs\.jittac\.eclipse\.ui\.wizards\.NewArchitectureModelWizard$
+
+eclipse-code-support		se\.kau\.cs\.jittac\.eclipse\.codesupport\.ProblemMarker$
+
+eclipse-main	se\.kau\.cs\.jittac\.eclipse\.JittacJavaNature$
+eclipse-main	se\.kau\.cs\.jittac\.eclipse\.ModelManager$
+eclipse-main	se\.kau\.cs\.jittac\.eclipse\.util\.DummyProgressMonitor$
+
+
+# relations
+# in this section we basically have a very connected network of modules - as it is an as implemented architecture
+# currently it does not make sense to use this information
+# <source_module> <target_module>
+
+
+
+# initial mapping
+
+

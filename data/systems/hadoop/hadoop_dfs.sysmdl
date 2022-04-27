@@ -1,0 +1,133 @@
+# this is the model of Hadoop 0.19.0 (2012) as recovered from:
+# https://www.cs.purdue.edu/homes/lintan/ArchRecovery/hadoop.json
+# https://www.cs.purdue.edu/homes/lintan/ArchRecovery/
+# originally from "A Framework for Obtaining the Ground-Truth in Architectural Recovery"
+# It should be noted that this is an implemented architecture and not an intended architecture.
+
+# name
+Hadoop_DFS
+
+# jar
+hadoop-0.19.0/hadoop-0.19.0-core.jar
+
+# root-packages
+org.apache.hadoop
+
+
+# modules
+NameNode_HDFS_Protocol_Core namenode lease
+Namenode 				namenode name
+DataNode 				datanode block metrics
+Datanode_Protocol 		protocol command
+HDFS_Upgrade_Management upgrade
+Distributed_File_System distributed
+Balancer				balancer
+Client-facing_Exceptions namenode exception
+FS_Logging				 namenode edit log
+#Client_Protocol			protocol constants
+#Core_Name_Node_Structures	namenode namenode host
+#DFS_Tools				tools
+#FSDataSet				datanode dataset
+#HTTP_Protocol_Access	Hftp
+#InterDataNode_Protocol	protocol inter
+#Namenode_Protocol		protocol namenode namenode
+#Secondary_Name_Node		namenode image servlet namenode secondary
+#Transfer_HDFS_over_HTTP	namenode namenode servlet file list
+
+
+# mapping
+# <high_level_module> <regular_expression>
+Namenode	org\.apache\.hadoop\.hdfs\.server\.namenode\.DatanodeDescriptor$
+Namenode	org\.apache\.hadoop\.hdfs\.server\.namenode\.INodeDirectoryWithQuota$
+Namenode	org\.apache\.hadoop\.hdfs\.server\.namenode\.UnderReplicatedBlocks$
+Namenode	org\.apache\.hadoop\.hdfs\.server\.namenode\.CheckpointSignature$
+Namenode	org\.apache\.hadoop\.hdfs\.server\.namenode\.UpgradeObjectNamenode$
+Namenode	org\.apache\.hadoop\.hdfs\.server\.namenode\.ReplicationTargetChooser$
+Namenode	org\.apache\.hadoop\.hdfs\.server\.namenode\.StringBytesWritable$
+Namenode	org\.apache\.hadoop\.hdfs\.server\.namenode\.CorruptReplicasMap$
+Namenode	org\.apache\.hadoop\.hdfs\.server\.namenode\.TransferFsImage$
+Namenode	org\.apache\.hadoop\.hdfs\.server\.namenode\.PermissionChecker$
+Namenode	org\.apache\.hadoop\.hdfs\.server\.namenode\.PendingReplicationBlocks$
+Namenode	org\.apache\.hadoop\.hdfs\.server\.namenode\.INodeFileUnderConstruction$
+Namenode	org\.apache\.hadoop\.hdfs\.server\.namenode\.DfsServlet$
+Namenode	org\.apache\.hadoop\.hdfs\.server\.namenode\.INodeDirectory$
+Namenode	org\.apache\.hadoop\.hdfs\.server\.namenode\.EditLogInputStream$
+Namenode	org\.apache\.hadoop\.hdfs\.server\.namenode\.FileChecksumServlets$
+Namenode	org\.apache\.hadoop\.hdfs\.server\.namenode\.NameNode$
+Namenode	org\.apache\.hadoop\.hdfs\.server\.namenode\.StreamFile$
+Namenode	org\.apache\.hadoop\.hdfs\.server\.namenode\.UpgradeManagerNamenode$
+Namenode	org\.apache\.hadoop\.hdfs\.server\.namenode\.NamenodeFsck$
+Namenode	org\.apache\.hadoop\.hdfs\.server\.namenode\.FsckServlet$
+Namenode	org\.apache\.hadoop\.hdfs\.server\.namenode\.JspHelper$
+Namenode	org\.apache\.hadoop\.hdfs\.server\.namenode\.FSNamesystem$
+Namenode	org\.apache\.hadoop\.hdfs\.server\.namenode\.SerialNumberManager$
+DataNode	org\.apache\.hadoop\.hdfs\.server\.datanode\.DataNode$
+DataNode	org\.apache\.hadoop\.hdfs\.server\.datanode\.metrics\.DataNodeStatistics$
+DataNode	org\.apache\.hadoop\.hdfs\.server\.datanode\.DataStorage$
+DataNode	org\.apache\.hadoop\.hdfs\.server\.datanode\.metrics\.DataNodeStatisticsMBean$
+DataNode	org\.apache\.hadoop\.hdfs\.server\.datanode\.BlockMetadataHeader$
+DataNode	org\.apache\.hadoop\.hdfs\.server\.datanode\.BlockReceiver$
+DataNode	org\.apache\.hadoop\.hdfs\.server\.datanode\.UpgradeObjectDatanode$
+DataNode	org\.apache\.hadoop\.hdfs\.server\.datanode\.metrics\.FSDatasetMBean$
+DataNode	org\.apache\.hadoop\.hdfs\.server\.datanode\.BlockSender$
+DataNode	org\.apache\.hadoop\.hdfs\.server\.datanode\.DataXceiverServer$
+DataNode	org\.apache\.hadoop\.hdfs\.server\.datanode\.DataXceiver$
+DataNode	org\.apache\.hadoop\.hdfs\.server\.datanode\.metrics\.DataNodeMetrics$
+DataNode	org\.apache\.hadoop\.hdfs\.server\.datanode\.UpgradeManagerDatanode$
+Datanode_Protocol	org\.apache\.hadoop\.hdfs\.server\.protocol\.UpgradeCommand$
+Datanode_Protocol	org\.apache\.hadoop\.hdfs\.server\.protocol\.NamespaceInfo$
+Datanode_Protocol	org\.apache\.hadoop\.hdfs\.server\.protocol\.DatanodeProtocol$
+Datanode_Protocol	org\.apache\.hadoop\.hdfs\.server\.protocol\.BlockCommand$
+Datanode_Protocol	org\.apache\.hadoop\.hdfs\.server\.protocol\.DatanodeRegistration$
+Datanode_Protocol	org\.apache\.hadoop\.hdfs\.server\.protocol\.DatanodeCommand$
+HDFS_Upgrade_Management	org\.apache\.hadoop\.hdfs\.server\.common\.UpgradeObjectCollection$
+HDFS_Upgrade_Management	org\.apache\.hadoop\.hdfs\.server\.common\.UpgradeManager$
+HDFS_Upgrade_Management	org\.apache\.hadoop\.hdfs\.server\.common\.UpgradeObject$
+HDFS_Upgrade_Management	org\.apache\.hadoop\.hdfs\.server\.common\.Upgradeable$	
+HDFS_Upgrade_Management	org\.apache\.hadoop\.hdfs\.server\.common\.UpgradeStatusReport$
+Distributed_File_System	org\.apache\.hadoop\.hdfs\.ChecksumDistributedFileSystem$
+Distributed_File_System	org\.apache\.hadoop\.hdfs\.DistributedFileSystem$
+Distributed_File_System	org\.apache\.hadoop\.hdfs\.DFSClient$
+Distributed_File_System	org\.apache\.hadoop\.hdfs\.TestDistributedFileSystem$
+NameNode_HDFS_Protocol_Core	org\.apache\.hadoop\.hdfs\.server\.namenode\.INode$
+NameNode_HDFS_Protocol_Core	org\.apache\.hadoop\.hdfs\.server\.namenode\.FSDirectory$
+NameNode_HDFS_Protocol_Core	org\.apache\.hadoop\.hdfs\.server\.namenode\.INodeFile$
+NameNode_HDFS_Protocol_Core	org\.apache\.hadoop\.hdfs\.server\.namenode\.LeaseManager$
+Balancer	org\.apache\.hadoop\.hdfs\.server\.balancer\.TestBalancer$
+Balancer	org\.apache\.hadoop\.hdfs\.server\.balancer\.Balancer$
+Balancer	org\.apache\.hadoop\.hdfs\.server\.common\.Util$
+Client-facing_Exceptions	org\.apache\.hadoop\.hdfs\.server\.namenode\.NotReplicatedYetException$
+Client-facing_Exceptions	org\.apache\.hadoop\.hdfs\.server\.namenode\.SafeModeException$
+Client-facing_Exceptions	org\.apache\.hadoop\.hdfs\.server\.namenode\.LeaseExpiredException$
+FS_Logging	org\.apache\.hadoop\.hdfs\.server\.namenode\.EditLogOutputStream$
+FS_Logging	org\.apache\.hadoop\.hdfs\.server\.namenode\.FSEditLog$
+FS_Logging	org\.apache\.hadoop\.hdfs\.server\.namenode\.FSImage$
+#Client_Protocol	org\.apache\.hadoop\.hdfs\.protocol\.FSConstants$
+#Client_Protocol	org\.apache\.hadoop\.hdfs\.protocol\.ClientProtocol$
+#Core_Name_Node_Structures	org\.apache\.hadoop\.hdfs\.server\.namenode\.BlocksMap$
+#Core_Name_Node_Structures	org\.apache\.hadoop\.hdfs\.server\.namenode\.Host2NodesMap$
+#DFS_Tools	org\.apache\.hadoop\.hdfs\.tools\.DFSAdmin$
+#DFS_Tools	org\.apache\.hadoop\.hdfs\.tools\.DFSck$
+#FSDataSet	org\.apache\.hadoop\.hdfs\.server\.datanode\.FSDataset$
+#FSDataSet	org\.apache\.hadoop\.hdfs\.server\.datanode\.FSDatasetInterface$
+#HTTP_Protocol_Access	org\.apache\.hadoop\.hdfs\.HsftpFileSystem$
+#HTTP_Protocol_Access	org\.apache\.hadoop\.hdfs\.HftpFileSystem$
+#InterDataNode_Protocol	org\.apache\.hadoop\.hdfs\.server\.protocol\.BlockMetaDataInfo$
+#InterDataNode_Protocol	org\.apache\.hadoop\.hdfs\.server\.protocol\.InterDatanodeProtocol$
+#Namenode_Protocol	org\.apache\.hadoop\.hdfs\.server\.protocol\.BlocksWithLocations$
+#Namenode_Protocol	org\.apache\.hadoop\.hdfs\.server\.protocol\.NamenodeProtocol$
+#Secondary_Name_Node	org\.apache\.hadoop\.hdfs\.server\.namenode\.GetImageServlet$
+#Secondary_Name_Node	org\.apache\.hadoop\.hdfs\.server\.namenode\.SecondaryNameNode$
+#Transfer_HDFS_over_HTTP	org\.apache\.hadoop\.hdfs\.server\.namenode\.FileDataServlet$
+#Transfer_HDFS_over_HTTP	org\.apache\.hadoop\.hdfs\.server\.namenode\.ListPathsServlet$
+
+# relations
+# in this section we basically have a very connected network of modules - as it is an as implemented architecture
+# currently it does not make sense to use this information
+# <source_module> <target_module>
+
+
+
+# initial mapping
+
+

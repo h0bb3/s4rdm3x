@@ -56,6 +56,7 @@ dependencies {
     compile 'org.lwjgl:lwjgl-jemalloc:3.2.3'
 
     compile files('../lib/asm-6.2.1.jar', '../lib/asm-util-6.2.1.jar')
+    //compile files('../lib/asm-9.2.jar', '../lib/asm-util-9.2.jar')
     compile files('../lib/weka-stable-3.8.3.jar')
 
     // Look up which modules and versions of LWJGL are required and add setup the appropriate natives.

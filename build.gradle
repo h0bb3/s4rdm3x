@@ -45,6 +45,7 @@ dependencies {
 
     //compileOnly fileTree(include: ['*.jar'], dir: 'lib')
     implementation files('lib/asm-6.2.1.jar', 'lib/asm-util-6.2.1.jar')
+    //implementation files('lib/asm-9.2.jar', 'lib/asm-util-9.2.jar')
     implementation files('lib/weka-stable-3.8.3.jar')
 
 
