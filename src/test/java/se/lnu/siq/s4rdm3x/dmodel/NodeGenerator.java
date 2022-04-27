@@ -19,6 +19,10 @@ public class NodeGenerator {
         }
     }
 
+    public String getFullClassName(String className) {
+        return g_classesPkg + className;
+    }
+
     private void setBranchStatementCount(dmClass.Method a_m, int count) {
         for (int i = 0; i < count; i++) {
             a_m.incBranchStatementCount();

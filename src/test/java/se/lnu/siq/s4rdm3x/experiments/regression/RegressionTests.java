@@ -27,7 +27,7 @@ class RegressionTests {
     static final int g_ir_test_count = 3;
     static final int g_lsi_test_count = 3;
 
-    @Test
+    //@Test
     public void testProM_HuGMe() {
         DumpBase db = new ProMDump();
         ArchDef a = db.m_a;
@@ -38,7 +38,7 @@ class RegressionTests {
         }
     }
 
-    @Test
+    //@Test
     public void testProM_NB() {
         DumpBase db = new ProMDump();
         ArchDef a = db.m_a;
@@ -49,7 +49,7 @@ class RegressionTests {
         }
     }
 
-    @Test
+    //@Test
     public void testProM_IR() {
         DumpBase db = new ProMDump();
         ArchDef a = db.m_a;
@@ -60,7 +60,7 @@ class RegressionTests {
         }
     }
 
-    @Test
+    //@Test
     public void testProM_LSI() {
         DumpBase db = new ProMDump();
         ArchDef a = db.m_a;
@@ -72,7 +72,7 @@ class RegressionTests {
     }
 
 
-    @Test
+    //@Test
     public void testCommonsImg_HuGMe() {
         DumpBase db = new CommonsImagingDump();
         ArchDef a = db.m_a;
@@ -83,7 +83,7 @@ class RegressionTests {
         }
     }
 
-    @Test
+    //@Test
     public void testCommonsImg_NB() {
         DumpBase db = new CommonsImagingDump();
         ArchDef a = db.m_a;
@@ -94,7 +94,7 @@ class RegressionTests {
         }
     }
 
-    @Test
+    //@Test
     public void testCommonsImg_IR() {
         DumpBase db = new CommonsImagingDump();
         ArchDef a = db.m_a;
@@ -105,7 +105,7 @@ class RegressionTests {
         }
     }
 
-    @Test
+    //@Test
     public void testCommonsImg_LSI() {
         DumpBase db = new CommonsImagingDump();
         ArchDef a = db.m_a;
@@ -116,7 +116,7 @@ class RegressionTests {
         }
     }
 
-    @Test
+    //@Test
     public void testTeammates_HuGMe() {
         DumpBase db = new TeammatesDump();
         ArchDef a = db.m_a;
@@ -127,7 +127,7 @@ class RegressionTests {
         }
     }
 
-    @Test
+    //@Test
     public void testTeammates_NB() {
         DumpBase db = new TeammatesDump();
         ArchDef a = db.m_a;
@@ -138,7 +138,7 @@ class RegressionTests {
         }
     }
 
-    @Test
+    //@Test
     public void testTeammates_IR() {
         DumpBase db = new TeammatesDump();
         ArchDef a = db.m_a;
@@ -149,7 +149,7 @@ class RegressionTests {
         }
     }
 
-    @Test
+    //@Test
     public void testTeammates_LSI() {
         DumpBase db = new TeammatesDump();
         ArchDef a = db.m_a;

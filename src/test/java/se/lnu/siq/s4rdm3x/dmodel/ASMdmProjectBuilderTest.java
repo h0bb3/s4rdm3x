@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static se.lnu.siq.s4rdm3x.dmodel.dmDependency.Type.ConstructorCall;
@@ -21,11 +22,19 @@ class ASMdmProjectBuilderTest {
     static final String g_classesPkg = "se.lnu.siq.s4rdm3x.dmodel.classes.";
     static final String g_classesDir = "/se/lnu/siq/s4rdm3x/dmodel/classes/";
 
-    void dumpDependencies(dmClass a_c) {
-        System.out.println("\t" + a_c.getName());
+    String collectDependencyDump(dmClass a_c) {
+        StringBuilder b = new StringBuilder();
+
+        b.append("\t"); b.append(a_c.getName()); b.append(System.lineSeparator());
         for (dmDependency d : a_c.getDependencies()) {
-            System.out.println("\t-> " + d.getTarget().getName() + " : " + d.getType().toString() + " x " + d.getCount());
+            b.append("\t->"); b.append(d.getTarget().getName()); b.append(" : "); b.append(d.getType().toString()); b.append(" x "); b.append(d.getCount()); b.append(System.lineSeparator());
         }
+
+        return b.toString();
+    }
+
+    void dumpDependencies(dmClass a_c) {
+        System.out.println(collectDependencyDump(a_c));
     }
 
     private List<dmDependency> deepCopyDependencies(Iterable<dmDependency> a_source) {
@@ -838,7 +847,14 @@ class ASMdmProjectBuilderTest {
             dmClass c = pb.getProject().findClass(expected.getName());
             assertTrue(c != null);
 
-            assertTrue(compare(expected, c) == 0);
+            // it seems like it depends on the bytecode version how enumerations are handled
+            // in newer(?) versions a synthetic $values method is added that contains the actual code
+            // this has a return type of EnumTest
+            if (c.getMethods("$values").size() > 0) {
+                expected.addDependency(g_classesPkg + "EnumTest", dmDependency.Type.Returns);
+            }
+
+            assertTrue(compare(expected, c) == 0, () -> collectDependencyDump(c));
 
             //dumpDependencies(c);
             //assertEquals(3, c.getDependencyCount());
