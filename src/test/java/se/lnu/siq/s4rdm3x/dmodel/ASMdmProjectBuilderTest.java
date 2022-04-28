@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static se.lnu.siq.s4rdm3x.dmodel.dmDependency.Type.ConstructorCall;
@@ -21,11 +22,19 @@ class ASMdmProjectBuilderTest {
     static final String g_classesPkg = "se.lnu.siq.s4rdm3x.dmodel.classes.";
     static final String g_classesDir = "/se/lnu/siq/s4rdm3x/dmodel/classes/";
 
-    void dumpDependencies(dmClass a_c) {
-        System.out.println("\t" + a_c.getName());
+    String collectDependencyDump(dmClass a_c) {
+        StringBuilder b = new StringBuilder();
+
+        b.append("\t"); b.append(a_c.getName()); b.append(System.lineSeparator());
         for (dmDependency d : a_c.getDependencies()) {
-            System.out.println("\t-> " + d.getTarget().getName() + " : " + d.getType().toString() + " x " + d.getCount());
+            b.append("\t->"); b.append(d.getTarget().getName()); b.append(" : "); b.append(d.getType().toString()); b.append(" x "); b.append(d.getCount()); b.append(System.lineSeparator());
         }
+
+        return b.toString();
+    }
+
+    void dumpDependencies(dmClass a_c) {
+        System.out.println(collectDependencyDump(a_c));
     }
 
     private List<dmDependency> deepCopyDependencies(Iterable<dmDependency> a_source) {
@@ -110,11 +119,22 @@ class ASMdmProjectBuilderTest {
         return 0;
     }
 
+    dmClass createClass(final String a_name, dmFile.dmDirectory a_root) {
+        return new dmClass(a_name, a_root.createFile(a_name.split("//.")));
+    }
+
+    dmClass createClass(final String a_name) {
+        dmFile.dmDirectory root = new dmFile.dmDirectory("root", null);
+        dmClass ret = new dmClass(a_name, root.createFile(a_name.split("//.")));
+        return ret;
+    }
+
     @Test
     void localSelfVars1() {
         try {
 
-            dmClass expected = new dmClass(g_classesPkg + "SelfCall$SelfCall1");
+            final String className = g_classesPkg + "SelfCall$SelfCall1";
+            dmClass expected = createClass(className);
             expected.addDependency("java.lang.Object", dmDependency.Type.Extends);
             expected.addDependency("java.lang.Object", ConstructorCall);
             expected.addDependency("void", dmDependency.Type.Returns);
@@ -127,7 +147,7 @@ class ASMdmProjectBuilderTest {
 
             assertTrue(pb.getProject() != null);
 
-            dmClass c = pb.getProject().findClass(g_classesPkg + "SelfCall$SelfCall1");
+            dmClass c = pb.getProject().findClass(className);
             assertTrue(c != null);
 
             assertTrue(compare(expected, c) == 0);
@@ -148,7 +168,7 @@ class ASMdmProjectBuilderTest {
         try {
 
             String className = g_classesPkg + "SelfCall$SelfCall2";
-            dmClass expected = new dmClass(className);
+            dmClass expected = createClass(className);
             expected.addDependency("java.lang.Object", dmDependency.Type.Extends);
             expected.addDependency("java.lang.Object", ConstructorCall);
             expected.addDependency("void", dmDependency.Type.Returns);
@@ -178,7 +198,7 @@ class ASMdmProjectBuilderTest {
         try {
 
             String className = g_classesPkg + "SelfCall$SelfCall3";
-            dmClass expected = new dmClass(className);
+            dmClass expected = createClass(className);
             expected.addDependency("java.lang.Object", dmDependency.Type.Extends);
             expected.addDependency("java.lang.Object", ConstructorCall);
             expected.addDependency("void", dmDependency.Type.Returns);
@@ -205,7 +225,7 @@ class ASMdmProjectBuilderTest {
     void test3() {
         try {
             String className = g_classesPkg + "Test3";
-            dmClass expected = new dmClass(className);
+            dmClass expected = createClass(className);
             expected.addDependency("java.lang.Object", dmDependency.Type.Extends);
             expected.addDependency(g_classesPkg + "InterfaceTest", dmDependency.Type.Implements);
             expected.addDependency("java.lang.Integer", dmDependency.Type.Argument); // argument in constructor
@@ -267,7 +287,7 @@ class ASMdmProjectBuilderTest {
     void test2() {
         try {
             String className = g_classesPkg + "Test2";
-            dmClass expected = new dmClass(className);
+            dmClass expected = createClass(className);
             expected.addDependency("java.lang.Object", dmDependency.Type.Extends);
             expected.addDependency("java.lang.Object", ConstructorCall);
             expected.addDependency("void", dmDependency.Type.Returns);
@@ -320,7 +340,7 @@ class ASMdmProjectBuilderTest {
     void test1() {
         try {
             String className = g_classesPkg + "Test1";
-            dmClass expected = new dmClass(className);
+            dmClass expected = createClass(className);
             expected.addDependency("java.lang.Object", dmDependency.Type.Extends);
             expected.addDependency("java.lang.Object", ConstructorCall);
             expected.addDependency("void", dmDependency.Type.Returns);
@@ -425,7 +445,7 @@ class ASMdmProjectBuilderTest {
     @Test
     void arrayTest2() {
         try {
-            dmClass expected = new dmClass(g_classesPkg + "ArrayTest2");
+            dmClass expected = createClass(g_classesPkg + "ArrayTest2");
 
             // constructor
             expected.addDependency("java.lang.Object", dmDependency.Type.Extends);
@@ -466,7 +486,7 @@ class ASMdmProjectBuilderTest {
     void arrayTest() {
         try {
 
-            dmClass expected = new dmClass(g_classesPkg + "ArrayTest");
+            dmClass expected = createClass(g_classesPkg + "ArrayTest");
 
             expected.addDependency("java.lang.Object", dmDependency.Type.Extends);
             expected.addDependency("java.lang.String", dmDependency.Type.Field);
@@ -517,7 +537,7 @@ class ASMdmProjectBuilderTest {
     @Test
     void localVariablesTest() {
         try {
-            dmClass expected = new dmClass(g_classesPkg + "Test4");
+            dmClass expected = createClass(g_classesPkg + "Test4");
             expected.addDependency("java.lang.Object", dmDependency.Type.Extends);
             expected.addDependency("java.lang.Object", ConstructorCall);
             expected.addDependency("void", dmDependency.Type.Returns);
@@ -560,7 +580,7 @@ class ASMdmProjectBuilderTest {
     void exceptionTest() {
         try {
 
-            dmClass expected = new dmClass(g_classesPkg + "ExceptionTest");
+            dmClass expected = createClass(g_classesPkg + "ExceptionTest");
             expected.addDependency("java.lang.Object", dmDependency.Type.Extends);
             expected.addDependency("java.lang.Object", ConstructorCall);
             expected.addDependency("void", dmDependency.Type.Returns);
@@ -600,7 +620,7 @@ class ASMdmProjectBuilderTest {
     void innerClassTest1() {
         try {
 
-            dmClass expected = new dmClass(g_classesPkg + "InnerClassTest");
+            dmClass expected = createClass(g_classesPkg + "InnerClassTest");
             expected.addDependency("java.lang.Object", dmDependency.Type.Extends);
             expected.addDependency("java.lang.Object", ConstructorCall);
             expected.addDependency("void", dmDependency.Type.Returns);
@@ -651,7 +671,7 @@ class ASMdmProjectBuilderTest {
     void innerClassTest2() {
         try {
 
-            dmClass expected = new dmClass(g_classesPkg + "InnerClassTest$2");
+            dmClass expected = createClass(g_classesPkg + "InnerClassTest$2");
             expected.addDependency("java.lang.Object", dmDependency.Type.Extends);
             expected.addDependency("java.lang.Object", ConstructorCall);
             expected.addDependency("void", dmDependency.Type.Returns);
@@ -682,7 +702,7 @@ class ASMdmProjectBuilderTest {
     void innerClassTest3_1() {
         try {
 
-            dmClass expected = new dmClass(g_classesPkg + "InnerClassTest$3$1");
+            dmClass expected = createClass(g_classesPkg + "InnerClassTest$3$1");
             expected.addDependency("java.lang.Object", dmDependency.Type.Extends);
             expected.addDependency("java.lang.Object", ConstructorCall);
             expected.addDependency("void", dmDependency.Type.Returns);
@@ -713,7 +733,7 @@ class ASMdmProjectBuilderTest {
     void innerClassTest_Inner() {
         try {
 
-            dmClass expected = new dmClass(g_classesPkg + "InnerClassTest$Inner");
+            dmClass expected = createClass(g_classesPkg + "InnerClassTest$Inner");
             expected.addDependency("java.lang.Object", dmDependency.Type.Extends);
             expected.addDependency("java.lang.Object", ConstructorCall);
             expected.addDependency("void", dmDependency.Type.Returns);
@@ -752,7 +772,7 @@ class ASMdmProjectBuilderTest {
     void innerClassTest_Inner2() {
         try {
 
-            dmClass expected = new dmClass(g_classesPkg + "InnerClassTest$Inner2");
+            dmClass expected = createClass(g_classesPkg + "InnerClassTest$Inner2");
             expected.addDependency("java.lang.Object", dmDependency.Type.Extends);
             expected.addDependency("java.lang.Object", ConstructorCall);
             expected.addDependency("void", dmDependency.Type.Returns);
@@ -784,7 +804,7 @@ class ASMdmProjectBuilderTest {
     void EnumTest() {
         try {
 
-            dmClass expected = new dmClass(g_classesPkg + "EnumTest");
+            dmClass expected = createClass(g_classesPkg + "EnumTest");
             expected.addDependency("java.lang.Enum", dmDependency.Type.Extends);
             expected.addDependency("java.lang.Enum", ConstructorCall);
             expected.addDependency("void", dmDependency.Type.Returns);
@@ -827,7 +847,14 @@ class ASMdmProjectBuilderTest {
             dmClass c = pb.getProject().findClass(expected.getName());
             assertTrue(c != null);
 
-            assertTrue(compare(expected, c) == 0);
+            // it seems like it depends on the bytecode version how enumerations are handled
+            // in newer(?) versions a synthetic $values method is added that contains the actual code
+            // this has a return type of EnumTest
+            if (c.getMethods("$values").size() > 0) {
+                expected.addDependency(g_classesPkg + "EnumTest", dmDependency.Type.Returns);
+            }
+
+            assertTrue(compare(expected, c) == 0, () -> collectDependencyDump(c));
 
             //dumpDependencies(c);
             //assertEquals(3, c.getDependencyCount());
@@ -841,7 +868,7 @@ class ASMdmProjectBuilderTest {
     void interfaceTest() {
         try {
 
-            dmClass expected = new dmClass(g_classesPkg + "InterfaceTest");
+            dmClass expected = createClass(g_classesPkg + "InterfaceTest");
             expected.addDependency("java.lang.Object", dmDependency.Type.Extends);
             //expected.addDependency("java.lang.Object", dmDependency.Type.MethodCall);
             //expected.addDependency("void", dmDependency.Type.Returns);

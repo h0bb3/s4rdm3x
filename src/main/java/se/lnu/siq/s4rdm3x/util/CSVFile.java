@@ -54,17 +54,18 @@ public class CSVFile {
     }
 
     public void writeRows(Iterable<Iterable<String>> a_strings) throws IOException {
-        String fatString = "";
+        StringBuilder fatStringBuilder = new StringBuilder();
 
         for (Iterable<String> strings : a_strings) {
             TxtRow tr = new TxtRow(strings);
             if (tr.m_cellCount != m_headerCount) {
                 throw new IllegalArgumentException("Amount of strings do not match the amount of headers: " + tr.m_cellCount + " !=  " + m_headerCount);
             }
-            fatString += tr.m_txtRow;
+            fatStringBuilder.append(tr.m_txtRow);
         }
 
         // remove last rowbreak
+        String fatString = fatStringBuilder.toString();
         fatString = fatString.substring(0, fatString.length() - 1);
         write(m_fp, fatString.getBytes(), StandardOpenOption.APPEND);
     }

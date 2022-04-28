@@ -164,6 +164,10 @@ public class System2JavaDumper {
         ps("m_a = new ArchDef()");
         for (ArchDef.Component c : a_a.getComponents()) {
             ps("ArchDef.Component c" + a_a.getComponentIx(c) + " = m_a.addComponent(\"" + c.getName() + "\")");
+            // add all the keywords of the architecture.
+            for (String keyword : c.getKeywords()) {
+                ps("c" + a_a.getComponentIx(c) + ".addKeyword(\"" + keyword + "\")");
+            }
         }
 
         for (ArchDef.Component c : a_a.getComponents()) {
@@ -239,9 +243,28 @@ public class System2JavaDumper {
         }
     }
 
+    public static String removePeskyCharacters(String s) {
+        // when setting the encoding in when both saving the file and for gradle this turns out to be fixed
+        // '‘' 8216
+        // '’' 8217
+        // for some reason these two characters did not want to play nicely as strings
+        //final String replace1 = new String(new char[] {(char)8216});
+        //final String replace2 = new String(new char[]{(char)8217});
+
+        //return s.replace(replace1, "")       // just remove this one seems to mess things up on github when running tests
+        //        .replace(replace2, "");       // dito
+
+        return s;
+    }
 
     public String escape(String s){
-        return s.replace("\\", "\\\\")
+        // '‘' 8216
+        // '’' 8217
+        // for some reason these two characters did not want to play nicely as strings
+        final String replace1 = new String(new char[] {(char)8216});
+        final String replace2 = new String(new char[]{(char)8217});
+        //String replace = "‘";
+        return  s.replace("\\", "\\\\")
                 .replace("\t", "\\t")
                 .replace("\b", "\\b")
                 .replace("\n", "\\n")
@@ -321,7 +344,7 @@ public class System2JavaDumper {
 
                 for (String t : c.getTexts()) {
                     // TODO: there could be other things than needs to be escaped
-                    String text = escape(t);//.replace("\\", "\\\\").replace("\n", "\\n").replace("\r", "\\r").replace("\"", "\\\"");
+                    String text = escape(removePeskyCharacters(t));
                     ps("a_c.addText(\"" + text + "\")");
                     shadowClass.addText(deEscape(text));
                 }
@@ -429,19 +452,16 @@ public class System2JavaDumper {
         }
 
         for (dmClass c : a_n.getClasses()) {
-            ps("dmClass " + className(c) + " = new dmClass(\"" + c.getName() + "\")");    // create class
-            ps(nodeFunctionName(a_n) + ".addClass(" + className(c) + ")");           // add class to node
-            n.addClass(new dmClass(c.getName()));
-
-            ps("m_classes.put(\"" + c.getName() + "\", " + className(c) + ")");
+            ps("dmClass " + className(c) + " = createClass(\"" + c.getName() + "\", " + nodeFunctionName(a_n) + ")");    // create class
+            n.addClass(new dmClass(c.getName(), m_shadow.m_root.createFile(dmClass.toJavaSourceFile(c.getName()))));
             if (hasText(a_n)) {
                 ps(className(c) + "_texts(" + className(c) + ")");                              // call the node text functions
             }
 
-            // methods are not added this may limit the usefullness of the regressions i.e. checking some metrics.
+            // methods are not added this may limit the usefulness of the regressions i.e. checking some metrics.
             // problem is that there is currently no way of adding a method without also adding the method name as a text
             // in addition the dependencies for the methods will require some special treatment.
-            // possbily this could be fixed by adding the methods stuff last and removing the text from the node first, and having a lookup of dependencies.
+            // possibly this could be fixed by adding the methods stuff last and removing the text from the node first, and having a lookup of dependencies.
             /*for (dmClass.Method m : c.getMethods()) {
                 c.addDependency();
 

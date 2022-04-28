@@ -76,18 +76,23 @@ public class MapperBase {
         public void setWeight(dmDependency.Type a_dep, double a_w) {
             m_weights.replace(a_dep, a_w);
         }
+
+        // this is used to half the weight of all file based weights
+        // this is highly dependant on creating double linked file dependencies
+        // thus halving their value would give a more realistic count.
+        public void halfFileWeights() {
+            for (dmDependency.Type t : dmDependency.Type.values()) {
+                if (t.isFileBased) {
+                    setWeight(t, getWeight(t) * 0.5);
+                }
+            }
+        }
     }
 
-    public static class OrphanNode {
-        CNode m_node;
-        OrphanNode(CNode a_node, ArchDef a_arch) {
+    protected static class NodeBase {
+        protected CNode m_node;
+        protected NodeBase(CNode a_node) {
             m_node = a_node;
-            if (a_arch.getMappedComponent(m_node) == null) {
-                throw new IllegalArgumentException("Orphan Node has no mapping");
-            }
-            if (a_arch.getClusteredComponent(m_node) != null) {
-                throw new IllegalArgumentException("Clustered node is trying to pass as Orphan");
-            }
         }
 
         public void setAttractions(double[] a_attractions) {
@@ -106,29 +111,46 @@ public class MapperBase {
             return m_node.getMapping();
         }
 
-        public int getDependencyCount(OrphanNode a_otherNode) {
+        public int getDependencyCount(NodeBase a_otherNode) {
             return m_node.getDependencyCount(a_otherNode.get());
         }
 
-        public int getDependencyCount(ClusteredNode a_n) {
-            return m_node.getDependencyCount(a_n.get());
+        public Iterable<dmDependency> getDependencies(CNode a_otherNode) {
+            return m_node.getDependencies(a_otherNode);
         }
 
-        public double getDependencyCount(ClusteredNode a_n, DependencyWeights a_dw) {
+        public double getDependencyCount(NodeBase a_n, DependencyWeights a_dw, boolean a_countFileDeps) {
             double ret = 0;
 
             for (dmDependency d : m_node.getDependencies(a_n.get())) {
-                ret += d.getCount() * a_dw.getWeight(d.getType());
+                if (a_countFileDeps || !d.getType().isFileBased) {
+                    ret += d.getCount() * a_dw.getWeight(d.getType());
+                }
             }
             return ret;
         }
     }
 
-    public static class ClusteredNode {
-        CNode m_node;
+    public static class OrphanNode extends NodeBase {
+
+        OrphanNode(CNode a_node, ArchDef a_arch) {
+            super(a_node);
+            if (a_arch.getMappedComponent(m_node) == null) {
+                throw new IllegalArgumentException("Orphan Node has no mapping");
+            }
+            if (a_arch.getClusteredComponent(m_node) != null) {
+                throw new IllegalArgumentException("Clustered node is trying to pass as Orphan");
+            }
+        }
+
+
+    }
+
+    public static class ClusteredNode extends NodeBase {
+
         ArchDef m_arch;
         public ClusteredNode(CNode a_node, ArchDef a_arch) {
-            m_node = a_node;
+            super(a_node);
             m_arch = a_arch;
             if (a_arch.getMappedComponent(m_node) == null) {
                 throw new IllegalArgumentException("Clustered Node has no mapping");
@@ -136,18 +158,6 @@ public class MapperBase {
             if (a_arch.getClusteredComponent(m_node) == null) {
                 throw new IllegalArgumentException("Orphan node is trying to pass as Clustered");
             }
-        }
-
-        public String getClusteringComponentName() {
-            return m_node.getClusteringComponentName();
-        }
-
-        public Iterable<dmDependency> getDependencies(CNode a_to) {
-            return m_node.getDependencies(a_to);
-        }
-
-        public CNode get() {
-            return m_node;
         }
 
         @Override
@@ -165,17 +175,8 @@ public class MapperBase {
             return m_arch.getClusteredComponent(m_node);
         }
 
-        public int getDependencyCount(OrphanNode a_n) {
-            return m_node.getDependencyCount(a_n.get());
-        }
-
-        public double getDependencyCount(OrphanNode a_node, DependencyWeights a_dw) {
-            double ret = 0;
-
-            for (dmDependency d : m_node.getDependencies(a_node.get())) {
-                ret += d.getCount() * a_dw.getWeight(d.getType());
-            }
-            return ret;
+        public String getClusteringComponentName() {
+            return getClusteredComponent().getName();
         }
     }
 

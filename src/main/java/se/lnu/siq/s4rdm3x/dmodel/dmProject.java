@@ -10,6 +10,7 @@ public class dmProject {
     private List<BlackListItem> m_blackList;
     private Map<Object, dmClass> m_constants;
     private Map<Object, List<dmClassLinePair>> m_constantDependencies;
+    private dmFile.dmDirectory m_rootDir;
 
     public boolean trackConstantDeps() {
         return m_trackConstantDeps;
@@ -20,6 +21,64 @@ public class dmProject {
     }
 
     private boolean m_trackConstantDeps;
+
+    public void addFileDependencies() {
+        addFileDependencies(m_rootDir);
+    }
+
+    private void addFileDependencies(dmFile.dmDirectory a_dir) {
+        addHorizontalClasses(a_dir.getFiles());
+        for (dmFile.dmDirectory dir : a_dir.getDirectories()) {
+            addVerticalClasses(a_dir.getFiles(), dir.getFiles());
+            addFileDependencies(dir);
+        }
+    }
+
+    private void addVerticalClasses(Iterable<dmFile> a_files1, Iterable<dmFile> a_files2) {
+        for (dmFile f1 : a_files1) {
+            for (dmFile f2 : a_files2) {
+                addVerticalFileDependency(f1, f2);
+            }
+        }
+    }
+
+    private void addHorizontalClasses(Iterable<dmFile> a_files) {
+        Iterator<dmFile> fromIt = a_files.iterator();
+
+        while(fromIt.hasNext()) {
+            dmFile from = fromIt.next();
+            fromIt.forEachRemaining(to -> addHorizontalFileDependency(from, to));
+        }
+    }
+
+    private void addVerticalFileDependency(dmFile a_f1, dmFile a_f2) {
+        dmClass c1 = getClass(a_f1);
+        dmClass c2 = getClass(a_f2);
+        c1.addVerticalFileDependency(c2);
+    }
+
+    private void addHorizontalFileDependency(dmFile a_f1, dmFile a_f2) {
+        dmClass c1 = getClass(a_f1);
+        dmClass c2 = getClass(a_f2);
+        c1.addHorizontalFileDependency(c2);
+    }
+
+    private dmClass getClass(dmFile a_f1) {
+        for (dmClass c : m_classes.values()) {
+            if (c.getFile() == a_f1 && c.acceptFileDependency()) {
+                return c;
+            }
+        }
+        return null;
+    }
+
+    public dmFile.dmDirectory getRootDirectory() {
+        return m_rootDir;
+    }
+
+    public int getClassCount() {
+        return m_classes.size();
+    }
 
     private static class dmClassLinePair {
         public dmClass m_class;
@@ -49,6 +108,7 @@ public class dmProject {
         m_constants = new HashMap<>();
         m_constantDependencies = new HashMap<>();
         m_trackConstantDeps = false;
+        m_rootDir = new dmFile.dmDirectory("root", null);
 
     }
 
@@ -120,13 +180,13 @@ public class dmProject {
     }
 
     public dmClass addClass(dmClass a_c) {
-        dmClass ret = a_c;
+
 
         if (isBlackListed(a_c.getName())) {
             return null;
         }
 
-        ret = findClass(ret.getName());
+        dmClass ret = findClass(a_c.getName());
         if (ret == null) {
             m_classes.put(a_c.getName(), a_c);
             ret = a_c;
@@ -135,8 +195,25 @@ public class dmProject {
         return ret;
     }
 
-    public dmClass addClass(String a_name) {
-        return addClass(new dmClass(a_name));
+    public dmClass addJavaClass(String a_logicalName) {
+        // create directory structure and add the file / dirs etc
+        if (!isBlackListed(a_logicalName)) {
+            dmFile f = addFile(dmClass.toJavaSourceFile(a_logicalName));
+            dmClass ret = addClass(new dmClass(a_logicalName, f));
+            if (ret.isInner()) {
+                // make sure we have an outer class
+                String[] parts = dmClass.toJavaSourceFile(a_logicalName);
+                String name = String.join(".", parts);
+                addClass(new dmClass(name, f));
+            }
+            return ret;
+        }
+        return null;
+    }
+
+    private dmFile addFile(String [] a_parts) {
+        dmFile f = m_rootDir.createFile(a_parts);
+        return f;
     }
 
     public Iterable<dmClass> getClasses() {

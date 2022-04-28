@@ -105,6 +105,11 @@ public class Individual implements Comparable<Individual> {
         m_medianF1Score = -Double.MAX_VALUE;
         int setIx = 0;
 
+        final double filterThresholdBase = 0.1;
+        final double filterThresholdMax = 0.75;
+        final double filterThresholdDelta = (filterThresholdMax - filterThresholdBase) / (setCount - 1);
+        double filterThreshold = filterThresholdBase;
+
         for (Iterable<String> initialSet : a_initialSets) {
             //System.out.println("\t\t\tEvaluating initial set: " + setCount);
             m_arch.cleanNodeClusters(m_graph.getNodes(), false);
@@ -112,9 +117,10 @@ public class Individual implements Comparable<Individual> {
             int initialSetSize = copyInitialSetToGraph(initialSet);
 
             //System.out.println("\t\t\tRunning experiment... ");
-            f1 = runExperimentGetF1Score(m_graph.getNodeCount() - initialSetSize);
+            f1 = runExperimentGetF1Score(filterThreshold, m_graph.getNodeCount() - initialSetSize);
             m_f1Scores[setIx] = f1;
             setIx++;
+            filterThreshold += filterThresholdDelta;
         }
 
 
@@ -148,26 +154,29 @@ public class Individual implements Comparable<Individual> {
         return m_f1Scores[a_initialSetIx];
     }
 
-    private double runExperimentGetF1Score(int a_totalPossibleOrphans) {
+    private double runExperimentGetF1Score(double a_filterThreshold, int a_totalPossibleOrphans) {
         double ret = 0;
         int clusterFails = 0;
-        int actualOrphans = 0;
+        int autoClusteredOrphans = 0;
+
 
         HuGMe exp;
         do {
-            exp = createExperiment();
+            exp = createExperiment(a_filterThreshold);
             exp.run(m_graph);
             clusterFails += exp.m_autoWrong;
-            actualOrphans += exp.getAutoClusteredOrphanCount();
+            autoClusteredOrphans += exp.getAutoClusteredOrphanCount();
         } while (exp.getAutoClusteredOrphanCount() > 0);
 
         double precision = 0;
-        if (actualOrphans > 0) {
-            precision = (double) (actualOrphans - clusterFails) / (double) actualOrphans;
+        double truePositive = autoClusteredOrphans - clusterFails;
+        double falseNegatives = a_totalPossibleOrphans - autoClusteredOrphans;
+        if (autoClusteredOrphans > 0) {
+            precision = (double) truePositive / (double) autoClusteredOrphans;
         }
         double recall = 0;
         if (a_totalPossibleOrphans > 0) {
-            recall = (double)(actualOrphans - clusterFails) / (double)a_totalPossibleOrphans;
+            recall = truePositive / (truePositive + falseNegatives);
         }
 
         if (precision > 0 || recall > 0) {
@@ -177,8 +186,8 @@ public class Individual implements Comparable<Individual> {
         }
     }
 
-    private HuGMe createExperiment() {
-        HuGMe ret = new HuGMe(0, 1, false, m_arch, m_weights);
+    private HuGMe createExperiment(double a_filterThreshold) {
+        HuGMe ret = new HuGMe(a_filterThreshold, 1, false, m_arch, m_weights);
         return ret;
     }
 

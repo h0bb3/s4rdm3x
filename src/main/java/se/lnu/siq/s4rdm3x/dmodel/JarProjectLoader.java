@@ -32,6 +32,10 @@ public class JarProjectLoader {
         p.addClassToBlackList("boolean");
         p.addClassToBlackList("void");
         p.addClassToBlackList("double");
+        p.addClassToBlackList("char");
+        p.addClassToBlackList("long");
+        p.addClassToBlackList("byte");
+
 
         p.doTrackConstantDeps(false);
 

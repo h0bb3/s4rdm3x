@@ -41,7 +41,7 @@ public class Comparator {
 
             expected.forEach( et -> {
                 String at = aIt.next();
-                org.junit.jupiter.api.Assertions.assertEquals(et, at, "Could not find text: " + et + " in class: " + ac.getName() + " in Node: " + a_actual.getName());
+                org.junit.jupiter.api.Assertions.assertEquals(System2JavaDumper.removePeskyCharacters(et), at, "Could not find text: " + et + " in class: " + ac.getName() + " in Node: " + a_actual.getName());
             });
 
             assertFalse(aIt.hasNext(), "Class: " + ac.getName() + " has more texts than expected.");

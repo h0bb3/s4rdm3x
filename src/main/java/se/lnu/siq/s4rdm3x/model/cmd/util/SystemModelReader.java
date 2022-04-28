@@ -77,8 +77,12 @@ public class SystemModelReader {
                 m_modules.add(m);
             } break;
             case Mapping: {
-                Mapping m = new Mapping(parts[0], parts[1]);
-                m_mappings.add(m);
+                if (parts.length != 2) {
+                    System.err.println("Wrong number of tokens in file" + m_id + " line: " + m_line);
+                } else {
+                    Mapping m = new Mapping(parts[0], parts[1]);
+                    m_mappings.add(m);
+                }
             } break;
             case InitialMapping: {
                 Mapping m = new Mapping(parts[0], parts[1]);

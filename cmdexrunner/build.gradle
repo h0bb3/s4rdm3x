@@ -30,11 +30,11 @@ dependencies {
     //implementation 'com.github.tobias-dv-lnu:s4rdm3x:1.2'
 
     // this is for core dependencies
-    compile files('../lib/asm-6.2.1.jar', '../lib/asm-util-6.2.1.jar')
-    compile files('../lib/weka-stable-3.8.3.jar')
+    implementation files('../lib/asm-6.2.1.jar', '../lib/asm-util-6.2.1.jar')
+    implementation files('../lib/weka-stable-3.8.3.jar')
     //runtime files('../lib/asm-6.2.1.jar', '../lib/asm-util-6.2.1.jar')
     //runtime files('../lib/weka-stable-3.8.3.jar')
-    runtime files('../lib/snowball.jar', '../lib/bounce-0.18.jar')
+    runtimeOnly files('../lib/snowball.jar', '../lib/bounce-0.18.jar')
 }
 
 

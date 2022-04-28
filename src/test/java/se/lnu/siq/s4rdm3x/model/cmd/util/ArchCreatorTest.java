@@ -1,7 +1,9 @@
 package se.lnu.siq.s4rdm3x.model.cmd.util;
 
 import org.junit.jupiter.api.Test;
+import se.lnu.siq.s4rdm3x.dmodel.NodeGenerator;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
+import se.lnu.siq.s4rdm3x.dmodel.dmFile;
 import se.lnu.siq.s4rdm3x.model.CNode;
 import se.lnu.siq.s4rdm3x.model.Selector;
 import se.lnu.siq.s4rdm3x.model.cmd.mapper.ArchDef;
@@ -30,9 +32,10 @@ class ArchCreatorTest {
 
         ArrayList<CNode> nodes = new ArrayList<CNode>();
         CNode n1 = new CNode("n1", -1);
-        n1.addClass(new dmClass("java.node.test"));
+        dmFile.dmDirectory root = new dmFile.dmDirectory("root", null);
+        n1.addClass(NodeGenerator.createClass("java.node.test", root));
         CNode n2 = new CNode("n2", -1);
-        n2.addClass(new dmClass("java.node.test2"));
+        n2.addClass(NodeGenerator.createClass("java.node.test2", root));
 
         c1.mapToNode(n1);
         c2.mapToNode(n2);
@@ -57,7 +60,7 @@ class ArchCreatorTest {
     private String getMapping(SystemModelReader a_sysModel, String a_nodeName) {
         String ret = "n/a";
         CNode n = new CNode("n", -1);
-        n.addClass(new dmClass(a_nodeName));
+        n.addClass(NodeGenerator.createClass(a_nodeName));
         for (SystemModelReader.Mapping m : a_sysModel.m_mappings) {
             Selector.Pat p = new Selector.Pat(m.m_regexp);
             if (p.isSelected(n)) {

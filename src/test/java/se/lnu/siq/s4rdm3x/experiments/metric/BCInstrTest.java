@@ -69,7 +69,14 @@ public class BCInstrTest {
 
     @Test
     void test_EnumTest() {
-        assertEquals(47,  getMetric("EnumTest"));
+        final String className = "EnumTest";
+        NodeGenerator ng = new NodeGenerator();
+
+        CNode a = ng.loadNode(className);
+        // enums seem to have changed the bytecode generation between java versions i.e. the synthetic method $values
+        // has been added with some code in it.
+        int expected = a.getClassByName(ng.getFullClassName(className)).getMethods("$values").size() == 0 ? 47 : 49;
+        assertEquals(expected,  getMetric(className));
     }
 
     @Test

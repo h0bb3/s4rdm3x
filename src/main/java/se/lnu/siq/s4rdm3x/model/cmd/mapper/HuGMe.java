@@ -1,5 +1,7 @@
 package se.lnu.siq.s4rdm3x.model.cmd.mapper;
 
+import se.lnu.siq.s4rdm3x.dmodel.dmClass;
+import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
 import se.lnu.siq.s4rdm3x.model.CGraph;
 import se.lnu.siq.s4rdm3x.model.CNode;
 
@@ -29,7 +31,12 @@ public class HuGMe extends MapperBase {
         m_arch = a_arch;
 
         m_weights = new DependencyWeights(a_dw);
+        if (dmClass.createsDoubleFileDependencies()) {
+            m_weights.halfFileWeights();
+        }
     }
+
+
 
     public HuGMe(double a_filterThreshold, double a_violationWeight, boolean a_doManualMapping, ArchDef a_arch) {
         super(a_doManualMapping, a_arch);
@@ -38,8 +45,14 @@ public class HuGMe extends MapperBase {
         m_arch = a_arch;
 
         m_weights = new DependencyWeights(1.0);
+        if (dmClass.createsDoubleFileDependencies()) {
+            m_weights.halfFileWeights();
+        }
     }
 
+    public DependencyWeights getDependencyWeights() {
+        return new DependencyWeights(m_weights);
+    }
 
     public void run(CGraph a_g) {
         final String [] originalMappingTags = m_arch.getComponentNames();
@@ -211,8 +224,9 @@ public class HuGMe extends MapperBase {
             } else {
                 ArchDef.Component from = m_arch.getComponent(a_cluster);
                 ArchDef.Component to = m_arch.getComponent(i);
+                final boolean violationToOther = !from.allowedDependency(to);
                 // dependencies from a_cluster to other clusters (i) can incur violations
-                if (!from.allowedDependency(to)) {
+                if (violationToOther) {
                     // violations have the highest weight
                     weightFrom = violationWeight;
                 } else {
@@ -220,13 +234,14 @@ public class HuGMe extends MapperBase {
                 }
 
                 // dependencies from other clusters (i) to a_cluster can incur violations
-                if (!to.allowedDependency(from)) {
+                final boolean violationFromOther = !to.allowedDependency(from);
+                if (violationFromOther) {
                     weightTo = violationWeight;
                 } else {
                     weightTo = allowedWeight;
                 }
 
-                toOthers += CountAttract(a_node, a_clusters.get(i), weightFrom, weightTo);
+                toOthers += CountAttract(a_node, a_clusters.get(i), weightFrom, weightTo, violationToOther, violationFromOther);
 
                 // remember the attraction contribution to the cluster will be reduced to 0 if there are violations
                 // otherwise the attraction to the cluster will increase as allowed dependencies does not reduce the attraction.
@@ -234,19 +249,19 @@ public class HuGMe extends MapperBase {
                 // node and should be the number of dependencies from the node to any other mapped node
             }
 
-            overall += CountAttract(a_node, a_clusters.get(i), 1.0, 1.0);
+            overall += CountAttract(a_node, a_clusters.get(i), 1.0, 1.0, false, false);
         }
 
         return overall - toOthers;
     }
 
-    private double CountAttract(OrphanNode a_node, Iterable<ClusteredNode> a_cluster, double a_weightFromNode, double a_weightFromCluster) {
+    private double CountAttract(OrphanNode a_node, Iterable<ClusteredNode> a_cluster, double a_weightFromNode, double a_weightFromCluster, boolean a_violationFromNode, boolean a_violationFromCluster) {
         double count = 0;
 
         double cCount = 0;
         for (ClusteredNode nTo : a_cluster) {
-            cCount += a_node.getDependencyCount(nTo, m_weights) * a_weightFromNode; //m_fic.getFanIn(nTo, a_node) * a_weightFromNode;
-            cCount += nTo.getDependencyCount(a_node, m_weights) * a_weightFromCluster;//m_fic.getFanIn(a_node, nTo) * a_weightFromCluster;
+            cCount += a_node.getDependencyCount(nTo, m_weights, !a_violationFromNode) * a_weightFromNode; //m_fic.getFanIn(nTo, a_node) * a_weightFromNode;
+            cCount += nTo.getDependencyCount(a_node, m_weights, !a_violationFromCluster) * a_weightFromCluster;//m_fic.getFanIn(a_node, nTo) * a_weightFromCluster;
         }
 
         count = cCount;

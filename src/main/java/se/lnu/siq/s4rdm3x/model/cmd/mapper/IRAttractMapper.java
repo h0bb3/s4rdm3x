@@ -238,7 +238,12 @@ public class IRAttractMapper extends IRMapperBase {
                 //words.binaryTFNormalization();
                 //words.wordCountTFNormalization();
                 //words.iDF(m_arch.getComponentCount(), wordDocumentFrequency);
-                attraction[i] = words.cosDistance(m_trainingData.get(i));
+                if (m_trainingData.get(i).m_wordCount > 0) {
+                    attraction[i] = words.cosDistance(m_trainingData.get(i));
+                } else {
+                    // no training data for this module... set attraction to 0
+                    attraction[i] = 0;
+                }
             }
 
             orphanNode.setAttractions(attraction);

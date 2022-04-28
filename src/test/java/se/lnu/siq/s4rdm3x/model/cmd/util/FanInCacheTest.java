@@ -3,6 +3,7 @@ package se.lnu.siq.s4rdm3x.model.cmd.util;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import se.lnu.siq.s4rdm3x.dmodel.NodeGenerator;
 import se.lnu.siq.s4rdm3x.dmodel.dmClass;
 import se.lnu.siq.s4rdm3x.dmodel.dmDependency;
 import se.lnu.siq.s4rdm3x.model.CGraph;
@@ -31,18 +32,18 @@ class FanInCacheTest {
 
         dmClass c3_1, c3_2;
 
-        m_c1_1 = new dmClass("test/class_1_1.java");
-        m_c1_2 = new dmClass("test/class_1_2.java");
+        m_c1_1 = NodeGenerator.createClass("test/class_1_1.java");
+        m_c1_2 = NodeGenerator.createClass("test/class_1_2.java", m_c1_1.getFile().getRoot());
         m_n1.addClass(m_c1_1);
         m_n1.addClass(m_c1_2);
 
-        m_c2_1 = new dmClass("test/class_2_1.java");
-        m_c2_2 = new dmClass("test/class_2_2.java");
+        m_c2_1 = NodeGenerator.createClass("test/class_2_1.java", m_c1_1.getFile().getRoot());
+        m_c2_2 = NodeGenerator.createClass("test/class_2_2.java", m_c1_1.getFile().getRoot());
         m_n2.addClass(m_c2_1);
         m_n2.addClass(m_c2_2);
 
-        m_c3_1 = new dmClass("test/class_3_1.java");
-        m_c3_2 = new dmClass("test/class_3_2.java");
+        m_c3_1 = NodeGenerator.createClass("test/class_3_1.java", m_c1_1.getFile().getRoot());
+        m_c3_2 = NodeGenerator.createClass("test/class_3_2.java", m_c1_1.getFile().getRoot());
         m_n3.addClass(m_c3_1);
         m_n3.addClass(m_c3_2);
 

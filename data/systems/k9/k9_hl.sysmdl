@@ -1,0 +1,57 @@
+# This is the high level module mapping for K9, it assumes a strict layered architecture
+# build from latest version 2021-0310 https://github.com/k9mail/k-9/commit/a0b160c7cd27107f5114c8d0f733b23f969c7913
+
+# classes where extracted by building locally and then copying from the release folders of each sub-project.
+
+# jar
+classes.jar
+
+# name
+K9 High Level
+
+# root-packages
+com.fsck.k9
+
+
+# metrics file
+
+# modules
+business controller service mail search migrations power k9
+presentation activity ui notification fragment view list widget helper crypto
+service provider action extra 
+dataaccess mailstore util
+crosscutting crypto autocrypt cache helper
+
+# mapping
+# <high_level_module> <regular_expression>
+
+business com\.fsck\.k9\.controller\.*
+business com\.fsck\.k9\.service\.*
+business com\.fsck\.k9\.mail\.*
+business com\.fsck\.k9\.search\.*
+business com\.fsck\.k9\.mailstore\.migrations*
+business com\.fsck\.k9\.power\.*
+business com\.fsck\.k9\.*			# this one should be improved\.\.\.
+
+presentation com\.fsck\.k9\.activity\.*
+presentation com\.fsck\.k9\.ui\.*
+presentation com\.fsck\.k9\.notification\.*
+presentation com\.fsck\.k9\.fragment\.*
+presentation com\.fsck\.k9\.view\.*
+presentation com\.fsck\.k9\.widget\.list\.*
+
+service com\.fsck\.k9\.provider\.*
+service com\.fsck\.k9\.intent\.action\.*	# intent does not exist in the packages
+service com\.fsck\.k9\.intent\.extra\.*
+
+dataaccess com\.fsck\.k9\.mailstore\.util\.*
+dataaccess com\.fsck\.k9\.mailstore\.*			# mailstore is mentioned in both business and in dataaccess
+
+crosscutting com\.fsck\.k9\.crypto\.*
+crosscutting com\.fsck\.k9\.autocrypt\.*
+crosscutting com\.fsck\.k9\.cache\.*
+crosscutting com\.fsck\.k9\.helper\.*
+
+
+# relations
+# <source_module> <target_module>

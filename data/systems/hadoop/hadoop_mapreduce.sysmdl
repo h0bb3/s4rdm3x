@@ -1,0 +1,245 @@
+# this is the model of Hadoop 0.19.0 (2012) as recovered from:
+# https://www.cs.purdue.edu/homes/lintan/ArchRecovery/hadoop.json
+# https://www.cs.purdue.edu/homes/lintan/ArchRecovery/
+# originally from "A Framework for Obtaining the Ground-Truth in Architectural Recovery"
+# It should be noted that this is an implemented architecture and not an intended architecture.
+
+# name
+Hadoop_MapRed
+
+# jar
+hadoop-0.19.0/hadoop-0.19.0-core.jar
+
+# root-packages
+org.apache.hadoop
+
+
+# modules
+Mapred_client					lib mapper
+Task_Tracking_and_Running 		task status tracker
+Job_Tracking					job listener
+Value_Aggregator 				aggregate
+Join_utilities					join
+Mapred_utilities				task action
+Sequence_File_Handling			sequence
+CPP_Pipes_Job					pipes reducer
+JobClient						jobcontrol
+CPP_Pipes_Protocol				pipes protocol
+DB_IO							db
+DelegatingMapper				lib delegating
+Job_History						history
+KeyFieldBasedPartitioner		lib key
+Multiple_Output_File_Formatting	lib multiple output
+
+
+
+# mapping
+# <high_level_module> <regular_expression>
+Mapred_client	org\.apache\.hadoop\.mapred\.MRConstants$
+Mapred_client	org\.apache\.hadoop\.mapred\.KeyValueLineRecordReader$
+Mapred_client	org\.apache\.hadoop\.mapred\.SkipBadRecords$
+Mapred_client	org\.apache\.hadoop\.mapred\.lib\.IdentityMapper$
+Mapred_client	org\.apache\.hadoop\.mapred\.lib\.LongSumReducer$
+Mapred_client	org\.apache\.hadoop\.mapred\.MultiFileInputFormat$
+Mapred_client	org\.apache\.hadoop\.mapred\.MapRunner$
+Mapred_client	org\.apache\.hadoop\.mapred\.MapTaskCompletionEventsUpdate$
+Mapred_client	org\.apache\.hadoop\.mapred\.Partitioner$
+Mapred_client	org\.apache\.hadoop\.mapred\.MergeSorter$
+Mapred_client	org\.apache\.hadoop\.mapred\.TextOutputFormat$
+Mapred_client	org\.apache\.hadoop\.mapred\.MultiFileSplit$
+Mapred_client	org\.apache\.hadoop\.mapred\.lib\.NullOutputFormat$
+Mapred_client	org\.apache\.hadoop\.mapred\.OutputFormat$
+Mapred_client	org\.apache\.hadoop\.mapred\.JobContext$
+Mapred_client	org\.apache\.hadoop\.mapred\.RawKeyValueIterator$
+Mapred_client	org\.apache\.hadoop\.mapred\.FileInputFormat$
+Mapred_client	org\.apache\.hadoop\.mapred\.SortedRanges$
+Mapred_client	org\.apache\.hadoop\.mapred\.lib\.MultipleOutputs$
+Mapred_client	org\.apache\.hadoop\.mapred\.FileSplit$
+Mapred_client	org\.apache\.hadoop\.mapred\.LocalJobRunner$
+Mapred_client	org\.apache\.hadoop\.mapred\.RecordReader$
+Mapred_client	org\.apache\.hadoop\.mapred\.FileOutputFormat$
+Mapred_client	org\.apache\.hadoop\.mapred\.lib\.NLineInputFormat$
+Mapred_client	org\.apache\.hadoop\.mapred\.lib\.HashPartitioner$
+Mapred_client	org\.apache\.hadoop\.mapred\.lib\.MultithreadedMapRunner$
+Mapred_client	org\.apache\.hadoop\.mapred\.lib\.IdentityReducer$
+Mapred_client	org\.apache\.hadoop\.mapred\.ID$
+Mapred_client	org\.apache\.hadoop\.mapred\.lib\.FieldSelectionMapReduce$
+Mapred_client	org\.apache\.hadoop\.mapred\.MapReduceBase$
+Mapred_client	org\.apache\.hadoop\.mapred\.InvalidFileTypeException$
+Mapred_client	org\.apache\.hadoop\.mapred\.LineRecordReader$
+Mapred_client	org\.apache\.hadoop\.mapred\.lib\.InverseMapper$
+Mapred_client	org\.apache\.hadoop\.mapred\.InputFormat$
+Mapred_client	org\.apache\.hadoop\.mapred\.lib\.RegexMapper$
+Mapred_client	org\.apache\.hadoop\.mapred\.FileOutputCommitter$
+Mapred_client	org\.apache\.hadoop\.mapred\.Mapper$
+Mapred_client	org\.apache\.hadoop\.mapred\.Merger$
+Mapred_client	org\.apache\.hadoop\.mapred\.OutputCommitter$
+Mapred_client	org\.apache\.hadoop\.mapred\.RecordWriter$
+Mapred_client	org\.apache\.hadoop\.mapred\.RamManager$
+Mapred_client	org\.apache\.hadoop\.mapred\.IFileInputStream$
+Mapred_client	org\.apache\.hadoop\.mapred\.JobConfigurable$
+Mapred_client	org\.apache\.hadoop\.mapred\.InputSplit$
+Mapred_client	org\.apache\.hadoop\.mapred\.BufferSorter$
+Mapred_client	org\.apache\.hadoop\.mapred\.Reporter$
+Mapred_client	org\.apache\.hadoop\.mapred\.lib\.TokenCountMapper$
+Mapred_client	org\.apache\.hadoop\.mapred\.BasicTypeSorterBase$
+Mapred_client	org\.apache\.hadoop\.mapred\.JobQueueInfo$
+Mapred_client	org\.apache\.hadoop\.mapred\.MapRunnable$
+Mapred_client	org\.apache\.hadoop\.mapred\.IFileOutputStream$
+Mapred_client	org\.apache\.hadoop\.mapred\.TaskAttemptContext$
+Mapred_client	org\.apache\.hadoop\.mapred\.Reducer$
+Mapred_client	org\.apache\.hadoop\.mapred\.IFile$
+Mapred_client	org\.apache\.hadoop\.mapred\.InvalidInputException$
+Mapred_client	org\.apache\.hadoop\.mapred\.OutputCollector$
+
+Task_Tracking_and_Running	org\.apache\.hadoop\.mapred\.IndexRecord$
+Task_Tracking_and_Running	org\.apache\.hadoop\.mapred\.JvmTask$
+Task_Tracking_and_Running	org\.apache\.hadoop\.mapred\.TaskInProgress$
+Task_Tracking_and_Running	org\.apache\.hadoop\.mapred\.TaskTrackerStatus$
+Task_Tracking_and_Running	org\.apache\.hadoop\.mapred\.TaskLogAppender$
+Task_Tracking_and_Running	org\.apache\.hadoop\.mapred\.TaskLog$
+Task_Tracking_and_Running	org\.apache\.hadoop\.mapred\.ReduceTaskRunner$
+Task_Tracking_and_Running	org\.apache\.hadoop\.mapred\.MapOutputFile$
+Task_Tracking_and_Running	org\.apache\.hadoop\.mapred\.TaskLogServlet$
+Task_Tracking_and_Running	org\.apache\.hadoop\.mapred\.TaskRunner$
+Task_Tracking_and_Running	org\.apache\.hadoop\.mapred\.TaskAttemptID$
+Task_Tracking_and_Running	org\.apache\.hadoop\.mapred\.TaskTrackerAction$
+Task_Tracking_and_Running	org\.apache\.hadoop\.mapred\.TaskTrackerInstrumentation$
+Task_Tracking_and_Running	org\.apache\.hadoop\.mapred\.MapTaskRunner$
+Task_Tracking_and_Running	org\.apache\.hadoop\.mapred\.TaskTracker$
+Task_Tracking_and_Running	org\.apache\.hadoop\.mapred\.ReduceTaskStatus$
+Task_Tracking_and_Running	org\.apache\.hadoop\.mapred\.TaskCompletionEvent$
+Task_Tracking_and_Running	org\.apache\.hadoop\.mapred\.IndexCache$
+Task_Tracking_and_Running	org\.apache\.hadoop\.mapred\.TaskTrackerMetricsInst$
+Task_Tracking_and_Running	org\.apache\.hadoop\.mapred\.TaskStatus$
+Task_Tracking_and_Running	org\.apache\.hadoop\.mapred\.Child$
+Task_Tracking_and_Running	org\.apache\.hadoop\.mapred\.IsolationRunner$
+Task_Tracking_and_Running	org\.apache\.hadoop\.mapred\.MapTaskStatus$
+Task_Tracking_and_Running	org\.apache\.hadoop\.mapred\.TaskMemoryManagerThread$
+
+Job_Tracking	org\.apache\.hadoop\.mapred\.TaskReport$
+Job_Tracking	org\.apache\.hadoop\.mapred\.TaskID$
+Job_Tracking	org\.apache\.hadoop\.mapred\.QueueManager$
+Job_Tracking	org\.apache\.hadoop\.mapred\.TaskTrackerManager$
+Job_Tracking	org\.apache\.hadoop\.mapred\.CompletedJobStatusStore$
+Job_Tracking	org\.apache\.hadoop\.mapred\.JobQueueTaskScheduler$
+Job_Tracking	org\.apache\.hadoop\.mapred\.JobInProgressListener$
+Job_Tracking	org\.apache\.hadoop\.mapred\.LimitTasksPerJobTaskScheduler$
+Job_Tracking	org\.apache\.hadoop\.mapred\.JobEndNotifier$
+Job_Tracking	org\.apache\.hadoop\.mapred\.JobTrackerMetricsInst$
+Job_Tracking	org\.apache\.hadoop\.mapred\.ClusterStatus$
+Job_Tracking	org\.apache\.hadoop\.mapred\.JobPriority$
+Job_Tracking	org\.apache\.hadoop\.mapred\.JobTracker$
+Job_Tracking	org\.apache\.hadoop\.mapred\.JobTrackerInstrumentation$
+Job_Tracking	org\.apache\.hadoop\.mapred\.JobQueueJobInProgressListener$
+Job_Tracking	org\.apache\.hadoop\.mapred\.JobChangeEvent$
+Job_Tracking	org\.apache\.hadoop\.mapred\.ReinitTrackerAction$
+Job_Tracking	org\.apache\.hadoop\.mapred\.TaskScheduler$
+Job_Tracking	org\.apache\.hadoop\.mapred\.JobStatusChangeEvent$
+Job_Tracking	org\.apache\.hadoop\.mapred\.JobInProgress$
+Job_Tracking	org\.apache\.hadoop\.mapred\.EagerTaskInitializationListener$
+
+Value_Aggregator	org\.apache\.hadoop\.mapred\.lib\.aggregate\.UniqValueCount$
+Value_Aggregator	org\.apache\.hadoop\.mapred\.lib\.aggregate\.LongValueMax$
+Value_Aggregator	org\.apache\.hadoop\.mapred\.lib\.aggregate\.LongValueMin$
+Value_Aggregator	org\.apache\.hadoop\.mapred\.lib\.aggregate\.UserDefinedValueAggregatorDescriptor$
+Value_Aggregator	org\.apache\.hadoop\.mapred\.lib\.aggregate\.DoubleValueSum$
+Value_Aggregator	org\.apache\.hadoop\.mapred\.lib\.aggregate\.ValueAggregatorDescriptor$
+Value_Aggregator	org\.apache\.hadoop\.mapred\.lib\.aggregate\.ValueAggregatorJobBase$
+Value_Aggregator	org\.apache\.hadoop\.mapred\.lib\.aggregate\.ValueAggregatorReducer$
+Value_Aggregator	org\.apache\.hadoop\.mapred\.lib\.aggregate\.ValueHistogram$
+Value_Aggregator	org\.apache\.hadoop\.mapred\.lib\.aggregate\.ValueAggregator$
+Value_Aggregator	org\.apache\.hadoop\.mapred\.lib\.aggregate\.ValueAggregatorJob$
+Value_Aggregator	org\.apache\.hadoop\.mapred\.lib\.aggregate\.StringValueMax$
+Value_Aggregator	org\.apache\.hadoop\.mapred\.lib\.aggregate\.ValueAggregatorBaseDescriptor$
+Value_Aggregator	org\.apache\.hadoop\.mapred\.lib\.aggregate\.StringValueMin$
+Value_Aggregator	org\.apache\.hadoop\.mapred\.lib\.aggregate\.LongValueSum$
+Value_Aggregator	org\.apache\.hadoop\.mapred\.lib\.aggregate\.ValueAggregatorCombiner$
+Value_Aggregator	org\.apache\.hadoop\.mapred\.lib\.aggregate\.ValueAggregatorMapper$
+
+Join_utilities	org\.apache\.hadoop\.mapred\.join\.CompositeInputFormat$
+Join_utilities	org\.apache\.hadoop\.mapred\.join\.CompositeInputSplit$
+Join_utilities	org\.apache\.hadoop\.mapred\.join\.ArrayListBackedIterator$
+Join_utilities	org\.apache\.hadoop\.mapred\.join\.StreamBackedIterator$
+Join_utilities	org\.apache\.hadoop\.mapred\.join\.CompositeRecordReader$
+Join_utilities	org\.apache\.hadoop\.mapred\.join\.TupleWritable$
+Join_utilities	org\.apache\.hadoop\.mapred\.join\.ResetableIterator$
+Join_utilities	org\.apache\.hadoop\.mapred\.join\.InnerJoinRecordReader$
+Join_utilities	org\.apache\.hadoop\.mapred\.join\.OuterJoinRecordReader$
+Join_utilities	org\.apache\.hadoop\.mapred\.join\.ComposableRecordReader$
+Join_utilities	org\.apache\.hadoop\.mapred\.join\.Parser$
+Join_utilities	org\.apache\.hadoop\.mapred\.join\.MultiFilterRecordReader$
+Join_utilities	org\.apache\.hadoop\.mapred\.join\.WrappedRecordReader$
+Join_utilities	org\.apache\.hadoop\.mapred\.join\.JoinRecordReader$
+Join_utilities	org\.apache\.hadoop\.mapred\.join\.OverrideRecordReader$
+Join_utilities	org\.apache\.hadoop\.mapred\.join\.ComposableInputFormat$
+
+Mapred_utilities	org\.apache\.hadoop\.mapred\.ResourceEstimator$
+Mapred_utilities	org\.apache\.hadoop\.mapred\.LaunchTaskAction$
+Mapred_utilities	org\.apache\.hadoop\.mapred\.CommitTaskAction$
+Mapred_utilities	org\.apache\.hadoop\.mapred\.KillTaskAction$
+Mapred_utilities	org\.apache\.hadoop\.mapred\.StatusHttpServer$
+Mapred_utilities	org\.apache\.hadoop\.mapred\.FileAlreadyExistsException$
+Mapred_utilities	org\.apache\.hadoop\.mapred\.KillJobAction$
+Mapred_utilities	org\.apache\.hadoop\.mapred\.JSPUtil$
+Mapred_utilities	org\.apache\.hadoop\.mapred\.MapFileOutputFormat$
+Mapred_utilities	org\.apache\.hadoop\.mapred\.DisallowedTaskTrackerException$
+
+Sequence_File_Handling	org\.apache\.hadoop\.mapred\.SequenceFileInputFormat$
+Sequence_File_Handling	org\.apache\.hadoop\.mapred\.SequenceFileRecordReader$
+Sequence_File_Handling	org\.apache\.hadoop\.mapred\.SequenceFileAsBinaryOutputFormat$
+Sequence_File_Handling	org\.apache\.hadoop\.mapred\.SequenceFileAsBinaryInputFormat$
+Sequence_File_Handling	org\.apache\.hadoop\.mapred\.SequenceFileOutputFormat$
+Sequence_File_Handling	org\.apache\.hadoop\.mapred\.SequenceFileAsTextInputFormat$
+Sequence_File_Handling	org\.apache\.hadoop\.mapred\.SequenceFileAsTextRecordReader$
+
+CPP_Pipes_Job	org\.apache\.hadoop\.mapred\.pipes\.PipesReducer$
+CPP_Pipes_Job	org\.apache\.hadoop\.mapred\.pipes\.PipesMapRunner$
+CPP_Pipes_Job	org\.apache\.hadoop\.mapred\.pipes\.Submitter$
+CPP_Pipes_Job	org\.apache\.hadoop\.mapred\.pipes\.Application$
+CPP_Pipes_Job	org\.apache\.hadoop\.mapred\.pipes\.PipesPartitioner$
+CPP_Pipes_Job	org\.apache\.hadoop\.mapred\.pipes\.PipesNonJavaInputFormat$
+
+JobClient	org\.apache\.hadoop\.mapred\.JobClient$
+JobClient	org\.apache\.hadoop\.mapred\.JobSubmissionProtocol$
+JobClient	org\.apache\.hadoop\.mapred\.InvalidJobConfException$
+JobClient	org\.apache\.hadoop\.mapred\.jobcontrol\.Job$
+JobClient	org\.apache\.hadoop\.mapred\.RunningJob$
+
+CPP_Pipes_Protocol	org\.apache\.hadoop\.mapred\.pipes\.OutputHandler$
+CPP_Pipes_Protocol	org\.apache\.hadoop\.mapred\.pipes\.DownwardProtocol$
+CPP_Pipes_Protocol	org\.apache\.hadoop\.mapred\.pipes\.UpwardProtocol$
+CPP_Pipes_Protocol	org\.apache\.hadoop\.mapred\.pipes\.BinaryProtocol$
+
+DB_IO	org\.apache\.hadoop\.mapred\.lib\.db\.DBOutputFormat$
+DB_IO	org\.apache\.hadoop\.mapred\.lib\.db\.DBWritable$
+DB_IO	org\.apache\.hadoop\.mapred\.lib\.db\.DBInputFormat$
+DB_IO	org\.apache\.hadoop\.mapred\.lib\.db\.DBConfiguration$
+
+DelegatingMapper	org\.apache\.hadoop\.mapred\.lib\.TaggedInputSplit$
+DelegatingMapper	org\.apache\.hadoop\.mapred\.lib\.MultipleInputs$
+DelegatingMapper	org\.apache\.hadoop\.mapred\.lib\.DelegatingInputFormat$
+DelegatingMapper	org\.apache\.hadoop\.mapred\.lib\.DelegatingMapper$
+
+Job_History	org\.apache\.hadoop\.mapred\.DefaultJobHistoryParser$
+Job_History	org\.apache\.hadoop\.mapred\.HistoryViewer$
+Job_History	org\.apache\.hadoop\.mapred\.JobHistory$
+
+KeyFieldBasedPartitioner	org\.apache\.hadoop\.mapred\.lib\.KeyFieldHelper$
+KeyFieldBasedPartitioner	org\.apache\.hadoop\.mapred\.lib\.KeyFieldBasedPartitioner$
+KeyFieldBasedPartitioner	org\.apache\.hadoop\.mapred\.lib\.KeyFieldBasedComparator$
+
+Multiple_Output_File_Formatting	org\.apache\.hadoop\.mapred\.lib\.MultipleSequenceFileOutputFormat$
+Multiple_Output_File_Formatting	org\.apache\.hadoop\.mapred\.lib\.MultipleOutputFormat$
+Multiple_Output_File_Formatting	org\.apache\.hadoop\.mapred\.lib\.MultipleTextOutputFormat$
+
+# relations
+# in this section we basically have a very connected network of modules - as it is an as implemented architecture
+# currently it does not make sense to use this information
+# <source_module> <target_module>
+
+
+
+# initial mapping
+
+

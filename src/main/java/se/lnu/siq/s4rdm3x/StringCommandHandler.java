@@ -117,21 +117,22 @@ public class StringCommandHandler {
                 Exporter c = new Exporter(cargs[1], s);
                 c.run(graph);
 
-            } else if (in.startsWith("load_arch ")) {
+            } else if (in.startsWith("load_system ")) {
                 String[] cargs = in.split(" ");
                 LoadArch la = new LoadArch(cargs[1]);
-                try {
-                    la.run(graph);
-                } catch (System.NoMappedNodesException e) {
-                    for (ArchDef.Component c : e.m_components) {
+
+                la.run(graph);
+
+                if (la.m_unmappedNodesException != null) {
+                    for (ArchDef.Component c : la.m_unmappedNodesException.m_components) {
                         ret.add("Warning: Architectural module: " + c.getName() + " has no mapped nodes");
                     }
                 }
                 m_arch = la.m_arch;
                 if (m_arch != null) {
-                    ret.add("Architecture Loaded from: " + cargs[1]);
+                    ret.add("System Loaded from: " + cargs[1]);
                 } else {
-                    ret.add("Failed to load Architecture from: " + cargs[1]);
+                    ret.add("Failed to load System from: " + cargs[1]);
                 }
             } else if (in.startsWith("save_arch ")) {
                 String[] cargs = in.split(" ");

@@ -62,7 +62,9 @@ public class MetricsTest {
 
             dmClass c = getTestClass("EnumTest");
             // enums generate 4 methods, values, valueOf, <init> and <clinit>
-            assertEquals(4, c.getMethodCount());
+            // some version of the compiler also generates synthetic method $values
+            int expected = c.getMethods("$values").size() == 0 ? 4 : 5;
+            assertEquals(expected, c.getMethodCount());
 
         } catch (Exception e) {
             System.out.println(e.getMessage());

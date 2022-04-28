@@ -12,7 +12,7 @@ public class CPPCompatibilityTests extends ASMdmProjectBuilderTest {
         try {
 
             String className = "CPPCompatibility.simple.Bar";
-            dmClass expected = new dmClass(g_classesPkg + className);
+            dmClass expected = createClass(g_classesPkg + className);
             expected.addDependency("java.lang.Object", dmDependency.Type.Extends);
             expected.addDependency("java.lang.Object", ConstructorCall);
             expected.addDependency("void", dmDependency.Type.Returns);  // constructor
@@ -47,7 +47,7 @@ public class CPPCompatibilityTests extends ASMdmProjectBuilderTest {
         try {
 
             String className = "CPPCompatibility.simple.BarArgs";
-            dmClass expected = new dmClass(g_classesPkg + className);
+            dmClass expected = createClass(g_classesPkg + className);
             expected.addDependency("java.lang.Object", dmDependency.Type.Extends);
             expected.addDependency("java.lang.Object", ConstructorCall);
             expected.addDependency("void", dmDependency.Type.Returns);  // constructor
@@ -85,7 +85,7 @@ public class CPPCompatibilityTests extends ASMdmProjectBuilderTest {
         try {
 
             String className = "CPPCompatibility.simple.BarArray";
-            dmClass expected = new dmClass(g_classesPkg + className);
+            dmClass expected = createClass(g_classesPkg + className);
             expected.addDependency("java.lang.Object", dmDependency.Type.Extends);
             expected.addDependency("java.lang.Object", ConstructorCall);
             expected.addDependency("void", dmDependency.Type.Returns);  // constructor
@@ -119,7 +119,7 @@ public class CPPCompatibilityTests extends ASMdmProjectBuilderTest {
         try {
 
             String className = "CPPCompatibility.simple.BarTemplate";
-            dmClass expected = new dmClass(g_classesPkg + className);
+            dmClass expected = createClass(g_classesPkg + className);
             expected.addDependency("java.lang.Object", dmDependency.Type.Extends);
             expected.addDependency("java.lang.Object", ConstructorCall);
             expected.addDependency("void", dmDependency.Type.Returns);  // constructor
@@ -159,7 +159,7 @@ public class CPPCompatibilityTests extends ASMdmProjectBuilderTest {
         try {
 
             String className = "CPPCompatibility.simple.BarParent";
-            dmClass expected = new dmClass(g_classesPkg + className);
+            dmClass expected = createClass(g_classesPkg + className);
             expected.addDependency("se.lnu.siq.s4rdm3x.dmodel.classes.CPPCompatibility.simple.Foo", dmDependency.Type.Extends);
             expected.addDependency("se.lnu.siq.s4rdm3x.dmodel.classes.CPPCompatibility.simple.Foo", ConstructorCall);
             expected.addDependency("void", dmDependency.Type.Returns);  // constructor
@@ -200,7 +200,7 @@ public class CPPCompatibilityTests extends ASMdmProjectBuilderTest {
             String classNameBar = "CPPCompatibility.simple.BarChainedCompositeCall";
             String classNameFoo = "CPPCompatibility.simple.Foo";
             String classNameFuu = "CPPCompatibility.simple.Fuu";
-            dmClass expected = new dmClass(g_classesPkg + classNameBar);
+            dmClass expected = createClass(g_classesPkg + classNameBar);
             expected.addDependency("java.lang.Object", dmDependency.Type.Extends);
             expected.addDependency("java.lang.Object", ConstructorCall);
             expected.addDependency("void", dmDependency.Type.Returns);  // constructor

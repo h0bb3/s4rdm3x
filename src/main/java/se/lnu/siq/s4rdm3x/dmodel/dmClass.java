@@ -11,6 +11,11 @@ public class dmClass {
 
     public double get;
 
+    public dmFile getFile() {
+        return m_file;
+    }
+
+
 
 
     public static class Method {
@@ -32,6 +37,7 @@ public class dmClass {
             m_dependencies = new ArrayList<>();
         }
 
+        private dmFile m_file;
         private boolean m_isAbstract;
         private boolean m_isSynthetic;
         private String m_name;
@@ -77,9 +83,10 @@ public class dmClass {
     }
 
 
+    dmFile m_file;
     private String m_name;
-    private List<dmDependency> m_deps;
-    private List<dmDependency> m_incomingDeps;
+    private List<dmDependency> m_deps;          // dependencies I have to others
+    private List<dmDependency> m_incomingDeps;  // dependencies others have to me
     private ArrayList<Method> m_methods;
 
     private ArrayList<String> m_texts;
@@ -144,25 +151,38 @@ public class dmClass {
     }
 
 
-    public dmClass(String a_name) {
+    public dmClass(String a_name, dmFile a_file) {
         m_name = a_name;
         m_deps = new ArrayList<>();
         m_incomingDeps = new ArrayList<>();
         m_methods = new ArrayList<>();
         m_texts = new ArrayList<>();
+        m_file = a_file;
     }
+
+
 
     public Collection<dmDependency> getIncomingDependencies() {
         return Collections.unmodifiableCollection(m_incomingDeps);
     }
 
+    public static String [] toJavaSourceFile(String a_logicalName) {
+        int innerIndex = a_logicalName.indexOf('$');
+        return innerIndex < 0 ? a_logicalName.split("\\.") : a_logicalName.substring(0, innerIndex).split("\\.");
+    }
+
     public String getFileName() {
-        String fileName = m_name.replace('.', '/') + ".java";
+        if (m_file != null) {
+            return m_file.getFullName("/").toString() + ".java";
+        } else {
+            return "no file name set";
+        }
+        /*String fileName = m_name.replace('.', '/') + ".java";
         if (!isInner()) {
             return fileName;
         } else {
             return fileName.substring(0, m_name.indexOf('$')) + ".java";
-        }
+        }*/
     }
 
     public String[] getFileNameParts() {
@@ -285,11 +305,47 @@ public class dmClass {
         return m_name.compareTo(a_className) == 0;
     }
 
+    public boolean acceptFileDependency() {
+        return !isInner();
+    }
+
+    public static boolean createsDoubleFileDependencies() {
+        // this one is true as long as file dependencies are created in both classes
+        // see implementation of addHorizontalFileDependency & addVerticalFileDependency
+        return true;
+    }
+
+    public void addHorizontalFileDependency(dmClass a_target) {
+        // we don't add file dependencies for inner classes
+        // as these are part of the outer class in the same file
+        if (!acceptFileDependency() || !a_target.acceptFileDependency()) {
+            throw  new IllegalArgumentException("Both dmClass objects must accept file dependencies. use accceptFileDependency() to check");
+        }
+
+        // horizontal dependencies do not have a direction so add to both classes as first class dependencies
+        addDependency(a_target, dmDependency.Type.File_Horizontal, -1);
+        a_target.addDependency(this, dmDependency.Type.File_Horizontal, -1);
+    }
+
+    public void addVerticalFileDependency(dmClass a_subDirClass) {
+        // we don't add file dependencies for inner classes
+        // as these are part of the outer class in the same file
+        if (!acceptFileDependency() || !a_subDirClass.acceptFileDependency()) {
+            throw  new IllegalArgumentException("Both dmClass objects must accept file dependencies. use accceptFileDependency() to check");
+        }
+        // vertical point from higher level to lower level
+        addDependency(a_subDirClass, dmDependency.Type.File_LevelDown, -1);
+        a_subDirClass.addDependency(this, dmDependency.Type.File_LevelUp, -1);
+    }
+
     public void addDependency(String a_className, dmDependency.Type a_type) {
         addDependency(a_className, a_type, -1);
     }
 
     public void addDependency(String a_className, dmDependency.Type a_type, int a_line) {
+        if (a_type.isFileBased) {
+            throw new IllegalArgumentException("dmDependency.Type a_type must not have isFileBased == true was: " + a_type);
+        }
         for (dmDependency d : m_deps) {
             if (d.getTarget().getName().compareTo(a_className) == 0 && d.getType() == a_type) {
                 d.addLine(a_line);
@@ -297,7 +353,7 @@ public class dmClass {
             }
         }
 
-        dmClass target = new dmClass(a_className);
+        dmClass target = new dmClass(a_className, m_file.getRoot().createFile(a_className.split("\\.")));
         dmDependency d = new dmDependency(this, target, a_type, a_line);
         target.m_incomingDeps.add(d);
         m_deps.add(d);
