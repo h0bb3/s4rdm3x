@@ -23,7 +23,7 @@ A tool that provides a GUI to define and run small scale experiments as well as 
 A command line tool for executing experiments in parallel. It reads an experiment definition xml-file and distributes the experiments over a number of threads. Typically useful for running experiments in multicore computing clouds.
 
 # Documentation
-Documentation is available in [docs](docs) and published: https://tobias-dv-lnu.github.io/s4rdm3x/
+Documentation is available in [docs](docs) and published: https://h0bb3.github.io/s4rdm3x/
 
 # Licence
 s4rdmex, v3xt, cmdexrunner
